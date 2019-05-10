@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View, Button } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import firebase from 'firebase';
 import { add, subtract } from '../actions';
 import styles from '../styles';
 
@@ -13,6 +14,7 @@ class Home extends React.Component {
         <Text>APP {this.props.counter}</Text>
         <Button title='Add' onPress={()=> this.props.add()}/>
         <Button title='Subtract' onPress={() => this.props.subtract()} />
+        <Button title='logout' onPress={() => firebase.auth().signOut()} />
       </View>
     );
   }

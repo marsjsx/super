@@ -3,11 +3,13 @@ import SwitchNavigator from './navigation/SwitchNavigator';
 import reducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
 import logger from 'redux-logger';
+import firebase from './config/firebase';
 import { Provider } from 'react-redux';
 import {createStore, applyMiddleware } from 'redux';
-const middleware = applyMiddleware(thunkMiddleware, logger);
+const middleware = applyMiddleware(thunkMiddleware);
 const store = createStore(reducer, middleware);
-// console.disableYellowBox = true;
+//console.disableYellowBox = true;
+//console.ignoredYellowBox = ['Setting a timer'];
 
 export default class App extends React.Component {
   render() {

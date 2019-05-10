@@ -1,22 +1,28 @@
 import React from 'react';
 import { Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { updateEmail, updatePassword } from '../actions/user';
-import styles from '../styles.js';
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { updateEmail, updatePassword, login, getUser, facebookLogin } from '../actions/user'
+import firebase from 'firebase'
+import styles from '../styles'
 
 class Login extends React.Component {
 
-login = () => {
-  if (this.props.user.email){
-    this.props.navigation.navigate('Home')
+  componentDidMount = () => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.props.getUser(user.uid)
+        if (this.props.user != null) {
+          this.props.navigation.navigate('Home')
+        }
+      }
+    })
   }
-}
 
   render() {
     return (
       <View style={styles.container}>
-        <TextInput 
+        <TextInput
           style={styles.border}
           value={this.props.user.email}
           onChangeText={input => this.props.updateEmail(input)}
@@ -29,12 +35,15 @@ login = () => {
           placeholder='Password'
           secureTextEntry={true}
         />
-        <TouchableOpacity style={styles.button} onPress={() => this.login()} >
-          <Text> Login </Text>
+        <TouchableOpacity style={styles.button} onPress={() => this.props.login()}>
+          <Text>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.facebookButton} onPress={() => this.props.facebookLogin()}>
+          <Text>Facebook Login</Text>
         </TouchableOpacity>
         <Text>OR</Text>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')} >
-          <Text> Signup </Text>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}>
+          <Text>Signup</Text>
         </TouchableOpacity>
       </View>
     );
@@ -42,7 +51,7 @@ login = () => {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ updateEmail, updatePassword }, dispatch)
+  return bindActionCreators({ updateEmail, updatePassword, login, getUser, facebookLogin }, dispatch)
 }
 
 const mapStateToProps = (state) => {
