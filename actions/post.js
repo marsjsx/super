@@ -11,7 +11,7 @@ export const uploadPost = () => {
       const { post, user } = getState()
 
       const upload = {
-        postPhoto: 'https://firebasestorage.googleapis.com/v0/b/instagram-tutorial-1a335.appspot.com/o/philly.jpg?alt=media&token=bb2c4267-3952-43f9-8342-5d46fa1f86f9',
+        postPhoto: 'https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/md80x73.jpg?alt=media&token=e0a7bce2-1cd1-48c8-bc94-c2cd4269c412',
         postDescription: post.description,
         uid: user.uid,
         photo: user.photo,
@@ -22,6 +22,22 @@ export const uploadPost = () => {
       upload.id = ref.id
       ref.set(upload)
 
+    } catch (e) {
+      alert(e)
+    }
+  }
+}
+
+export const getPosts = () => {
+  return async (dispatch, getState) => {
+    try {
+      const posts = await db.collection('posts').get()
+
+      let array = []
+      posts.forEach((post) => {
+        array.push(post.data())
+      })
+      dispatch({ type: 'GET_POSTS', payload: array })
     } catch (e) {
       alert(e)
     }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { updateDescription } from '../actions/post'
+import { updateDescription, uploadPost } from '../actions/post'
 import { Text, View, TextInput, Image, TouchableOpacity } from 'react-native';
 import styles from '../styles'
 
@@ -16,7 +16,7 @@ class Post extends React.Component {
           onChangeText={text => this.props.updateDescription(text)}
           placeholder='Description'
         />
-        <TouchableOpacity style={styles.button} onPress={() => console.log("post this")}>
+        <TouchableOpacity style={styles.button} onPress={this.props.uploadPost}>
           <Text>Post</Text>
         </TouchableOpacity>
       </View>
@@ -25,7 +25,7 @@ class Post extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ updateDescription }, dispatch)
+  return bindActionCreators({ updateDescription, uploadPost }, dispatch)
 }
 
 const mapStateToProps = (state) => {
