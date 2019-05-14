@@ -5,4 +5,5 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
+env.js
 config/firebase.js

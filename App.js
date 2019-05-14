@@ -2,7 +2,7 @@ import React from 'react';
 import SwitchNavigator from './navigation/SwitchNavigator';
 import reducer from './reducers';
 import thunkMiddleware from 'redux-thunk';
-import logger from 'redux-logger';
+//import logger from 'redux-logger';
 import firebase from './config/firebase';
 import { Provider } from 'react-redux';
 import {createStore, applyMiddleware } from 'redux';

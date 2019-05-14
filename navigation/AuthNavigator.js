@@ -1,7 +1,9 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons'
 import Login from '../screens/Login'
 import SignupScreen from '../screens/Signup'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { TouchableOpacity } from 'react-native'
 
 const StackNavigator = createStackNavigator(
   {
@@ -13,9 +15,14 @@ const StackNavigator = createStackNavigator(
     },
     Signup: {
       screen: SignupScreen,
-      navigationOptions: {
-        title: 'Signup'
-      }
+      navigationOptions: ({ navigation }) => ({
+        title: 'Signup',
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+          </TouchableOpacity>
+        )
+      })
     }
   }
 );
