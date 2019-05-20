@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux'
 import { ImagePicker, Location, Permissions } from 'expo';
 import { NavigationEvents } from 'react-navigation';
 import { updateDescription, updateLocation, uploadPost, updatePhoto } from '../actions/post'
-import { FlatList, Modal, SafeAreaView, Text, View, TextInput, Image, TouchableOpacity } from 'react-native';
+import { FlatList, Modal, SafeAreaView, Text, View, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 import { uploadPhoto } from '../actions'
 
@@ -67,6 +67,7 @@ class Post extends React.Component {
 
   render() {
     return (
+      <ScrollView>
       <View style={[styles.container, styles.center]}>
         <NavigationEvents onWillFocus={this.onWillFocus} />
         <Modal animationType='slide' transparent={false} visible={this.state.showModal}>
@@ -99,6 +100,7 @@ class Post extends React.Component {
           <Text>Post</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     );
   }
 }

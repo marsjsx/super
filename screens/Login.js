@@ -3,7 +3,7 @@ import styles from '../styles'
 import firebase from 'firebase'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { updateEmail, updatePassword, login, getUser, facebookLogin } from '../actions/user'
 
 class Login extends React.Component {
@@ -21,10 +21,10 @@ class Login extends React.Component {
 
   render() {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Image style={{ width: 300, height: 100 }} source={require('../assets/logo.jpg')} />
+      <ImageBackground source={require('../temp/paintSplash.jpg')} style={[styles.container, styles.center]}>
+        <Image style={{ width: 200, height: 200, marginTop: 5 }} source={require('../assets/logo-1.png')} />
         <TextInput
-          style={styles.border}
+          style={styles.textInputA}
           value={this.props.user.email}
           onChangeText={input => this.props.updateEmail(input)}
           placeholder='Email'
@@ -36,17 +36,17 @@ class Login extends React.Component {
           placeholder='Password'
           secureTextEntry={true}
         />
-        <TouchableOpacity style={styles.button} onPress={() => this.props.login()}>
-          <Text>Login</Text>
+        <TouchableOpacity style={[styles.buttonLogin, styles.center]} onPress={() => this.props.login()}>
+          <Text style={styles.textA}> login </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.facebookButton} onPress={() => this.props.facebookLogin()}>
-          <Text style={styles.white}>Facebook Login</Text>
+        <TouchableOpacity style={styles.buttonFacebook} onPress={() => this.props.facebookLogin()}>
+          <Text style={styles.textA}>facebook login</Text>
         </TouchableOpacity>
-        <Text style={{ margin: 20 }}>OR</Text>
+        <Text style={[styles.textB, { margin: 10 }]}>OR</Text>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}>
-          <Text>Signup</Text>
+          <Text style={styles.textB}>Signup</Text>
         </TouchableOpacity>
-      </View>
+      </ImageBackground>
     );
   }
 }

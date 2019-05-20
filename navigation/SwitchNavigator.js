@@ -11,10 +11,12 @@ const SwitchNavigator = createSwitchNavigator(
     Auth: {
       screen: AuthNavigator
     }
+
   },
   {
     initialRouteName: 'Auth',
-  }
+  },
+  
 );
 
 export default createAppContainer(SwitchNavigator);

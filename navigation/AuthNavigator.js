@@ -16,12 +16,14 @@ const StackNavigator = createStackNavigator(
     Signup: {
       screen: SignupScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Signup',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
             <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
-        )
+        ),
+        headerStyle: { backgroundColor: 'transparent' }
       })
     }
   }

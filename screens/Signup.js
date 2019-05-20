@@ -3,7 +3,7 @@ import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
-import { Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser } from '../actions/user'
 import { uploadPhoto } from '../actions'
 
@@ -40,7 +40,7 @@ class Signup extends React.Component {
   render() {
     const { routeName } = this.props.navigation.state
     return (
-      <View style={styles.container}>
+      <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
         <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
           <Image style={styles.roundImage} source={{ uri: this.props.user.photo }} />
           <Text style={styles.bold}>Upload Photo</Text>
@@ -72,10 +72,10 @@ class Signup extends React.Component {
           onChangeText={input => this.props.updateBio(input)}
           placeholder='Bio'
         />
-        <TouchableOpacity style={styles.button} onPress={this.onPress}>
-          <Text>Done</Text>
+        <TouchableOpacity style={styles.buttonSignup} onPress={this.onPress}>
+          <Text style={styles.textC}>Done</Text>
         </TouchableOpacity>
-      </View>
+      </ImageBackground>
     );
   }
 }

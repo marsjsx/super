@@ -28,7 +28,7 @@ export const uploadPost = () => {
         postDescription: post.description || ' ',
         postLocation: post.location || ' ',
         uid: user.uid,
-        photo: user.photo || ' ',
+        photo: user.photo,
         username: user.username,
         likes: [],
         comments: []

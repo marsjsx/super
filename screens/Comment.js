@@ -24,12 +24,13 @@ class Comment extends React.Component {
 
   render() {
     return (
+      <View style={[styles.container,{ marginTop: 90 }]}>
       <KeyboardAvoidingView enabled behavior='padding' style={styles.container}>
         <FlatList
           keyExtractor={(item) => JSON.stringify(item.date)}
           data={this.props.post.comments}
           renderItem={({ item }) => (
-            <View style={[styles.row, styles.space]}>
+            <View style={[styles.row, styles.space,]}>
               <Image style={styles.roundImage} source={{ uri: item.commenterPhoto }} />
               <View style={[styles.container, styles.left]}>
                 <Text style={styles.bold}>{item.commenterName}</Text>
@@ -46,6 +47,7 @@ class Comment extends React.Component {
           placeholder='Add Comment'
           onSubmitEditing={this.postComment} />
       </KeyboardAvoidingView>
+      </View>
     );
   }
 }

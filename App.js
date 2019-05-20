@@ -11,6 +11,8 @@ const store = createStore(reducer, middleware);
 //console.disableYellowBox = true;
 //console.ignoredYellowBox = ['Setting a timer'];
 
+
+
 export default class App extends React.Component {
   render() {
     return (

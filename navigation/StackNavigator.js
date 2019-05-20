@@ -13,22 +13,23 @@ import CommentScreen from '../screens/Comment'
 import ChatScreen from '../screens/Chat'
 import MessagesScreen from '../screens/Messages'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
-import { TouchableOpacity, Image } from 'react-native'
+import { TouchableOpacity, Image, } from 'react-native';
 
 export const HomeNavigator = createAppContainer(createStackNavigator(
   {
     Home: {
       screen: HomeScreen,
       navigationOptions: ({ navigation }) => ({
-        headerTitle: <Image style={{ width: 120, height: 35 }} source={require('../assets/logo.jpg')} />,
+        headerTransparent: true,
+        headerTitle: <Image style={{ marginLeft: 45, width: 125, height: 35 }} source={require('../assets/logoW.png')} />,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.navigate('Camera')} >
-            <Ionicons style={{ marginLeft: 10 }} name={'ios-camera'} size={30} />
+            <Ionicons style={{ marginLeft: 10, color: 'rgb(255,255,255)' }} name={'ios-camera'} size={30} />
           </TouchableOpacity>
         ),
         headerRight: (
           <TouchableOpacity onPress={() => navigation.navigate('Messages')} >
-            <Ionicons style={{ marginRight: 10 }} name={'ios-send'} size={30} />
+            <Ionicons style={{ marginRight: 10, color: 'rgb(255,255,255)' }} name={'ios-send'} size={30} />
           </TouchableOpacity>
         ),
       })
@@ -36,6 +37,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
     Comment: {
       screen: CommentScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Comments',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -47,6 +49,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
     Map: {
       screen: MapScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Map View',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -58,6 +61,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
     Messages: {
       screen: MessagesScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Messages',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -69,6 +73,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
     Chat: {
       screen: ChatScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Chat',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -113,6 +118,7 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
     Profile: {
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Profile',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -157,6 +163,7 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
     Edit: {
       screen: EditScreen,
       navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         title: 'Edit Profile',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >

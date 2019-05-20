@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { HomeNavigator, SearchNavigator, PostNavigator, ActivityNavigator, ProfileNavigator } from './StackNavigator'
 import { createBottomTabNavigator, createAppContainer } from 'react-navigation';
-
+const bgcolor = 'rgba(255,255,255,0.1)'
 const TabNavigator = createBottomTabNavigator(
   {
     Home: {
@@ -54,9 +54,12 @@ const TabNavigator = createBottomTabNavigator(
   },
   {
     tabBarOptions: {
+      activeTintColor: 'rgba(200,200,200,0.1)',
+      activeBackgroundColor: "rgba(200,200,200,0.1)",
+      inactiveBackgroundColor: "rgba(200,200,200,0.1)",
       style: {
-        paddingVertical: 10,
-        height: 60
+        paddingTop: 15,
+        height: 40
       }
     }
   }
