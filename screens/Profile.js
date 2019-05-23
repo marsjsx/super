@@ -30,7 +30,8 @@ class Profile extends React.Component {
         <View style={[styles.container, { width: '100%', height: '100%' }]}>
         <ImageBackground style={[styles.profilePhoto,{width:'100%'}]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
-            <View style={[styles.row, styles.space, styles.topLine, { paddingHorizontal: 20, width: '100%'}]}>
+              <View style={[styles.topLine, { width: '100%' }]}></View>
+            <View style={[styles.row, styles.space, { paddingHorizontal: 20, width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
                   <View style={[styles.row, styles.space, { paddingHorizontal: 20, width: '100%' }]}>
@@ -84,7 +85,7 @@ class Profile extends React.Component {
           </View>
         </ImageBackground>
         <FlatList
-          style={{ paddingTop: 5 }}
+          style={{ paddingTop: 0 }}
           horizontal={false}
           numColumns={3}
           data={user.posts}

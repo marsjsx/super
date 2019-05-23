@@ -155,7 +155,7 @@ export default styles = StyleSheet.create({
     zIndex: 100,
   },
   buttonLogout: {
-    marginTop: -40,
+    marginTop: -50,
     marginBottom: 0,
     padding: 5,
     alignItems: 'center',
@@ -256,11 +256,11 @@ export default styles = StyleSheet.create({
     marginLeft: width/5,
   },
   profilePhoto: {
-    height: height * .9,
+    height: height * .92,
     width: width,
   },
   profileLogo: {
-    marginLeft: width/2,
+    marginLeft: width/2.5,
     width: 50,
     height: 50,
   },
@@ -269,9 +269,8 @@ export default styles = StyleSheet.create({
     marginTop: 75, 
     backgroundColor: 'rgba(255,255,255,1)', 
     marginBottom: 0, 
-    paddingTop: 10, 
-    paddingBottom: 5, 
-    width: '100%' 
+    paddingVertical: 10,
+    width: '100%',
   },
 });
  

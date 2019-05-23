@@ -57,7 +57,7 @@ class Activity extends React.Component {
   render() {
     if (this.state.activity.length <= 0) return <ActivityIndicator style={styles.container} />
     return (
-      <View style={styles.container}>
+      <View style={[styles.container,{marginTop:20}]}>
         <FlatList
           onRefresh={() => this.getActivity()}
           refreshing={false}
