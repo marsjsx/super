@@ -10,7 +10,7 @@ export const updateDescription = (input) => {
 }
 
 export const updatePhoto = (input) => {
-  return { type: 'UPDATE_PHOTO', payload: input }
+  return { type: 'UPDATE_POST_PHOTO', payload: input }
 }
 
 export const updateLocation = (input) => {
@@ -28,7 +28,7 @@ export const uploadPost = () => {
         postDescription: post.description || ' ',
         postLocation: post.location || ' ',
         uid: user.uid,
-        photo: user.photo,
+        photo: user.photo || ' ',
         username: user.username,
         likes: [],
         comments: []

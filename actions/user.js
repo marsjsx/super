@@ -20,7 +20,7 @@ export const updateBio = (bio) => {
 }
 
 export const updatePhoto = (photo) => {
-  return { type: 'UPDATE_PHOTO', payload: photo }
+  return { type: 'UPDATE_USER_PHOTO', payload: photo }
 }
 
 export const login = () => {

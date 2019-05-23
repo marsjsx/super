@@ -14,6 +14,7 @@ import ChatScreen from '../screens/Chat'
 import MessagesScreen from '../screens/Messages'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { TouchableOpacity, Image, } from 'react-native';
+import styles from '../styles';
 
 export const HomeNavigator = createAppContainer(createStackNavigator(
   {
@@ -21,7 +22,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       screen: HomeScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        headerTitle: <Image style={{ marginLeft: 45, width: 125, height: 35 }} source={require('../assets/logoW.png')} />,
+        headerTitle: <Image style={[styles.logoHeader,{ width: 125, height: 35 }]} source={require('../assets/logoW.png')} />,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.navigate('Camera')} >
             <Ionicons style={{ marginLeft: 10, color: 'rgb(255,255,255)' }} name={'ios-camera'} size={30} />
@@ -157,7 +158,9 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
     MyProfile: {
       screen: ProfileScreen,
       navigationOptions: {
-        title: 'My Profile'
+        headerTransparent: true,
+        title: null,
+        headerTitle: <Image style={styles.profileLogo} source={require('../assets/logo-1.png')} />,
       }
     },
     Edit: {

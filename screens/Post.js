@@ -8,7 +8,7 @@ import { NavigationEvents } from 'react-navigation';
 import { updateDescription, updateLocation, uploadPost, updatePhoto } from '../actions/post'
 import { FlatList, Modal, SafeAreaView, Text, View, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
-import { uploadPhoto } from '../actions'
+import { uploadPhoto } from '../actions/index'
 
 class Post extends React.Component {
   state = {
@@ -67,8 +67,7 @@ class Post extends React.Component {
 
   render() {
     return (
-      <ScrollView>
-      <View style={[styles.container, styles.center]}>
+      <ScrollView><View style={[styles.container, styles.center]}>
         <NavigationEvents onWillFocus={this.onWillFocus} />
         <Modal animationType='slide' transparent={false} visible={this.state.showModal}>
           <SafeAreaView style={[styles.container, styles.center]}>
@@ -99,8 +98,8 @@ class Post extends React.Component {
         <TouchableOpacity style={styles.button} onPress={this.post}>
           <Text>Post</Text>
         </TouchableOpacity>
-      </View>
-      </ScrollView>
+        <Image style={styles.squareImage} source={{ uri: this.props.user.photo }} />
+      </View></ScrollView>
     );
   }
 }

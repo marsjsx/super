@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { View, Text, SafeAreaView, TextInput, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, TextInput, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
 import db from '../config/firebase';
 import { getUser } from '../actions/user'
 
@@ -28,9 +28,9 @@ class Search extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={styles.container}>
+      <ScrollView><SafeAreaView style={styles.container}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, {marginTop: 40}]}
           onChangeText={(search) => this.setState({ search })}
           value={this.state.search}
           returnKeyType='send'
@@ -48,7 +48,7 @@ class Search extends React.Component {
               </View>
             </TouchableOpacity>
           )} />
-      </SafeAreaView>
+      </SafeAreaView></ScrollView>
     );
   }
 }

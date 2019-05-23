@@ -65,7 +65,7 @@ export default styles = StyleSheet.create({
     textAlign: 'center'
   },
   postPhoto: {
-    height: height,
+    height: height * .95,
     width: width,
   },
   roundImage: {
@@ -140,6 +140,38 @@ export default styles = StyleSheet.create({
     borderRadius: 20,
     width: 250
   },
+  buttonCircle: {
+    marginTop: -50,
+    marginBottom: 0,
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgb(81, 137, 226)',
+    borderColor: '#d3d3d3',
+    borderWidth: 1,
+    borderRadius: 50,
+    width: 62.5,
+    height: 62.5,
+    zIndex: 100,
+  },
+  buttonLogout: {
+    marginTop: -40,
+    marginBottom: 0,
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#d3d3d3',
+    borderWidth: 1,
+    borderRadius: 50,
+    width: 62.5,
+    height: 62.5,
+    zIndex: 100,
+  },
+  topLine:{
+    borderTopWidth: 1,
+    borderTopColor: 'rgb(255,255,255)',
+    width: width,
+  },
   textA: {
     letterSpacing: 6,
     color: '#fff',
@@ -171,6 +203,28 @@ export default styles = StyleSheet.create({
     textShadowRadius: 7,
     textShadowColor: '#000000',
   },
+  textE: {
+    letterSpacing: 1,
+    color: 'rgb(255, 255, 255)',
+    textAlign: 'left',
+    fontWeight: '100',
+    fontSize: 10,
+    textShadowOffset: { width: 1, height: 1, },
+    textShadowRadius: 7,
+    textShadowColor: '#000000',
+  },
+  textF: {
+    color: 'rgb(55, 55, 55)',
+    textAlign: 'center',
+    fontWeight: '200',
+  },
+  textW: {
+    color: 'rgb(255, 255, 255)',
+    textAlign: 'center',
+    textShadowOffset: { width: 1, height: 1, },
+    textShadowRadius: 7,
+    textShadowColor: '#000000',
+  },
   textInputA: {
     width: '85%',
     margin: 10,
@@ -189,13 +243,35 @@ export default styles = StyleSheet.create({
     marginBottom: 15
   },
   squareImage: {
-    width: 40,
-    height: 40,
+    width: 60,
+    height: 60,
     borderRadius: 0,
-    marginTop: 0,
+    marginTop: 10,
     marginBottom: 10,
     marginLeft: 10,
     marginRight: 10,
     backgroundColor: '#adadad'
   },
+  logoHeader:{
+    marginLeft: width/5,
+  },
+  profilePhoto: {
+    height: height * .9,
+    width: width,
+  },
+  profileLogo: {
+    marginLeft: width/2,
+    width: 50,
+    height: 50,
+  },
+  followBar: {
+    paddingHorizontal: '25%', 
+    marginTop: 75, 
+    backgroundColor: 'rgba(255,255,255,1)', 
+    marginBottom: 0, 
+    paddingTop: 10, 
+    paddingBottom: 5, 
+    width: '100%' 
+  },
 });
+ 

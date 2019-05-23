@@ -42,18 +42,18 @@ class Signup extends React.Component {
     return (
       <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
         <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
-          <Image style={styles.roundImage} source={{ uri: this.props.user.photo }} />
-          <Text style={styles.bold}>Upload Photo</Text>
+          <Image style={[styles.squareImage, {}]} source={{ uri: this.props.user.photo }} />
+          <Text style={[styles.bold, styles.textW]}>Upload Photo</Text>
         </TouchableOpacity>
         <TextInput
-          style={styles.border}
+          style={[styles.border,styles.textW]}
           editable={routeName === 'Signup' ? true : false}
           value={this.props.user.email}
           onChangeText={input => this.props.updateEmail(input)}
           placeholder='Email'
         />
         <TextInput
-          style={styles.border}
+          style={[styles.border, styles.textW]}
           editable={routeName === 'Signup' ? true : false}
           value={this.props.user.password}
           onChangeText={input => this.props.updatePassword(input)}
@@ -61,13 +61,13 @@ class Signup extends React.Component {
           secureTextEntry={true}
         />
         <TextInput
-          style={styles.border}
+          style={[styles.border, styles.textW]}
           value={this.props.user.username}
           onChangeText={input => this.props.updateUsername(input)}
           placeholder='Username'
         />
         <TextInput
-          style={styles.border}
+          style={[styles.border, styles.textW]}
           value={this.props.user.bio}
           onChangeText={input => this.props.updateBio(input)}
           placeholder='Bio'
