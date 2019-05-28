@@ -21,7 +21,7 @@ class Messages extends React.Component {
   render() {
     if (!this.props.messages) return <ActivityIndicator style={styles.container} />
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, {marginTop: 80}]}>
         <FlatList
           keyExtractor={(item) => JSON.stringify(item[0].date)}
           data={values(groupBy(this.props.messages, 'members'))}

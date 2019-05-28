@@ -27,7 +27,7 @@ class CameraUpload extends React.Component {
     return (
       <Camera style={{ flex: 1 }} ref={ref => { this.camera = ref }} type={Camera.Constants.Type.back}>
         <SafeAreaView style={{ flex: 1 }}>
-          <TouchableOpacity style={{ paddingLeft: 30 }} onPress={() => this.props.navigation.goBack()} >
+          <TouchableOpacity style={{ paddingLeft: 30, paddingTop: 20 }} onPress={() => this.props.navigation.goBack()} >
             <Ionicons color={'white'} name={'ios-arrow-back'} size={50} />
           </TouchableOpacity>
         </SafeAreaView>

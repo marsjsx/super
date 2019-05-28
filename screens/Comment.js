@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text, View, TextInput, FlatList, Image, KeyboardAvoidingView } from 'react-native';
+import { Text, View, TextInput, FlatList, Image, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { addComment, getComments } from '../actions/post';
 import moment from 'moment'
 
@@ -40,13 +40,13 @@ class Comment extends React.Component {
             </View>
           )} />
         <TextInput
-          style={styles.input}
+          style={[styles.input,{marginBottom: 30}]}
           onChangeText={(comment) => this.setState({ comment })}
           value={this.state.comment}
           returnKeyType='send'
           placeholder='Add Comment'
           onSubmitEditing={this.postComment} />
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
       </View>
     );
   }

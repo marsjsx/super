@@ -108,6 +108,9 @@ export default styles = StyleSheet.create({
     borderRadius: 5,
     width: 125
   },
+  buttonMessage: {
+    
+  },
   buttonLogin: {
     marginTop: 10,
     paddingTop: 11,
@@ -143,6 +146,8 @@ export default styles = StyleSheet.create({
   buttonCircle: {
     marginTop: -50,
     marginBottom: 0,
+    marginLeft: 1,
+    marginRight: 1,
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -166,11 +171,6 @@ export default styles = StyleSheet.create({
     width: 62.5,
     height: 62.5,
     zIndex: 100,
-  },
-  topLine:{
-    borderTopWidth: 1,
-    borderTopColor: 'rgb(255,255,255)',
-    width: width,
   },
   textA: {
     letterSpacing: 6,
@@ -266,11 +266,19 @@ export default styles = StyleSheet.create({
   },
   followBar: {
     paddingHorizontal: '25%', 
-    marginTop: 75, 
-    backgroundColor: 'rgba(255,255,255,1)', 
-    marginBottom: 0, 
     paddingVertical: 10,
+    marginTop: 75, 
+    marginBottom: 0, 
+    backgroundColor: 'rgba(255,255,255,1)', 
     width: '100%',
+  },
+  profileInfo: {
+    paddingHorizontal: 20, 
+  },
+  topLine: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgb(255,255,255)',
+    width: width,
   },
 });
  

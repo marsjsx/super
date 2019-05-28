@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux'
 import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
 import { followUser, unfollowUser } from '../actions/user'
 import { ScrollView } from 'react-native-gesture-handler';
+import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 
 class Profile extends React.Component {
   follow = (user) => {
@@ -26,23 +27,23 @@ class Profile extends React.Component {
     }
     if (!user.posts) return <ActivityIndicator style={styles.container} />
     return (
-      <ScrollView style={{width:'100%',height:'100%'}}>
-        <View style={[styles.container, { width: '100%', height: '100%' }]}>
-        <ImageBackground style={[styles.profilePhoto,{width:'100%'}]} source={{ uri: user.photo }} >
+      <ScrollView>
+        
+        <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
-              <View style={[styles.topLine, { width: '100%' }]}></View>
-            <View style={[styles.row, styles.space, { paddingHorizontal: 20, width: '100%'}]}>
+              <View style={[styles.topLine]} />
+            <View style={[styles.row, styles.space, {width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
-                  <View style={[styles.row, styles.space, { paddingHorizontal: 20, width: '100%' }]}>
+                  <View style={[styles.row, styles.space, {width: '100%' }]}>
                     <View>
                       <TouchableOpacity style={styles.buttonCircle} onPress={() => this.props.navigation.navigate('Edit')}>
-                        <Text style={[styles.bold, styles.textD,{}]}>Edit</Text>
+                        <Text style={[styles.bold, styles.textD]}>Edit</Text>
                       </TouchableOpacity>
                     </View>
-                    <View style={[styles.center]}>
-                      <Text style={[styles.bold, styles.textD]}>{user.username}</Text>
-                      <Text style={[styles.bold, styles.textD]}>{user.bio}</Text>
+                    <View style={[styles.center, {width:'66%'}]}>
+                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.username}</Text>
+                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
                     </View>
                     <View>
                       <TouchableOpacity style={styles.buttonLogout} onPress={() => firebase.auth().signOut()}>
@@ -50,17 +51,18 @@ class Profile extends React.Component {
                       </TouchableOpacity>
                     </View>
                   </View> :
-                  <View style={styles.row}>
-                    <View style={styles.center}>
-                      <Image style={[styles.squareImage, {}]} source={{ uri: user.photo }} />
-                      <Text style={[styles.bold, styles.textD]}>{user.username}</Text>
-                      <Text style={[styles.bold, styles.textD]}>{user.bio}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.buttonSmall} onPress={() => this.follow(user)}>
-                      <Text style={[styles.bold, styles.textD]}>{user.followers.indexOf(this.props.user.uid) >= 0 ? 'UnFollow User' : 'Follow User'}</Text>
+                  <View >
+                    <View style={styles.row}>
+                    <TouchableOpacity style={styles.buttonCircle} onPress={() => this.follow(user)}>
+                      <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name={user.followers.indexOf(this.props.user.uid) >= 0 ? 'ios-checkmark' : 'ios-add'} size={25}/>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonSmall} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
-                      <Text style={[styles.bold, styles.textD]}>Message</Text>
+                    <View style={[styles.center, { width: '70%' }]}>
+                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.username}</Text>
+                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
+                    </View>
+                    </View>
+                    <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
+                      <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='email-outline' size={50} />
                     </TouchableOpacity>
                   </View>
               }
@@ -91,7 +93,7 @@ class Profile extends React.Component {
           data={user.posts}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />} />
-      </View>
+      
       </ScrollView>
     );
   }
