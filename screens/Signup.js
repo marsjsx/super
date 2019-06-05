@@ -3,7 +3,7 @@ import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
-import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView } from 'react-native';
 import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser } from '../actions/user'
 import { uploadPhoto } from '../actions'
 
@@ -40,42 +40,135 @@ class Signup extends React.Component {
   render() {
     const { routeName } = this.props.navigation.state
     return (
-      <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
-        <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
-          <Image style={[styles.squareImage, {}]} source={{ uri: this.props.user.photo }} />
-          <Text style={[styles.bold, styles.textW]}>Upload Photo</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={[styles.border,styles.textW]}
-          editable={routeName === 'Signup' ? true : false}
-          value={this.props.user.email}
-          onChangeText={input => this.props.updateEmail(input)}
-          placeholder='Email'
-        />
-        <TextInput
-          style={[styles.border, styles.textW]}
-          editable={routeName === 'Signup' ? true : false}
-          value={this.props.user.password}
-          onChangeText={input => this.props.updatePassword(input)}
-          placeholder='Password'
-          secureTextEntry={true}
-        />
-        <TextInput
-          style={[styles.border, styles.textW]}
-          value={this.props.user.username}
-          onChangeText={input => this.props.updateUsername(input)}
-          placeholder='Username'
-        />
-        <TextInput
-          style={[styles.border, styles.textW]}
-          value={this.props.user.bio}
-          onChangeText={input => this.props.updateBio(input)}
-          placeholder='Bio'
-        />
-        <TouchableOpacity style={styles.buttonSignup} onPress={this.onPress}>
-          <Text style={styles.textC}>Done</Text>
-        </TouchableOpacity>
-      </ImageBackground>
+      <ScrollView style={[styles.container,{ width: '100%', height: '100%' }]}>
+        {
+          routeName === 'Signup' ?
+            <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
+              <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
+                <Image style={[styles.squareImage]} source={{ uri: this.props.user.photo }} />
+                <Text style={[styles.bold, styles.textW]}>Upload Photo</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[styles.border, styles.textW]}
+                editable={routeName === 'Signup' ? true : false}
+                value={this.props.user.email}
+                onChangeText={input => this.props.updateEmail(input)}
+                placeholder='Email'
+              />
+              <TextInput
+                style={[styles.border, styles.textW]}
+                editable={routeName === 'Signup' ? true : false}
+                value={this.props.user.password}
+                onChangeText={input => this.props.updatePassword(input)}
+                placeholder='Password'
+                secureTextEntry={true}
+              />
+              <TextInput
+                style={[styles.border, styles.textW]}
+                value={this.props.user.username}
+                onChangeText={input => this.props.updateUsername(input)}
+                placeholder='Username'
+              />
+              <TextInput
+                style={[styles.border, styles.textW]}
+                value={this.props.user.bio}
+                onChangeText={input => this.props.updateBio(input)}
+                placeholder='Bio'
+              />
+              <TouchableOpacity style={styles.buttonSignup} onPress={this.onPress}>
+                <Text style={styles.textC}>Done</Text>
+              </TouchableOpacity>
+            </ImageBackground> :
+            <View style={[styles.container, styles.space]}>
+              <ImageBackground style={[styles.profileEditPhoto, styles.container]} source={{ uri: this.props.user.photo }}>
+                <View style={[styles.space, styles.row]}>
+                  <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={this.onPress}>
+                    <Text style={styles.textW}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.buttonSave,{marginTop: 30}]} onPress={this.onPress}>
+                    <Text style={styles.textW}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </ImageBackground>
+
+              <TouchableOpacity style={[styles.center,{margin: '5%'}]} onPress={this.openLibrary} >
+                <Text style={[styles.bold, styles.textC]}>change profile photo</Text>
+              </TouchableOpacity>
+              
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, {marginLeft:'1%'}]}>Username:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  value={this.props.user.username}
+                  onChangeText={input => this.props.updateUsername(input)}
+                  placeholder='Username'
+                />
+              </View>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Bio:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  value={this.props.user.bio}
+                  onChangeText={input => this.props.updateBio(input)}
+                  placeholder='Bio'
+                />
+              </View>
+              <Text style={styles.textH}>Private Information</Text>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Password:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  editable={routeName === 'Signup' ? true : false}
+                  value={this.props.user.password}
+                  onChangeText={input => this.props.updatePassword(input)}
+                  placeholder='Password'
+                  secureTextEntry={true}
+                />
+              </View>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Email:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  editable={routeName === 'Signup' ? true : false}
+                  value={this.props.user.email}
+                  onChangeText={input => this.props.updateEmail(input)}
+                  placeholder='Email'
+                />
+              </View>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Phone:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  editable={routeName === 'Signup' ? true : false}
+                  value={this.props.user.email}
+                  onChangeText={input => this.props.updateEmail(input)}
+                  placeholder='Phone'
+                />
+              </View>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Gender:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  editable={routeName === 'Signup' ? true : false}
+                  value={this.props.user.email}
+                  onChangeText={input => this.props.updateEmail(input)}
+                  placeholder='Gender'
+                />
+              </View>
+              <View style={[styles.container, styles.row]}>
+                <Text style={[styles.textG, { marginLeft: '1%' }]}>Birthdate:</Text>
+                <TextInput
+                  style={[styles.border3, styles.textF]}
+                  editable={routeName === 'Signup' ? true : false}
+                  value={this.props.user.email}
+                  onChangeText={input => this.props.updateEmail(input)}
+                  placeholder='Birthdate'
+                />
+              </View>
+            </View>
+        }
+      </ScrollView>
+      
     );
   }
 }

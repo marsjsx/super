@@ -4,7 +4,6 @@ const { height, width } = Dimensions.get('window');
 export default styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
   center: {
     alignItems: 'center',
@@ -64,9 +63,32 @@ export default styles = StyleSheet.create({
     borderBottomWidth: 1,
     textAlign: 'center'
   },
+  border2: {
+    width: width,
+    marginBottom: 0,
+    padding: 15,
+    fontSize: 16,
+    borderColor: '#d3d3d3',
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    textAlign: 'left'
+  },
+  border3: {
+    width: '75%',
+    marginBottom: 0,
+    padding: 15,
+    fontSize: 16,
+    borderColor: '#d3d3d3',
+    borderBottomWidth: 1,
+    textAlign: 'left'
+  },
   postPhoto: {
     height: height * .95,
     width: width,
+  },
+  postPhotoPreview: {
+    height: height * .33,
+    width: width * .33,
   },
   roundImage: {
     width: 40,
@@ -116,7 +138,7 @@ export default styles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgb(121,114,187)',
+    backgroundColor: 'rgb(237, 132, 197)',
     borderRadius: 20,
     borderWidth: 0,
     borderColor: '#fff'
@@ -159,6 +181,15 @@ export default styles = StyleSheet.create({
     height: 62.5,
     zIndex: 100,
   },
+  buttonSave: {
+    paddingTop: 11,
+    paddingBottom: 11,
+    width: 125,
+    backgroundColor: 'rgba(255,255,255,0)',
+    borderRadius: 20,
+    borderWidth: 0,
+    borderColor: '#fff'
+  },
   buttonLogout: {
     marginTop: -50,
     marginBottom: 0,
@@ -171,6 +202,15 @@ export default styles = StyleSheet.create({
     width: 62.5,
     height: 62.5,
     zIndex: 100,
+  },
+  buttonShare: {
+    padding: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'rgba(255,255,255,0)',
+    borderWidth: 0,
+    width: 70,
+    height: 20,
   },
   textA: {
     letterSpacing: 6,
@@ -218,6 +258,22 @@ export default styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '200',
   },
+  textG: {
+    color: 'rgb(2, 2, 2)',
+    textAlign: 'left',
+    textAlignVertical: 'center',
+    fontWeight: '400',
+    fontSize: 16,
+  },
+  textH: {
+    marginTop: '6%',
+    marginLeft: '3%',
+    letterSpacing: 2,
+    color: 'rgb(255, 67, 35)',
+    textAlign: 'left',
+    fontWeight: '600',
+    fontSize: 16,
+  },
   textW: {
     color: 'rgb(255, 255, 255)',
     textAlign: 'center',
@@ -259,6 +315,10 @@ export default styles = StyleSheet.create({
     height: height * .92,
     width: width,
   },
+  profileEditPhoto: {
+    height: height * .80,
+    width: width,
+  },
   profileLogo: {
     marginLeft: width/2.5,
     width: 50,
@@ -279,6 +339,27 @@ export default styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgb(255,255,255)',
     width: width,
+  },
+  dropDown: {
+    width: width,
+  },
+  postShare:{
+    flex: 1,
+    marginTop: 20,
+    height: '5%',
+    width: width,
+    borderBottomWidth: 0.5,
+    borderColor: 'rgba(150,150,150,0.9)',
+  },
+  chatBlue:{
+    backgroundColor: 'rgb(66, 176, 255)',
+    borderColor: 'rgb(66, 176, 255)',
+    borderRadius: 30,
+  },
+  chatWhite: {
+    borderWidth: .5,
+    borderColor: 'rgb(1, 1, 1)',
+    borderRadius: 30,
   },
 });
  

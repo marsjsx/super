@@ -36,12 +36,14 @@ class Chat extends React.Component {
               {item.uid !== uid ? <Image style={styles.roundImage} source={{ uri: item.photo }} /> : null}
               <View style={[styles.container, item.uid === uid ? styles.right : styles.left]}>
                 <Text style={styles.bold}>{item.username}</Text>
-                <Text style={styles.gray}>{item.message}</Text>
-                <Text style={[styles.gray, styles.small]}>{moment(item.date).format('ll')}</Text>
+                <View style={[styles.container, item.uid === uid ? styles.chatBlue : styles.chatWhite]}>
+                  <Text style={[item.uid === uid ? styles.textW : styles.textF,{padding: 12}]}>{item.message}</Text>
+                </View>
+                <Text style={[styles.textF, styles.small, { paddingBottom: 5 }]}>{moment(item.date).format('ll')}</Text>
               </View>
               {item.uid === uid ? <Image style={styles.roundImage} source={{ uri: item.photo }} /> : null}
             </TouchableOpacity>
-          )} />
+          )}/>
         <TextInput
           style={styles.input}
           onChangeText={(message) => this.setState({ message })}
