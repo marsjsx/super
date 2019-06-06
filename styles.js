@@ -44,6 +44,16 @@ export default styles = StyleSheet.create({
     borderRadius: 50,
     fontSize: 16,
   },
+  inputSearch: {
+    width: width * .90,
+    margin: 10,
+    padding: 10,
+    alignSelf: 'center',
+    borderColor: '#d3d3d3',
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 16,
+  },
   facebookButton: {
     backgroundColor: '#3b5998',
     marginTop: 20,
@@ -99,7 +109,7 @@ export default styles = StyleSheet.create({
   },
   squareLarge: {
     width: width * .33,
-    height: 125,
+    height: 170,
     margin: 1,
     backgroundColor: '#d3d3d3'
   },

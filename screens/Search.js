@@ -4,12 +4,17 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { View, Text, SafeAreaView, TextInput, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
 import db from '../config/firebase';
-import { getUser } from '../actions/user'
+import { getUser } from '../actions/user';
+import { getPosts } from '../actions/post'
 
 class Search extends React.Component {
   state = {
     search: '',
     query: []
+  }
+  
+  componentDidMount() {
+    this.props.getPosts()
   }
 
   searchUser = async () => {
@@ -27,15 +32,17 @@ class Search extends React.Component {
   }
 
   render() {
+    
     return (
       <ScrollView><SafeAreaView style={styles.container}>
         <TextInput
-          style={[styles.input, {marginTop: 40}]}
+          style={[styles.inputSearch, {marginTop: 40}]}
           onChangeText={(search) => this.setState({ search })}
           value={this.state.search}
           returnKeyType='send'
           placeholder='Search'
           onSubmitEditing={this.searchUser} />
+        
         <FlatList
           data={this.state.query}
           keyExtractor={(item) => JSON.stringify(item.uid)}
@@ -48,17 +55,31 @@ class Search extends React.Component {
               </View>
             </TouchableOpacity>
           )} />
+        
+        <View style={{marginTop: 20}}>
+          <FlatList
+            initialNumToRender= '9'
+            maxToRenderPerBatch= '3'
+            windowSize={3}
+            style={{ paddingTop: 10 }}
+            horizontal={false}
+            numColumns={3}
+            data={this.props.post.feed}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />} />
+        </View>
       </SafeAreaView></ScrollView>
     );
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ getUser }, dispatch)
+  return bindActionCreators({ getUser, getPosts }, dispatch)
 }
 
 const mapStateToProps = (state) => {
   return {
+    post: state.post,
     user: state.user
   }
 }
