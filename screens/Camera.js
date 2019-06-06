@@ -15,7 +15,7 @@ class CameraUpload extends React.Component {
     if (status === 'granted') {
       const image = await this.camera.takePictureAsync()
       if (!image.cancelled) {
-        const resize = await ImageManipulator.manipulateAsync(image.uri, [], { format: 'jpg', compress: 0.1 })
+        const resize = await ImageManipulator.manipulateAsync(image.uri, [], { format: 'jpg', compress: 1 })
         const url = await this.props.dispatch(uploadPhoto(resize))
         this.props.dispatch(updatePhoto(url))
         url ? this.props.navigation.navigate('Post') : null
