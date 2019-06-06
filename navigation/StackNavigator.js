@@ -134,6 +134,7 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
 export const PostNavigator = createAppContainer(createStackNavigator(
   {
     Post: {
+      headerTransparent: true,
       screen: PostScreen,
       navigationOptions: {
         title: 'Post'

@@ -312,7 +312,7 @@ export default styles = StyleSheet.create({
     marginLeft: width/5,
   },
   profilePhoto: {
-    height: height * .92,
+    height: height * .80,
     width: width,
   },
   profileEditPhoto: {

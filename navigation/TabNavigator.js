@@ -9,6 +9,7 @@ const TabNavigator = createBottomTabNavigator(
     Home: {
       screen: HomeNavigator,
       navigationOptions: {
+        headerTransparent: true,
         tabBarLabel: ' ',
         tabBarIcon: ({ focused }) => (
           <MaterialCommunityIcons name={focused ? 'home' : 'home-outline'} size={32} />
@@ -18,6 +19,7 @@ const TabNavigator = createBottomTabNavigator(
     Search: {
       screen: SearchNavigator,
       navigationOptions: {
+        headerTransparent: true,
         tabBarLabel: ' ',
         tabBarIcon: ({ focused }) => (
           <Ionicons name={focused ? 'md-search' : 'ios-search'} size={32} />
@@ -27,6 +29,7 @@ const TabNavigator = createBottomTabNavigator(
     Post: {
       screen: PostNavigator,
       navigationOptions: {
+        headerTransparent: true,
         tabBarLabel: ' ',
         tabBarIcon: ({ focused }) => (
           <Ionicons name={focused ? 'ios-add-circle' : 'ios-add-circle-outline'} size={32} />
@@ -36,6 +39,7 @@ const TabNavigator = createBottomTabNavigator(
     Activity: {
       screen: ActivityNavigator,
       navigationOptions: {
+        headerTransparent: true,
         tabBarLabel: ' ',
         tabBarIcon: ({ focused }) => (
           <Ionicons name={focused ? 'ios-heart' : 'ios-heart-empty'} size={32} />
@@ -45,6 +49,7 @@ const TabNavigator = createBottomTabNavigator(
     MyProfile: {
       screen: ProfileNavigator,
       navigationOptions: {
+        headerTransparent: true,
         tabBarLabel: ' ',
         tabBarIcon: ({ focused }) => (
           <FontAwesome name={focused ? 'user' : 'user-o'} size={32} />
@@ -54,14 +59,15 @@ const TabNavigator = createBottomTabNavigator(
   },
   {
     tabBarOptions: {
-      activeBackgroundColor: 'transparent',
-      inactiveBackgroundColor: 'transparent',
+      headerTransparent: true,
       style: {
+
         paddingTop: 15,
         height: 40,
       }
     }
-  }
+  },
+  
 );
 
 export default createAppContainer(TabNavigator);

@@ -40,7 +40,7 @@ class Signup extends React.Component {
   render() {
     const { routeName } = this.props.navigation.state
     return (
-      <ScrollView style={[styles.container,{ width: '100%', height: '100%' }]}>
+      <View style={[styles.container,{ width: '100%', height: '100%' }]}>
         {
           routeName === 'Signup' ?
             <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
@@ -79,10 +79,11 @@ class Signup extends React.Component {
                 <Text style={styles.textC}>Done</Text>
               </TouchableOpacity>
             </ImageBackground> :
+            <ScrollView>
             <View style={[styles.container, styles.space]}>
               <ImageBackground style={[styles.profileEditPhoto, styles.container]} source={{ uri: this.props.user.photo }}>
                 <View style={[styles.space, styles.row]}>
-                  <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={this.onPress}>
+                  <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={() => navigation.goBack()}>
                     <Text style={styles.textW}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.buttonSave,{marginTop: 30}]} onPress={this.onPress}>
@@ -166,8 +167,9 @@ class Signup extends React.Component {
                 />
               </View>
             </View>
+            </ScrollView>
         }
-      </ScrollView>
+      </View>
       
     );
   }
