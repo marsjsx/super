@@ -62,11 +62,16 @@ const TabNavigator = createBottomTabNavigator(
       headerTransparent: true,
       style: {
         ...Platform.select({
-          ios:{marginBottom: 50},
-          android:{},
+          ios:{
+            paddingBottom: 0,
+            paddingTop: 5,
+            height: 65,
+          },
+          android: {
+            paddingTop: 15,
+            height: 40,
+          },
         }),
-        paddingTop: 15,
-        height: 40,
       }
     }
   },

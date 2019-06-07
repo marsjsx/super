@@ -198,7 +198,8 @@ export default styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0)',
     borderRadius: 20,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: '#fff',
+    zIndex: 100,
   },
   buttonLogout: {
     marginTop: -50,
@@ -319,7 +320,14 @@ export default styles = StyleSheet.create({
     backgroundColor: '#adadad'
   },
   logoHeader:{
-    marginLeft: width/5,
+    ...Platform.select({
+      ios: {
+
+      },
+      android: {
+        marginLeft: width / 5,
+      },
+    }),
   },
   profilePhoto: {
     height: height * .80,
