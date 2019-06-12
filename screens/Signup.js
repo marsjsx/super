@@ -3,7 +3,7 @@ import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
-import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser } from '../actions/user'
 import { uploadPhoto } from '../actions'
 
@@ -43,41 +43,49 @@ class Signup extends React.Component {
       <View style={[styles.container,{ width: '100%', height: '100%' }]}>
         {
           routeName === 'Signup' ?
-            <ImageBackground source={require('../temp/redSunset.jpg')} style={[styles.container, styles.center]}>
-              <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
+            <ImageBackground source={require('../temp/signupBG.png')} style={[styles.container, styles.center]}>
+              <KeyboardAvoidingView style={{ flex: 1, width: '100%' }} behavior={"padding"} >
+                <ScrollView style={[{ width: '100%' }]} contentContainerStyle={styles.center}>
+              {/* <TouchableOpacity style={styles.center} onPress={this.openLibrary} >
                 <Image style={[styles.squareImage]} source={{ uri: this.props.user.photo }} />
                 <Text style={[styles.bold, styles.textW]}>Upload Photo</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <Image style={styles.logo2} source={require('../assets/logo-2.png')} />
               <TextInput
-                style={[styles.border, styles.textW]}
+                style={[styles.border4, styles.textB,{marginTop: 20}]}
                 editable={routeName === 'Signup' ? true : false}
                 value={this.props.user.email}
                 onChangeText={input => this.props.updateEmail(input)}
-                placeholder='Email'
+                placeholder='email'
+                placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                style={[styles.border, styles.textW]}
+                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 editable={routeName === 'Signup' ? true : false}
                 value={this.props.user.password}
                 onChangeText={input => this.props.updatePassword(input)}
-                placeholder='Password'
+                placeholder='password'
+                placeholderTextColor='rgb(75,75,75)'
                 secureTextEntry={true}
               />
               <TextInput
-                style={[styles.border, styles.textW]}
+                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 value={this.props.user.username}
                 onChangeText={input => this.props.updateUsername(input)}
-                placeholder='Username'
+                placeholder='username'
+                placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                style={[styles.border, styles.textW]}
+                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 value={this.props.user.bio}
                 onChangeText={input => this.props.updateBio(input)}
-                placeholder='Bio'
+                placeholder='bio'
+                placeholderTextColor='rgb(75,75,75)'
               />
-              <TouchableOpacity style={styles.buttonSignup} onPress={this.onPress}>
-                <Text style={styles.textC}>Done</Text>
+                  <TouchableOpacity style={[styles.buttonSignup, { marginTop: 60 }]} onPress={this.onPress}>
+                <Text style={styles.textA}>signup</Text>
               </TouchableOpacity>
+              </ScrollView></KeyboardAvoidingView>
             </ImageBackground> :
             <ScrollView>
             <View style={[styles.container, styles.space]}>

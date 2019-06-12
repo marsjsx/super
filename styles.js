@@ -66,12 +66,10 @@ export default styles = StyleSheet.create({
   },
   border: {
     width: '85%',
-    margin: 10,
-    padding: 15,
-    fontSize: 16,
     borderColor: '#d3d3d3',
     borderBottomWidth: 1,
-    textAlign: 'center'
+    textAlign: 'center',
+    padding: 0,
   },
   border2: {
     width: width,
@@ -91,6 +89,13 @@ export default styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     borderBottomWidth: 1,
     textAlign: 'left'
+  },
+  border4: {
+    width: '85%',
+    borderColor: 'rgb(175,175,175)',
+    borderBottomWidth: 1,
+    textAlign: 'center',
+    padding: 0,
   },
   postPhoto: {
     height: height * .95,
@@ -148,7 +153,7 @@ export default styles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgb(237, 132, 197)',
+    backgroundColor: 'rgb(193,103,155)',
     borderRadius: 20,
     borderWidth: 0,
     borderColor: '#fff'
@@ -160,14 +165,36 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgb(255,255,255)',
+    backgroundColor: 'rgb(209,84,84)',
     borderRadius: 20,
+    borderWidth: 0,
+    borderColor: '#fff'
+  },
+  buttonLogin2: {
+    marginTop: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
+    width: 250,
+    backgroundColor: 'rgb(237,124,128)',
+    borderRadius: 10,
+    borderWidth: 0,
+    borderColor: '#fff'
+  },
+  buttonSignup2: {
+    marginTop: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
+    marginLeft: 10,
+    marginRight: 10,
+    width: 250,
+    backgroundColor: 'rgb(243,177,174)',
+    borderRadius: 10,
     borderWidth: 0,
     borderColor: '#fff'
   },
   buttonFacebook:{
     backgroundColor: '#3b5998',
-    marginTop: 20,
+    marginTop: 10,
     paddingVertical: 10,
     alignItems: 'center',
     borderColor: '#3b5998',
@@ -223,24 +250,48 @@ export default styles = StyleSheet.create({
     width: 70,
     height: 20,
   },
+  buttonForgot: {
+    marginTop: 30,
+    marginBottom: 40,
+  },
+  logo2:{
+    width: 100, 
+    height: 100, 
+    marginTop: 30, 
+    marginBottom: 30, 
+  },
+  logo3: {
+    width: 100, height: 100, marginTop: 5, marginBottom: 10, 
+    transform: [{ rotate: '90deg' }]
+  },
+  textPlaceholder:{
+    letterSpacing: 2,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  textPlaceholderB: {
+    letterSpacing: 3,
+    color: 'rgb(3,3,2)',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   textA: {
     letterSpacing: 6,
     color: '#fff',
     textAlign: 'center',
     fontWeight: '500',
+    
   },
   textB: {
-    letterSpacing: 6,
-    color: '#fff',
+    letterSpacing: 3,
+    color: 'rgb(3,3,2)',
     textAlign: 'center',
     fontWeight: '500',
-    textShadowOffset: {width: 1, height: 1, },
-    textShadowRadius: 7,
-    textShadowColor: '#000000',
   },
   textC: {
-    letterSpacing: 4,
-    color: 'rgb(255, 67, 35)',
+    letterSpacing: 3,
+    color: 'rgb(243, 177, 174)',
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 16,
@@ -294,14 +345,16 @@ export default styles = StyleSheet.create({
   },
   textInputA: {
     width: '85%',
-    margin: 10,
-    padding: 15,
+    marginTop: 0,
+    padding: 0,
     fontSize: 16,
     color: '#fff',
     fontWeight: '500',
-    borderColor: '#d3d3d3',
-    borderBottomWidth: 1,
+    borderColor: 'rgba(0,0,0,0)',
+    borderBottomWidth: 0,
     textAlign: 'center',
+    letterSpacing: 5,
+    marginLeft: '-5%',
   },
   bottom: {
     width: width,
