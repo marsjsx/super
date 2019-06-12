@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux'
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
 import { getPosts, likePost, unlikePost } from '../actions/post'
+import { getUser } from '../actions/user';
 import moment from 'moment'
 
 class Home extends React.Component {
@@ -26,6 +27,11 @@ class Home extends React.Component {
     this.props.navigation.navigate('Map', {
       location: item.postLocation
     })
+  }
+
+  goToUser = (user) => {
+    this.props.getUser(user.uid)
+    this.props.navigation.navigate('Profile')
   }
 
   render() {
@@ -51,7 +57,9 @@ class Home extends React.Component {
                       <View style={[styles.row, styles.space]}>
 
                         <View style={[styles.row]}>
-                          <Image style={styles.squareImage} source={{ uri: item.photo }} />
+                          <TouchableOpacity onPress={() => this.goToUser(item)}>
+                            <Image style={styles.squareImage} source={{ uri: item.photo }} />
+                          </TouchableOpacity>
                           <View>
                             <Text style={[styles.bold, styles.textD]}>{item.username}</Text>
                             <Text style={[styles.gray, styles.small]}>{moment(item.date).format('ll')}</Text>
@@ -89,7 +97,7 @@ class Home extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ getPosts, likePost, unlikePost }, dispatch)
+  return bindActionCreators({ getPosts, likePost, unlikePost, getUser }, dispatch)
 }
 
 const mapStateToProps = (state) => {
