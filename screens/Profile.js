@@ -3,7 +3,7 @@ import styles from '../styles'
 import firebase from 'firebase';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
+import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, VirtualizedList } from 'react-native';
 import { followUser, unfollowUser } from '../actions/user'
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
@@ -13,8 +13,7 @@ class Profile extends React.Component {
     super(props);
     this.state = { 
       imgStyle: styles.squareLarge,
-      swipeStyle: false,
-      numStyle: 3,
+      refresh: Boolean,
        };
   }
 
@@ -22,13 +21,23 @@ class Profile extends React.Component {
     { this.state.imgStyle == styles.squareLarge ? 
       this.setState({
         imgStyle: styles.postPhoto,
-      })   
+      })
       : 
       this.setState({
         imgStyle: styles.squareLarge,
       }) }
-    
+    this.setState({
+      refresh: !this.state.refresh
+    })
+    this.scroll.scrollTo({ x: 0, y: 11500, animated: true });
+  };
+  goToTop = () => {
+    this.scroll.scrollTo({ x: 0, y: 0, animated: true });
   }
+
+  _onPress = () => {
+    this.props.onPressItem(this.props.id);
+  };
 
   follow = (user) => {
     if (user.followers.indexOf(this.props.user.uid) >= 0) {
@@ -36,7 +45,7 @@ class Profile extends React.Component {
     } else {
       this.props.followUser(user)
     }
-  }
+  };
 
   render() {
     let user = {}
@@ -48,7 +57,7 @@ class Profile extends React.Component {
     }
     if (!user.posts) return <ActivityIndicator style={styles.container} />
     return (
-      <ScrollView>
+      <ScrollView ref={(c) => { this.scroll = c }}>
         
         <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
@@ -107,18 +116,35 @@ class Profile extends React.Component {
             </View>
           </View>
         </ImageBackground>
+        { this.state.imgStyle === styles.squareLarge ?
         <FlatList
+          key={1}
           style={{ paddingTop: 0 }}
-          horizontal={this.state.swipeStyle}
-          numColumns={this.state.numStyle}
+          initialScrollIndex={0}
+          horizontal={false}
+          numColumns={3}
           data={user.posts}
+          extraData={this.state}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => 
             <TouchableOpacity onPress={this.onButtonPress}>
               <Image style={this.state.imgStyle} source={{ uri: item.postPhoto }} />
-            </TouchableOpacity>
-          }/>
-      
+              </TouchableOpacity>
+          }/> :
+          <FlatList
+            key={2}
+            style={{ paddingTop: 0 }}
+
+            horizontal={true}
+            data={user.posts}
+            extraData={this.state}
+            keyExtractor={(item) => JSON.stringify(item.date)}
+            renderItem={({ item }) =>
+              <TouchableOpacity onPress={this.onButtonPress}>
+                <Image style={this.state.imgStyle} source={{ uri: item.postPhoto }} />
+              </TouchableOpacity>
+            } />
+          }
       </ScrollView>
     );
   }
