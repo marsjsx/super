@@ -9,6 +9,27 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 
 class Profile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { 
+      imgStyle: styles.squareLarge,
+      swipeStyle: false,
+      numStyle: 3,
+       };
+  }
+
+  onButtonPress= () => {
+    { this.state.imgStyle == styles.squareLarge ? 
+      this.setState({
+        imgStyle: styles.postPhoto,
+      })   
+      : 
+      this.setState({
+        imgStyle: styles.squareLarge,
+      }) }
+    
+  }
+
   follow = (user) => {
     if (user.followers.indexOf(this.props.user.uid) >= 0) {
       this.props.unfollowUser(user)
@@ -88,11 +109,15 @@ class Profile extends React.Component {
         </ImageBackground>
         <FlatList
           style={{ paddingTop: 0 }}
-          horizontal={false}
-          numColumns={3}
+          horizontal={this.state.swipeStyle}
+          numColumns={this.state.numStyle}
           data={user.posts}
           keyExtractor={(item) => JSON.stringify(item.date)}
-          renderItem={({ item }) => <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />} />
+          renderItem={({ item }) => 
+            <TouchableOpacity onPress={this.onButtonPress}>
+              <Image style={this.state.imgStyle} source={{ uri: item.postPhoto }} />
+            </TouchableOpacity>
+          }/>
       
       </ScrollView>
     );
