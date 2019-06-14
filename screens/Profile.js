@@ -29,7 +29,7 @@ class Profile extends React.Component {
     this.setState({
       refresh: !this.state.refresh
     })
-    this.scroll.scrollTo({ x: 0, y: 11500, animated: true });
+    this.scroll.scrollTo({ x: 0, y: 12500, animated: true });
   };
   goToTop = () => {
     this.scroll.scrollTo({ x: 0, y: 0, animated: true });
