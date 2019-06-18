@@ -60,6 +60,7 @@ const TabNavigator = createBottomTabNavigator(
   {
     tabBarOptions: {
       headerTransparent: true,
+      tabBarTransparent: true,
       style: {
         ...Platform.select({
           ios:{
@@ -71,6 +72,7 @@ const TabNavigator = createBottomTabNavigator(
             paddingTop: 15,
             height: 40,
           },
+          backgroundColor:'rgba(3,3,3,0)'
         }),
       }
     }

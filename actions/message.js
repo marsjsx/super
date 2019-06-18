@@ -16,7 +16,7 @@ export const addMessage = (id, text) => {
       db.collection('messages').doc().set(message)
       dispatch(getMessages())
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -33,7 +33,7 @@ export const getMessages = () => {
       })
       dispatch({ type: 'GET_MESSAGES', payload: orderBy(messages, 'date', 'desc') })
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }

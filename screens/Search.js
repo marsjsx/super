@@ -44,7 +44,8 @@ class Search extends React.Component {
             returnKeyType='send'
             placeholder='Search'
             onSubmitEditing={this.searchUser} />
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Filter')}>
+          {/* <TouchableOpacity onPress={() => this.props.navigation.navigate('Filter')}> */}
+          <TouchableOpacity>
             <FontAwesome style={{ color: 'rgb(75,75,75)' }} name={'sliders'} size={45} />
           </TouchableOpacity>
           </View>
@@ -65,7 +66,7 @@ class Search extends React.Component {
         <View style={{marginTop: 20}}>
           <FlatList
             initialNumToRender= '9'
-            maxToRenderPerBatch= '3'
+            maxToRenderPerBatch= '9'
             windowSize={3}
             style={{ paddingTop: 10 }}
             horizontal={false}
