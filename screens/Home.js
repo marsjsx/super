@@ -2,7 +2,7 @@ import React from 'react';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
 import { getPosts, likePost, unlikePost } from '../actions/post'
 import { getUser } from '../actions/user';
@@ -39,6 +39,7 @@ class Home extends React.Component {
     return (
       <View style={styles.container}>
         <FlatList
+
           initialNumToRender='1'
           maxToRenderPerBatch='2'
           windowSize={2}
@@ -49,14 +50,14 @@ class Home extends React.Component {
           renderItem={({ item }) => {
             const liked = item.likes.includes(this.props.user.uid)
             return (
-              <View>
+              <View style={{padding: 0, margin: 0}}>
                 <TouchableOpacity onPress={() => this.likePost(item)} >
                   <ImageBackground style={styles.postPhoto} source={{ uri: item.postPhoto }} >
                     <View style={styles.bottom}>
 
                       <View style={[styles.row, styles.space]}>
 
-                        <View style={[styles.row]}>
+                        <View style={[styles.row,]}>
                           <TouchableOpacity onPress={() => this.goToUser(item)}>
                             <Image style={styles.squareImage} source={{ uri: item.photo }} />
                           </TouchableOpacity>
@@ -70,7 +71,7 @@ class Home extends React.Component {
                         </View>
                         
                         <View style={{marginTop: -80}}>
-                          <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-flag' size={25} />
+                          <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={25} />
                           <Ionicons style={{ margin: 5 }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={25} />
                           <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
                             <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={25} />
@@ -80,7 +81,7 @@ class Home extends React.Component {
 
                       </View>
 
-                      <View style={{ width: '65%', marginTop: 0 }}>
+                      <View style={{ width: '65%', marginTop: 0, }}>
                         <Text style={styles.textD} > {item.postDescription} </Text>
                       </View>
 

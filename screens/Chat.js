@@ -37,7 +37,7 @@ class Chat extends React.Component {
               <View style={[styles.container, item.uid === uid ? styles.right : styles.left]}>
                 <Text style={styles.bold}>{item.username}</Text>
                 <View style={[styles.container, item.uid === uid ? styles.chatBlue : styles.chatWhite]}>
-                  <Text style={[item.uid === uid ? styles.textW : styles.textF,{padding: 12}]}>{item.message}</Text>
+                  <Text style={[item.uid === uid ? styles.textChatOut : styles.textChatInc,{padding: 12}]}>{item.message}</Text>
                 </View>
                 <Text style={[styles.textF, styles.small, { paddingBottom: 5 }]}>{moment(item.date).format('ll')}</Text>
               </View>

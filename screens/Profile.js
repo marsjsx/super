@@ -32,7 +32,7 @@ class Profile extends React.Component {
     this.setState({
       refresh: !this.state.refresh
     })
-    alert("uid: " + item.uid)
+    
     this.scroll.scrollTo({ y: 12000, animated: true });
   };
 
@@ -80,8 +80,8 @@ class Profile extends React.Component {
           <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
             {state.routeName === 'MyProfile' && user.photo === '' ?
               <View style={[styles.center, styles.container, styles.center,{width:'100%'}]}>
-                <TouchableOpacity style={styles.buttonSignup2} onPress={this.openLibrary} >
-                <Text style={[styles.bold, styles.textA]}>Add profile photo +</Text>
+                <TouchableOpacity onPress={this.openLibrary} >
+                <Text style={[styles.bold]}>Add profile photo +</Text>
               </TouchableOpacity>
             </View>:
             <View/>
@@ -160,13 +160,13 @@ class Profile extends React.Component {
               </TouchableOpacity>
           }/> :
           <FlatList
-            initialNumToRender='1'
+            initialNumToRender='2'
             maxToRenderPerBatch='2'
             windowSize={2}
             key={2}
             style={{ paddingTop: 0 }}
-            initialScrollIndex={this.state.selectedIndex}
-            horizontal={true}
+            initialScrollIndex={0}
+            horizontal={false}
             data={user.posts}
             extraData={this.state.refresh}
             keyExtractor={(item) => JSON.stringify(item.date)}

@@ -52,7 +52,7 @@ class Signup extends React.Component {
               </TouchableOpacity> */}
               <Image style={styles.logo2} source={require('../assets/logo-2.png')} />
               <TextInput
-                style={[styles.border4, styles.textB,{marginTop: 20}]}
+                style={[styles.border4, styles.textB,{marginTop: 30}]}
                 editable={routeName === 'Signup' ? true : false}
                 value={this.props.user.email}
                 onChangeText={input => this.props.updateEmail(input)}
@@ -60,7 +60,7 @@ class Signup extends React.Component {
                 placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 30 }]}
                 editable={routeName === 'Signup' ? true : false}
                 value={this.props.user.password}
                 onChangeText={input => this.props.updatePassword(input)}
@@ -69,20 +69,20 @@ class Signup extends React.Component {
                 secureTextEntry={true}
               />
               <TextInput
-                style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 30 }]}
                 value={this.props.user.username}
                 onChangeText={input => this.props.updateUsername(input)}
                 placeholder='username'
                 placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 30 }]}
                 value={this.props.user.bio}
                 onChangeText={input => this.props.updateBio(input)}
                 placeholder='bio'
                 placeholderTextColor='rgb(75,75,75)'
               />
-              <TouchableOpacity style={[styles.buttonSignup, { marginTop: 40 }]} onPress={this.onPress}>
+              <TouchableOpacity style={[styles.buttonSignup, { marginTop: 60 }]} onPress={this.onPress}>
                 <Text style={styles.textA}>signup</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.buttonFacebook]} onPress={() => this.props.facebookLogin()}>
@@ -93,22 +93,15 @@ class Signup extends React.Component {
             <ScrollView>
             <View style={[styles.container, styles.space]}>
               <ImageBackground style={[styles.profileEditPhoto, styles.container]} source={{ uri: this.props.user.photo }}>
-                <View style={[styles.space, styles.row]}>
-                    <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={() => this.props.navigation.goBack()}>
-                    <Text style={styles.textW}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.buttonSave,{marginTop: 30}]} onPress={this.onPress}>
-                    <Text style={styles.textW}>Save</Text>
-                  </TouchableOpacity>
-                </View>
+                
               </ImageBackground>
 
-              <TouchableOpacity style={[styles.center,{margin: '5%'}]} onPress={this.openLibrary} >
-                <Text style={[styles.bold, styles.textL]}>change profile photo</Text>
+              <TouchableOpacity style={[styles.center, styles.topLine, {marginBottom: 30}]} onPress={this.openLibrary} >
+                <Text style={[styles.bold, {color: 'rgb(237,75,75)', textDecorationLine:'underline', marginTop: -100}]}>change profile photo</Text>
               </TouchableOpacity>
               
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, {marginLeft:'1%'}]}>Username:</Text>
+              <View style={[styles.container, styles.row,{alignItems: 'flex-start'}]}>
+                <Text style={[styles.textG, {marginLeft:'1%', marginTop: '2%', }]}>Username:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   value={this.props.user.username}
@@ -116,8 +109,8 @@ class Signup extends React.Component {
                   placeholder='Username'
                 />
               </View>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Bio:</Text>
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Bio:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   value={this.props.user.bio}
@@ -125,9 +118,9 @@ class Signup extends React.Component {
                   placeholder='Bio'
                 />
               </View>
-              <Text style={styles.textH}>Private Information</Text>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Password:</Text>
+              
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Password:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   editable={routeName === 'Signup' ? true : false}
@@ -137,8 +130,8 @@ class Signup extends React.Component {
                   secureTextEntry={true}
                 />
               </View>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Email:</Text>
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Email:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   editable={routeName === 'Signup' ? true : false}
@@ -147,8 +140,8 @@ class Signup extends React.Component {
                   placeholder='Email'
                 />
               </View>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Phone:</Text>
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Phone:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   editable={routeName === 'Signup' ? true : false}
@@ -157,8 +150,8 @@ class Signup extends React.Component {
                   placeholder='Phone'
                 />
               </View>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Gender:</Text>
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Gender:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   editable={routeName === 'Signup' ? true : false}
@@ -167,8 +160,8 @@ class Signup extends React.Component {
                   placeholder='Gender'
                 />
               </View>
-              <View style={[styles.container, styles.row]}>
-                <Text style={[styles.textG, { marginLeft: '1%' }]}>Birthdate:</Text>
+              <View style={[styles.container, styles.left, styles.row, {marginTop: 15}]}>
+                <Text style={[styles.textG, {   }]}>Birthdate:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
                   editable={routeName === 'Signup' ? true : false}
@@ -177,7 +170,7 @@ class Signup extends React.Component {
                   placeholder='Birthdate'
                 />
               </View>
-                <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 10 }]} onPress={this.onPress}>
+                <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 20 }]} onPress={this.onPress}>
                   <Text style={styles.textA}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.buttonCancel, { marginTop: 10, marginBottom: 25 }]} onPress={() => this.props.navigation.goBack()}>

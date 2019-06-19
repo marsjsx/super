@@ -44,8 +44,8 @@ class Search extends React.Component {
             returnKeyType='send'
             placeholder='Search'
             onSubmitEditing={this.searchUser} />
-          {/* <TouchableOpacity onPress={() => this.props.navigation.navigate('Filter')}> */}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Filter')}>
+          {/*<TouchableOpacity> */}
             <FontAwesome style={{ color: 'rgb(75,75,75)' }} name={'sliders'} size={45} />
           </TouchableOpacity>
           </View>

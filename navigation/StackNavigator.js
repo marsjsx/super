@@ -43,7 +43,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
         title: 'Comments',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:10}]} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -55,7 +55,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
         title: 'Map View',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -67,7 +67,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
         title: 'Messages',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -79,7 +79,7 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
         title: 'Chat',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -104,7 +104,7 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
   if (navigation.state.routes.some(route => route.routeName === 'Comment')) {
     tabBarVisible = false
   }
-  if (navigation.state.routes.some(route => route.routeName === 'Search.Filter')) {
+  if (navigation.state.routes.some(route => route.routeName === 'Filter')) {
     tabBarVisible = false
   }
   return {
@@ -126,7 +126,7 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
         headerTransparent: true,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -137,7 +137,7 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
         headerTransparent: true,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })
@@ -184,7 +184,7 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
         headerTransparent: true,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         )
       })

@@ -61,8 +61,8 @@ class Filter extends React.Component {
   render() {
     return (
       <ImageBackground source={require('../temp/filterBG.png')} style={[styles.container, { alignItems: 'center' }]}>
-        <Text style={[styles.textA, { marginTop: 40 }]}>Filter</Text>
-        <TouchableOpacity style={{ marginTop: 40 }}>
+        <Text style={[styles.textA, { marginTop: 55 }]}>Filter</Text>
+        <TouchableOpacity style={{ marginTop: 70 }}>
           <Text style={styles.textJ}>My Current Location</Text>
         </TouchableOpacity>
         <View style={{ width: '100%', marginTop: 35 }}>
@@ -80,8 +80,8 @@ class Filter extends React.Component {
         <Slider
           style={{
             marginTop: 25,
-            width: 300,
-            transform: [{ scaleX: 1.3 }, { scaleY: 2 }]
+            width: 200,
+            transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }]
           }}
           step={1}
           minimumValue={1}
@@ -93,22 +93,8 @@ class Filter extends React.Component {
           minimumTrackTintColor={"#fff"}
         />
         <Text style={[styles.textK, { marginTop: 10 }]}>{this.state.miles} Miles</Text>
-        <MultiSlider
-          values={[this.state.values[0], this.state.values[1]]}
-          sliderLength={350}
-          onValuesChange={this.multiSliderValuesChange}
-          min={18}
-          max={40}
-          step={1}
-        />
-        <View style={{ width: '100%', marginTop: 0 }}>
-          {/* <Text style={[styles.textA, { paddingTop: 0 }]}>Range:</Text> */}
-          <View style={[styles.row, styles.center, styles.container, { marginTop: 0, paddingTop: 0 }]}>
-            <Text style={styles.textA}>{this.state.values[0]} - </Text>
-            <Text style={styles.textA}>{this.state.values[1]}</Text>
-          </View>
-        </View>
-        <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 55 }]}>
+        
+        <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 55 }]} onPress={() => this.props.navigation.goBack()}>
           <Text style={styles.textA}>search</Text></TouchableOpacity>
       </ImageBackground>
     );

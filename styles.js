@@ -84,7 +84,7 @@ export default styles = StyleSheet.create({
   border3: {
     width: '75%',
     marginBottom: 0,
-    padding: 15,
+    padding: 5,
     fontSize: 16,
     borderColor: '#d3d3d3',
     borderBottomWidth: 1,
@@ -161,7 +161,7 @@ export default styles = StyleSheet.create({
     
   },
   buttonLogin: {
-    marginTop: 10,
+    marginTop: 15,
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
@@ -171,7 +171,7 @@ export default styles = StyleSheet.create({
     borderColor: '#fff'
   },
   buttonSignup: {
-    marginTop: 10,
+    marginTop: 15,
     paddingTop: 11,
     paddingBottom: 11,
     marginLeft: 10,
@@ -226,7 +226,7 @@ export default styles = StyleSheet.create({
   },
   buttonFacebook:{
     backgroundColor: '#3b5998',
-    marginTop: 10,
+    marginTop: 15,
     paddingVertical: 10,
     alignItems: 'center',
     borderColor: '#3b5998',
@@ -295,17 +295,17 @@ export default styles = StyleSheet.create({
     height: 20,
   },
   buttonForgot: {
-    marginTop: 30,
-    marginBottom: 40,
+    marginTop: 50,
+    marginBottom: 60,
   },
   logo2:{
-    width: 100, 
-    height: 100, 
-    marginTop: 30, 
-    marginBottom: 30, 
+    width: 125, 
+    height: 125, 
+    marginTop: 70, 
+    marginBottom: 40, 
   },
   logo3: {
-    width: 100, height: 100, marginTop: 5, marginBottom: 10, 
+    width: 100, height: 100, marginTop: 60, marginBottom: 20, 
     transform: [{ rotate: '90deg' }]
   },
   textPlaceholder:{
@@ -401,6 +401,15 @@ export default styles = StyleSheet.create({
     fontWeight: '300',
     fontSize: 18,
   },
+  textChatOut: {
+    color: 'rgb(255, 255, 255)',
+    textAlign: 'left',
+  },
+  textChatInc: {
+    color: 'rgb(3,3,3)',
+    
+    textAlign: 'left',
+  },
   textInputA: {
     width: '85%',
     marginTop: 0,
@@ -411,7 +420,7 @@ export default styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0)',
     borderBottomWidth: 0,
     textAlign: 'center',
-    letterSpacing: 5,
+    letterSpacing: 1,
     marginLeft: '-5%',
   },
   bottom: {
@@ -473,7 +482,7 @@ export default styles = StyleSheet.create({
   },
   topLine: {
     borderTopWidth: 1,
-    borderTopColor: 'rgb(255,255,255)',
+    borderTopColor: 'rgb(75,75,75)',
     width: width,
   },
   dropDown: {
@@ -488,9 +497,9 @@ export default styles = StyleSheet.create({
     borderColor: 'rgba(150,150,150,0.9)',
   },
   chatBlue:{
-    backgroundColor: 'rgb(66, 176, 255)',
-    borderColor: 'rgb(66, 176, 255)',
+    backgroundColor: 'rgb(235, 75, 75)',
     borderRadius: 30,
+    borderWidth: 0,
   },
   chatWhite: {
     borderWidth: .5,

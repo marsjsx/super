@@ -16,9 +16,16 @@ const StackNavigator = createStackNavigator(
     },
     Login: {
       screen: Login,
-      navigationOptions: {
-        header: null
-      }
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        title: ' ',
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          </TouchableOpacity>
+        ),
+        headerStyle: { backgroundColor: 'transparent' }
+      })
     },
     Signup: {
       screen: SignupScreen,
@@ -27,7 +34,7 @@ const StackNavigator = createStackNavigator(
         title: ' ',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:10}]} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         ),
         headerStyle: { backgroundColor: 'transparent' }
