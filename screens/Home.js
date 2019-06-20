@@ -2,16 +2,28 @@ import React from 'react';
 import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
 import { getPosts, likePost, unlikePost } from '../actions/post'
 import { getUser } from '../actions/user';
 import moment from 'moment'
+import { Font } from 'expo';
 
 class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fontLoaded: false,
+    };
+  }
 
-  componentDidMount() {
-    this.props.getPosts()
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      'open-sans-bold': require('../assets/fonts/OpenSans-Bold.ttf'),
+    });
+    this.setState({fontLoaded: true})
+    this.props.getPosts();
   }
 
   likePost = (post) => {
@@ -62,7 +74,14 @@ class Home extends React.Component {
                             <Image style={styles.squareImage} source={{ uri: item.photo }} />
                           </TouchableOpacity>
                           <View>
-                            <Text style={[styles.bold, styles.textD]}>{item.username}</Text>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
+                              {
+                                this.state.fontLoaded ? (
+                                  <Text style={{ fontFamily: 'open-sans-bold', fontSize: 18, color: 'rgb(255,255,255)' }}>{item.username}</Text>
+                                ) : null
+                              }
+                            </View>
+                            
                             <Text style={[styles.gray, styles.small]}>{moment(item.date).format('ll')}</Text>
                             <TouchableOpacity onPress={() => this.navigateMap(item)} >
                               <Text style={styles.textD} > {item.postLocation ? item.postLocation.name : null} </Text>
@@ -70,13 +89,13 @@ class Home extends React.Component {
                           </View>
                         </View>
                         
-                        <View style={{marginTop: -80}}>
-                          <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={25} />
-                          <Ionicons style={{ margin: 5 }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={25} />
+                        <View style={{marginTop: -150}}>
+                          <MaterialCommunityIcons style={{ marginBottom: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={50} />
+                          <Ionicons style={{ margin: 5, }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={50} />
                           <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
-                            <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={25} />
+                            <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={50} />
                           </TouchableOpacity>
-                          <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-send' size={25} />
+                          <Entypo style={{ margin: 5, color: 'rgb(255,255,255)' }} name='forward' size={45} />
                         </View>
 
                       </View>

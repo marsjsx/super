@@ -472,8 +472,6 @@ export default styles = StyleSheet.create({
   followBar: {
     paddingHorizontal: '25%', 
     paddingVertical: 10,
-    marginTop: 75, 
-    marginBottom: 0, 
     backgroundColor: 'rgba(255,255,255,1)', 
     width: '100%',
   },
@@ -490,8 +488,8 @@ export default styles = StyleSheet.create({
   },
   postShare:{
     flex: 1,
-    marginTop: 20,
-    height: '5%',
+    
+    paddingVertical: 20,
     width: width,
     borderBottomWidth: 0.5,
     borderColor: 'rgba(150,150,150,0.9)',

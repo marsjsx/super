@@ -5,8 +5,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, Slider } from 'react-native';
 import { updateEmail, updatePassword, login, getUser, facebookLogin } from '../actions/user';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import RangeSlider from 'rn-range-slider';
 
 class Filter extends React.Component {
   constructor(props) {

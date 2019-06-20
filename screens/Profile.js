@@ -3,7 +3,7 @@ import styles from '../styles'
 import firebase from 'firebase';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, VirtualizedList } from 'react-native';
+import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
 import { followUser, unfollowUser } from '../actions/user'
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
@@ -77,7 +77,7 @@ class Profile extends React.Component {
       <ScrollView ref={(c) => { this.scroll = c }}>
         
         <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
-          <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
+          <View style={[styles.bottom, {width: '100%', marginTop:450}]}>
             {state.routeName === 'MyProfile' && user.photo === '' ?
               <View style={[styles.center, styles.container, styles.center,{width:'100%'}]}>
                 <TouchableOpacity onPress={this.openLibrary} >
@@ -90,6 +90,7 @@ class Profile extends React.Component {
             <View style={[styles.row, styles.space, {width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
+                <View>
                   <View style={[styles.row, styles.space, {width: '100%' }]}>
                     <View>
                       <TouchableOpacity style={styles.buttonCircle} onPress={() => this.props.navigation.navigate('Edit')}>
@@ -105,40 +106,50 @@ class Profile extends React.Component {
                         <Text style={[styles.bold, styles.textE]}>Logout</Text>
                       </TouchableOpacity>
                     </View>
-                  </View> :
-                  <View >
+                  </View>
+                    <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Dash')}>
+                      <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='view-dashboard' size={50} />
+                    </TouchableOpacity>
+                  </View>
+                  :
+                  <View>
                     <View style={styles.row}>
-                    <TouchableOpacity style={styles.buttonCircle} onPress={() => this.follow(user)}>
-                      <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name={user.followers.indexOf(this.props.user.uid) >= 0 ? 'ios-checkmark' : 'ios-add'} size={25}/>
-                    </TouchableOpacity>
-                    <View style={[styles.center, { width: '70%' }]}>
-                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.username}</Text>
-                      <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
+                      <TouchableOpacity style={styles.buttonCircle} onPress={() => this.follow(user)}>
+                        <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name={user.followers.indexOf(this.props.user.uid) >= 0 ? 'ios-checkmark' : 'ios-add'} size={25}/>
+                      </TouchableOpacity>
+                      <View style={[styles.center, { width: '70%' }]}>
+                        <Text style={[styles.center, styles.bold, styles.textW]}>{user.username}</Text>
+                        <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
+                      </View>
                     </View>
+                    <View style={styles.row}>
+                      <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
+                        <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='email-outline' size={50} />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Pay', user.uid)}>
+                        <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='currency-usd' size={50} />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
-                      <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='email-outline' size={50} />
-                    </TouchableOpacity>
                   </View>
               }
             </View>
-            <View style={[styles.row, styles.space, styles.followBar,]}>
-              <View style={styles.center}>
-                <Text style={[styles.bold, styles.textF]}>{user.posts.length}</Text>
-                <Text style={[styles.bold, styles.textF]}>posts</Text>
-              </View>
-              <View style={styles.center}>
-                <Text style={[styles.bold, styles.textF]}>{user.followers.length}</Text>
-                <Text style={[styles.bold, styles.textF]}>followers</Text>
-              </View>
-              <View style={styles.center}>
-                <Text style={[styles.bold, styles.textF]}>{user.following.length}</Text>
-                <Text style={[styles.bold, styles.textF]}>following</Text>
-              </View>
-              {/* <View style={styles.center}>
+          </View>
+          <View style={[styles.row, styles.space, styles.followBar,]}>
+            <View style={styles.center}>
+              <Text style={[styles.bold, styles.textF]}>{user.posts.length}</Text>
+              <Text style={[styles.bold, styles.textF]}>posts</Text>
+            </View>
+            <View style={styles.center}>
+              <Text style={[styles.bold, styles.textF]}>{user.followers.length}</Text>
+              <Text style={[styles.bold, styles.textF]}>followers</Text>
+            </View>
+            <View style={styles.center}>
+              <Text style={[styles.bold, styles.textF]}>{user.following.length}</Text>
+              <Text style={[styles.bold, styles.textF]}>following</Text>
+            </View>
+            {/* <View style={styles.center}>
                 <Text style={[styles.bold, styles.textD, { color: 'red' }]}>hide</Text>
               </View> */}
-            </View>
           </View>
         </ImageBackground>
         { this.state.imgStyle === styles.squareLarge ?

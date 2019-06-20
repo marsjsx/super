@@ -7,7 +7,10 @@ import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 const SwitchNavigator = createSwitchNavigator(
   {
     Home: {
-      screen: TabNavigator
+      screen: TabNavigator,
+      navigationOptions: {
+        headerTransparent: true,
+      }
     },
     Auth: {
       screen: AuthNavigator
