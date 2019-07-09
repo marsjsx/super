@@ -4,21 +4,30 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
 import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser, facebookLogin } from '../actions/user'
+import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser, facebookLogin, deleteAuth, deleteAllPosts, deleteUser } from '../actions/user'
 import { uploadPhoto } from '../actions'
+import firebase from 'firebase'
 
 class Signup extends React.Component {
 
   componentDidMount = () => {
     const { routeName } = this.props.navigation.state
-    console.log(routeName)
+    /* console.log(routeName) */
+  }
+  
+  onPressDel = () => {
+    /* this.props.deleteAllPosts() */
+    this.props.deleteUser()
+    this.props.deleteAuth()
+    firebase.auth().signOut()
+    this.props.navigation.navigate('Splash')
   }
 
   onPress = () => {
     const { routeName } = this.props.navigation.state
     if (routeName === 'Signup') {
       this.props.signup()
-      this.props.navigation.navigate('Home')
+      this.props.navigation.navigate('Edit')
     } else {
       this.props.updateUser()
       this.props.navigation.goBack()
@@ -32,7 +41,7 @@ class Signup extends React.Component {
       if (!image.cancelled) {
         const url = await this.props.uploadPhoto(image)
         this.props.updatePhoto(url)
-        console.log(url)
+        /* console.log(url) */
       }
     }
   }
@@ -89,18 +98,16 @@ class Signup extends React.Component {
                 <Text style={styles.textA}>facebook signup</Text>
               </TouchableOpacity>
               </ScrollView></KeyboardAvoidingView>
-            </ImageBackground> :
+            </ImageBackground> 
+            :
             <ScrollView>
             <View style={[styles.container, styles.space]}>
-              <ImageBackground style={[styles.profileEditPhoto, styles.container]} source={{ uri: this.props.user.photo }}>
-                
+              <ImageBackground style={[styles.profileEditPhoto, styles.container, styles.bottom, styles.bottomLine]} source={{ uri: this.props.user.photo }}>
+                  <TouchableOpacity style={[styles.center, { marginBottom: 30 }]} onPress={this.openLibrary} >
+                    <Text style={[styles.bold, { color: 'rgb(237,75,75)', textDecorationLine: 'underline'}]}>change profile photo</Text>
+                  </TouchableOpacity>
               </ImageBackground>
-
-              <TouchableOpacity style={[styles.center, styles.topLine, {marginBottom: 30}]} onPress={this.openLibrary} >
-                <Text style={[styles.bold, {color: 'rgb(237,75,75)', textDecorationLine:'underline', marginTop: -100}]}>change profile photo</Text>
-              </TouchableOpacity>
-              
-              <View style={[styles.container, styles.row,{alignItems: 'flex-start'}]}>
+                <View style={[styles.container, styles.row, {alignItems: 'flex-start'}]}>
                 <Text style={[styles.textG, {marginLeft:'1%', marginTop: '2%', }]}>Username:</Text>
                 <TextInput
                   style={[styles.border3, styles.textF]}
@@ -173,8 +180,11 @@ class Signup extends React.Component {
                 <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 20 }]} onPress={this.onPress}>
                   <Text style={styles.textA}>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.buttonCancel, { marginTop: 10, marginBottom: 25 }]} onPress={() => this.props.navigation.goBack()}>
+                <TouchableOpacity style={[styles.buttonCancel, { marginTop: 10 }]} onPress={() => this.props.navigation.goBack()}>
                   <Text style={styles.textA}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 10, marginBottom: 25 }]} onPress={this.onPressDel}>
+                  <Text style={styles.textA}>Delete User</Text>
                 </TouchableOpacity>
             </View>
               
@@ -187,7 +197,7 @@ class Signup extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ updatePhoto, uploadPhoto, updateUser, updateEmail, updatePassword, updateUsername, updateBio, signup, facebookLogin }, dispatch)
+  return bindActionCreators({ updatePhoto, uploadPhoto, updateUser, updateEmail, updatePassword, updateUsername, updateBio, signup, facebookLogin, deleteAuth, deleteAllPosts, deleteUser }, dispatch)
 }
 
 const mapStateToProps = (state) => {

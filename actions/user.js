@@ -108,6 +108,40 @@ export const updateUser = () => {
   }
 }
 
+export const deleteAuth = () => {
+  return async (dispatch, getState) => {
+    var user = firebase.auth().currentUser;
+    try {
+      user.delete();
+    } catch (e) {
+      alert(e)
+    }
+  }
+}
+
+export const deleteUser = () => {
+  return async (dispatch, getState) => {
+    const { uid } = getState().user
+    try {
+      db.collection("users").doc(uid).delete();
+    } catch (e) {
+      alert(e)
+    }
+  }
+}
+
+export const deleteAllPosts = () => {
+  return async (dispatch, getState) => {
+    const { uid } = getState().user
+    var posts_query = db.collection('posts').where('uid', '==', uid);
+    posts_query.get().then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        doc.ref.delete();
+      });
+    });
+  }
+}
+
 export const signup = () => {
   return async (dispatch, getState) => {
     try {
@@ -156,7 +190,7 @@ export const followUser = (user) => {
       dispatch(sendNotification(user.uid, 'Started Following You'))
       dispatch(getUser(user.uid))
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -173,7 +207,7 @@ export const unfollowUser = (user) => {
       })
       dispatch(getUser(user.uid))
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }

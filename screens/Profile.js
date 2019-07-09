@@ -3,8 +3,10 @@ import styles from '../styles'
 import firebase from 'firebase';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
+import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, Alert, TouchableHighlight, Modal } from 'react-native';
 import { followUser, unfollowUser } from '../actions/user'
+import { getMessages } from '../actions/message'
+import { deletePost } from '../actions/post'
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { ImagePicker, Permissions } from 'expo';
@@ -19,8 +21,17 @@ class Profile extends React.Component {
        };
   }
 
+  componentDidMount = () => {
+    this.props.getMessages()
+  }
+
+  logout = () => {
+    firebase.auth().signOut()
+    this.props.navigation.navigate('Login')
+  }
+
   onButtonPress= (item) => {
-    { this.state.imgStyle == styles.squareLarge ? 
+      { this.state.imgStyle === styles.squareLarge ? 
       this.setState({
         imgStyle: styles.postPhoto,
       })
@@ -34,6 +45,7 @@ class Profile extends React.Component {
     })
     
     this.scroll.scrollTo({ y: 12000, animated: true });
+  
   };
 
   goToTop = () => {
@@ -59,8 +71,27 @@ class Profile extends React.Component {
       if (!image.cancelled) {
         const url = await this.props.uploadPhoto(image)
         this.props.updatePhoto(url)
-        console.log(url)
+        /* console.log(url) */
       }
+    }
+  }
+
+  deleteThisPost = (item) => {
+    const { state, navigate } = this.props.navigation;
+    if (state.routeName === 'MyProfile'){ 
+    Alert.alert(
+      'Delete post?',
+      'Press OK to Delete. This action is irreversible, it cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => alert('Cancelled'),
+          style: 'cancel',
+        },
+        { text: 'OK', onPress: () => this.props.deletePost(item) },
+      ],
+      { cancelable: false },
+    );
     }
   }
 
@@ -75,23 +106,24 @@ class Profile extends React.Component {
     if (!user.posts) return <ActivityIndicator style={styles.container} />
     return (
       <ScrollView ref={(c) => { this.scroll = c }}>
-        
+
         <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginTop:450}]}>
             {state.routeName === 'MyProfile' && user.photo === '' ?
-              <View style={[styles.center, styles.container, styles.center,{width:'100%'}]}>
+              <View style={[styles.center, styles.container, {width:'100%'}]}>
                 <TouchableOpacity onPress={this.openLibrary} >
                 <Text style={[styles.bold]}>Add profile photo +</Text>
               </TouchableOpacity>
             </View>:
             <View/>
             }
-            <View style={[styles.topLine]} />
+          </View>
+          <View style={[styles.topLine, { width: '100%', marginTop: -10}]} />
             <View style={[styles.row, styles.space, {width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
                 <View>
-                  <View style={[styles.row, styles.space, {width: '100%' }]}>
+                  <View style={[styles.row, styles.space, {width: '100%'}]}>
                     <View>
                       <TouchableOpacity style={styles.buttonCircle} onPress={() => this.props.navigation.navigate('Edit')}>
                         <Text style={[styles.bold, styles.textD]}>Edit</Text>
@@ -102,14 +134,17 @@ class Profile extends React.Component {
                       <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
                     </View>
                     <View>
-                      <TouchableOpacity style={styles.buttonLogout} onPress={() => firebase.auth().signOut()}>
+                      <TouchableOpacity style={styles.buttonLogout} onPress={this.logout}>
                         <Text style={[styles.bold, styles.textE]}>Logout</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
-                    <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Dash')}>
-                      <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='view-dashboard' size={50} />
-                    </TouchableOpacity>
+                    {/* <TouchableOpacity onPress={() => this.props.navigation.navigate('Dash')} style={styles.buttonMessage}>
+                      <MaterialCommunityIcons 
+                        style={{ margin: 5, color: 'rgb(255,255,255)' }} 
+                        name='view-dashboard' 
+                        size={50} />
+                    </TouchableOpacity> */}
                   </View>
                   :
                   <View>
@@ -122,19 +157,19 @@ class Profile extends React.Component {
                         <Text style={[styles.center, styles.bold, styles.textW]}>{user.bio}</Text>
                       </View>
                     </View>
-                    <View style={styles.row}>
-                      <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
+                    
+                  <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Chat', user.uid)}>
                         <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='email-outline' size={50} />
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Pay', user.uid)}>
+                      {/* <TouchableOpacity style={styles.buttonMessage} onPress={() => this.props.navigation.navigate('Pay', user.uid)}>
                         <MaterialCommunityIcons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='currency-usd' size={50} />
-                      </TouchableOpacity>
-                    </View>
+                      </TouchableOpacity> */}
+                    
                   </View>
               }
             </View>
-          </View>
-          <View style={[styles.row, styles.space, styles.followBar,]}>
+        </ImageBackground>  
+          <View style={[styles.row, styles.space, styles.followBar,{marginTop:0}]}>
             <View style={styles.center}>
               <Text style={[styles.bold, styles.textF]}>{user.posts.length}</Text>
               <Text style={[styles.bold, styles.textF]}>posts</Text>
@@ -151,7 +186,7 @@ class Profile extends React.Component {
                 <Text style={[styles.bold, styles.textD, { color: 'red' }]}>hide</Text>
               </View> */}
           </View>
-        </ImageBackground>
+        
         { this.state.imgStyle === styles.squareLarge ?
         <FlatList
             initialNumToRender='9'
@@ -166,7 +201,7 @@ class Profile extends React.Component {
             extraData={this.state.refresh}
             keyExtractor={(item) => JSON.stringify(item.date)}
             renderItem={({ item }) => 
-              <TouchableOpacity onPress={ () => this.onButtonPress(item) }>
+              <TouchableOpacity onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={() => this.deleteThisPost(item)}>
                 <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
           }/> :
@@ -182,7 +217,7 @@ class Profile extends React.Component {
             extraData={this.state.refresh}
             keyExtractor={(item) => JSON.stringify(item.date)}
             renderItem={({ item }) =>
-              <TouchableOpacity onPress={() => this.onButtonPress(item)}>
+              <TouchableOpacity onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={()=>this.deleteThisPost(item)}>
                 <Image style={styles.postPhoto} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
             } />
@@ -193,7 +228,7 @@ class Profile extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ followUser, unfollowUser }, dispatch)
+  return bindActionCreators({ followUser, unfollowUser, getMessages, deletePost }, dispatch)
 }
 
 const mapStateToProps = (state) => {

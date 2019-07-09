@@ -158,7 +158,7 @@ export default styles = StyleSheet.create({
     height: 60
   },
   buttonMessage: {
-    
+    marginTop: -20
   },
   buttonLogin: {
     marginTop: 15,
@@ -481,6 +481,11 @@ export default styles = StyleSheet.create({
   topLine: {
     borderTopWidth: 1,
     borderTopColor: 'rgb(75,75,75)',
+    width: width,
+  },
+  bottomLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgb(75,75,75)',
     width: width,
   },
   dropDown: {

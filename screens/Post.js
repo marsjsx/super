@@ -69,13 +69,9 @@ class Post extends React.Component {
 
   render() {
     let data = [{
-      value: 'Stephen Maynard',
-    }, {
       value: 'Brian Helm',
     }, {
       value: 'Pat Hustad',
-    }, {
-      value: 'Clarissa Martinez',
     }];
     let dataLoc = [{
       value: 'Pacific City',
@@ -120,7 +116,7 @@ class Post extends React.Component {
             </TouchableOpacity> : null
         }
         
-        <Dropdown label='Tag People' data={data} containerStyle={styles.dropDown}/>
+        {/* <Dropdown label='Tag People' data={data} containerStyle={styles.dropDown}/>
         <Dropdown label='Add Location' data={dataLoc} containerStyle={styles.dropDown} />
         <View style={[styles.postShare, styles.row, styles.space,]}>
           <Text style={[styles.left,{ color: 'rgba(150,150,150,0.9)' }]}>Facebook</Text>
@@ -133,7 +129,7 @@ class Post extends React.Component {
           <TouchableOpacity style={[styles.buttonShare, styles.right]}>
             <Text style={[{ color: 'rgba(244,66,66,0.9)' }]}>SHARE</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
         <TouchableOpacity style={styles.button} onPress={this.post}>
           <Text>Post</Text>
         </TouchableOpacity>

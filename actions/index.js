@@ -19,7 +19,7 @@ export const uploadPhoto = (image) => {
       const downloadURL = await uploadTask.ref.getDownloadURL()
       return downloadURL
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -35,7 +35,7 @@ export const allowNotifications = () => {
         db.collection('users').doc(uid).update({ token: token })
       }
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -60,7 +60,7 @@ export const sendNotification = (uid, text) => {
         })
       }
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }

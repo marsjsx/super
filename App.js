@@ -1,3 +1,4 @@
+import './src/fixtimerbug';
 import React from 'react';
 import SwitchNavigator from './navigation/SwitchNavigator';
 import reducer from './reducers';

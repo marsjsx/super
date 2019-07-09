@@ -35,7 +35,7 @@ export const uploadPost = () => {
       }
       db.collection('posts').doc(id).set(upload)
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -56,16 +56,28 @@ export const getPosts = () => {
   }
 }
 
+export const deletePost = (item) => {
+  return async (dispatch, getState) => {
+    const post = item.id
+    try {
+      db.collection("posts").doc(post).delete();
+      alert(post);
+    } catch (e) {
+      alert(e)
+    }
+  }
+}
+
 export const likePost = (post) => {
   return (dispatch, getState) => {
     const { uid, username, photo } = getState().user
     try {
-      // const home = cloneDeep(getState().post.feed)
-      // let newFeed = home.map(item => {
-      //   if(item.id === post.id){
-      //     item.likes.push(uid)
-      //   } return item
-      // })
+       const home = cloneDeep(getState().post.feed)
+       let newFeed = home.map(item => {
+         if(item.id === post.id){
+           item.likes.push(uid)
+         } return item
+       })
       db.collection('posts').doc(post.id).update({
         likes: firebase.firestore.FieldValue.arrayUnion(uid)
       })
@@ -80,10 +92,10 @@ export const likePost = (post) => {
         type: 'LIKE',
       })
       dispatch(sendNotification(post.uid, 'Liked Your Photo'))
-      // dispatch({type: 'GET_POSTS', payload: newFeed})
+      dispatch({type: 'GET_POSTS', payload: newFeed})
       dispatch(getPosts())
     } catch (e) {
-      console.error(e)
+      /* alert(e) */
     }
   }
 }
@@ -101,7 +113,7 @@ export const unlikePost = (post) => {
       })
       dispatch(getPosts())
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
@@ -137,7 +149,7 @@ export const addComment = (text, post) => {
       dispatch(sendNotification(post.uid, text))
       db.collection('activity').doc().set(comment)
     } catch (e) {
-      console.error(e)
+      /* console.error(e) */
     }
   }
 }
