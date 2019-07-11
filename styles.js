@@ -102,7 +102,8 @@ export default styles = StyleSheet.create({
     width: width,
   },
   postPhotoPreview: {
-    height: height * .75,
+    height: 800
+    /* height: height * .75, */
     /* width: width, */
   },
   roundImage: {
@@ -500,7 +501,7 @@ export default styles = StyleSheet.create({
     borderColor: 'rgba(150,150,150,0.9)',
   },
   chatBlue:{
-    backgroundColor: 'rgb(235, 75, 75)',
+    backgroundColor: 'rgb(66, 135, 245)',
     borderRadius: 30,
     borderWidth: 0,
   },

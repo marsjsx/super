@@ -51,7 +51,6 @@ class Home extends React.Component {
     return (
       <View style={styles.container}>
         <FlatList
-
           initialNumToRender='1'
           maxToRenderPerBatch='2'
           windowSize={2}
@@ -62,7 +61,7 @@ class Home extends React.Component {
           renderItem={({ item }) => {
             const liked = item.likes.includes(this.props.user.uid)
             return (
-              <View style={{padding: 0, margin: 0}}>
+              <View id={item.id} style={{padding: 0, margin: 0}}>
                 <TouchableOpacity onPress={() => this.likePost(item)} >
                   <ImageBackground style={styles.postPhoto} source={{ uri: item.postPhoto }} >
                     <View style={styles.bottom}>

@@ -199,9 +199,10 @@ class Profile extends React.Component {
             numColumns={3}
             data={user.posts}
             extraData={this.state.refresh}
-            keyExtractor={(item) => JSON.stringify(item.date)}
+            // keyExtractor={(item) => JSON.stringify(item.date)}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => 
-              <TouchableOpacity onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={() => this.deleteThisPost(item)}>
+              <TouchableOpacity id={item.id} onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={() => this.deleteThisPost(item)}>
                 <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
           }/> :
@@ -215,9 +216,9 @@ class Profile extends React.Component {
             horizontal={false}
             data={user.posts}
             extraData={this.state.refresh}
-            keyExtractor={(item) => JSON.stringify(item.date)}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) =>
-              <TouchableOpacity onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={()=>this.deleteThisPost(item)}>
+              <TouchableOpacity id={item.id} onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={()=>this.deleteThisPost(item)}>
                 <Image style={styles.postPhoto} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
             } />

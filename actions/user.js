@@ -131,16 +131,25 @@ export const deleteUser = () => {
 }
 
 export const deleteAllPosts = () => {
-  return async (dispatch, getState) => {
-    const { uid } = getState().user
-    var posts_query = db.collection('posts').where('uid', '==', uid);
-    posts_query.get().then(function (querySnapshot) {
+  // First perform the query
+  db.collection('posts').where('uid', '==', user.uid).get()
+    .then(function (querySnapshot) {
+      // Once we get the results, begin a batch
+      var batch = db.batch();
+
       querySnapshot.forEach(function (doc) {
-        doc.ref.delete();
+        // For each doc, add a delete operation to the batch
+        batch.delete(doc.ref);
       });
-    });
-  }
+
+      // Commit the batch
+      return batch.commit();
+    }).then(function () {
+      alert('deleting posts...')
+    }); 
 }
+
+
 
 export const signup = () => {
   return async (dispatch, getState) => {
