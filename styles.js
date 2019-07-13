@@ -510,5 +510,9 @@ export default styles = StyleSheet.create({
     borderColor: 'rgb(1, 1, 1)',
     borderRadius: 30,
   },
+  hide:{
+    height: '0', 
+    width: '0'
+  }
 });
  

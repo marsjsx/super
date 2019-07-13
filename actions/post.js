@@ -95,6 +95,7 @@ export const likePost = (post) => {
       dispatch(sendNotification(post.uid, 'Liked Your Photo'))
       dispatch({type: 'GET_POSTS', payload: newFeed})
       dispatch(getPosts())
+      dispatch(getUser(response.user.uid))
     } catch (e) {
       /* alert(e) */
     }

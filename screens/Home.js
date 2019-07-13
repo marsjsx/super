@@ -1,13 +1,14 @@
 import React from 'react';
-import styles from '../styles'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import styles from '../styles';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Ionicons, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
-import { getPosts, likePost, unlikePost } from '../actions/post'
+import { getPosts, likePost, unlikePost } from '../actions/post';
 import { getUser } from '../actions/user';
-import moment from 'moment'
+import moment from 'moment';
 import { Font } from 'expo';
+import DoubleTap from '../component/DoubleTap';
 
 class Home extends React.Component {
   constructor(props) {
@@ -16,7 +17,6 @@ class Home extends React.Component {
       fontLoaded: false,
     };
   }
-
 
   async componentDidMount() {
     await Font.loadAsync({
@@ -27,6 +27,15 @@ class Home extends React.Component {
   }
 
   likePost = (post) => {
+    const { uid } = this.props.user
+    if (post.likes.includes(uid)) {
+      this.props.unlikePost(post)
+    } else {
+      this.props.likePost(post)
+    }
+  }
+
+  onDoubleTap = (post) => {
     const { uid } = this.props.user
     if (post.likes.includes(uid)) {
       this.props.unlikePost(post)
@@ -51,9 +60,9 @@ class Home extends React.Component {
     return (
       <View style={styles.container}>
         <FlatList
-          initialNumToRender='1'
-          maxToRenderPerBatch='2'
-          windowSize={2}
+          initialNumToRender='3'
+          maxToRenderPerBatch='3'
+          windowSize={6}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
           data={this.props.post.feed}
@@ -62,7 +71,7 @@ class Home extends React.Component {
             const liked = item.likes.includes(this.props.user.uid)
             return (
               <View id={item.id} style={{padding: 0, margin: 0}}>
-                <TouchableOpacity onPress={() => this.likePost(item)} >
+                <DoubleTap onDoubleTap={() => this.onDoubleTap(item)} >
                   <ImageBackground style={styles.postPhoto} source={{ uri: item.postPhoto }} >
                     <View style={styles.bottom}>
 
@@ -105,7 +114,7 @@ class Home extends React.Component {
 
                     </View> 
                   </ImageBackground>
-                </TouchableOpacity>
+                </DoubleTap>
               </View>
             )
           }}

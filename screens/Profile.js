@@ -3,26 +3,37 @@ import styles from '../styles'
 import firebase from 'firebase';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, Alert, TouchableHighlight, Modal } from 'react-native';
-import { followUser, unfollowUser } from '../actions/user'
+import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, UIManager, findNodeHandle } from 'react-native';
+import { followUser, unfollowUser, getUser } from '../actions/user'
 import { getMessages } from '../actions/message'
-import { deletePost } from '../actions/post'
+import { getPosts, likePost, unlikePost, deletePost } from '../actions/post';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Entypo} from '@expo/vector-icons';
 import { ImagePicker, Permissions } from 'expo';
+import moment from 'moment';
+import DoubleTap from '../component/DoubleTap';
+import FadeOutView from '../component/FadeOutView';
 
 class Profile extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      imgStyle: styles.squareLarge,
-      refresh: Boolean,
-      selectedIndex: 0,
+    this.state = {
+      flatListSmall: true,
+      selectedId: 'showAll',
+      position: 0,
+      visible: 1,
        };
+    this.scroll = null;
+    this.scrollView = null;
   }
+
+  goIndex = (index) => {
+    this.flatListRef.scrollToIndex({ animated: true, index: index });
+  };
 
   componentDidMount = () => {
     this.props.getMessages()
+    this.props.getPosts()
   }
 
   logout = () => {
@@ -31,29 +42,36 @@ class Profile extends React.Component {
   }
 
   onButtonPress= (item) => {
-      { this.state.imgStyle === styles.squareLarge ? 
-      this.setState({
-        imgStyle: styles.postPhoto,
-      })
-      : 
-      this.setState({
-        imgStyle: styles.squareLarge,
-      }) 
-    }
     this.setState({
-      refresh: !this.state.refresh
+      flatListSmall: !this.state.flatListSmall
     })
-    
-    this.scroll.scrollTo({ y: 12000, animated: true });
+    Platform.OS === 'android' ?
+      this.scroll.scrollTo({ y: 12000, animated: true }):
+      this.scroll.scrollTo({ y: 120, animated: true })
+  };
   
-  };
+  refreshScript = () => {
+    this.setState({ state: this.state });
+  }
 
-  goToTop = () => {
-    this.scroll.scrollTo({ x: 0, y: 0, animated: true });
-  };
-
-  _onPress = () => {
-    this.props.onPressItem(this.props.id);
+  onSelect = (item, index) => {
+    {
+    this.state.selectedId === 'showAll' ?
+      [
+      this.scroll.scrollToEnd(),
+      /* this.flatListRef.scrollToIndex({ animated: true, index: index }), */
+      this.setState({
+        selectedId: item.id
+      })
+      ]
+      :
+      [
+      this.setState({
+        selectedId: 'showAll',
+      }),
+      /* this.flatListRef.scrollToIndex({ animated: true, index: index }) */
+      ]
+    }
   };
 
   follow = (user) => {
@@ -76,27 +94,71 @@ class Profile extends React.Component {
     }
   }
 
-  deleteThisPost = (item) => {
+  onDoubleTap =  (post) => {
+    const { uid } = this.props.user;
+    if (post.likes.includes(uid)) {
+      this.props.unlikePost(post)
+    } else {
+      this.props.likePost(post)
+    };
+    this.setState({ state: this.state });
+  }
+
+  onSingleTap = (item, index) => {
+    {
+      this.state.selectedId === 'showAll' ?
+        [
+          this.scroll.scrollToEnd(),
+          /* this.flatListRef.scrollToIndex({ animated: true, index: index }), */
+          this.setState({
+            selectedId: item.id
+          })
+        ]
+        :
+        [
+          this.setState({
+            selectedId: 'showAll',
+          }),
+          /* this.flatListRef.scrollToIndex({ animated: true, index: index }) */
+        ]
+    }
+  };
+
+  likePostAction = (post) => {
+    const { uid } = this.props.user
+    if (post.likes.includes(uid)) {
+      this.props.unlikePost(post)
+      alert('unliked post')
+    } else {
+      this.props.likePost(post)
+      alert('liked post')
+    }
+  }
+
+  activateLongPress = (item) => {
     const { state, navigate } = this.props.navigation;
     if (state.routeName === 'MyProfile'){ 
-    Alert.alert(
-      'Delete post?',
-      'Press OK to Delete. This action is irreversible, it cannot be undone.',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => alert('Cancelled'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => this.props.deletePost(item) },
-      ],
-      { cancelable: false },
-    );
+      Alert.alert(
+        'Delete post?',
+        'Press OK to Delete. This action is irreversible, it cannot be undone.',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => alert('Cancelled'),
+            style: 'cancel',
+          },
+          { text: 'OK', onPress: () => this.props.deletePost(item) },
+        ],
+        { cancelable: false },
+      );
+    }else{
+      this.likePostAction(item)
     }
   }
 
   render() {
     let user = {}
+    const selectedId = this.state.selectedId
     const { state, navigate } = this.props.navigation
     if (state.routeName === 'Profile') {
       user = this.props.profile
@@ -105,7 +167,7 @@ class Profile extends React.Component {
     }
     if (!user.posts) return <ActivityIndicator style={styles.container} />
     return (
-      <ScrollView ref={(c) => { this.scroll = c }}>
+      <ScrollView ref={(c) => this.scroll = c} >
 
         <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginTop:450}]}>
@@ -187,55 +249,108 @@ class Profile extends React.Component {
               </View> */}
           </View>
         
-        { this.state.imgStyle === styles.squareLarge ?
         <FlatList
-            initialNumToRender='9'
-            maxToRenderPerBatch='3'
-            windowSize={3}
-            key={1}
-            style={{ paddingTop: 0 }}
-            initialScrollIndex={0}
-            horizontal={false}
-            numColumns={3}
-            data={user.posts}
-            extraData={this.state.refresh}
-            // keyExtractor={(item) => JSON.stringify(item.date)}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => 
-              <TouchableOpacity id={item.id} onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={() => this.deleteThisPost(item)}>
-                <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />
-              </TouchableOpacity>
-          }/> :
-          <FlatList
-            initialNumToRender='2'
-            maxToRenderPerBatch='2'
-            windowSize={2}
-            key={2}
-            style={{ paddingTop: 0 }}
-            initialScrollIndex={0}
-            horizontal={false}
-            data={user.posts}
-            extraData={this.state.refresh}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) =>
-              <TouchableOpacity id={item.id} onPress={() => this.onButtonPress(item)} activeOpacity={0.6} onLongPress={()=>this.deleteThisPost(item)}>
-                <Image style={styles.postPhoto} source={{ uri: item.postPhoto }} />
-              </TouchableOpacity>
-            } />
-          }
+          initialNumToRender='9'
+          maxToRenderPerBatch='6'
+          windowSize={12}
+          onRefresh={() => this.props.getUser()}
+          refreshing={false}
+          style={selectedId === 'showAll' ? { paddingTop: 0, paddingBottom: 130}:{paddingTop:0, paddingBottom:0}}
+          horizontal={false}
+          numColumns={3}
+          data={user.posts}
+          keyExtractor={(item, index) => [item.id, index]}
+          renderItem={({ item, index }) => {
+            const selectedId = this.state.selectedId
+            const liked = item.likes.includes(this.props.user.uid)
+            const visible = this.state.visible
+            return(
+              <View>
+                {item.id === selectedId ?
+                  <TouchableOpacity
+                    id={item.id}
+                    onPress={() => [this.onSelect(item, index)]}
+                    activeOpacity={0.6}
+                    onLongPress={() => this.activateLongPress(item)}>
+                    
+                    <ImageBackground style={styles.postPhoto} source={{ uri: item.postPhoto }} >
+                      <View style={styles.bottom}>
+
+                        <View style={[styles.row, styles.space]}>
+
+                          <View style={[styles.row,]}>
+                            <TouchableOpacity onPress={() => this.goToUser(item)}>
+                              <Image style={styles.squareImage} source={{ uri: item.photo }} />
+                            </TouchableOpacity>
+                            <View>
+                              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
+                                {
+                                  this.state.fontLoaded ? (
+                                    <Text style={{ fontFamily: 'open-sans-bold', fontSize: 18, color: 'rgb(255,255,255)' }}>{item.username}</Text>
+                                  ) : null
+                                }
+                              </View>
+
+                              <Text style={[styles.gray, styles.small]}>{moment(item.date).format('ll')}</Text>
+                              <TouchableOpacity onPress={() => this.navigateMap(item)} >
+                                <Text style={styles.textD} > {item.postLocation ? item.postLocation.name : null} </Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+
+                          <View style={{ marginTop: -150 }}>
+                            <MaterialCommunityIcons style={{ marginBottom: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={50} />
+                            <TouchableOpacity onPress={() => this.likePostAction(item)} >
+                            <Ionicons style={{ margin: 5, }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={50} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
+                              <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={50} />
+                            </TouchableOpacity>
+                            <Entypo style={{ margin: 5, color: 'rgb(255,255,255)' }} name='forward' size={45} />
+                          </View>
+
+                        </View>
+
+                        <View style={{ width: '65%', marginTop: 0, }}>
+                          <Text style={styles.textD} > {item.postDescription} </Text>
+                        </View>
+
+                      </View>
+                    </ImageBackground>
+                    
+                  </TouchableOpacity>
+                  :
+                  
+                  <TouchableOpacity 
+                    id={item.id}
+                    onPress={() => [this.onSelect(item, index)]}
+                    activeOpacity={0.6}
+                    onLongPress={() => this.activateLongPress(item)}>
+                    {selectedId === 'showAll' ?
+                      <Image id={item.id} style={styles.squareLarge} source={{ uri: item.postPhoto }} /> 
+                      :
+                      <View id={item.id} />
+                    }
+                  </TouchableOpacity>
+                  
+                }
+              </View>
+            )}
+          }/>
       </ScrollView>
     );
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ followUser, unfollowUser, getMessages, deletePost }, dispatch)
+  return bindActionCreators({ followUser, unfollowUser, getMessages, deletePost, getPosts, likePost, unlikePost, getUser }, dispatch)
 }
 
 const mapStateToProps = (state) => {
   return {
+    post: state.post,
     user: state.user,
-    profile: state.profile
+    profile: state.profile,
   }
 }
 

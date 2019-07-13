@@ -9,9 +9,6 @@ import { Provider } from 'react-redux';
 import {createStore, applyMiddleware } from 'redux';
 const middleware = applyMiddleware(thunkMiddleware);
 const store = createStore(reducer, middleware);
-//console.disableYellowBox = true;
-//console.ignoredYellowBox = ['Setting a timer'];
-
 
 
 export default class App extends React.Component {

@@ -51,6 +51,9 @@ class Search extends React.Component {
           </View>
         
         <FlatList
+          initialNumToRender='20'
+          maxToRenderPerBatch='20'
+          windowSize={20}
           data={this.state.query}
           keyExtractor={(item) => JSON.stringify(item.uid)}
           renderItem={({ item }) => (
@@ -65,9 +68,9 @@ class Search extends React.Component {
         
         <View style={{marginTop: 20}}>
           <FlatList
-            initialNumToRender= '9'
+            initialNumToRender= '12'
             maxToRenderPerBatch= '9'
-            windowSize={3}
+            windowSize={9}
             style={{ paddingTop: 10 }}
             horizontal={false}
             numColumns={3}

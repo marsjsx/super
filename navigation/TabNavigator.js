@@ -3,7 +3,7 @@ import { Text, View, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { HomeNavigator, SearchNavigator, PostNavigator, ActivityNavigator, ProfileNavigator } from './StackNavigator'
 import { createBottomTabNavigator, createAppContainer } from 'react-navigation';
-const bgcolor = 'rgba(255,255,255,0.1)'
+
 const TabNavigator = createBottomTabNavigator(
   {
     Home: {
