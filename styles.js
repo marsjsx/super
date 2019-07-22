@@ -166,10 +166,10 @@ export default styles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgb(193,103,155)',
+    backgroundColor: 'rgba(209,84,84,0.85)',
     borderRadius: 20,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: 'rgba(200,100,200,0.8)'
   },
   buttonSignup: {
     marginTop: 15,
@@ -178,17 +178,27 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgb(209,84,84)',
+    backgroundColor: 'rgba(209,84,84,0.85)',
     borderRadius: 20,
     borderWidth: 0,
     borderColor: '#fff'
+  },
+  buttonReset: {
+    marginTop: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
+    width: 250,
+    backgroundColor: 'rgba(38, 94, 53,0.8)',
+    borderRadius: 10,
+    borderWidth: 0,
+    borderColor: 'rgb(38, 94, 53)'
   },
   buttonLogin2: {
     marginTop: 10,
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgb(237,124,128)',
+    backgroundColor: 'rgba(237,124,128,0.85)',
     borderRadius: 10,
     borderWidth: 0,
     borderColor: '#fff'
@@ -200,7 +210,7 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgb(243,177,174)',
+    backgroundColor: 'rgba(243,177,174,0.85)',
     borderRadius: 10,
     borderWidth: 0,
     borderColor: '#fff'
@@ -226,24 +236,33 @@ export default styles = StyleSheet.create({
     borderColor: 'rgb(237,124,128)',
   },
   buttonFacebook:{
-    backgroundColor: '#3b5998',
+    backgroundColor: 'rgba(59, 89, 152,0.8)',
     marginTop: 15,
     paddingVertical: 10,
     alignItems: 'center',
-    borderColor: '#3b5998',
+    borderColor: 'rgba(59, 89, 152,0.8)',
     borderWidth: 0,
     borderRadius: 20,
     width: 250
   },
+  buttonDelete: {
+    marginTop: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
+    width: 250,
+    backgroundColor: 'rgba(225,30,30,0.85)',
+    borderRadius: 5,
+    borderWidth: 0,
+    borderColor: '#fff'
+  },
   buttonCircle: {
     marginTop: -50,
     marginBottom: 0,
-    marginLeft: 1,
-    marginRight: 1,
+    
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(81, 137, 226)',
+    backgroundColor: 'rgba(81, 137, 226,0.95)',
     borderColor: '#d3d3d3',
     borderWidth: 1,
     borderRadius: 50,
@@ -276,10 +295,13 @@ export default styles = StyleSheet.create({
   buttonLogout: {
     marginTop: -50,
     marginBottom: 0,
+
+    
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: '#d3d3d3',
+    backgroundColor: 'rgba(125,125,125,0.95)',
     borderWidth: 1,
     borderRadius: 50,
     width: 62.5,
@@ -296,7 +318,7 @@ export default styles = StyleSheet.create({
     height: 20,
   },
   buttonForgot: {
-    marginTop: 50,
+    marginTop: 60,
     marginBottom: 60,
   },
   logo2:{
@@ -322,7 +344,7 @@ export default styles = StyleSheet.create({
     fontWeight: '500',
   },
   textA: {
-    letterSpacing: 6,
+    letterSpacing: 2,
     color: '#fff',
     textAlign: 'center',
     fontWeight: '500',
@@ -513,6 +535,11 @@ export default styles = StyleSheet.create({
   hide:{
     height: '0', 
     width: '0'
+  },
+  tintGreen:{
+    width: width,
+    height: height,
+    backgroundColor: 'rgba(85, 160, 112,0.1)'
   }
 });
  

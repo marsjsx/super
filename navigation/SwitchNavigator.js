@@ -1,6 +1,6 @@
 import React from 'react';
 import TabNavigator from './TabNavigator.js'
-
+import ClearTabs from './ClearTabs.js'
 import AuthNavigator from './AuthNavigator.js'
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 

@@ -220,3 +220,18 @@ export const unfollowUser = (user) => {
     }
   }
 }
+
+export const passwordResetEmail = () => {
+  return async (dispatch, getState) => {
+    const { uid, email } = getState().user;
+    var auth = firebase.auth();
+    var emailAddress = email;
+    try {
+    auth.sendPasswordResetEmail(emailAddress).then( () => {
+      alert('Reset request sent to email.')// Email sent.
+    })
+    } catch (e) {
+      alert(e)
+    }
+  }
+}

@@ -12,7 +12,7 @@ import { Ionicons, MaterialCommunityIcons, Entypo} from '@expo/vector-icons';
 import { ImagePicker, Permissions } from 'expo';
 import moment from 'moment';
 import DoubleTap from '../component/DoubleTap';
-import FadeOutView from '../component/FadeOutView';
+import FadeInView from '../component/FadeInView';
 
 class Profile extends React.Component {
   constructor(props) {
@@ -21,7 +21,7 @@ class Profile extends React.Component {
       flatListSmall: true,
       selectedId: 'showAll',
       position: 0,
-      visible: 1,
+      visible: false,
        };
     this.scroll = null;
     this.scrollView = null;
@@ -72,6 +72,7 @@ class Profile extends React.Component {
       /* this.flatListRef.scrollToIndex({ animated: true, index: index }) */
       ]
     }
+    this.visibleSwitch(item)
   };
 
   follow = (user) => {
@@ -124,14 +125,28 @@ class Profile extends React.Component {
     }
   };
 
+  visibleSwitch = (post) => {
+    const { uid } = this.props.user
+    if (post.likes.includes(uid)) {
+      this.setState({
+        visible: true,
+      })
+    } else {
+      this.setState({
+        visible: false,
+      })
+    }
+  }
+
   likePostAction = (post) => {
     const { uid } = this.props.user
     if (post.likes.includes(uid)) {
       this.props.unlikePost(post)
-      alert('unliked post')
+      this.setState({
+        visible: false,
+      })
     } else {
       this.props.likePost(post)
-      alert('liked post')
     }
   }
 
@@ -160,7 +175,7 @@ class Profile extends React.Component {
     let user = {}
     const selectedId = this.state.selectedId
     const { state, navigate } = this.props.navigation
-    if (state.routeName === 'Profile') {
+    if (state.routeName === 'Profile' ) {
       user = this.props.profile
     } else {
       user = this.props.user
@@ -184,7 +199,7 @@ class Profile extends React.Component {
             <View style={[styles.row, styles.space, {width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
-                <View>
+                <View style={styles.container}>
                   <View style={[styles.row, styles.space, {width: '100%'}]}>
                     <View>
                       <TouchableOpacity style={styles.buttonCircle} onPress={() => this.props.navigation.navigate('Edit')}>
@@ -209,7 +224,7 @@ class Profile extends React.Component {
                     </TouchableOpacity> */}
                   </View>
                   :
-                  <View>
+                <View style={styles.container}>
                     <View style={styles.row}>
                       <TouchableOpacity style={styles.buttonCircle} onPress={() => this.follow(user)}>
                         <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name={user.followers.indexOf(this.props.user.uid) >= 0 ? 'ios-checkmark' : 'ios-add'} size={25}/>
@@ -253,7 +268,7 @@ class Profile extends React.Component {
           initialNumToRender='9'
           maxToRenderPerBatch='6'
           windowSize={12}
-          onRefresh={() => this.props.getUser()}
+          onRefresh={() => this.props.getPosts()}
           refreshing={false}
           style={selectedId === 'showAll' ? { paddingTop: 0, paddingBottom: 130}:{paddingTop:0, paddingBottom:0}}
           horizontal={false}
@@ -274,14 +289,10 @@ class Profile extends React.Component {
                     onLongPress={() => this.activateLongPress(item)}>
                     
                     <ImageBackground style={styles.postPhoto} source={{ uri: item.postPhoto }} >
+
                       <View style={styles.bottom}>
-
                         <View style={[styles.row, styles.space]}>
-
                           <View style={[styles.row,]}>
-                            <TouchableOpacity onPress={() => this.goToUser(item)}>
-                              <Image style={styles.squareImage} source={{ uri: item.photo }} />
-                            </TouchableOpacity>
                             <View>
                               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
                                 {
@@ -298,15 +309,20 @@ class Profile extends React.Component {
                             </View>
                           </View>
 
-                          <View style={{ marginTop: -150 }}>
-                            <MaterialCommunityIcons style={{ marginBottom: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={50} />
-                            <TouchableOpacity onPress={() => this.likePostAction(item)} >
-                            <Ionicons style={{ margin: 5, }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={50} />
-                            </TouchableOpacity>
+                          <View style={{ marginTop: -75 }}>
+                            {this.state.visible === true ?
+                              <FadeInView>
+                                <Ionicons style={{ margin: 5, }}
+                                  color={'#db565b'}
+                                  name={'ios-heart'}
+                                  size={50} />
+                              </FadeInView>
+                              :
+                              null
+                            }
                             <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
                               <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={50} />
                             </TouchableOpacity>
-                            <Entypo style={{ margin: 5, color: 'rgb(255,255,255)' }} name='forward' size={45} />
                           </View>
 
                         </View>
@@ -329,7 +345,7 @@ class Profile extends React.Component {
                     {selectedId === 'showAll' ?
                       <Image id={item.id} style={styles.squareLarge} source={{ uri: item.postPhoto }} /> 
                       :
-                      <View id={item.id} />
+                      null
                     }
                   </TouchableOpacity>
                   

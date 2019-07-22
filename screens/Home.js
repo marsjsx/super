@@ -58,7 +58,7 @@ class Home extends React.Component {
   render() {
     if (this.props.post === null) return null
     return (
-      <View style={styles.container}>
+      <View style={[styles.container]}>
         <FlatList
           initialNumToRender='3'
           maxToRenderPerBatch='3'

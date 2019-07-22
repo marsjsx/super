@@ -103,6 +103,17 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
         )
       })
     },
+    Profile: {
+      screen: ProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+          </TouchableOpacity>
+        )
+      })
+    },
   }
 ));
 

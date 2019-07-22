@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Splash from '../screens/Splash'
 import Login from '../screens/Login'
 import SignupScreen from '../screens/Signup'
+import Reset from '../screens/Reset'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { TouchableOpacity } from 'react-native'
 
@@ -39,7 +40,20 @@ const StackNavigator = createStackNavigator(
         ),
         headerStyle: { backgroundColor: 'transparent' }
       })
-    }
+    },
+    Reset: {
+      screen: Reset,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        title: ' ',
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()} >
+            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+          </TouchableOpacity>
+        ),
+        headerStyle: { backgroundColor: 'transparent' }
+      })
+    },
   }
 );
 

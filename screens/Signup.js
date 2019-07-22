@@ -3,7 +3,7 @@ import styles from '../styles'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
-import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView, KeyboardAvoidingView, Alert } from 'react-native';
 import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser, facebookLogin, deleteAuth, deleteAllPosts, deleteUser } from '../actions/user'
 import { uploadPhoto } from '../actions'
 import firebase from 'firebase'
@@ -15,7 +15,7 @@ class Signup extends React.Component {
     /* console.log(routeName) */
   }
   
-  onPressDel = () => {
+  beginDel = () => {
     /* this.props.deleteAllPosts() */
     this.props.deleteUser()
     this.props.deleteAuth()
@@ -23,6 +23,21 @@ class Signup extends React.Component {
     this.props.navigation.navigate('Splash')
   }
 
+  onPressDel = () => {
+    Alert.alert(
+      'Delete Account?',
+      'Press OK to Delete. This action is irreversible, it cannot be undone. This will not delete your posts.',
+      [
+      {
+        text: 'Cancel',
+        onPress: () => alert('Cancelled'),
+        style: 'cancel',
+      },
+      { text: 'OK', onPress: () => this.beginDel() },
+      ],
+    { cancelable: false },
+    );
+  }
   onPress = () => {
     const { routeName } = this.props.navigation.state
     if (routeName === 'Signup') {
@@ -183,8 +198,8 @@ class Signup extends React.Component {
                 <TouchableOpacity style={[styles.buttonCancel, { marginTop: 10 }]} onPress={() => this.props.navigation.goBack()}>
                   <Text style={styles.textA}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 10, marginBottom: 25 }]} onPress={this.onPressDel}>
-                  <Text style={styles.textA}>Delete User</Text>
+                <TouchableOpacity style={[styles.buttonDelete, { marginTop: 25, marginBottom: 25 }]} onPress={this.onPressDel}>
+                  <Text style={styles.textA}>! Delete User !</Text>
                 </TouchableOpacity>
             </View>
               

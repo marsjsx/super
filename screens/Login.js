@@ -45,7 +45,7 @@ class Login extends React.Component {
                 secureTextEntry={true}
                 placeholderTextColor='rgb(255,255,255)'
               /></View>
-            <TouchableOpacity style={styles.buttonForgot} onPress={() => this.props.navigation.navigate('Signup')}>
+            <TouchableOpacity style={styles.buttonForgot} onPress={() => this.props.navigation.navigate('Reset')}>
               <Text style={styles.textA}>forgot password?</Text>              
             </TouchableOpacity>
             <TouchableOpacity style={[styles.buttonLogin, styles.center]} onPress={() => this.props.login()}>

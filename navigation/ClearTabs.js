@@ -59,25 +59,38 @@ const TabNavigator = createBottomTabNavigator(
   },
   {
     tabBarOptions: {
-      headerTransparent: true,
-      tabBarTransparent: true,
+      showIcon: true,
+      showLabel: false,
+      lazyLoad: true,
       style: {
         ...Platform.select({
           ios: {
+            borderTopWidth: 0,
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
             paddingBottom: 0,
             paddingTop: 5,
             height: 65,
+            width: '100%'
           },
           android: {
+            borderTopWidth: 0,
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            bottom: 0,
+            left:0,
             paddingTop: 15,
+            paddingBottom: 10,
             height: 40,
+            width: '100%'
           },
-          backgroundColor: 'rgba(3,3,3,0)'
         }),
       }
     }
   },
-  
+
 );
 
 export default createAppContainer(TabNavigator);

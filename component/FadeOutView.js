@@ -2,51 +2,31 @@ import React from 'react';
 import { Animated } from 'react-native';
 
 export default class FadeOutView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      visible: props.visible,
-    };
-  };
-
-  componentWillMount() {
-    this._visibility = new Animated.Value(this.props.visible ? 1 : 0);
+  state = {
+    fadeAnim: new Animated.Value(1),  // Initial value for opacity: 0
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.visible) {
-      this.setState({ visible: true });
-    }
-    Animated.timing(this._visibility, {
-      toValue: nextProps.visible ? 1 : 0,
-      duration: 300,
-    }).start(() => {
-      this.setState({ visible: nextProps.visible });
-    });
+  componentDidMount() {
+    Animated.timing(                  // Animate over time
+      this.state.fadeAnim,            // The animated value to drive
+      {
+        toValue: 0,                   // Animate to opacity: 1 (opaque)
+        duration: 1500,              // Make it take a while
+      }
+    ).start();                        // Starts the animation
   }
 
   render() {
-    const { visible, style, children, ...rest } = this.props;
+    let { fadeAnim } = this.state;
 
-    const containerStyle = {
-      opacity: this._visibility.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-      }),
-      transform: [
-        {
-          scale: this._visibility.interpolate({
-            inputRange: [0, 1],
-            outputRange: [1.1, 1],
-          }),
-        },
-      ],
-    };
-
-    const combinedStyle = [containerStyle, style];
     return (
-      <Animated.View style={this.state.visible ? combinedStyle : containerStyle} {...rest}>
-        {this.state.visible ? children : null}
+      <Animated.View                 // Special animatable View
+        style={{
+          ...this.props.style,
+          opacity: fadeAnim,         // Bind opacity to animated value
+        }}
+      >
+        {this.props.children}
       </Animated.View>
     );
   }
