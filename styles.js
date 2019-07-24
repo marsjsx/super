@@ -45,7 +45,7 @@ export default styles = StyleSheet.create({
     fontSize: 16,
   },
   inputSearch: {
-    width: width * .90,
+    width: width * .80,
     margin: 10,
     padding: 10,
     alignSelf: 'center',
@@ -102,8 +102,8 @@ export default styles = StyleSheet.create({
     width: width,
   },
   postPhotoPreview: {
-    height: height * .33,
-    width: width * .33,
+    height: height * .75,
+    /* width: width, */
   },
   roundImage: {
     width: 40,
@@ -144,6 +144,18 @@ export default styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     width: 125
+  },
+  buttonXsmall: {
+    padding: 10,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(1,1,1,0)',
+    borderColor: '#d3d3d3',
+    borderWidth: 1,
+    borderRadius: 5,
+    width: 60,
+    height: 60
   },
   buttonMessage: {
     
@@ -192,13 +204,33 @@ export default styles = StyleSheet.create({
     borderWidth: 0,
     borderColor: '#fff'
   },
+  buttonFilter: {
+    marginTop: 15,
+    paddingBottom: 6,
+    paddingTop: 6,
+    width: width*.85,
+    backgroundColor: 'rgba(209,84,84,0)',
+    borderRadius: 0,
+    borderWidth: 3,
+    borderColor: 'rgb(237,124,128)',
+  },
+  buttonSelected: {
+    marginTop: 15,
+    paddingBottom: 6,
+    paddingTop: 6,
+    width: width * .85,
+    backgroundColor: 'rgba(237,124,128,1)',
+    borderRadius: 0,
+    borderWidth: 3,
+    borderColor: 'rgb(237,124,128)',
+  },
   buttonFacebook:{
     backgroundColor: '#3b5998',
     marginTop: 10,
     paddingVertical: 10,
     alignItems: 'center',
     borderColor: '#3b5998',
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 20,
     width: 250
   },
@@ -227,6 +259,18 @@ export default styles = StyleSheet.create({
     borderWidth: 0,
     borderColor: '#fff',
     zIndex: 100,
+  },
+  buttonCancel: {
+    marginTop: 10,
+    paddingTop: 11,
+    paddingBottom: 11,
+    marginLeft: 10,
+    marginRight: 10,
+    width: 250,
+    backgroundColor: 'rgb(3,3,2)',
+    borderRadius: 10,
+    borderWidth: 0,
+    borderColor: '#fff'
   },
   buttonLogout: {
     marginTop: -50,
@@ -289,9 +333,9 @@ export default styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  textC: {
+  textL: {
     letterSpacing: 3,
-    color: 'rgb(243, 177, 174)',
+    color: 'rgb(215, 80, 80)',
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 16,
@@ -343,6 +387,20 @@ export default styles = StyleSheet.create({
     textShadowRadius: 7,
     textShadowColor: '#000000',
   },
+  textJ: {
+    letterSpacing: 1,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '500',
+    textDecorationLine: 'underline'
+  },
+  textK: {
+    letterSpacing: 1,
+    color: '#fff',
+    textAlign: 'left',
+    fontWeight: '300',
+    fontSize: 18,
+  },
   textInputA: {
     width: '85%',
     marginTop: 0,
@@ -391,7 +449,14 @@ export default styles = StyleSheet.create({
     width: width,
   },
   profileLogo: {
-    marginLeft: width/2.5,
+    ...Platform.select({
+      ios: {
+
+      },
+      android: {
+        marginLeft: width / 2.5,
+      },
+    }),
     width: 50,
     height: 50,
   },

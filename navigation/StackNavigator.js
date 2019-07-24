@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Login from '../screens/Login'
 import HomeScreen from '../screens/Home'
 import SearchScreen from '../screens/Search'
+import FilterScreen from '../screens/Filter'
 import PostScreen from '../screens/Post'
 import ActivityScreen from '../screens/Activity'
 import ProfileScreen from '../screens/Profile'
@@ -88,7 +89,18 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       navigationOptions: {
         header: null
       }
-    }
+    },
+    Filter: {
+      screen: FilterScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.navigate('Search')} >
+            <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />
+          </TouchableOpacity>
+        )
+      })
+    },
   }
 ));
 
@@ -98,6 +110,9 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
     tabBarVisible = false
   }
   if (navigation.state.routes.some(route => route.routeName === 'Map')) {
+    tabBarVisible = false
+  }
+  if (navigation.state.routes.some(route => route.routeName === 'Filter')) {
     tabBarVisible = false
   }
   if (navigation.state.routes.some(route => route.routeName === 'Comment')) {
@@ -134,10 +149,9 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
 export const PostNavigator = createAppContainer(createStackNavigator(
   {
     Post: {
-      headerTransparent: true,
       screen: PostScreen,
       navigationOptions: {
-        title: 'Post'
+        headerTransparent: true,
       }
     }
   }
@@ -148,6 +162,7 @@ export const ActivityNavigator = createAppContainer(createStackNavigator(
     Activity: {
       screen: ActivityScreen,
       navigationOptions: {
+        headerTransparent: true,
         title: 'Activity'
       }
     }
@@ -168,7 +183,6 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
       screen: EditScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: 'Edit Profile',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
             <Ionicons style={styles.icon} name={'ios-arrow-back'} size={30} />

@@ -5,7 +5,8 @@ import { bindActionCreators } from 'redux'
 import { View, Text, SafeAreaView, TextInput, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
 import db from '../config/firebase';
 import { getUser } from '../actions/user';
-import { getPosts } from '../actions/post'
+import { getPosts } from '../actions/post';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 class Search extends React.Component {
   state = {
@@ -35,13 +36,18 @@ class Search extends React.Component {
     
     return (
       <ScrollView><SafeAreaView style={styles.container}>
-        <TextInput
-          style={[styles.inputSearch, {marginTop: 40}]}
-          onChangeText={(search) => this.setState({ search })}
-          value={this.state.search}
-          returnKeyType='send'
-          placeholder='Search'
-          onSubmitEditing={this.searchUser} />
+        <View style={[styles.container, styles.row, styles.center,{ marginTop: 40 }]}>
+          <TextInput
+            style={[styles.inputSearch]}
+            onChangeText={(search) => this.setState({ search })}
+            value={this.state.search}
+            returnKeyType='send'
+            placeholder='Search'
+            onSubmitEditing={this.searchUser} />
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Filter')}>
+            <FontAwesome style={{ color: 'rgb(75,75,75)' }} name={'sliders'} size={45} />
+          </TouchableOpacity>
+          </View>
         
         <FlatList
           data={this.state.query}
@@ -66,7 +72,9 @@ class Search extends React.Component {
             numColumns={3}
             data={this.props.post.feed}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />} />
+            renderItem={({ item }) => 
+              <TouchableOpacity onPress={() => this.goToUser(item)}><Image style={styles.squareLarge} source={{ uri: item.postPhoto }} /></TouchableOpacity>
+            } />
         </View>
       </SafeAreaView></ScrollView>
     );

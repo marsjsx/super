@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { ImagePicker, Permissions } from 'expo';
 import { Text, View, TextInput, TouchableOpacity, Image, ImageBackground, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser } from '../actions/user'
+import { updatePhoto, updateEmail, updatePassword, updateUsername, updateBio, signup, updateUser, facebookLogin } from '../actions/user'
 import { uploadPhoto } from '../actions'
 
 class Signup extends React.Component {
@@ -60,7 +60,7 @@ class Signup extends React.Component {
                 placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 editable={routeName === 'Signup' ? true : false}
                 value={this.props.user.password}
                 onChangeText={input => this.props.updatePassword(input)}
@@ -69,21 +69,24 @@ class Signup extends React.Component {
                 secureTextEntry={true}
               />
               <TextInput
-                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 value={this.props.user.username}
                 onChangeText={input => this.props.updateUsername(input)}
                 placeholder='username'
                 placeholderTextColor='rgb(75,75,75)'
               />
               <TextInput
-                    style={[styles.border4, styles.textB, { marginTop: 20 }]}
+                style={[styles.border4, styles.textB, { marginTop: 20 }]}
                 value={this.props.user.bio}
                 onChangeText={input => this.props.updateBio(input)}
                 placeholder='bio'
                 placeholderTextColor='rgb(75,75,75)'
               />
-                  <TouchableOpacity style={[styles.buttonSignup, { marginTop: 60 }]} onPress={this.onPress}>
+              <TouchableOpacity style={[styles.buttonSignup, { marginTop: 40 }]} onPress={this.onPress}>
                 <Text style={styles.textA}>signup</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.buttonFacebook]} onPress={() => this.props.facebookLogin()}>
+                <Text style={styles.textA}>facebook signup</Text>
               </TouchableOpacity>
               </ScrollView></KeyboardAvoidingView>
             </ImageBackground> :
@@ -91,7 +94,7 @@ class Signup extends React.Component {
             <View style={[styles.container, styles.space]}>
               <ImageBackground style={[styles.profileEditPhoto, styles.container]} source={{ uri: this.props.user.photo }}>
                 <View style={[styles.space, styles.row]}>
-                  <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={() => navigation.goBack()}>
+                    <TouchableOpacity style={[styles.buttonSave, { marginTop: 30 }]} onPress={() => this.props.navigation.goBack()}>
                     <Text style={styles.textW}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.buttonSave,{marginTop: 30}]} onPress={this.onPress}>
@@ -101,7 +104,7 @@ class Signup extends React.Component {
               </ImageBackground>
 
               <TouchableOpacity style={[styles.center,{margin: '5%'}]} onPress={this.openLibrary} >
-                <Text style={[styles.bold, styles.textC]}>change profile photo</Text>
+                <Text style={[styles.bold, styles.textL]}>change profile photo</Text>
               </TouchableOpacity>
               
               <View style={[styles.container, styles.row]}>
@@ -174,7 +177,14 @@ class Signup extends React.Component {
                   placeholder='Birthdate'
                 />
               </View>
+                <TouchableOpacity style={[styles.buttonLogin2, { marginTop: 10 }]} onPress={this.onPress}>
+                  <Text style={styles.textA}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.buttonCancel, { marginTop: 10, marginBottom: 25 }]} onPress={() => this.props.navigation.goBack()}>
+                  <Text style={styles.textA}>Cancel</Text>
+                </TouchableOpacity>
             </View>
+              
             </ScrollView>
         }
       </View>
@@ -184,7 +194,7 @@ class Signup extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ updatePhoto, uploadPhoto, updateUser, updateEmail, updatePassword, updateUsername, updateBio, signup }, dispatch)
+  return bindActionCreators({ updatePhoto, uploadPhoto, updateUser, updateEmail, updatePassword, updateUsername, updateBio, signup, facebookLogin }, dispatch)
 }
 
 const mapStateToProps = (state) => {

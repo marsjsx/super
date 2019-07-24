@@ -7,6 +7,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@ptomasroos/react-native-multi-slider": "^1.0.0",
     "expo": "^32.0.0",
     "firebase": "^6.0.1",
     "lodash": "^4.17.11",
@@ -14,11 +15,13 @@
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-material-dropdown": "^0.11.1",
+    "react-native-multi-slider": "^0.3.6",
     "react-navigation": "^3.9.1",
     "react-redux": "^6.0.1",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "rn-range-slider": "^1.2.4"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0"

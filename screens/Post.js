@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux'
 import { ImagePicker, Location, Permissions } from 'expo';
 import { NavigationEvents } from 'react-navigation';
 import { updateDescription, updateLocation, uploadPost, updatePhoto } from '../actions/post'
-import { FlatList, Modal, SafeAreaView, Text, View, TextInput, Image, TouchableOpacity, ScrollView, Picker } from 'react-native';
+import { FlatList, Modal, SafeAreaView, Text, View, TextInput, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView } from 'react-native';
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 import { uploadPhoto } from '../actions/index'
 import { Dropdown } from 'react-native-material-dropdown';
@@ -89,7 +89,7 @@ class Post extends React.Component {
     return (
       <ScrollView style={{ height: '100%' }}><View style={[styles.container, styles.center, {marginBottom: 60}]}>
         <NavigationEvents onWillFocus={this.onWillFocus} />
-        <Modal animationType='slide' transparent={false} visible={this.state.showModal}>
+        <Modal animationType='slide' transparent={false} visible={this.state.showModal} onRequestClose={() => { }}>
           <SafeAreaView style={[styles.container, styles.center]}>
             <FlatList
               keyExtractor={(item) => item.id}
@@ -103,15 +103,16 @@ class Post extends React.Component {
           </SafeAreaView>
         </Modal>
         <Image style={styles.postPhotoPreview} source={{ uri: this.props.post.photo }} />
-
+        <KeyboardAvoidingView style={{ flex: 1, width: '100%', height: '100%' }} behavior={"padding"} >
+          <ScrollView style={[{ width: '100%', height: '100%' }]} contentContainerStyle={[styles.center, styles.container]}>
           <TextInput
-            multiline={true}
-            style={[styles.border2,{textAlignVertical:'top', textAlign: 'left', marginBottom: 0, height:'20%'}]}
+            multiline={false}
+            style={[styles.border2,{textAlignVertical:'top', textAlign: 'left', marginBottom: 0, height:'100%'}]}
             value={this.props.post.description}
             onChangeText={text => this.props.updateDescription(text)}
             placeholder='Write a caption...'
-          />
-        
+          /></ScrollView>
+        </KeyboardAvoidingView>
         {
           this.state.locations.length > 0 ?
             <TouchableOpacity style={styles.border} onPress={() => this.setState({ showModal: true })}>

@@ -7,6 +7,7 @@ import { Text, View, Image, TouchableOpacity, FlatList, ActivityIndicator, Image
 import { followUser, unfollowUser } from '../actions/user'
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
+import { ImagePicker, Permissions } from 'expo';
 
 class Profile extends React.Component {
   constructor(props) {
@@ -14,10 +15,11 @@ class Profile extends React.Component {
     this.state = { 
       imgStyle: styles.squareLarge,
       refresh: Boolean,
+      selectedIndex: 0,
        };
   }
 
-  onButtonPress= () => {
+  onButtonPress= (item) => {
     { this.state.imgStyle == styles.squareLarge ? 
       this.setState({
         imgStyle: styles.postPhoto,
@@ -25,15 +27,18 @@ class Profile extends React.Component {
       : 
       this.setState({
         imgStyle: styles.squareLarge,
-      }) }
+      }) 
+    }
     this.setState({
       refresh: !this.state.refresh
     })
-    this.scroll.scrollTo({ x: 0, y: 12500, animated: true });
+    alert("uid: " + item.uid)
+    this.scroll.scrollTo({ y: 12000, animated: true });
   };
+
   goToTop = () => {
     this.scroll.scrollTo({ x: 0, y: 0, animated: true });
-  }
+  };
 
   _onPress = () => {
     this.props.onPressItem(this.props.id);
@@ -46,6 +51,18 @@ class Profile extends React.Component {
       this.props.followUser(user)
     }
   };
+
+  openLibrary = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL)
+    if (status === 'granted') {
+      const image = await ImagePicker.launchImageLibraryAsync()
+      if (!image.cancelled) {
+        const url = await this.props.uploadPhoto(image)
+        this.props.updatePhoto(url)
+        console.log(url)
+      }
+    }
+  }
 
   render() {
     let user = {}
@@ -61,7 +78,15 @@ class Profile extends React.Component {
         
         <ImageBackground style={[styles.profilePhoto]} source={{ uri: user.photo }} >
           <View style={[styles.bottom, {width: '100%', marginBottom:0}]}>
-              <View style={[styles.topLine]} />
+            {state.routeName === 'MyProfile' && user.photo === '' ?
+              <View style={[styles.center, styles.container, styles.center,{width:'100%'}]}>
+                <TouchableOpacity style={styles.buttonSignup2} onPress={this.openLibrary} >
+                <Text style={[styles.bold, styles.textA]}>Add profile photo +</Text>
+              </TouchableOpacity>
+            </View>:
+            <View/>
+            }
+            <View style={[styles.topLine]} />
             <View style={[styles.row, styles.space, {width: '100%'}]}>
               {
                 state.routeName === 'MyProfile' ?
@@ -118,30 +143,36 @@ class Profile extends React.Component {
         </ImageBackground>
         { this.state.imgStyle === styles.squareLarge ?
         <FlatList
-          key={1}
-          style={{ paddingTop: 0 }}
-          initialScrollIndex={0}
-          horizontal={false}
-          numColumns={3}
-          data={user.posts}
-          extraData={this.state}
-          keyExtractor={(item) => JSON.stringify(item.date)}
-          renderItem={({ item }) => 
-            <TouchableOpacity onPress={this.onButtonPress}>
-              <Image style={this.state.imgStyle} source={{ uri: item.postPhoto }} />
+            initialNumToRender='9'
+            maxToRenderPerBatch='3'
+            windowSize={3}
+            key={1}
+            style={{ paddingTop: 0 }}
+            initialScrollIndex={0}
+            horizontal={false}
+            numColumns={3}
+            data={user.posts}
+            extraData={this.state.refresh}
+            keyExtractor={(item) => JSON.stringify(item.date)}
+            renderItem={({ item }) => 
+              <TouchableOpacity onPress={ () => this.onButtonPress(item) }>
+                <Image style={styles.squareLarge} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
           }/> :
           <FlatList
+            initialNumToRender='1'
+            maxToRenderPerBatch='2'
+            windowSize={2}
             key={2}
             style={{ paddingTop: 0 }}
-
+            initialScrollIndex={this.state.selectedIndex}
             horizontal={true}
             data={user.posts}
-            extraData={this.state}
+            extraData={this.state.refresh}
             keyExtractor={(item) => JSON.stringify(item.date)}
             renderItem={({ item }) =>
-              <TouchableOpacity onPress={this.onButtonPress}>
-                <Image style={this.state.imgStyle} source={{ uri: item.postPhoto }} />
+              <TouchableOpacity onPress={() => this.onButtonPress(item)}>
+                <Image style={styles.postPhoto} source={{ uri: item.postPhoto }} />
               </TouchableOpacity>
             } />
           }
