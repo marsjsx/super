@@ -61,8 +61,8 @@ class Home extends React.Component {
       <View style={[styles.container]}>
         <FlatList
           initialNumToRender='3'
-          maxToRenderPerBatch='3'
-          windowSize={6}
+          maxToRenderPerBatch='4'
+          windowSize={8}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
           data={this.props.post.feed}

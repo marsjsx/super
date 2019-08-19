@@ -23,8 +23,8 @@ class Splash extends React.Component {
   render() {
     return (
       <FadeInView style={{ width: '100%', height: '100%', backgroundColor: 'rgb(266,66,66)' }}>
-        <ImageBackground source={require('../temp/signupLogin.png')} style={[styles.container, { alignItems: 'center' }]}>
-          <Image style={{ width: 150, height: 150, marginTop: '33%' }} source={require('../assets/logo-2.png')} />
+        <ImageBackground source={require('../temp/signupLogin.png')} style={[styles.container, { alignItems: 'center', }]}>
+          <Image style={{ width: 150, height: 150, marginTop: '33%', transform: [{ rotate: '90deg' }] }} source={require('../assets/logo-2.png')} />
           <Image style={{ width: 250, height: 70, marginTop: '0%' }} source={require('../assets/logoW.png')} />
 
           <View style={[styles.bottom]} />

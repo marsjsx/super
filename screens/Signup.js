@@ -15,10 +15,10 @@ class Signup extends React.Component {
     /* console.log(routeName) */
   }
   
-  beginDel = () => {
+  beginDel = async () => {
     /* this.props.deleteAllPosts() */
-    this.props.deleteUser()
-    this.props.deleteAuth()
+    await this.props.deleteUser()
+    await this.props.deleteAuth()
     firebase.auth().signOut()
     this.props.navigation.navigate('Splash')
   }

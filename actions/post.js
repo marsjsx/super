@@ -62,7 +62,6 @@ export const deletePost = (item) => {
     const post = item.id
     try {
       db.collection("posts").doc(post).delete();
-      alert(post);
     } catch (e) {
       alert(e)
     }

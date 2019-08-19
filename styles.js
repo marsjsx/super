@@ -102,9 +102,9 @@ export default styles = StyleSheet.create({
     width: width,
   },
   postPhotoPreview: {
-    height: 800
-    /* height: height * .75, */
-    /* width: width, */
+    height: height * .95,
+    width: width,
+    marginBottom: 0
   },
   roundImage: {
     width: 40,
@@ -135,6 +135,15 @@ export default styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     width: 200
+  },
+  buttonPost: {
+    margin: 25,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderColor: '#d3d3d3',
+    borderWidth: 1,
+    borderRadius: 5,
+    width: 275,
   },
   buttonSmall: {
     margin: 10,
@@ -326,6 +335,7 @@ export default styles = StyleSheet.create({
     height: 125, 
     marginTop: 70, 
     marginBottom: 40, 
+    transform: [{ rotate: '90deg' }]
   },
   logo3: {
     width: 100, height: 100, marginTop: 60, marginBottom: 20, 

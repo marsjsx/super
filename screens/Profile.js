@@ -17,24 +17,26 @@ import FadeInView from '../component/FadeInView';
 class Profile extends React.Component {
   constructor(props) {
     super(props);
+    this.page;
     this.state = {
       flatListSmall: true,
       selectedId: 'showAll',
       position: 0,
       visible: false,
+      changes: 1,
        };
     this.scroll = null;
     this.scrollView = null;
   }
 
-  goIndex = (index) => {
-    this.flatListRef.scrollToIndex({ animated: true, index: index });
-  };
-
   componentDidMount = () => {
     this.props.getMessages()
     this.props.getPosts()
   }
+
+  goIndex = (index) => {
+    this.flatListRef.scrollToIndex({ animated: true, index: index });
+  };
 
   logout = () => {
     firebase.auth().signOut()
@@ -147,6 +149,9 @@ class Profile extends React.Component {
       })
     } else {
       this.props.likePost(post)
+      this.setState({
+        visible: true,
+      })
     }
   }
 
@@ -163,6 +168,7 @@ class Profile extends React.Component {
             style: 'cancel',
           },
           { text: 'OK', onPress: () => this.props.deletePost(item) },
+          
         ],
         { cancelable: false },
       );
@@ -266,7 +272,7 @@ class Profile extends React.Component {
         
         <FlatList
           initialNumToRender='9'
-          maxToRenderPerBatch='6'
+          maxToRenderPerBatch='9'
           windowSize={12}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
@@ -274,7 +280,9 @@ class Profile extends React.Component {
           horizontal={false}
           numColumns={3}
           data={user.posts}
+          extraData={user}
           keyExtractor={(item, index) => [item.id, index]}
+          onEndReachedThreshold={0.4}
           renderItem={({ item, index }) => {
             const selectedId = this.state.selectedId
             const liked = item.likes.includes(this.props.user.uid)
@@ -311,25 +319,34 @@ class Profile extends React.Component {
 
                           <View style={{ marginTop: -75 }}>
                             {this.state.visible === true ?
-                              <FadeInView>
+                              <FadeInView style={styles.center}>
                                 <Ionicons style={{ margin: 5, }}
                                   color={'#db565b'}
                                   name={'ios-heart'}
                                   size={50} />
+                                <Text style={[styles.textD]}>{item.likes.length}</Text>
                               </FadeInView>
                               :
-                              null
+                              <FadeInView style= { styles.center }>
+                                <Ionicons style={{ margin: 5, }}
+                                  color={'rgb(255,255,255)'}
+                                  name={'ios-heart-empty'}
+                                  size={50} />
+                                <Text style={[styles.textD]}>{item.likes.length}</Text>
+                              </FadeInView>
                             }
+                            <FadeInView style={styles.center}>
                             <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
                               <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={50} />
                             </TouchableOpacity>
+                            </FadeInView>
                           </View>
 
                         </View>
-
-                        <View style={{ width: '65%', marginTop: 0, }}>
+                        
+                        <FadeInView style={{ width: '65%', marginTop: 0, }}>
                           <Text style={styles.textD} > {item.postDescription} </Text>
-                        </View>
+                        </FadeInView>
 
                       </View>
                     </ImageBackground>
