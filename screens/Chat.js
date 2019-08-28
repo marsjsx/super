@@ -29,6 +29,8 @@ class Chat extends React.Component {
       <KeyboardAvoidingView enabled behavior='padding' style={styles.container}>
         <FlatList
           inverted
+          onRefresh={()=> this.props.getMessages()}
+          refreshing={false}
           keyExtractor={(item) => JSON.stringify(item.date)}
           data={this.props.messages.filter(message => message.members.indexOf(params) >= 0 && message.members.indexOf(this.props.user.uid) >= 0)}
           renderItem={({ item }) => (
