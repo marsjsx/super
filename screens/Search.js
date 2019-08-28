@@ -69,8 +69,8 @@ class Search extends React.Component {
         <View style={{marginTop: 20}}>
           <FlatList
             initialNumToRender= '12'
-            maxToRenderPerBatch= '9'
-            windowSize={9}
+            maxToRenderPerBatch= '12'
+            windowSize={12}
             style={{ paddingTop: 10 }}
             horizontal={false}
             numColumns={3}

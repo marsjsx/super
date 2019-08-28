@@ -31,7 +31,7 @@ class Splash extends React.Component {
           <TouchableOpacity style={styles.buttonSignup2} onPress={() => this.props.navigation.navigate('Signup')}>
             <Text style={styles.textA}> signup </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.buttonLogin2, { marginBottom: 60 }]} onPress={() => this.props.navigation.navigate('Login')}>
+          <TouchableOpacity style={[styles.buttonLogin2, { marginBottom: "33%" }]} onPress={() => this.props.navigation.navigate('Login')}>
             <Text style={styles.textA}> login </Text>
           </TouchableOpacity>
 
