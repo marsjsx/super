@@ -14,10 +14,11 @@ export default class FadeInView extends React.Component {
         duration: 1500,              // Make it take a while
       }
     ).start();                        // Starts the animation
+    
   }
 
   render() {
-    let { fadeAnim } = this.state;
+    let { fadeAnim, heightAnim } = this.state;
 
     return (
       <Animated.View                 // Special animatable View
@@ -31,3 +32,4 @@ export default class FadeInView extends React.Component {
     );
   }
 }
+ 

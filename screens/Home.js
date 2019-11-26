@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Ionicons, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
-import { getPosts, likePost, unlikePost } from '../actions/post';
+import { getPosts, likePost, unlikePost, reportPost, getFilterPosts } from '../actions/post';
 import { getUser } from '../actions/user';
 import moment from 'moment';
 import { Font } from 'expo';
@@ -24,6 +24,7 @@ class Home extends React.Component {
     });
     this.setState({fontLoaded: true})
     this.props.getPosts();
+    
   }
 
   likePost = (post) => {
@@ -56,6 +57,8 @@ class Home extends React.Component {
   }
 
   render() {
+
+    let userFollowingList = [this.props.user.following]
     if (this.props.post === null) return null
     return (
       <View style={[styles.container]}>
@@ -98,7 +101,11 @@ class Home extends React.Component {
                         </View>
                         
                         <View style={{marginTop: -150}}>
-                          <MaterialCommunityIcons style={{ marginBottom: 5, color: 'rgb(255,255,255)' }} name='virtual-reality' size={50} />
+                          <Ionicons 
+                            style={{ marginBottom: 5, color: 'rgb(255,255,255)' }} 
+                            onPress={() => this.props.navigation.navigate('Comment', item)}
+                            name='ios-flag' 
+                            size={50} />
                           <Ionicons style={{ margin: 5, }} color={liked ? '#db565b' : '#fff'} name={liked ? 'ios-heart' : 'ios-heart-empty'} size={50} />
                           <TouchableOpacity onPress={() => this.props.navigation.navigate('Comment', item)} >
                             <Ionicons style={{ margin: 5, color: 'rgb(255,255,255)' }} name='ios-chatbubbles' size={50} />
@@ -125,7 +132,7 @@ class Home extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ getPosts, likePost, unlikePost, getUser }, dispatch)
+  return bindActionCreators({ getPosts, likePost, unlikePost, getUser, reportPost, getFilterPosts }, dispatch)
 }
 
 const mapStateToProps = (state) => {

@@ -32,6 +32,7 @@ export const uploadPost = () => {
         username: user.username,
         likes: [],
         comments: [],
+        reports: [],
         date: new Date().getTime(),
       }
       db.collection('posts').doc(id).set(upload)
@@ -45,6 +46,22 @@ export const getPosts = () => {
   return async (dispatch, getState) => {
     try {
       const posts = await db.collection('posts').get()
+
+      let array = []
+      posts.forEach((post) => {
+        array.push(post.data())
+      })
+      dispatch({ type: 'GET_POSTS', payload: orderBy(array, 'date', 'desc') })
+    } catch (e) {
+      alert(e)
+    }
+  }
+}
+
+export const getFilterPosts = () => {
+  return async (dispatch, getState) => {
+    try {
+      const posts = await db.collection('posts').where('uid', '>=', this.state.user.following).get();
 
       let array = []
       posts.forEach((post) => {
@@ -151,6 +168,41 @@ export const addComment = (text, post) => {
       db.collection('activity').doc().set(comment)
     } catch (e) {
       /* console.error(e) */
+    }
+  }
+}
+
+export const reportPost = (post) => {
+  return (dispatch, getState) => {
+    const { uid, username, photo } = getState().user
+    try {
+      const home = cloneDeep(getState().post.feed)
+      let newFeed = home.map(item => {
+        if (item.id === post.id) {
+          item.reports.push(uid)
+        } return item
+      })
+      db.collection('posts').doc(post.id).update({
+        reports: firebase.firestore.FieldValue.arrayUnion(uid)
+      })
+      db.collection('users').doc(post.uid).update({
+        reports: firebase.firestore.FieldValue.arrayUnion(uid)
+      })
+      db.collection('reports').doc().set({
+        postId: post.id,
+        postPhoto: post.postPhoto,
+        reporterId: uid,
+        reporterPhoto: photo,
+        reporterName: username,
+        uid: post.uid,
+        date: new Date().getTime(),
+        type: 'REPORT',
+      })
+      dispatch({ type: 'GET_POSTS', payload: newFeed })
+      dispatch(getPosts())
+      dispatch(getUser(response.user.uid))
+    } catch (e) {
+      /* alert(e) */
     }
   }
 }
