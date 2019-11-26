@@ -276,7 +276,7 @@ class Profile extends React.Component {
           windowSize={12}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
-          style={selectedId === 'showAll' ? { paddingTop: 0, paddingBottom: 130}:{paddingTop:0, paddingBottom:0}}
+          style={selectedId === 'showAll' ? { paddingTop: 0, paddingBottom: 130 }:{paddingTop:0, paddingBottom:0}}
           horizontal={false}
           numColumns={3}
           data={user.posts}

@@ -210,7 +210,15 @@ export default styles = StyleSheet.create({
     backgroundColor: 'rgba(237,124,128,0.85)',
     borderRadius: 10,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: '#fff',
+    ...Platform.select({
+      ios: {
+        marginBottom: "16%"
+      },
+      android: {
+        marginBottom: "16%",
+      },
+    }),
   },
   buttonSignup2: {
     marginTop: 10,
