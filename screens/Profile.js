@@ -21,6 +21,7 @@ class Profile extends React.Component {
     this.state = {
       flatListSmall: true,
       selectedId: 'showAll',
+      showHide: 'hide',
       position: 0,
       visible: false,
       changes: 1,
@@ -180,6 +181,7 @@ class Profile extends React.Component {
   render() {
     let user = {}
     const selectedId = this.state.selectedId
+    const showHide = this.state.showHide
     const { state, navigate } = this.props.navigation
     if (state.routeName === 'Profile' ) {
       user = this.props.profile
@@ -269,7 +271,7 @@ class Profile extends React.Component {
                 <Text style={[styles.bold, styles.textD, { color: 'red' }]}>hide</Text>
               </View> */}
           </View>
-        
+
         <FlatList
           initialNumToRender='9'
           maxToRenderPerBatch='9'
