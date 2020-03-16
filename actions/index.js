@@ -1,13 +1,14 @@
 import uuid from 'uuid';
 import firebase from 'firebase'
 import db from '../config/firebase'
-import { Permissions, ImageManipulator, Notifications } from 'expo';
+import {  Notifications } from 'expo';
+import * as ImageManipulator from 'expo-image-manipulator';
 const PUSH_ENDPOINT = 'https://exp.host/--/api/v2/push/send'
-
+import * as Permissions from 'expo-permissions';
 export const uploadPhoto = (image) => {
   return async (dispatch) => {
     try {
-      const resize = await ImageManipulator.manipulateAsync(image.uri, [], { format: 'jpg', compress: 1 })
+      const resize = await ImageManipulator.manipulateAsync(image, [], { format: 'jpeg', compress: 0.3})
       const blob = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest()
         xhr.onload = () => resolve(xhr.response)
@@ -19,7 +20,27 @@ export const uploadPhoto = (image) => {
       const downloadURL = await uploadTask.ref.getDownloadURL()
       return downloadURL
     } catch (e) {
-      /* console.error(e) */
+     alert(e)
+    }
+  }
+}
+
+export function functionUploadPhoto(image) {
+  return async (dispatch) => {
+    try {
+      const resize = await ImageManipulator.manipulateAsync(image, [], { format: 'jpeg', compress: 0.3})
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.onload = () => resolve(xhr.response)
+        xhr.responseType = 'blob'
+        xhr.open('GET', resize.uri, true)
+        xhr.send(null)
+      });
+      const uploadTask = await firebase.storage().ref().child(uuid.v4()).put(blob)
+      const downloadURL = await uploadTask.ref.getDownloadURL()
+      return downloadURL
+    } catch (e) {
+     alert(e)
     }
   }
 }

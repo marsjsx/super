@@ -127,6 +127,16 @@ export default styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 50
   },
+  changeCameraButton: {
+    height: 30,
+    width: 30,
+    borderRadius: width / 2,
+    padding: 10,
+    marginBottom:30,
+    borderColor: "#000000",
+    alignSelf: "flex-end",
+    backgroundColor: "#ffffff"
+  },
   button: {
     marginTop: 20,
     paddingVertical: 10,

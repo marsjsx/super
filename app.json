@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Super",
+    "name": "Super Dating",
     "slug": "super",
     "privacy": "public",
-    "sdkVersion": "32.0.0",
+    "sdkVersion": "36.0.0",
     "platforms": [
       "ios",
       "android"
@@ -23,7 +23,14 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.patrick.super",
+      "buildNumber": "2",
       "supportsTablet": true
-    }
+    },
+    "android": {
+      "package": "com.patrick.super",
+      "versionCode": 2
+    },
+    "description": ""
   }
 }

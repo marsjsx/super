@@ -34,7 +34,7 @@ class Chat extends React.Component {
           keyExtractor={(item) => JSON.stringify(item.date)}
           data={this.props.messages.filter(message => message.members.indexOf(params) >= 0 && message.members.indexOf(this.props.user.uid) >= 0)}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => this.goToChat(item)} style={[styles.row, styles.space]}>
+            <TouchableOpacity  style={[styles.row, styles.space]}>
               {item.uid !== uid ? <Image style={styles.roundImage} source={{ uri: item.photo }} /> : null}
               <View style={[styles.container, item.uid === uid ? styles.right : styles.left]}>
                 <Text style={styles.bold}>{item.username}</Text>

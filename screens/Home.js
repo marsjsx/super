@@ -7,7 +7,7 @@ import { Text, View, Button, Image, FlatList, TouchableOpacity, ImageBackground 
 import { getPosts, likePost, unlikePost, reportPost, getFilterPosts } from '../actions/post';
 import { getUser } from '../actions/user';
 import moment from 'moment';
-import { Font } from 'expo';
+import * as Font from 'expo-font';
 import DoubleTap from '../component/DoubleTap';
 
 class Home extends React.Component {
