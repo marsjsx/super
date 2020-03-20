@@ -29,10 +29,10 @@ class Splash extends React.Component {
 
           <View style={[styles.bottom]} />
           <TouchableOpacity style={styles.buttonSignup2} onPress={() => this.props.navigation.navigate('Signup')}>
-            <Text style={styles.textA}> signup </Text>
+            <Text style={styles.textA}> Signup </Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.buttonLogin2]} onPress={() => this.props.navigation.navigate('Login')}>
-            <Text style={styles.textA}> login </Text>
+            <Text style={styles.textA}> Login </Text>
           </TouchableOpacity>
 
         </ImageBackground>

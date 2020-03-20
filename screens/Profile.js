@@ -21,11 +21,13 @@ import { followUser, unfollowUser, getUser } from "../actions/user";
 import { getMessages } from "../actions/message";
 import { getPosts, likePost, unlikePost, deletePost } from "../actions/post";
 import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
+import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
 import moment from "moment";
 import DoubleTap from "../component/DoubleTap";
 import FadeInView from "../component/FadeInView";
+import ProgressiveImage from "../component/ProgressiveImage";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -198,19 +200,28 @@ class Profile extends React.Component {
     } else {
       user = this.props.user;
     }
-    if (!user.posts) return <ActivityIndicator style={styles.container} />;
+    // if (!user.posts) return <ActivityIndicator style={styles.container} />;
     return (
       <ScrollView ref={c => (this.scroll = c)}>
-        <ImageBackground
-          style={[styles.profilePhoto]}
+        <ProgressiveImage
+          thumbnailSource={{
+            uri: user.preview
+          }}
           source={{ uri: user.photo }}
+          style={[styles.profilePhoto]}
+          resizeMode="cover"
+        />
+        <ImageBackground
+          style={[styles.profilePhoto, { position: "absolute" }]}
         >
-          <View style={[styles.bottom, { width: "100%", marginTop: 450 }]}>
+          <View style={[styles.bottom, { width: "100%" }]}>
             {state.routeName === "MyProfile" && user.photo === "" ? (
               <View
                 style={[styles.center, styles.container, { width: "100%" }]}
               >
-                <TouchableOpacity onPress={this.openLibrary}>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.navigate("Edit")}
+                >
                   <Text style={[styles.bold]}>Add profile photo +</Text>
                 </TouchableOpacity>
               </View>
@@ -223,30 +234,40 @@ class Profile extends React.Component {
             {state.routeName === "MyProfile" ? (
               <View style={styles.container}>
                 <View style={[styles.row, styles.space, { width: "100%" }]}>
-                  <View>
-                    <TouchableOpacity
-                      style={styles.buttonCircle}
-                      onPress={() => this.props.navigation.navigate("Edit")}
+                  <TouchableOpacity
+                    style={styles.buttonCircle}
+                    onPress={() => this.props.navigation.navigate("Edit")}
+                  >
+                    <Text style={[styles.bold, styles.textD]}>Edit</Text>
+                  </TouchableOpacity>
+                  <View style={[styles.center, { flex: 1 }]}>
+                    <Text
+                      style={[
+                        styles.center,
+                        styles.bold,
+                        styles.textW,
+                        { marginTop: 10 }
+                      ]}
                     >
-                      <Text style={[styles.bold, styles.textD]}>Edit</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={[styles.center, { width: "66%" }]}>
-                    <Text style={[styles.center, styles.bold, styles.textW]}>
                       {user.username}
                     </Text>
-                    <Text style={[styles.center, styles.bold, styles.textW]}>
+                    <Text
+                      style={[
+                        styles.center,
+                        styles.bold,
+                        styles.textW,
+                        { marginTop: 10, color: "rgb(255, 67, 35)" }
+                      ]}
+                    >
                       {user.bio}
                     </Text>
                   </View>
-                  <View>
-                    <TouchableOpacity
-                      style={styles.buttonLogout}
-                      onPress={this.logout}
-                    >
-                      <Text style={[styles.bold, styles.textE]}>Logout</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    style={styles.buttonLogout}
+                    onPress={this.logout}
+                  >
+                    <Text style={[styles.bold, styles.textD]}>Logout</Text>
+                  </TouchableOpacity>
                 </View>
                 {/* <TouchableOpacity onPress={() => this.props.navigation.navigate('Dash')} style={styles.buttonMessage}>
                       <MaterialCommunityIcons 
@@ -305,18 +326,24 @@ class Profile extends React.Component {
           style={[styles.row, styles.space, styles.followBar, { marginTop: 0 }]}
         >
           <View style={styles.center}>
-            <Text style={[styles.bold, styles.textF]}>{user.posts.length}</Text>
+            <Text style={[styles.bold, styles.textF]}>
+              {user.posts && user.posts.length ? user.posts.length : "0"}
+            </Text>
             <Text style={[styles.bold, styles.textF]}>posts</Text>
           </View>
           <View style={styles.center}>
             <Text style={[styles.bold, styles.textF]}>
-              {user.followers.length}
+              {user.followers && user.followers.length
+                ? user.followers.length
+                : "0"}
             </Text>
             <Text style={[styles.bold, styles.textF]}>followers</Text>
           </View>
           <View style={styles.center}>
             <Text style={[styles.bold, styles.textF]}>
-              {user.following.length}
+              {user.following && user.following.length
+                ? user.following.length
+                : "0"}
             </Text>
             <Text style={[styles.bold, styles.textF]}>following</Text>
           </View>
@@ -355,9 +382,17 @@ class Profile extends React.Component {
                     activeOpacity={0.6}
                     onLongPress={() => this.activateLongPress(item)}
                   >
-                    <ImageBackground
-                      style={styles.postPhoto}
+                    <ProgressiveImage
+                      id={item.id}
+                      thumbnailSource={{
+                        uri: item.preview
+                      }}
                       source={{ uri: item.postPhoto }}
+                      style={styles.postPhoto}
+                      resizeMode="cover"
+                    />
+                    <ImageBackground
+                      style={[styles.postPhoto, { position: "absolute" }]}
                     >
                       <View style={styles.bottom}>
                         <View style={[styles.row, styles.space]}>
@@ -464,10 +499,14 @@ class Profile extends React.Component {
                     onLongPress={() => this.activateLongPress(item)}
                   >
                     {selectedId === "showAll" ? (
-                      <Image
+                      <ProgressiveImage
                         id={item.id}
-                        style={styles.squareLarge}
+                        thumbnailSource={{
+                          uri: item.preview
+                        }}
                         source={{ uri: item.postPhoto }}
+                        style={styles.squareLarge}
+                        resizeMode="cover"
                       />
                     ) : null}
                   </TouchableOpacity>

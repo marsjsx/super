@@ -1,108 +1,108 @@
-import { StyleSheet, Dimensions, Platform } from 'react-native';
-const { height, width } = Dimensions.get('window');
+import { StyleSheet, Dimensions, Platform } from "react-native";
+const { height, width } = Dimensions.get("window");
 
 export default styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   center: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center"
   },
   space: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   left: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start"
   },
   right: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end"
   },
   row: {
-    flexDirection: 'row'
+    flexDirection: "row"
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: "bold"
   },
   white: {
-    color: '#fff',
+    color: "#fff"
   },
   gray: {
-    color: '#adadad',
+    color: "#adadad"
   },
   small: {
-    fontSize: 10,
+    fontSize: 10
   },
   input: {
-    width: width * .90,
+    width: width * 0.9,
     margin: 10,
     padding: 10,
-    alignSelf: 'center',
-    borderColor: '#d3d3d3',
+    alignSelf: "center",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 50,
-    fontSize: 16,
+    fontSize: 16
   },
   inputSearch: {
-    width: width * .80,
+    width: width * 0.8,
     margin: 10,
     padding: 10,
-    alignSelf: 'center',
-    borderColor: '#d3d3d3',
+    alignSelf: "center",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
-    fontSize: 16,
+    fontSize: 16
   },
   facebookButton: {
-    backgroundColor: '#3b5998',
+    backgroundColor: "#3b5998",
     marginTop: 20,
     paddingVertical: 10,
-    alignItems: 'center',
-    borderColor: '#3b5998',
+    alignItems: "center",
+    borderColor: "#3b5998",
     borderWidth: 1,
     borderRadius: 5,
     width: 200
   },
   border: {
-    width: '85%',
-    borderColor: '#d3d3d3',
+    width: "85%",
+    borderColor: "#d3d3d3",
     borderBottomWidth: 1,
-    textAlign: 'center',
-    padding: 0,
+    textAlign: "center",
+    padding: 0
   },
   border2: {
     width: width,
     marginBottom: 0,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: "#d3d3d3",
     borderBottomWidth: 1,
     borderTopWidth: 1,
-    textAlign: 'left'
+    textAlign: "left"
   },
   border3: {
-    width: '75%',
+    width: "75%",
     marginBottom: 0,
     padding: 5,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: "#d3d3d3",
     borderBottomWidth: 1,
-    textAlign: 'left'
+    textAlign: "left"
   },
   border4: {
-    width: '85%',
-    borderColor: 'rgb(175,175,175)',
+    width: "85%",
+    borderColor: "rgb(175,175,175)",
     borderBottomWidth: 1,
-    textAlign: 'center',
-    padding: 0,
+    textAlign: "center",
+    padding: 0
   },
   postPhoto: {
-    height: height * .95,
-    width: width,
+    height: height * 0.75,
+    width: width
   },
   postPhotoPreview: {
-    height: height * .95,
+    height: height * 0.68,
     width: width,
     marginBottom: 0
   },
@@ -111,20 +111,30 @@ export default styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     margin: 10,
-    backgroundColor: '#adadad'
+    backgroundColor: "#adadad"
+  },
+  roundImage60: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: "#adadad"
   },
   squareLarge: {
-    width: width * .33,
+    width: width * 0.33,
     height: 170,
     margin: 1,
-    backgroundColor: '#d3d3d3'
+    backgroundColor: "#d3d3d3"
   },
   cameraButton: {
     height: 100,
     width: 100,
     borderRadius: 50,
-    alignSelf: 'center',
-    backgroundColor: '#fff',
+    alignSelf: "center",
+    backgroundColor: "#fff",
     marginBottom: 50
   },
   changeCameraButton: {
@@ -132,7 +142,7 @@ export default styles = StyleSheet.create({
     width: 30,
     borderRadius: width / 2,
     padding: 10,
-    marginBottom:30,
+    marginBottom: 30,
     borderColor: "#000000",
     alignSelf: "flex-end",
     backgroundColor: "#ffffff"
@@ -140,8 +150,8 @@ export default styles = StyleSheet.create({
   button: {
     marginTop: 20,
     paddingVertical: 10,
-    alignItems: 'center',
-    borderColor: '#d3d3d3',
+    alignItems: "center",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
     width: 200
@@ -149,18 +159,19 @@ export default styles = StyleSheet.create({
   buttonPost: {
     margin: 25,
     paddingVertical: 10,
-    alignItems: 'center',
-    borderColor: '#d3d3d3',
+    alignItems: "center",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
-    width: 275,
+    alignSelf: "center",
+    width: 275
   },
   buttonSmall: {
     margin: 10,
     marginBottom: 0,
     padding: 5,
-    alignItems: 'center',
-    borderColor: '#d3d3d3',
+    alignItems: "center",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
     width: 125
@@ -168,10 +179,10 @@ export default styles = StyleSheet.create({
   buttonXsmall: {
     padding: 10,
 
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(1,1,1,0)',
-    borderColor: '#d3d3d3',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(1,1,1,0)",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
     width: 60,
@@ -185,10 +196,10 @@ export default styles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgba(209,84,84,0.85)',
+    backgroundColor: "rgba(209,84,84,0.85)",
     borderRadius: 20,
     borderWidth: 0,
-    borderColor: 'rgba(200,100,200,0.8)'
+    borderColor: "rgba(200,100,200,0.8)"
   },
   buttonSignup: {
     marginTop: 15,
@@ -197,38 +208,35 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgba(209,84,84,0.85)',
+    backgroundColor: "rgba(209,84,84,0.85)",
     borderRadius: 20,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: "#fff"
   },
   buttonReset: {
     marginTop: 10,
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgba(38, 94, 53,0.8)',
+    backgroundColor: "rgba(38, 94, 53,0.8)",
     borderRadius: 10,
     borderWidth: 0,
-    borderColor: 'rgb(38, 94, 53)'
+    borderColor: "rgb(38, 94, 53)"
   },
   buttonLogin2: {
     marginTop: 10,
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgba(237,124,128,0.85)',
+    backgroundColor: "rgba(237,124,128,0.85)",
     borderRadius: 10,
     borderWidth: 0,
-    borderColor: '#fff',
-    ...Platform.select({
-      ios: {
-        marginBottom: "16%"
-      },
-      android: {
-        marginBottom: "16%",
-      },
-    }),
+    borderColor: "#fff",
+    marginBottom: 40
+  },
+  textInput: {
+    marginTop: 8,
+    width: "90%"
   },
   buttonSignup2: {
     marginTop: 10,
@@ -237,75 +245,74 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgba(243,177,174,0.85)',
+    backgroundColor: "rgba(243,177,174,0.85)",
     borderRadius: 10,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: "#fff"
   },
   buttonFilter: {
     marginTop: 15,
     paddingBottom: 6,
     paddingTop: 6,
-    width: width*.85,
-    backgroundColor: 'rgba(209,84,84,0)',
+    width: width * 0.85,
+    backgroundColor: "rgba(209,84,84,0)",
     borderRadius: 0,
     borderWidth: 3,
-    borderColor: 'rgb(237,124,128)',
+    borderColor: "rgb(237,124,128)"
   },
   buttonSelected: {
     marginTop: 15,
     paddingBottom: 6,
     paddingTop: 6,
-    width: width * .85,
-    backgroundColor: 'rgba(237,124,128,1)',
+    width: width * 0.85,
+    backgroundColor: "rgba(237,124,128,1)",
     borderRadius: 0,
     borderWidth: 3,
-    borderColor: 'rgb(237,124,128)',
+    borderColor: "rgb(237,124,128)"
   },
-  buttonFacebook:{
-    backgroundColor: 'rgba(59, 89, 152,0.8)',
+  buttonFacebook: {
+    backgroundColor: "rgba(59, 89, 152,0.8)",
     marginTop: 15,
     paddingVertical: 10,
-    alignItems: 'center',
-    borderColor: 'rgba(59, 89, 152,0.8)',
+    alignItems: "center",
+    borderColor: "rgba(59, 89, 152,0.8)",
     borderWidth: 0,
     borderRadius: 20,
     width: 250
   },
   buttonDelete: {
-    marginTop: 10,
     paddingTop: 11,
     paddingBottom: 11,
     width: 250,
-    backgroundColor: 'rgba(225,30,30,0.85)',
+    backgroundColor: "rgba(225,30,30,0.85)",
     borderRadius: 5,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: "#fff"
   },
   buttonCircle: {
     marginTop: -50,
     marginBottom: 0,
-    
+
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(81, 137, 226,0.95)',
-    borderColor: '#d3d3d3',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(81, 137, 226,0.95)",
+    borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 50,
-    width: 62.5,
-    height: 62.5,
-    zIndex: 100,
+    width: 70,
+    height: 70,
+    zIndex: 100
   },
   buttonSave: {
     paddingTop: 11,
     paddingBottom: 11,
     width: 125,
-    backgroundColor: 'rgba(255,255,255,0)',
+    backgroundColor: "rgba(255,255,255,0)",
     borderRadius: 20,
     borderWidth: 0,
-    borderColor: '#fff',
-    zIndex: 100,
+    borderColor: "#fff",
+    zIndex: 100
   },
   buttonCancel: {
     marginTop: 10,
@@ -314,170 +321,169 @@ export default styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     width: 250,
-    backgroundColor: 'rgb(3,3,2)',
+    backgroundColor: "rgb(3,3,2)",
     borderRadius: 10,
     borderWidth: 0,
-    borderColor: '#fff'
+    borderColor: "#fff"
   },
   buttonLogout: {
     marginTop: -50,
     marginBottom: 0,
-
-    
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: '#d3d3d3',
-    backgroundColor: 'rgba(125,125,125,0.95)',
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "#d3d3d3",
+    backgroundColor: "rgb(255, 67, 35)",
     borderWidth: 1,
     borderRadius: 50,
-    width: 62.5,
-    height: 62.5,
-    zIndex: 100,
+    width: 70,
+    height: 70,
+    zIndex: 100
   },
   buttonShare: {
     padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: 'rgba(255,255,255,0)',
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: "rgba(255,255,255,0)",
     borderWidth: 0,
     width: 70,
-    height: 20,
+    height: 20
   },
   buttonForgot: {
     marginTop: 60,
-    marginBottom: 60,
+    marginBottom: 60
   },
-  logo2:{
-    width: 125, 
-    height: 125, 
-    marginTop: 70, 
-    marginBottom: 40, 
-    transform: [{ rotate: '90deg' }]
+  logo2: {
+    width: 125,
+    height: 125,
+    marginTop: 70,
+    marginBottom: 40,
+    transform: [{ rotate: "90deg" }]
   },
   logo3: {
-    width: 100, height: 100, marginTop: 60, marginBottom: 20, 
-    transform: [{ rotate: '90deg' }]
+    width: 100,
+    height: 100,
+    marginTop: 60,
+    marginBottom: 20,
+    transform: [{ rotate: "90deg" }]
   },
-  textPlaceholder:{
+  textPlaceholder: {
     letterSpacing: 2,
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '500',
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "500"
   },
   textPlaceholderB: {
     letterSpacing: 3,
-    color: 'rgb(3,3,2)',
-    textAlign: 'center',
-    fontWeight: '500',
+    color: "rgb(3,3,2)",
+    textAlign: "center",
+    fontWeight: "500"
   },
   textA: {
     letterSpacing: 2,
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '500',
-    
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "500"
   },
   textB: {
     letterSpacing: 3,
-    color: 'rgb(3,3,2)',
-    textAlign: 'center',
-    fontWeight: '500',
+    color: "rgb(3,3,2)",
+    textAlign: "center",
+    fontWeight: "500"
   },
   textL: {
     letterSpacing: 3,
-    color: 'rgb(215, 80, 80)',
-    textAlign: 'center',
-    fontWeight: '600',
-    fontSize: 16,
+    color: "rgb(215, 80, 80)",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 16
   },
   textD: {
     letterSpacing: 1,
-    color: 'rgb(255, 255, 255)',
-    textAlign: 'left',
-    fontWeight: '300',
-    textShadowOffset: { width: 1, height: 1, },
+    color: "rgb(255, 255, 255)",
+    textAlign: "left",
+    fontWeight: "300",
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 7,
-    textShadowColor: '#000000',
+    textShadowColor: "#000000"
   },
   textE: {
     letterSpacing: 1,
-    color: 'rgb(255, 255, 255)',
-    textAlign: 'left',
-    fontWeight: '100',
+    color: "rgb(255, 255, 255)",
+    textAlign: "left",
+    fontWeight: "300",
     fontSize: 10,
-    textShadowOffset: { width: 1, height: 1, },
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 7,
-    textShadowColor: '#000000',
+    textShadowColor: "#000000"
   },
   textF: {
-    color: 'rgb(55, 55, 55)',
-    textAlign: 'center',
-    fontWeight: '200',
+    color: "rgb(55, 55, 55)",
+    textAlign: "center"
   },
   textG: {
-    color: 'rgb(2, 2, 2)',
-    textAlign: 'left',
-    textAlignVertical: 'center',
-    fontWeight: '400',
-    fontSize: 16,
+    color: "rgb(2, 2, 2)",
+    textAlign: "left",
+    textAlignVertical: "center",
+    fontWeight: "400",
+    fontSize: 16
   },
   textH: {
-    marginTop: '6%',
-    marginLeft: '3%',
+    marginTop: "6%",
+    marginLeft: "3%",
     letterSpacing: 2,
-    color: 'rgb(255, 67, 35)',
-    textAlign: 'left',
-    fontWeight: '600',
-    fontSize: 16,
+    color: "rgb(255, 67, 35)",
+    textAlign: "left",
+    fontWeight: "600",
+    fontSize: 16
   },
   textW: {
-    color: 'rgb(255, 255, 255)',
-    textAlign: 'center',
-    textShadowOffset: { width: 1, height: 1, },
+    color: "rgb(255, 255, 255)",
+    textAlign: "center",
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 7,
-    textShadowColor: '#000000',
+    textShadowColor: "#000000"
   },
   textJ: {
     letterSpacing: 1,
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: '500',
-    textDecorationLine: 'underline'
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "500",
+    textDecorationLine: "underline"
   },
   textK: {
     letterSpacing: 1,
-    color: '#fff',
-    textAlign: 'left',
-    fontWeight: '300',
-    fontSize: 18,
+    color: "#fff",
+    textAlign: "left",
+    fontWeight: "300",
+    fontSize: 18
   },
   textChatOut: {
-    color: 'rgb(255, 255, 255)',
-    textAlign: 'left',
+    color: "rgb(255, 255, 255)",
+    textAlign: "left"
   },
   textChatInc: {
-    color: 'rgb(3,3,3)',
-    
-    textAlign: 'left',
+    color: "rgb(3,3,3)",
+
+    textAlign: "left"
   },
   textInputA: {
-    width: '85%',
+    width: "85%",
     marginTop: 0,
     padding: 0,
     fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
-    borderColor: 'rgba(0,0,0,0)',
+    color: "#fff",
+    fontWeight: "500",
+    borderColor: "rgba(0,0,0,0)",
     borderBottomWidth: 0,
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: 1,
-    marginLeft: '-5%',
+    marginLeft: "-5%"
   },
   bottom: {
     width: width,
-    flex: 1,
-    justifyContent: 'flex-end',
+    flex: 0.95,
+    justifyContent: "flex-end",
     marginBottom: 15
   },
   squareImage: {
@@ -488,86 +494,119 @@ export default styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: '#adadad'
+    backgroundColor: "#adadad"
   },
-  logoHeader:{
+  logoHeader: {
     ...Platform.select({
-      ios: {
-
-      },
+      ios: {},
       android: {
-        marginLeft: width / 5,
-      },
-    }),
+        marginLeft: width / 5
+      }
+    })
   },
   profilePhoto: {
-    height: height * .80,
-    width: width,
+    height: height * 0.8,
+    width: width
   },
   profileEditPhoto: {
-    height: height * .80,
-    width: width,
+    height: height * 0.8,
+    width: width
   },
   profileLogo: {
     ...Platform.select({
-      ios: {
-
-      },
+      ios: {},
       android: {
-        marginLeft: width / 2.5,
-      },
+        marginLeft: width / 2.5
+      }
     }),
     width: 50,
-    height: 50,
+    height: 50
   },
   followBar: {
-    paddingHorizontal: '25%', 
+    paddingHorizontal: "10%",
     paddingVertical: 10,
-    backgroundColor: 'rgba(255,255,255,1)', 
-    width: '100%',
+    justifyContent: "space-evenly",
+    backgroundColor: "rgba(255,255,255,1)",
+    width: "100%"
   },
   profileInfo: {
-    paddingHorizontal: 20, 
+    paddingHorizontal: 20
   },
   topLine: {
     borderTopWidth: 1,
-    borderTopColor: 'rgb(75,75,75)',
-    width: width,
+    borderTopColor: "rgba(255,255,255,1)",
+    width: width
   },
   bottomLine: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgb(75,75,75)',
-    width: width,
+    borderBottomColor: "rgb(75,75,75)",
+    width: width
   },
   dropDown: {
-    width: width,
+    width: width
   },
-  postShare:{
+  postShare: {
     flex: 1,
-    
+
     paddingVertical: 20,
     width: width,
     borderBottomWidth: 0.5,
-    borderColor: 'rgba(150,150,150,0.9)',
+    borderColor: "rgba(150,150,150,0.9)"
   },
-  chatBlue:{
-    backgroundColor: 'rgb(66, 135, 245)',
+  chatBlue: {
+    backgroundColor: "rgb(66, 135, 245)",
     borderRadius: 30,
-    borderWidth: 0,
+    borderWidth: 0
   },
   chatWhite: {
-    borderWidth: .5,
-    borderColor: 'rgb(1, 1, 1)',
-    borderRadius: 30,
+    borderWidth: 0.5,
+    borderColor: "rgb(1, 1, 1)",
+    borderRadius: 30
   },
-  hide:{
-    height: '0', 
-    width: '0'
+  hide: {
+    height: "0",
+    width: "0"
   },
-  tintGreen:{
+  tintGreen: {
     width: width,
     height: height,
-    backgroundColor: 'rgba(85, 160, 112,0.1)'
+    backgroundColor: "rgba(85, 160, 112,0.1)"
+  },
+  noPermissions: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10
+  },
+  toggleButton: {
+    flex: 1,
+    marginHorizontal: 2,
+    marginBottom: 10,
+    marginTop: 20,
+    marginRight: 20,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  bottomBar: {
+    paddingBottom: 25,
+    backgroundColor: "transparent",
+    alignSelf: "flex-end",
+    justifyContent: "space-between",
+    flex: 0.12,
+    flexDirection: "row"
+  },
+  bottomButton: {
+    flex: 0.3,
+    height: 58,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  imageOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0
   }
 });
- 

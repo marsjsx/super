@@ -1,51 +1,69 @@
-import React from 'react';
-import { Ionicons } from '@expo/vector-icons'
-import Login from '../screens/Login'
-import HomeScreen from '../screens/Home'
-import SearchScreen from '../screens/Search'
-import FilterScreen from '../screens/Filter'
-import PostScreen from '../screens/Post'
-import ActivityScreen from '../screens/Activity'
-import ProfileScreen from '../screens/Profile'
-import CameraScreen from '../screens/Camera'
-import MapScreen from '../screens/Map'
-import EditScreen from '../screens/Signup'
-import DashScreen from '../screens/Dash'
-import CommentScreen from '../screens/Comment'
-import ChatScreen from '../screens/Chat'
-import PayScreen from '../screens/Pay'
-import MessagesScreen from '../screens/Messages'
-import { createStackNavigator, createAppContainer } from 'react-navigation';
-import { TouchableOpacity, Image, } from 'react-native';
-import styles from '../styles';
+import React from "react";
+import { Ionicons } from "@expo/vector-icons";
+import Login from "../screens/Login";
+import HomeScreen from "../screens/Home";
+import SearchScreen from "../screens/Search";
+import FilterScreen from "../screens/Filter";
+import PostScreen from "../screens/Post";
+import ActivityScreen from "../screens/Activity";
+import ProfileScreen from "../screens/Profile";
+import CameraScreen from "../screens/Camera";
+import MapScreen from "../screens/Map";
+import EditScreen from "../screens/Signup";
+import DashScreen from "../screens/Dash";
+import CommentScreen from "../screens/Comment";
+import ChatScreen from "../screens/Chat";
+import PayScreen from "../screens/Pay";
+import MessagesScreen from "../screens/Messages";
+import { createStackNavigator, createAppContainer } from "react-navigation";
+import { TouchableOpacity, Image } from "react-native";
+import styles from "../styles";
 
-export const HomeNavigator = createAppContainer(createStackNavigator(
-  {
+export const HomeNavigator = createAppContainer(
+  createStackNavigator({
     Home: {
       screen: HomeScreen,
       navigationOptions: ({ navigation }) => ({
-        headerTransparent: true,
-        headerTitle: <Image style={[styles.logoHeader,{ width: 150, height: 45 }]} source={require('../assets/logoW.png')} />,
+        headerTransparent: false,
+        headerTitle: (
+          <Image
+            style={[styles.logoHeader, { width: 150, height: 45 }]}
+            source={require("../assets/logo-1.png")}
+            resizeMode="contain"
+          />
+        ),
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.navigate('Camera')} >
-            <Ionicons style={{ marginLeft: 10, color: 'rgb(255,255,255)' }} name={'ios-camera'} size={45} />
+          <TouchableOpacity onPress={() => navigation.navigate("Camera")}>
+            <Ionicons
+              style={{ marginLeft: 10, color: "#000000" }}
+              name={"ios-camera"}
+              size={32}
+            />
           </TouchableOpacity>
         ),
         headerRight: (
-          <TouchableOpacity onPress={() => navigation.navigate('Messages')} >
-            <Ionicons style={{ marginRight: 10, color: 'rgb(255,255,255)' }} name={'ios-send'} size={45} />
+          <TouchableOpacity onPress={() => navigation.navigate("Messages")}>
+            <Ionicons
+              style={{ marginRight: 10, color: "#000000" }}
+              name={"ios-send"}
+              size={32}
+            />
           </TouchableOpacity>
-        ),
+        )
       })
     },
     Comment: {
       screen: CommentScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: 'Comments',
+        title: "Comments",
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -54,10 +72,14 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       screen: MapScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: 'Map View',
+        title: "Map View",
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -66,10 +88,14 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       screen: MessagesScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: 'Messages',
+        title: "Messages",
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -78,10 +104,14 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       screen: ChatScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: 'Chat',
+        title: "Chat",
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -97,8 +127,12 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -108,36 +142,40 @@ export const HomeNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
-    },
-  }
-));
+    }
+  })
+);
 
 HomeNavigator.navigationOptions = ({ navigation }) => {
-  let tabBarVisible = true
-  if (navigation.state.routes.some(route => route.routeName === 'Camera')) {
-    tabBarVisible = false
+  let tabBarVisible = true;
+  if (navigation.state.routes.some(route => route.routeName === "Camera")) {
+    tabBarVisible = false;
   }
-  if (navigation.state.routes.some(route => route.routeName === 'Map')) {
-    tabBarVisible = false
+  if (navigation.state.routes.some(route => route.routeName === "Map")) {
+    tabBarVisible = false;
   }
-  if (navigation.state.routes.some(route => route.routeName === 'Comment')) {
-    tabBarVisible = false
+  if (navigation.state.routes.some(route => route.routeName === "Comment")) {
+    tabBarVisible = false;
   }
-  if (navigation.state.routes.some(route => route.routeName === 'Filter')) {
-    tabBarVisible = false
+  if (navigation.state.routes.some(route => route.routeName === "Filter")) {
+    tabBarVisible = false;
   }
   return {
-    tabBarVisible,
-  }
-}
+    tabBarVisible
+  };
+};
 
-export const SearchNavigator = createAppContainer(createStackNavigator(
-  {
+export const SearchNavigator = createAppContainer(
+  createStackNavigator({
     Search: {
       screen: SearchScreen,
       navigationOptions: {
@@ -149,8 +187,12 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -160,46 +202,55 @@ export const SearchNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
-    },
-  }
-));
+    }
+  })
+);
 
-export const PostNavigator = createAppContainer(createStackNavigator(
-  {
+export const PostNavigator = createAppContainer(
+  createStackNavigator({
     Post: {
       screen: PostScreen,
       navigationOptions: {
-        headerTransparent: true,
+        headerTransparent: true
       }
     }
-  }
-));
+  })
+);
 
-export const ActivityNavigator = createAppContainer(createStackNavigator(
-  {
+export const ActivityNavigator = createAppContainer(
+  createStackNavigator({
     Activity: {
       screen: ActivityScreen,
       navigationOptions: {
         headerTransparent: true,
-        title: 'Activity'
+        title: "Activity"
       }
     }
-  }
-));
+  })
+);
 
-export const ProfileNavigator = createAppContainer(createStackNavigator(
-  {
+export const ProfileNavigator = createAppContainer(
+  createStackNavigator({
     MyProfile: {
       screen: ProfileScreen,
       navigationOptions: {
         headerTransparent: true,
         title: null,
-        headerTitle: <Image style={styles.profileLogo} source={require('../assets/logo-1.png')} />,
+        headerTitle: (
+          <Image
+            style={styles.profileLogo}
+            source={require("../assets/logo-1.png")}
+          />
+        )
       }
     },
     Edit: {
@@ -207,8 +258,12 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
@@ -218,11 +273,15 @@ export const ProfileNavigator = createAppContainer(createStackNavigator(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         headerLeft: (
-          <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
           </TouchableOpacity>
         )
       })
-    },
-  }
-));
+    }
+  })
+);

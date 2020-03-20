@@ -3,9 +3,24 @@ import db from "../config/firebase";
 import { orderBy, groupBy, values } from "lodash";
 import { allowNotifications, sendNotification } from "./";
 import * as Facebook from "expo-facebook";
+import { uploadPhoto } from "../actions/index";
+
+import { showMessage, hideMessage } from "react-native-flash-message";
+import { buildPreview } from "../component/BuildingPreview";
 
 export const updateEmail = email => {
   return { type: "UPDATE_EMAIL", payload: email };
+};
+
+export const updatePhone = phone => {
+  return { type: "UPDATE_PHONE", payload: phone };
+};
+export const updateGender = gender => {
+  return { type: "UPDATE_GENDER", payload: gender };
+};
+
+export const updateDOB = dob => {
+  return { type: "UPDATE_USER_DOB", payload: dob };
 };
 
 export const updatePassword = password => {
@@ -22,6 +37,19 @@ export const updateBio = bio => {
 
 export const updatePhoto = photo => {
   return { type: "UPDATE_USER_PHOTO", payload: photo };
+};
+
+export const updatePhotoPreview = input => {
+  return { type: "UPDATE_USER_PHOTO_PREVIEW", payload: input };
+};
+
+export const createAndUpdatePreview = input => {
+  return async (dispatch, getState) => {
+    buildPreview(input, 50, 50).then(image => {
+      var imageData = "data:image/jpeg;base64," + image.base64;
+      dispatch(updatePhotoPreview(imageData));
+    });
+  };
 };
 
 export const login = () => {
@@ -140,15 +168,38 @@ export const getUser = (uid, type) => {
 
 export const updateUser = () => {
   return async (dispatch, getState) => {
-    const { uid, username, bio, photo } = getState().user;
+    const {
+      uid,
+      username,
+      bio,
+      photo,
+      phone,
+      gender,
+      dob,
+      preview
+    } = getState().user;
+
     try {
-      db.collection("users")
-        .doc(uid)
-        .update({
-          username: username,
-          bio: bio,
-          photo: photo
+      dispatch(uploadPhoto(photo)).then(imageurl => {
+        db.collection("users")
+          .doc(uid)
+          .update({
+            username: username,
+            bio: bio,
+            photo: imageurl,
+            preview: preview || "",
+            phone: phone,
+            gender: gender,
+            dob: dob
+          });
+
+        showMessage({
+          message: "",
+          description: "Profile Updated Successfully",
+          type: "success",
+          duration: 4000
         });
+      });
     } catch (e) {
       alert(e);
     }
@@ -290,9 +341,8 @@ export const passwordResetEmail = () => {
   return async (dispatch, getState) => {
     const { uid, email } = getState().user;
     var auth = firebase.auth();
-    var emailAddress = email;
     try {
-      auth.sendPasswordResetEmail(emailAddress).then(() => {
+      await auth.sendPasswordResetEmail(email).then(() => {
         alert("Reset request sent to email."); // Email sent.
       });
     } catch (e) {

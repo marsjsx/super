@@ -1,8 +1,18 @@
-import React from 'react';
-import { Text, View, Platform } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import { HomeNavigator, SearchNavigator, PostNavigator, ActivityNavigator, ProfileNavigator } from './StackNavigator'
-import { createBottomTabNavigator, createAppContainer } from 'react-navigation';
+import React from "react";
+import { Text, View, Platform } from "react-native";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  FontAwesome
+} from "@expo/vector-icons";
+import {
+  HomeNavigator,
+  SearchNavigator,
+  PostNavigator,
+  ActivityNavigator,
+  ProfileNavigator
+} from "./StackNavigator";
+import { createBottomTabNavigator, createAppContainer } from "react-navigation";
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -10,9 +20,12 @@ const TabNavigator = createBottomTabNavigator(
       screen: HomeNavigator,
       navigationOptions: {
         headerTransparent: true,
-        tabBarLabel: ' ',
+        tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <MaterialCommunityIcons name={focused ? 'home' : 'home-outline'} size={32} />
+          <MaterialCommunityIcons
+            name={focused ? "home" : "home-outline"}
+            size={32}
+          />
         )
       }
     },
@@ -20,9 +33,9 @@ const TabNavigator = createBottomTabNavigator(
       screen: SearchNavigator,
       navigationOptions: {
         headerTransparent: true,
-        tabBarLabel: ' ',
+        tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <Ionicons name={focused ? 'md-search' : 'ios-search'} size={32} />
+          <Ionicons name={focused ? "md-search" : "ios-search"} size={32} />
         )
       }
     },
@@ -30,9 +43,12 @@ const TabNavigator = createBottomTabNavigator(
       screen: PostNavigator,
       navigationOptions: {
         headerTransparent: true,
-        tabBarLabel: ' ',
+        tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <Ionicons name={focused ? 'ios-add-circle' : 'ios-add-circle-outline'} size={32} />
+          <Ionicons
+            name={focused ? "ios-add-circle" : "ios-add-circle-outline"}
+            size={32}
+          />
         )
       }
     },
@@ -40,9 +56,12 @@ const TabNavigator = createBottomTabNavigator(
       screen: ActivityNavigator,
       navigationOptions: {
         headerTransparent: true,
-        tabBarLabel: ' ',
+        tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <Ionicons name={focused ? 'ios-heart' : 'ios-heart-empty'} size={32} />
+          <Ionicons
+            name={focused ? "ios-heart" : "ios-heart-empty"}
+            size={32}
+          />
         )
       }
     },
@@ -50,9 +69,9 @@ const TabNavigator = createBottomTabNavigator(
       screen: ProfileNavigator,
       navigationOptions: {
         headerTransparent: true,
-        tabBarLabel: ' ',
+        tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <FontAwesome name={focused ? 'user' : 'user-o'} size={32} />
+          <FontAwesome name={focused ? "user" : "user-o"} size={32} />
         )
       }
     }
@@ -65,19 +84,17 @@ const TabNavigator = createBottomTabNavigator(
         ...Platform.select({
           ios: {
             paddingBottom: 0,
-            paddingTop: 5,
-            height: 65,
+            paddingTop: 5
           },
           android: {
-            paddingTop: 15,
-            height: 40,
+            paddingTop: 15
           },
-          backgroundColor: 'rgba(3,3,3,0)'
-        }),
+          height: 65,
+          backgroundColor: "rgba(3,3,3,0)"
+        })
       }
     }
-  },
-  
+  }
 );
 
 export default createAppContainer(TabNavigator);

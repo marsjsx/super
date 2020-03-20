@@ -3,8 +3,9 @@ import styles from "../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { uploadPhoto } from "../actions/index";
-import { updatePhoto } from "../actions/post";
+import { updatePhoto, createAndUpdatePreview } from "../actions/post";
 import { Camera } from "expo-camera";
+import * as Permissions from "expo-permissions";
 import * as ImageManipulator from "expo-image-manipulator";
 import {
   FontAwesome,
@@ -21,31 +22,21 @@ import {
 
 class CameraUpload extends React.Component {
   state = {
-    hasPermission: null,
+    permissionsGranted: false,
     cameraType: Camera.Constants.Type.back,
     showLoading: false
   };
 
-  async componentDidMount() {
-    // this.cameraPermission();
-
-    const { status } = await Camera.requestPermissionsAsync();
-    this.setState({ hasPermission: status === "granted" });
+  async componentWillMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({ permissionsGranted: status === "granted" });
   }
-
-  // asking camera permission
-  cameraPermission = async () => {
-    const { status } = await Camera.requestPermissionsAsync();
-    this.setState({ hasPermission: status === "granted" });
-  };
   snapPhoto = async () => {
     if (this.camera) {
-      //  this.setState({ showLoading: true });
-      // //   this.setState(loading => ({ showLoading: false }));
-
-      // setTimeout(() => this.setState({ isTakingImage: true }), 1);
       this.camera.takePictureAsync().then(image => {
         this.props.dispatch(updatePhoto(image.uri));
+        this.props.dispatch(createAndUpdatePreview(image.uri));
+
         this.props.navigation.goBack();
 
         this.props.navigation.navigate("Post");
@@ -62,67 +53,51 @@ class CameraUpload extends React.Component {
     }
   };
 
-  render() {
-    const { hasPermission } = this.state;
+  renderNoPermissions = () => (
+    <View style={styles.noPermissions}>
+      <Text style={{ color: "white" }}>
+        Camera permissions not granted - cannot open camera preview.
+      </Text>
+    </View>
+  );
 
-    if (hasPermission === null) {
-      return <View />;
-    } else if (hasPermission === false) {
-      return <Text>No access to camera</Text>;
-      //  return this.props.navigation.goBack();
+  renderBottomBar = () => (
+    <View style={styles.bottomBar}>
+      <View style={{ flex: 0.4 }}>
+        <TouchableOpacity
+          onPress={this.snapPhoto}
+          style={{ alignSelf: "center" }}
+        >
+          <Ionicons name="ios-radio-button-on" size={70} color="white" />
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity
+        style={styles.bottomButton}
+        onPress={() => this.changeCameraType()}
+      >
+        <View>
+          <Ionicons name="ios-reverse-camera" size={32} color="white" />
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
+  render() {
+    const { permissionsGranted } = this.state;
+    if (permissionsGranted === false) {
+      return this.renderNoPermissions();
     } else {
       return (
         <View style={styles.container}>
-          {this.state.showLoading === true ? (
-            <ActivityIndicator
-              style={[
-                {
-                  flex: 1,
-                  justifyContent: "center"
-                  // backgroundColor: "#bfbfbf"
-                }
-              ]}
-              size="large"
-              color="#ccf"
-            />
-          ) : (
-            <Camera
-              style={{ flex: 1 }}
-              ref={ref => {
-                this.camera = ref;
-              }}
-              type={this.state.cameraType}
-            >
-              <SafeAreaView
-                style={{
-                  flex: 1,
-                  justifyContent: "flex-end",
-                  paddingEnd: 30,
-                  paddingStart: 30
-                }}
-              >
-                <TouchableOpacity
-                  style={styles.cameraButton}
-                  onPress={() => this.snapPhoto()}
-                />
-
-                <TouchableOpacity
-                  style={{
-                    alignSelf: "flex-end",
-                    alignItems: "center",
-                    margin: 20,
-                    backgroundColor: "transparent"
-                  }}
-                  onPress={() => this.changeCameraType()}
-                >
-                  <MaterialCommunityIcons
-                    name="camera-switch"
-                    style={{ color: "#fff", fontSize: 40 }}
-                  />
-                </TouchableOpacity>
-              </SafeAreaView>
-            </Camera>
-          )}
+          <Camera
+            style={{ flex: 1,justifyContent:'flex-end' }}
+            ref={ref => {
+              this.camera = ref;
+            }}
+            type={this.state.cameraType}
+          >
+            {this.renderBottomBar()}
+          </Camera>
         </View>
       );
     }
@@ -131,7 +106,10 @@ class CameraUpload extends React.Component {
 }
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators({ uploadPhoto, updatePhoto }, dispatch);
+  return bindActionCreators(
+    { uploadPhoto, updatePhoto, createAndUpdatePreview },
+    dispatch
+  );
 };
 
 const mapStateToProps = state => {

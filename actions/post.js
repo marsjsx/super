@@ -4,8 +4,24 @@ import uuid from "uuid";
 import cloneDeep from "lodash/cloneDeep";
 import orderBy from "lodash/orderBy";
 import { sendNotification } from "./";
+import React from "react";
+import {
+  FlatList,
+  Modal,
+  SafeAreaView,
+  Text,
+  View,
+  TextInput,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Alert
+} from "react-native";
 // import Toast from 'react-native-tiny-toast'
 import { showMessage, hideMessage } from "react-native-flash-message";
+
+import { buildPreview } from "../component/BuildingPreview";
 
 import { uploadPhoto } from "../actions/index";
 
@@ -17,6 +33,19 @@ export const updatePhoto = input => {
   return { type: "UPDATE_POST_PHOTO", payload: input };
 };
 
+export const updatePhotoPreview = input => {
+  return { type: "UPDATE_POST_PREVIEW", payload: input };
+};
+
+export const createAndUpdatePreview = input => {
+  return async (dispatch, getState) => {
+    buildPreview(input, 50, 50).then(image => {
+      var imageData = "data:image/jpeg;base64," + image.base64;
+      dispatch(updatePhotoPreview(imageData));
+    });
+  };
+};
+
 export const updateLocation = input => {
   return { type: "UPDATE_LOCATION", payload: input };
 };
@@ -26,7 +55,7 @@ export const uploadPost = () => {
     try {
       showMessage({
         message: "Uploading Post",
-        description: "Started Post Upload",
+        description: "Started Post Uploading, Please wait...",
         type: "info",
         duration: 4000
       });
@@ -42,6 +71,7 @@ export const uploadPost = () => {
           postLocation: post.location || " ",
           uid: user.uid,
           photo: user.photo || " ",
+          preview: post.preview || "",
           username: user.username,
           likes: [],
           comments: [],
@@ -56,9 +86,11 @@ export const uploadPost = () => {
         dispatch(updatePhoto());
         dispatch(updateDescription());
         dispatch(updateLocation());
+
+        dispatch(getPosts());
         showMessage({
-          message: "Uploading Post",
-          description: "Started Post Upload",
+          message: "Post Uploaded",
+          description: "Post Uploaded Successfully",
           type: "success",
           duration: 4000
         });
@@ -72,6 +104,10 @@ export const uploadPost = () => {
     }
   };
 };
+
+function getProgressBar() {
+  return <Text>Testing This </Text>;
+}
 
 export const getPosts = () => {
   return async (dispatch, getState) => {

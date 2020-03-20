@@ -24,13 +24,13 @@
     ],
     "ios": {
       "bundleIdentifier": "com.patrick.super",
-      "buildNumber": "2",
+      "buildNumber": "4",
       "supportsTablet": true
     },
     "android": {
       "package": "com.patrick.super",
-      "versionCode": 2
+      "versionCode": 4
     },
-    "description": ""
+    "description": "Released on 20 March 2020"
   }
 }

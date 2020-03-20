@@ -11,7 +11,8 @@ import {
   updateDescription,
   updateLocation,
   uploadPost,
-  updatePhoto
+  updatePhoto,
+  createAndUpdatePreview
 } from "../actions/post";
 import {
   FlatList,
@@ -24,18 +25,32 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  ImageBackground
 } from "react-native";
 const GOOGLE_API =
   "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 import { uploadPhoto } from "../actions/index";
+
+import { Item, Input, Label, Picker, Icon } from "native-base";
+import Constants from "expo-constants";
+
 import { Dropdown } from "react-native-material-dropdown";
+
+import {
+  Ionicons,
+  MaterialIcons,
+  Foundation,
+  MaterialCommunityIcons,
+  Octicons
+} from "@expo/vector-icons";
 
 class Post extends React.Component {
   state = {
     showModal: false,
     locations: [],
-    language: ""
+    language: "",
+    selectedLocation: ""
   };
 
   componentDidMount() {
@@ -43,6 +58,16 @@ class Post extends React.Component {
   }
 
   post = async () => {
+    if (this.props.post.photo == null || this.props.post.photo == undefined) {
+      showMessage({
+        message: "STOP",
+        description: "Please select an image",
+        type: "danger",
+        duration: 3000
+      });
+
+      return;
+    }
     this.props.uploadPost();
     this.props.navigation.navigate("Home");
   };
@@ -53,26 +78,40 @@ class Post extends React.Component {
     }
   };
 
+  renderTopBar = () => (
+    <View
+      style={{
+        backgroundColor: "transparent",
+        alignSelf: "flex-end",
+        position: "absolute",
+        paddingTop: Constants.statusBarHeight
+      }}
+    >
+      <TouchableOpacity
+        style={styles.toggleButton}
+        onPress={() => this.openLibrary()}
+      >
+        <Foundation name="thumbnails" size={40} color="white" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.toggleButton}
+        onPress={() => this.props.navigation.navigate("Camera")}
+      >
+        <Ionicons name="ios-reverse-camera" size={40} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
+
   openLibrary = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
       const image = await ImagePicker.launchImageLibraryAsync();
       if (!image.cancelled) {
         this.props.updatePhoto(image.uri);
+        this.props.createAndUpdatePreview(image.uri);
       }
     }
-  };
-
-  setLocation = location => {
-    const place = {
-      name: location.name,
-      coords: {
-        lat: location.geometry.location.lat,
-        lng: location.geometry.location.lng
-      }
-    };
-    this.setState({ showModal: false });
-    this.props.updateLocation(place);
   };
 
   getLocations = async () => {
@@ -85,6 +124,29 @@ class Post extends React.Component {
       this.setState({ locations: data.results });
     }
   };
+
+  locationItems = () =>
+    this.state.locations.map((s, i) => {
+      return (
+        <Picker.Item
+          label={s.name + "\n" + s.vicinity}
+          value={s}
+          onPress={() => this.setLocation(item)}
+        />
+      );
+    });
+
+  setLocation(location) {
+    const place = {
+      name: location.name + "\n" + location.vicinity,
+      coords: {
+        lat: location.geometry.location.lat,
+        lng: location.geometry.location.lng
+      }
+    };
+    this.props.updateLocation(place);
+    this.setState({ selectedLocation: location });
+  }
 
   render() {
     let data = [
@@ -120,60 +182,40 @@ class Post extends React.Component {
             contentContainerStyle={{ alignItems: "center" }}
           >
             <NavigationEvents onWillFocus={this.onWillFocus} />
-
-            <Modal
-              animationType="slide"
-              transparent={false}
-              visible={this.state.showModal}
-              onRequestClose={() => {}}
-            >
-              <SafeAreaView style={[styles.container, styles.center]}>
-                <FlatList
-                  keyExtractor={item => item.id}
-                  data={this.state.locations}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.border}
-                      onPress={() => this.setLocation(item)}
-                    >
-                      <Text style={styles.gray}>{item.name}</Text>
-                      <Text style={styles.gray}>{item.vicinity}</Text>
-                    </TouchableOpacity>
-                  )}
-                />
-              </SafeAreaView>
-            </Modal>
-
             <Image
               style={styles.postPhotoPreview}
               source={{ uri: this.props.post.photo }}
             />
+            {this.renderTopBar()}
 
-            <TextInput
-              multiline={false}
-              style={[
-                styles.border2,
-                { textAlignVertical: "top", textAlign: "left", margin: 0 }
-              ]}
-              value={this.props.post.description}
-              onChangeText={text => this.props.updateDescription(text)}
-              placeholder="Write a caption..."
-            />
-            {this.state.locations.length > 0 ? (
-              <TouchableOpacity
-                style={styles.border}
-                onPress={() => this.setState({ showModal: true })}
-              >
-                <Text style={styles.gray}>
-                  {this.props.post.location
-                    ? this.props.post.location.name
-                    : "Add a Location"}
-                </Text>
+            <View style={{ margin: 10 }}>
+              <Item floatingLabel>
+                <Label>Write a caption..</Label>
+                <Input
+                  value={this.props.post.description}
+                  onChangeText={text => this.props.updateDescription(text)}
+                />
+              </Item>
+              {this.state.locations.length > 0 ? (
+                <Item underline>
+                  <Picker
+                    iosIcon={<Icon name="arrow-down" />}
+                    mode="dropdown"
+                    style={{ width: undefined }}
+                    placeholder="Add a Location"
+                    placeholderStyle={{ color: "#bfc6ea" }}
+                    placeholderIconColor="#007aff"
+                    selectedValue={this.state.selectedLocation}
+                    onValueChange={this.setLocation.bind(this)}
+                  >
+                    {this.locationItems()}
+                  </Picker>
+                </Item>
+              ) : null}
+              <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
+                <Text>Post</Text>
               </TouchableOpacity>
-            ) : null}
-            <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
-              <Text>Post</Text>
-            </TouchableOpacity>
+            </View>
             {/* <Dropdown label='Tag People' data={data} containerStyle={styles.dropDown}/>
       <Dropdown label='Add Location' data={dataLoc} containerStyle={styles.dropDown} />
       <View style={[styles.postShare, styles.row, styles.space,]}>
@@ -197,7 +239,14 @@ class Post extends React.Component {
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
-    { updateDescription, uploadPost, updateLocation, uploadPhoto, updatePhoto },
+    {
+      updateDescription,
+      uploadPost,
+      updateLocation,
+      uploadPhoto,
+      updatePhoto,
+      createAndUpdatePreview
+    },
     dispatch
   );
 };

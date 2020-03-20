@@ -22,7 +22,7 @@ const StackNavigator = createStackNavigator(
         title: ' ',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon,{marginLeft:20}]} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon,{marginLeft:20,color: "rgb(255,255,255)"}]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         ),
         headerStyle: { backgroundColor: 'transparent' }
@@ -48,7 +48,7 @@ const StackNavigator = createStackNavigator(
         title: ' ',
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()} >
-            <Ionicons style={[styles.icon, { marginLeft: 20 }]} name={'ios-arrow-back'} size={30} />
+            <Ionicons style={[styles.icon, { marginLeft: 20,color: "rgb(255,255,255)" }]} name={'ios-arrow-back'} size={30} />
           </TouchableOpacity>
         ),
         headerStyle: { backgroundColor: 'transparent' }
