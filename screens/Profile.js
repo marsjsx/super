@@ -46,7 +46,7 @@ class Profile extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.getMessages();
+    // this.props.getMessages();
     this.props.getPosts();
   };
 
@@ -286,6 +286,7 @@ class Profile extends React.Component {
                     <Ionicons
                       style={{ margin: 5, color: "rgb(255,255,255)" }}
                       name={
+                        user.followers &&
                         user.followers.indexOf(this.props.user.uid) >= 0
                           ? "ios-checkmark"
                           : "ios-add"

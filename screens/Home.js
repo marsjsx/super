@@ -26,6 +26,8 @@ import * as Font from "expo-font";
 import DoubleTap from "../component/DoubleTap";
 import ProgressiveImage from "../component/ProgressiveImage";
 import { showMessage, hideMessage } from "react-native-flash-message";
+import { getMessages } from "../actions/message";
+
 import { showLoader } from "../util/Loader";
 class Home extends React.Component {
   constructor(props) {
@@ -43,6 +45,11 @@ class Home extends React.Component {
     this.setState({ fontLoaded: true });
     this.setState({ showLoading: true });
     await this.props.getPosts();
+
+    setTimeout(() => {
+      this.props.getMessages();
+    }, 500); // simulating network
+
     this.setState({ showLoading: false });
   }
 
@@ -220,7 +227,15 @@ class Home extends React.Component {
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
-    { getPosts, likePost, unlikePost, getUser, reportPost, getFilterPosts },
+    {
+      getPosts,
+      likePost,
+      unlikePost,
+      getUser,
+      reportPost,
+      getFilterPosts,
+      getMessages
+    },
     dispatch
   );
 };

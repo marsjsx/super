@@ -169,6 +169,12 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
   if (navigation.state.routes.some(route => route.routeName === "Filter")) {
     tabBarVisible = false;
   }
+  if (navigation.state.routes.some(route => route.routeName === "Messages")) {
+    tabBarVisible = false;
+  }
+  if (navigation.state.routes.some(route => route.routeName === "Chat")) {
+    tabBarVisible = false;
+  }
   return {
     tabBarVisible
   };

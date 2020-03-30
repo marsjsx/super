@@ -59,7 +59,7 @@ export const addMessage = (id, messages) => {
 
       // listmessages[itemindex] = updatedItem;
       //  newlist = [...listmessages];
-      listmessages = listmessages.map((item, index) => {
+      newlist = listmessages.map((item, index) => {
         // Replace the item at index 2
         if (index === itemindex) {
           return updatedItem;
@@ -82,7 +82,7 @@ export const addMessage = (id, messages) => {
         chats: chats,
         updatedAt
       });
-      listmessages = [...listmessages];
+      newlist = [...listmessages];
       // newlist = listmessages;
     }
 
@@ -93,7 +93,7 @@ export const addMessage = (id, messages) => {
 
     dispatch({
       type: "GET_MESSAGES",
-      payload: listmessages
+      payload: newlist
     });
 
     try {
@@ -115,8 +115,8 @@ export const addMessage = (id, messages) => {
         saveMessage(message, chatId, members, updatedAt);
       }
     } catch (e) {
-      // alert(e);
-      console.error(e);
+      alert(e);
+      // console.error(e);
     }
   };
 };
@@ -133,13 +133,7 @@ export const getMessages = () => {
         .where("members", "array-contains", uid);
 
       query.onSnapshot(querySnapshot => {
-        var chatlength = querySnapshot.size;
-        var currentindex = 0;
-
-        let listmessages = getState().messages;
-
         querySnapshot.forEach(async response => {
-          currentindex++;
           const chatQuery = await db
             .collection("messages")
             .doc(response.id)
@@ -156,6 +150,7 @@ export const getMessages = () => {
           let members = response.data().members;
           let updatedAt = response.data().updatedAt;
 
+          let listmessages = getState().messages;
           const id = members.filter(id => id !== uid)[0];
 
           var itemindex;
@@ -177,7 +172,7 @@ export const getMessages = () => {
 
             // listmessages[itemindex] = updatedItem;
             //  newlist = [...listmessages];
-            listmessages = listmessages.map((item, index) => {
+            newlist = listmessages.map((item, index) => {
               // Replace the item at index 2
               if (index === itemindex) {
                 return updatedItem;
@@ -198,21 +193,20 @@ export const getMessages = () => {
               chats: chat,
               updatedAt: updatedAt
             });
-            listmessages = [...listmessages];
+            newlist = [...listmessages];
             // newlist = listmessages;
           }
 
-          if (chatlength == currentindex) {
-            dispatch({
-              type: "GET_MESSAGES",
-              payload: listmessages
-            });
-          }
+          //  alert(JSON.stringify(newlist));
+          dispatch({
+            type: "GET_MESSAGES",
+            payload: newlist
+          });
         });
       });
     } catch (e) {
-      // alert(e);
-      console.error(e);
+      alert(e);
+      /* console.error(e) */
     }
   };
 };
