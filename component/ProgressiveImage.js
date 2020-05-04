@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Animated, ActivityIndicator } from "react-native";
+import FastImage from "react-native-fast-image";
 
 const styles = StyleSheet.create({
   imageOverlay: {
@@ -18,9 +19,16 @@ const styles = StyleSheet.create({
 });
 
 class ProgressiveImage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      opacity: 0,
+    };
+  }
+
   thumbnailAnimated = new Animated.Value(0);
 
-  imageAnimated = new Animated.Value(0);
+  // imageAnimated = new Animated.Value(0);
 
   handleThumbnailLoad = () => {
     Animated.timing(this.thumbnailAnimated, {
@@ -29,9 +37,10 @@ class ProgressiveImage extends React.Component {
   };
 
   onImageLoad = () => {
-    Animated.timing(this.imageAnimated, {
-      toValue: 1,
-    }).start();
+    // Animated.timing(this.imageAnimated, {
+    //   toValue: 1,
+    // }).start();
+    this.setState({ opacity: 1 });
   };
 
   render() {
@@ -65,12 +74,28 @@ class ProgressiveImage extends React.Component {
           onLoad={this.handleThumbnailLoad}
           blurRadius={1}
         />
-        <Animated.Image
+        {/* <Animated.Image
           {...props}
           source={source}
           style={[styles.imageOverlay, { opacity: this.imageAnimated }, style]}
           onLoad={this.onImageLoad}
+        /> */}
+
+        <FastImage
+          {...props}
+          source={source}
+          style={[styles.imageOverlay, { opacity: this.state.opacity }, style]}
+          onLoad={this.onImageLoad}
         />
+
+        {/* <FastImage
+          style={{ width: 200, height: 200 }}
+          source={{
+            uri: "https://unsplash.it/400/400?image=1",
+            priority: FastImage.priority.normal,
+          }}
+          resizeMode={FastImage.resizeMode.contain}
+        /> */}
       </View>
     );
   }

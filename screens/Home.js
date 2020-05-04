@@ -7,6 +7,7 @@ import {
   MaterialCommunityIcons,
   EvilIcons,
   Entypo,
+  Octicons,
 } from "@expo/vector-icons";
 import {
   Text,
@@ -62,6 +63,7 @@ import { ShareDialog } from "react-native-fbsdk";
 import { ShareApi } from "react-native-fbsdk";
 import EmptyView from "../component/emptyview";
 import ParsedText from "react-native-parsed-text";
+import Dialog from "react-native-dialog";
 
 // import { Share } from "react-native";
 // import Share from "react-native-share";
@@ -87,9 +89,19 @@ class Home extends React.Component {
       fontLoaded: false,
       showLoading: false,
       result: "",
+      dialogVisible: false,
+      reportReason: "",
+      selectedPost: {},
     };
   }
 
+  showDialog = () => {
+    this.setState({ dialogVisible: true });
+  };
+
+  handleCancel = () => {
+    this.setState({ dialogVisible: false });
+  };
   async componentDidMount() {
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
@@ -139,10 +151,10 @@ class Home extends React.Component {
   };
 
   showActionSheet = (post) => {
-    const { uid } = this.props.user;
+    const { uid, isSuperAdmin } = this.props.user;
 
     var actions = [...BUTTONS];
-    if (uid === post.uid) {
+    if (uid === post.uid || isSuperAdmin) {
       actions.splice(3, 0, "Delete");
     } else {
       DESTRUCTIVE_INDEX = -1;
@@ -158,8 +170,8 @@ class Home extends React.Component {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
         if ("Delete" === actions[buttonIndex]) {
           Alert.alert(
-            "Delete post?",
-            "Press OK to Report. This action is irreversible, it cannot be undone.",
+            isSuperAdmin ? "SUPER ADMIN(Delete Post)" : "Delete post?",
+            "Press OK to Delete Post. This action is irreversible, it cannot be undone.",
             [
               {
                 text: "Cancel",
@@ -171,29 +183,11 @@ class Home extends React.Component {
             { cancelable: false }
           );
         } else if ("Report" === actions[buttonIndex]) {
-          Alert.alert(
-            "Report user?",
-            "Press OK to Delete. This action is irreversible, it cannot be undone.",
-            [
-              {
-                text: "Cancel",
-                onPress: () => alert("Cancelled"),
-                style: "cancel",
-              },
-              {
-                text: "OK",
-                onPress: () => {
-                  showMessage({
-                    message: "REPORT",
-                    description: `User reported sucessfully`,
-                    type: "info",
-                    duration: 2000,
-                  });
-                },
-              },
-            ],
-            { cancelable: false }
-          );
+          this.setState({
+            dialogVisible: true,
+            reportReason: "",
+            selectedPost: post,
+          });
         } else {
         }
       }
@@ -337,6 +331,37 @@ class Home extends React.Component {
       }
     });
   };
+
+  handleReport = async () => {
+    if (!this.props.user.uid) {
+      this.sheetRef.openSheet();
+      return;
+    }
+    // The user has pressed the "Delete" button, so here you can do your own logic.
+    // ...Your logic
+
+    this.setState({ dialogVisible: false });
+
+    const { uid } = this.props.user;
+    if (this.state.selectedPost.reports.includes(uid)) {
+      showMessage({
+        message: "REPORT",
+        description: `You have already reported this Post `,
+        type: "warning",
+        duration: 2000,
+      });
+      return;
+    }
+
+    this.props.reportPost(this.state.selectedPost, this.state.reportReason);
+    showMessage({
+      message: "REPORT",
+      description: `Post reported successfully`,
+      type: "info",
+      duration: 2000,
+    });
+  };
+
   render() {
     let userFollowingList = [this.props.user.following];
     if (this.props.post === null) return null;
@@ -465,6 +490,27 @@ class Home extends React.Component {
                         size={40}
                       />
                     </TouchableOpacity>
+
+                    {this.props.user.isSuperAdmin && (
+                      <TouchableOpacity
+                        style={styles.center}
+                        onPress={() =>
+                          this.props.navigation.navigate("PostReport", item)
+                        }
+                      >
+                        <Ionicons
+                          style={{ margin: 5 }}
+                          color="#db565b"
+                          name="ios-alert"
+                          size={40}
+                        />
+                        <Text
+                          style={[styles.bold, styles.white, { fontSize: 20 }]}
+                        >
+                          {item.reports ? item.reports.length : 0}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
 
                   <View style={[styles.row]}>
@@ -604,6 +650,23 @@ class Home extends React.Component {
               </TouchableOpacity>
             </Right>
           </Header>
+          {/* {this.props.user.isSuperAdmin && (
+            <TouchableOpacity
+              style={{
+                alignSelf: "flex-start",
+                position: "absolute",
+                top: 150,
+              }}
+              onPress={() => this.likePost(item)}
+            >
+              <Ionicons
+                style={{ margin: 5 }}
+                color="#db565b"
+                name="ios-alert"
+                size={40}
+              />
+            </TouchableOpacity>
+          )} */}
         </View>
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
@@ -612,6 +675,21 @@ class Home extends React.Component {
             this.actionSheet = c;
           }}
         />
+        <Dialog.Container visible={this.state.dialogVisible}>
+          <Dialog.Title>Report Post</Dialog.Title>
+          <Dialog.Description>
+            Do you want to report this post
+          </Dialog.Description>
+          <Dialog.Input
+            value={this.state.reportReason}
+            onChangeText={(input) => this.setState({ reportReason: input })}
+            placeholder="Help Us by providing some more information on the problem"
+            multiline={true}
+            numberOfLines={7}
+          ></Dialog.Input>
+          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+          <Dialog.Button label="Report" onPress={this.handleReport} />
+        </Dialog.Container>
       </View>
     );
   }

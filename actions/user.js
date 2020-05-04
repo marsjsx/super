@@ -1,9 +1,16 @@
 import firebase from "firebase";
+import auth from "@react-native-firebase/auth";
+import { firebase as firebaseAuth } from "@react-native-firebase/auth";
 import db from "../config/firebase";
 import { orderBy, groupBy, values } from "lodash";
 import { allowNotifications, sendNotification } from "./";
 import * as Facebook from "expo-facebook";
 import { uploadPhoto } from "../actions/index";
+import appleAuth, {
+  AppleButton,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation,
+} from "@invertase/react-native-apple-authentication";
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
@@ -133,6 +140,66 @@ export const facebookLogin = () => {
       }
     } catch ({ message }) {
       alert(`Facebook Login Error: ${message}`);
+    }
+  };
+};
+
+export const appleLogin = () => {
+  return async (dispatch) => {
+    // 1). start a apple sign-in request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: AppleAuthRequestOperation.LOGIN,
+      requestedScopes: [
+        AppleAuthRequestScope.EMAIL,
+        AppleAuthRequestScope.FULL_NAME,
+      ],
+    });
+
+    // 2). if the request was successful, extract the token and nonce
+    const { identityToken, nonce } = appleAuthRequestResponse;
+
+    if (identityToken) {
+      var data = {};
+      data.email = appleAuthRequestResponse.email;
+      data.username =
+        appleAuthRequestResponse.fullName.givenName +
+        " " +
+        appleAuthRequestResponse.fullName.familyName;
+      // user.password = new Date().getTime().toString();
+      data.password = appleAuthRequestResponse.email;
+      const { email, password, username } = data;
+
+      const firebaseResponse = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+   
+      var response = firebaseResponse.user;
+      const user = await db.collection("users").doc(response.uid).get();
+
+      if (!user.exists) {
+        const response = await firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password);
+        if (response.user.uid) {
+          const user = {
+            uid: response.user.uid,
+            email: email,
+            username: username,
+            photo: "",
+            token: null,
+            followers: [],
+            following: [],
+            reports: [],
+          };
+          db.collection("users").doc(response.user.uid).set(user);
+          dispatch({ type: "LOGIN", payload: user });
+        }
+      } else {
+        dispatch(getUser(response.uid));
+      }
+    } else {
+      alert("Apple Login Failed");
+      // handle this - retry?
     }
   };
 };

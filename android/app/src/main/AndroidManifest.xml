@@ -33,7 +33,7 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme">
       <!-- The Facebook SDK runs FacebookInitProvider on startup and crashes if there isn't an ID here -->
-    <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="fb0"/>
+<!--    <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="fb0"/>-->
       <meta-data android:name="expo.modules.updates.EXPO_UPDATE_URL" android:value="https://exp.host/@yapapp/BareSuper" />
       <meta-data android:name="expo.modules.updates.EXPO_SDK_VERSION" android:value="37.0.0" />
 <activity

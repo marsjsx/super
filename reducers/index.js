@@ -29,11 +29,15 @@ const user = (state = {}, action) => {
     case "GET_TOKEN":
       return { ...state, token: action.payload };
 
-    case "DELETE_POST":
+    case "DELETE_POST": {
+      if (!state.posts) {
+        return { state };
+      }
       return {
         ...state,
         posts: state.posts.filter((item) => item.id !== action.payload),
       };
+    }
 
     default:
       return state;
@@ -45,11 +49,15 @@ const profile = (state = {}, action) => {
     case "GET_PROFILE":
       return action.payload;
 
-    case "DELETE_POST_PROFILE":
+    case "DELETE_POST_PROFILE": {
+      if (!state.posts) {
+        return { state };
+      }
       return {
         ...state,
         posts: state.posts.filter((item) => item.id !== action.payload),
       };
+    }
     default:
       return state;
   }
@@ -76,15 +84,21 @@ const post = (state = null, action) => {
       return { ...state, location: action.payload };
     case "GET_POSTS":
       return { ...state, feed: action.payload };
+    case "POST_REPORTS":
+      return { ...state, postReports: action.payload };
     case "GET_COMMENTS":
       return { ...state, comments: action.payload };
     case "UPDATE_PROGRESS":
       return { ...state, progress: action.payload };
-    case "DELETE_POST_FROM_FEED":
+    case "DELETE_POST_FROM_FEED": {
+      if (!state.feed) {
+        return { state };
+      }
       return {
         ...state,
         feed: state.feed.filter((item) => item.id !== action.payload),
       };
+    }
     default:
       return state;
   }

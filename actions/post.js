@@ -5,6 +5,7 @@ import cloneDeep from "lodash/cloneDeep";
 import orderBy from "lodash/orderBy";
 import { sendNotification } from "./";
 import React from "react";
+import { getUser } from "./user";
 
 // import Toast from 'react-native-tiny-toast'
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -126,6 +127,28 @@ export const getPosts = () => {
     } catch (e) {
       let array = [];
       dispatch({ type: "GET_POSTS", payload: array });
+      // alert(e);
+    }
+  };
+};
+
+export const getPostReports = (post) => {
+  return async (dispatch, getState) => {
+    try {
+      const reports = await db
+        .collection("reports")
+        .where("postId", "==", post.id)
+        .get();
+
+      let array = [];
+      reports.forEach((post) => {
+        array.push(post.data());
+      });
+      //  dispatch({ type: "GET_POSTS", payload: orderBy(array, "date", "desc") });
+      dispatch({ type: "POST_REPORTS", payload: array });
+    } catch (e) {
+      let array = [];
+      dispatch({ type: "POST_REPORTS", payload: array });
       // alert(e);
     }
   };
@@ -270,8 +293,8 @@ export const addComment = (text, post) => {
   };
 };
 
-export const reportPost = (post) => {
-  return (dispatch, getState) => {
+export const reportPost = (post, reason) => {
+  return async (dispatch, getState) => {
     const { uid, username, photo } = getState().user;
     try {
       const home = cloneDeep(getState().post.feed);
@@ -281,6 +304,7 @@ export const reportPost = (post) => {
         }
         return item;
       });
+
       db.collection("posts")
         .doc(post.id)
         .update({
@@ -295,14 +319,41 @@ export const reportPost = (post) => {
         postId: post.id,
         postPhoto: post.postPhoto,
         reporterId: uid,
+        postType: post.type,
+        postCreated: post.date,
+        reportReason: reason,
         reporterPhoto: photo,
         reporterName: username,
+        postDescription: post.postDescription,
         uid: post.uid,
         date: new Date().getTime(),
         type: "REPORT",
       });
       dispatch({ type: "GET_POSTS", payload: newFeed });
       dispatch(getPosts());
+
+      const query = await db
+        .collection("users")
+        .where("isSuperAdmin", "==", true)
+        .get();
+
+      query.forEach((response) => {
+        if (response.data().uid) {
+          db.collection("activity").doc().set({
+            postId: post.id,
+            postPhoto: post.postPhoto,
+            reporterId: uid,
+            reportReason: reason,
+            reporterPhoto: photo,
+            reporterName: username,
+            uid: response.data().uid,
+            date: new Date().getTime(),
+            type: "REPORT",
+          });
+          dispatch(sendNotification(response.data().uid, "Reported Post"));
+        }
+      });
+
       dispatch(getUser(response.user.uid));
     } catch (e) {
       /* alert(e) */

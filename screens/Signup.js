@@ -15,6 +15,7 @@ import {
   ImageBackground,
   ScrollView,
   KeyboardAvoidingView,
+  Linking,
   Alert,
 } from "react-native";
 import {
@@ -27,6 +28,7 @@ import {
   signup,
   updateUser,
   facebookLogin,
+  appleLogin,
   deleteAuth,
   deleteAllPosts,
   deleteUser,
@@ -53,8 +55,10 @@ import {
   Picker,
   Container,
   Header,
+  Subtitle,
   Left,
   Body,
+  Text as NText,
   Right,
   Button,
   Title,
@@ -64,6 +68,13 @@ import { convertDate } from "../util/DateFormater";
 import ProgressiveImage from "../component/ProgressiveImage";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { showLoader } from "../util/Loader";
+import { name as appName } from "../app.json";
+
+import appleAuth, {
+  AppleButton,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation,
+} from "@invertase/react-native-apple-authentication";
 
 class Signup extends React.Component {
   constructor(props) {
@@ -289,6 +300,46 @@ class Signup extends React.Component {
                 >
                   <Text style={styles.textA}>Signup with Facebook</Text>
                 </TouchableOpacity>
+                {appleAuth.isSupported && (
+                  <AppleButton
+                    cornerRadius={5}
+                    style={styles.buttonApple}
+                    buttonStyle={AppleButton.Style.BLACK}
+                    buttonType={AppleButton.Type.SIGN_IN}
+                    onPress={() => this.props.appleLogin()}
+                  />
+                )}
+
+                <Subtitle
+                  style={{
+                    textAlign: "center",
+                    margin: 10,
+                  }}
+                >
+                  By continuning, you agree to {appName}'s{" "}
+                  <Text
+                    style={{ color: "blue" }}
+                    onPress={() =>
+                      Linking.openURL(
+                        "https://www.lllsuperlll.com/terms-of-use"
+                      )
+                    }
+                  >
+                    Terms of Use
+                  </Text>{" "}
+                  and confirm that you have read {appName}'s
+                  <Text
+                    style={{ color: "blue" }}
+                    onPress={() =>
+                      Linking.openURL(
+                        "https://www.lllsuperlll.com/privacy-policy"
+                      )
+                    }
+                  >
+                    {" "}
+                    Privacy policy
+                  </Text>{" "}
+                </Subtitle>
               </ScrollView>
             </KeyboardAvoidingView>
             {this.state.showLoading
@@ -390,7 +441,10 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item inlineLabel style={[styles.textInput, {}]}>
+                  <Item
+                    inlineLabel
+                    style={[styles.textInput, { marginTop: 10 }]}
+                  >
                     <Label>Password</Label>
                     <Button
                       transparent
@@ -401,7 +455,10 @@ class Signup extends React.Component {
                     </Button>
                   </Item>
 
-                  <Item floatingLabel style={[styles.textInput]}>
+                  <Item
+                    floatingLabel
+                    style={[styles.textInput, { marginTop: 10 }]}
+                  >
                     <Label>Website</Label>
                     <Input
                       value={this.props.user.bio}
@@ -409,7 +466,10 @@ class Signup extends React.Component {
                       onChangeText={(input) => this.props.updateBio(input)}
                     />
                   </Item>
-                  <Item floatingLabel style={[styles.textInput]}>
+                  <Item
+                    floatingLabel
+                    style={[styles.textInput, { marginTop: 10 }]}
+                  >
                     <Label>Website Label</Label>
                     <Input
                       value={this.props.user.websiteLabel}
@@ -420,7 +480,7 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item picker style={[styles.textInput]}>
+                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
                     <Label>Account Type: </Label>
                     <Picker
                       mode="dropdown"
@@ -460,7 +520,10 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item floatingLabel style={[styles.textInput]}>
+                  <Item
+                    floatingLabel
+                    style={[styles.textInput, { marginTop: 10 }]}
+                  >
                     <Label>Phone</Label>
                     <Input
                       value={this.props.user.phone}
@@ -469,7 +532,7 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item picker style={[styles.textInput]}>
+                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
                     <Label>Gender: </Label>
                     <Picker
                       mode="dropdown"
@@ -490,7 +553,7 @@ class Signup extends React.Component {
                     </Picker>
                   </Item>
 
-                  <Item picker style={[styles.textInput]}>
+                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
                     <Label>Birthdate: </Label>
 
                     <DatePicker
@@ -536,29 +599,27 @@ class Signup extends React.Component {
 
                   <Button
                     block
-                    success
-                    style={styles.smallMargin}
+                    style={[styles.margin10, { backgroundColor: "#E0E0E0" }]}
                     onPress={this.onPress}
                   >
-                    <Text style={styles.textA}>Save</Text>
+                    <Text style={styles.textB}>Save</Text>
                   </Button>
 
                   <Button
                     block
                     light
-                    style={styles.smallMargin}
+                    style={styles.margin10}
                     onPress={this.logout}
                   >
                     <Text>Logout</Text>
                   </Button>
 
                   <Button
-                    block
-                    danger
-                    style={styles.smallMargin}
+                    transparent
+                    style={[styles.margin10, styles.center]}
                     onPress={this.onPressDel}
                   >
-                    <Text style={styles.textA}>! Delete User !</Text>
+                    <NText style={styles.textB}>! Delete User !</NText>
                   </Button>
                 </View>
               ) : null}
@@ -621,6 +682,7 @@ const mapDispatchToProps = (dispatch) => {
       updateWebsiteLabel,
       signup,
       facebookLogin,
+      appleLogin,
       deleteAuth,
       deleteAllPosts,
       deleteUser,

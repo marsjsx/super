@@ -5,6 +5,8 @@ import {
   Image,
   StyleSheet,
   TouchableHighlight,
+  TouchableOpacity,
+  Linking,
   Dimensions,
 } from "react-native";
 import PropTypes from "prop-types";
@@ -29,12 +31,14 @@ import {
   Feather,
 } from "@expo/vector-icons";
 import RBSheet from "react-native-raw-bottom-sheet";
-import Splash from "../screens/Splash";
-import Login from "../screens/Login";
+
+import appleAuth, {
+  AppleButton,
+} from "@invertase/react-native-apple-authentication";
 
 import AuthNavigator from "../navigation/SwitchNavigator";
 import { name as appName } from "../app.json";
-import { TouchableOpacity } from "react-native-gesture-handler";
+// import { TouchableOpacity } from "react-native-gesture-handler";
 
 // import AuthNavigator from './AuthNavigator.js'
 
@@ -171,6 +175,25 @@ module.exports = createReactClass({
                       Continue with Facebook
                     </Text>
                   </Button>
+                  {appleAuth.isSupported && (
+                    <AppleButton
+                      cornerRadius={5}
+                      style={{
+                        marginTop: 15,
+                        paddingTop: 11,
+                        paddingBottom: 11,
+                        width: width - 40,
+                        borderRadius: 20,
+                        height: 40,
+                      }}
+                      buttonStyle={AppleButton.Style.BLACK}
+                      buttonType={AppleButton.Type.CONTINUE}
+                      onPress={() => {
+                        this.RBSheet.close();
+                        this.props.navigation.navigate("Signup");
+                      }}
+                    />
+                  )}
                 </View>
                 <Subtitle
                   style={{
@@ -178,8 +201,29 @@ module.exports = createReactClass({
                     margin: 10,
                   }}
                 >
-                  By continuning, you agree to {appName}'s Terms of Use and
-                  confirm that you have read {appName}'s Privacy policy
+                  By continuning, you agree to {appName}'s{" "}
+                  <Text
+                    style={{ color: "blue" }}
+                    onPress={() =>
+                      Linking.openURL(
+                        "https://www.lllsuperlll.com/terms-of-use"
+                      )
+                    }
+                  >
+                    Terms of Use
+                  </Text>{" "}
+                  and confirm that you have read {appName}'s
+                  <Text
+                    style={{ color: "blue" }}
+                    onPress={() =>
+                      Linking.openURL(
+                        "https://www.lllsuperlll.com/privacy-policy"
+                      )
+                    }
+                  >
+                    {" "}
+                    Privacy policy
+                  </Text>{" "}
                 </Subtitle>
               </View>
 
@@ -244,8 +288,8 @@ module.exports = createReactClass({
               <Text
                 style={[styles.button, { marginLeft: 20, marginRight: 20 }]}
               >
-                {" "}
-                {this.props.button}{" "}
+                {"Signup/Login"}
+                {/* {this.props.button}{" "} */}
               </Text>
             </Button>
           );

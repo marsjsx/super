@@ -12,6 +12,7 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   ScrollView,
+  Linking,
 } from "react-native";
 import {
   updateEmail,
@@ -19,14 +20,21 @@ import {
   login,
   getUser,
   facebookLogin,
+  appleLogin,
 } from "../actions/user";
 import { Ionicons } from "@expo/vector-icons";
 import { showLoader } from "../util/Loader";
 // import Toast from "react-native-tiny-toast";
 import { isNotEmpty, isEmailValid } from "../validations/Validation";
 import { showMessage, hideMessage } from "react-native-flash-message";
-import { Item, Icon, Input, Label, DatePicker } from "native-base";
+import { Item, Icon, Input, Label, DatePicker, Subtitle } from "native-base";
+import { name as appName } from "../app.json";
 
+import appleAuth, {
+  AppleButton,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation,
+} from "@invertase/react-native-apple-authentication";
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -36,7 +44,6 @@ class Login extends React.Component {
   }
 
   componentDidMount = () => {
-
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.props.getUser(user.uid, "LOGIN");
@@ -117,6 +124,42 @@ class Login extends React.Component {
             >
               <Text style={styles.textA}>Login with Facebook</Text>
             </TouchableOpacity>
+            {appleAuth.isSupported && (
+              <AppleButton
+                cornerRadius={5}
+                style={styles.buttonApple}
+                buttonStyle={AppleButton.Style.WHITE}
+                buttonType={AppleButton.Type.SIGN_IN}
+                onPress={() => this.props.appleLogin()}
+              />
+            )}
+
+            <Subtitle
+              style={{
+                textAlign: "center",
+                margin: 10,
+              }}
+            >
+              By continuning, you agree to {appName}'s{" "}
+              <Text
+                style={{ color: "blue" }}
+                onPress={() =>
+                  Linking.openURL("https://www.lllsuperlll.com/terms-of-use")
+                }
+              >
+                Terms of Use
+              </Text>{" "}
+              and confirm that you have read {appName}'s
+              <Text
+                style={{ color: "blue" }}
+                onPress={() =>
+                  Linking.openURL("https://www.lllsuperlll.com/privacy-policy")
+                }
+              >
+                {" "}
+                Privacy policy
+              </Text>{" "}
+            </Subtitle>
           </ScrollView>
         </KeyboardAvoidingView>
 
@@ -128,7 +171,7 @@ class Login extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
-    { updateEmail, updatePassword, login, getUser, facebookLogin },
+    { updateEmail, updatePassword, login, getUser, facebookLogin, appleLogin },
     dispatch
   );
 };

@@ -1,0 +1,19 @@
+{
+  "name": "l l l s u p e r l l l",
+  "displayName": "BareSuper",
+  "expo": {
+    "name": "BareSuper",
+    "slug": "BareSuper",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    
+    "facebookScheme":"fb239016010571551",
+    "facebookAppId":"239016010571551",
+    "facebookDisplayName":"lllsuperlll"
+
+  }
+}

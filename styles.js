@@ -95,6 +95,9 @@ export default styles = StyleSheet.create({
   smallMargin: {
     margin: 15,
   },
+  margin10: {
+    margin: 10,
+  },
   row: {
     flexDirection: "row",
   },
@@ -103,6 +106,9 @@ export default styles = StyleSheet.create({
   },
   white: {
     color: "#fff",
+  },
+  red: {
+    color: "rgba(209, 84, 84, 0.85)",
   },
   gray: {
     color: "#adadad",
@@ -308,6 +314,14 @@ export default styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0,
     borderColor: "rgba(200,100,200,0.8)",
+  },
+  buttonApple: {
+    marginTop: 15,
+    paddingTop: 11,
+    paddingBottom: 11,
+    width: 250,
+    borderRadius: 20,
+    height: 40,
   },
   buttonSignup: {
     marginTop: 15,

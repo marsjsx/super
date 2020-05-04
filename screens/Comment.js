@@ -7,13 +7,14 @@ import {
   View,
   TextInput,
   FlatList,
-  Image,
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
 import { addComment, getComments } from "../actions/post";
 import moment from "moment";
 import EmptyView from "../component/emptyview";
+import FastImage from "react-native-fast-image";
+
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -71,7 +72,7 @@ class Comment extends React.Component {
             data={this.props.post.comments}
             renderItem={({ item }) => (
               <View style={[styles.row, styles.space]}>
-                <Image
+                <FastImage
                   style={styles.roundImage}
                   source={{ uri: item.commenterPhoto }}
                 />

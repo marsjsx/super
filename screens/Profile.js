@@ -16,6 +16,7 @@ import {
   Linking,
   UIManager,
   findNodeHandle,
+  Dimensions,
   ScrollView,
 } from "react-native";
 import { followUser, unfollowUser, getUser, logout } from "../actions/user";
@@ -48,6 +49,7 @@ const viewabilityConfig = {
 var BUTTONS = ["Message", "Report", "Cancel"];
 var DESTRUCTIVE_INDEX = 1;
 var CANCEL_INDEX = 2;
+const { height, width } = Dimensions.get("window");
 
 class Profile extends React.Component {
   constructor(props) {
@@ -286,7 +288,7 @@ class Profile extends React.Component {
     }
 
     const supported = await Linking.canOpenURL(url);
-   
+
     if (supported) {
       // Opening the link with some app, if the URL scheme is "http" the web link should be opened
       // by some browser in the mobile
@@ -369,24 +371,37 @@ class Profile extends React.Component {
             <View style={styles.container}>
               <View style={[styles.row, styles.space, { width: "100%" }]}>
                 <View style={[styles.center, { flex: 1 }]}>
-                  <View style={[styles.center, { flexDirection: "row" }]}>
-                    <Image
+                  <View>
+                    {/* <Image
                       style={[styles.logoHeader, { width: 45, height: 45 }]}
                       source={require("../assets/logo-1.png")}
                       resizeMode="contain"
-                    />
+                    /> */}
+
                     <Title style={[styles.textW]}>{user.username}</Title>
+                    <View
+                      style={{
+                        marginTop: 20,
+                        marginBottom: 20,
+                        width: width,
+                        borderBottomColor: "gray",
+                        borderBottomWidth: 2,
+                      }}
+                    />
                   </View>
 
-                  <Button rounded danger onPress={() => this.openUrl(user)}>
+                  <Button
+                    rounded
+                    style={{ backgroundColor: "#ea5b62" }}
+                    onPress={() => this.openUrl(user)}
+                  >
                     <Text
                       style={[
                         styles.textW,
-                        { marginLeft: 20, marginRight: 20 },
+                        { marginLeft: 40, marginRight: 40 },
                       ]}
                     >
-                      {" "}
-                      {user.websiteLabel ? user.websiteLabel : "Profile"}{" "}
+                      {user.websiteLabel ? user.websiteLabel : "Profile"}
                     </Text>
                   </Button>
 
@@ -421,7 +436,7 @@ class Profile extends React.Component {
           </View> */}
 
           <TouchableOpacity
-            style={styles.center}
+            style={[styles.center, { flexDirection: "row" }]}
             onPress={() =>
               this.props.navigation.navigate("MyFollowersAndFollowing", {
                 data: "Followers",
@@ -434,7 +449,7 @@ class Profile extends React.Component {
                 ? user.followers.length
                 : "0"}
             </Text>
-            <Text style={[styles.bold, styles.textF]}>followers</Text>
+            <Text style={[styles.bold, styles.textF]}> followers</Text>
           </TouchableOpacity>
 
           {state.routeName === "MyProfile" ||
@@ -485,7 +500,7 @@ class Profile extends React.Component {
           )}
 
           <TouchableOpacity
-            style={styles.center}
+            style={[styles.center, { flexDirection: "row" }]}
             onPress={() =>
               this.props.navigation.navigate("MyFollowersAndFollowing", {
                 data: "Following",
@@ -498,7 +513,7 @@ class Profile extends React.Component {
                 ? user.following.length
                 : "0"}
             </Text>
-            <Text style={[styles.bold, styles.textF]}>following</Text>
+            <Text style={[styles.bold, styles.textF]}> following</Text>
           </TouchableOpacity>
         </View>
 

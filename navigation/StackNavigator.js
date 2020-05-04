@@ -15,6 +15,7 @@ import MapScreen from "../screens/Map";
 import EditScreen from "../screens/Signup";
 import DashScreen from "../screens/Dash";
 import CommentScreen from "../screens/Comment";
+import PostReportScreen from "../screens/PostReports";
 import ChatScreen from "../screens/Chat";
 import PayScreen from "../screens/Pay";
 import MessagesScreen from "../screens/Messages";
@@ -68,6 +69,22 @@ export const HomeNavigator = createAppContainer(
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
         title: "Comments",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    PostReport: {
+      screen: PostReportScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        title: "Post Reports",
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -169,6 +186,12 @@ export const HomeNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
+        headerTitle: (
+          <Image
+            style={styles.profileLogo}
+            source={require("../assets/logo-1.png")}
+          />
+        ),
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -246,6 +269,11 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
   if (navigation.state.routes.some((route) => route.routeName === "Signup")) {
     tabBarVisible = false;
   }
+  if (
+    navigation.state.routes.some((route) => route.routeName === "PostReport")
+  ) {
+    tabBarVisible = false;
+  }
   return {
     tabBarVisible,
   };
@@ -270,6 +298,12 @@ export const SearchNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
+        headerTitle: (
+          <Image
+            style={styles.profileLogo}
+            source={require("../assets/logo-1.png")}
+          />
+        ),
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -433,6 +467,40 @@ export const ActivityNavigator = createAppContainer(
         headerStyle: { backgroundColor: "transparent" },
       }),
     },
+    Profile: {
+      screen: ProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        headerTitle: (
+          <Image
+            style={styles.profileLogo}
+            source={require("../assets/logo-1.png")}
+          />
+        ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    PostListScreen: {
+      screen: PostListScreen,
+      navigationOptions: {
+        headerTransparent: true,
+        title: null,
+        headerTitle: (
+          <Image
+            style={styles.profileLogo}
+            source={require("../assets/logo-1.png")}
+          />
+        ),
+      },
+    },
   })
 );
 
@@ -442,6 +510,13 @@ ActivityNavigator.navigationOptions = ({ navigation }) => {
     tabBarVisible = false;
   }
   if (navigation.state.routes.some((route) => route.routeName === "Login")) {
+    tabBarVisible = false;
+  }
+  if (navigation.state.routes.some((route) => route.routeName === "Profile")) {
+    tabBarVisible = false;
+  }
+  if (navigation.state.routes.some((route) => route.routeName === "PostListScreen")
+  ) {
     tabBarVisible = false;
   }
 

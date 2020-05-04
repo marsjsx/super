@@ -71,7 +71,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Allow BareSuper to access your calendar</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use the camera</string>
+	<string>Allow $(PRODUCT_NAME) to use the camera to capture Photos and videos to upload your post</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow BareSuper experiences to access your contacts</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -85,9 +85,9 @@
 	<key>NSMotionUsageDescription</key>
 	<string>Allow BareSuper to access your device's accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Give BareSuper periences permission to save photos</string>
+	<string>Allow $(PRODUCT_NAME) to access photos and let you select Photos and Videos to upload your post</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give $(PRODUCT_NAME) permission to save photos</string>
+	<string>Allow $(PRODUCT_NAME) to access photos and let you select Photos and Videos to upload your post</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow BareSuper to access your reminders</string>
 	<key>UIBackgroundModes</key>
