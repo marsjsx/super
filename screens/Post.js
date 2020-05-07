@@ -234,9 +234,9 @@ class Post extends React.Component {
   };
 
   getLocations = async () => {
-    const permission = await Permissions.askAsync(Permissions.LOCATION);
+    const permission = await await Location.requestPermissionsAsync();
     if (permission.status === "granted") {
-      const location = await Location.getCurrentPositionAsync();
+      const location = await Location.getCurrentPositionAsync({});
       const url = `${GOOGLE_API}?location=${location.coords.latitude},${location.coords.longitude}&rankby=distance&key=${ENV.googleApiKey}`;
       const response = await fetch(url);
       const data = await response.json();
@@ -451,14 +451,7 @@ class Post extends React.Component {
             ref={(ref) => {
               this.sheetRef = ref;
             }}
-            desc="You need to Login/Signup in order to upload posts"
-            button="Signup"
-            userId={this.props.user.uid}
-            openSheet={true}
             navigation={this.props.navigation}
-            icon={
-              <Ionicons style={{ margin: 5 }} name="ios-aperture" size={64} />
-            }
           />
           <ScrollView
             style={[{ width: "100%" }]}

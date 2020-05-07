@@ -1,4 +1,4 @@
-package com.baresuper;
+package com.lllsuperlll;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

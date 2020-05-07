@@ -135,6 +135,33 @@ class Signup extends React.Component {
       { cancelable: false }
     );
   };
+
+  onFaceBookLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.facebookLogin();
+      this.setState({ showLoading: false });
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(`Facebook Login Error: ${e}`);
+    }
+  };
+
+  appleLoginLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.appleLogin();
+      this.setState({ showLoading: false });
+
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(e.message);
+    }
+  };
   onPress = async () => {
     const { routeName } = this.props.navigation.state;
     if (routeName === "Signup") {
@@ -296,7 +323,7 @@ class Signup extends React.Component {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.buttonFacebook]}
-                  onPress={() => this.props.facebookLogin()}
+                  onPress={() => this.onFaceBookLogin()}
                 >
                   <Text style={styles.textA}>Signup with Facebook</Text>
                 </TouchableOpacity>
@@ -306,7 +333,7 @@ class Signup extends React.Component {
                     style={styles.buttonApple}
                     buttonStyle={AppleButton.Style.BLACK}
                     buttonType={AppleButton.Type.SIGN_IN}
-                    onPress={() => this.props.appleLogin()}
+                    onPress={() => this.appleLoginLogin()}
                   />
                 )}
 

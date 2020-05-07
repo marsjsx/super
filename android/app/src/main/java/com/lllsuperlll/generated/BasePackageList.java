@@ -1,4 +1,4 @@
-package com.baresuper.generated;
+package com.lllsuperlll.generated;
 
 import java.util.Arrays;
 import java.util.List;

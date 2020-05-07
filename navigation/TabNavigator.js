@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, Platform } from "react-native";
+import { Text, View, Platform, StatusBar } from "react-native";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -29,6 +29,9 @@ const TabNavigator = createBottomTabNavigator(
             size={32}
           />
         ),
+        style: {
+          paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+        },
       },
     },
     Search: {
@@ -39,6 +42,9 @@ const TabNavigator = createBottomTabNavigator(
         tabBarIcon: ({ focused }) => (
           <Ionicons name={focused ? "md-search" : "ios-search"} size={32} />
         ),
+        style: {
+          paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+        },
       },
     },
     // Post: {
@@ -60,6 +66,9 @@ const TabNavigator = createBottomTabNavigator(
             size={32}
           />
         ),
+        style: {
+          paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+        },
       },
     },
     Activity: {
@@ -73,6 +82,9 @@ const TabNavigator = createBottomTabNavigator(
             size={32}
           />
         ),
+        style: {
+          paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+        },
       },
     },
     MyProfile: {
@@ -83,12 +95,15 @@ const TabNavigator = createBottomTabNavigator(
         tabBarIcon: ({ focused }) => (
           <FontAwesome name={focused ? "user" : "user-o"} size={32} />
         ),
+        style: {
+          paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+        },
       },
     },
   },
   {
     tabBarOptions: {
-      headerTransparent: true,
+      // headerTransparent: true,
       tabBarTransparent: true,
       style: {
         ...Platform.select({
@@ -108,4 +123,4 @@ const TabNavigator = createBottomTabNavigator(
   }
 );
 
-export default createAppContainer(TabNavigator);
+export default TabNavigator;

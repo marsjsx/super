@@ -5,6 +5,7 @@ import {
   View,
   Text,
   ActivityIndicator,
+  PermissionsAndroid,
 } from "react-native";
 import PropTypes from "prop-types";
 import CameraRoll from "@react-native-community/cameraroll";
@@ -47,7 +48,7 @@ class CameraRollPicker extends Component {
     }
   }
 
-  _fetch() {
+  async _fetch() {
     // @ts-ignore
     var { groupTypes, assetType } = this.props;
 
@@ -65,6 +66,15 @@ class CameraRollPicker extends Component {
       fetchParams.after = this.state.lastCursor;
     }
 
+    if (Platform.OS === "android") {
+      try {
+        const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+        await PermissionsAndroid.request(permission);
+      } catch (error) {
+        alert("Permission Denied, Can't access photos ");
+      }
+    }
+
     CameraRoll.getPhotos(fetchParams).then(
       (data) => this._appendImages(data),
       (e) => console.log(e)
@@ -72,7 +82,6 @@ class CameraRollPicker extends Component {
   }
 
   _appendImages(data: any) {
-
     var assets = data.edges;
     var newState = {
       loadingMore: false,
@@ -228,6 +237,7 @@ class CameraRollPicker extends Component {
       ),
     });
 
+    // alert(JSON.stringify(image));
     callback(selected, image);
   }
 

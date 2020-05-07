@@ -19,6 +19,7 @@ import {
   ImageBackground,
   Dimensions,
   Proger,
+  Animated,
   Share,
   Alert,
   Linking,
@@ -51,6 +52,8 @@ import {
 } from "native-base";
 
 import ProgressBarAnimated from "../component/AnimatedProgressBar";
+
+import { PinchGestureHandler, State } from "react-native-gesture-handler";
 
 import { showLoader } from "../util/Loader";
 const barWidth = Dimensions.get("screen").width - 30;
@@ -361,6 +364,27 @@ class Home extends React.Component {
       duration: 2000,
     });
   };
+  scale = new Animated.Value(1);
+
+  onZoomEvent = Animated.event(
+    [
+      {
+        nativeEvent: { scale: this.scale },
+      },
+    ],
+    {
+      useNativeDriver: true,
+    }
+  );
+
+  onZoomStateChange = (event) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      Animated.spring(this.scale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
   render() {
     let userFollowingList = [this.props.user.following];
@@ -402,25 +426,17 @@ class Home extends React.Component {
                 id={item.id}
                 onPress={() => this.cellRefs[item.id].handleOnPress()}
               >
-                {/* <ProgressiveImage
-                  thumbnailSource={{
-                    uri: item.preview,
-                  }}
-                  source={{ uri: item.postPhoto }}
-                  style={styles.postPhoto}
-                  resizeMode="cover"
-                /> */}
-
                 <AvView
                   ref={(ref) => {
                     this.cellRefs[item.id] = ref;
                   }}
                   type={item.type ? item.type : "image"}
                   source={item.postPhoto}
-                  style={styles.postPhoto}
+                  style={[styles.postPhoto]}
                   onDoubleTap={() => this.onDoubleTap(item)}
                   preview={item.preview}
                 />
+
                 {/* {alert(item.type ? item.type : "image")} */}
                 {/* <AvView
                   type="video"
@@ -431,11 +447,11 @@ class Home extends React.Component {
                 {/* <ImageBackground
                   style={[styles.postPhoto, { position: "absolute" }]}
                 > */}
-                <View style={[styles.bottom, styles.absolute]}>
+                <View style={[styles.bottom, styles.absolute, {}]}>
                   <View
                     style={{
-                      alignItems: "flex-end",
                       marginRight: 10,
+                      alignSelf: "flex-end",
                     }}
                   >
                     <TouchableOpacity

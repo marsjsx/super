@@ -8,9 +8,9 @@ const SwitchNavigator = createSwitchNavigator(
   {
     Home: {
       screen: TabNavigator,
-      navigationOptions: {
-        headerTransparent: true,
-      }
+      // navigationOptions: {
+      //   headerTransparent: true,
+      // }
     },
     Auth: {
       screen: AuthNavigator

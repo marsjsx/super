@@ -4,6 +4,7 @@ import {
   Image,
   Text,
   StyleSheet,
+  Animated,
   Dimensions,
   TouchableOpacity,
 } from "react-native";
@@ -13,6 +14,8 @@ import ProgressiveImage from "./ProgressiveImage";
 import * as Animatable from "react-native-animatable";
 import Icon from "react-native-vector-icons/AntDesign";
 const { width } = Dimensions.get("window");
+import { PinchGestureHandler, State } from "react-native-gesture-handler";
+
 import styles from "../styles";
 
 const AnimatedIcon = Animatable.createAnimatableComponent(Icon);
@@ -102,8 +105,38 @@ class AvView extends React.Component {
     }
   };
 
+  enterFullScreen = () => {
+    if (this.video) {
+      setTimeout(() => {
+        this.video.presentFullscreenPlayer();
+      }, 400);
+    }
+  };
+
   handlePlaying = (isVisible) => {
     isVisible ? this.playVideo() : this.pauseVideo();
+  };
+
+  scale = new Animated.Value(1);
+
+  onZoomEvent = Animated.event(
+    [
+      {
+        nativeEvent: { scale: this.scale },
+      },
+    ],
+    {
+      useNativeDriver: true,
+    }
+  );
+
+  onZoomStateChange = (event) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      Animated.spring(this.scale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
   };
 
   handleOnPress = () => {
@@ -161,67 +194,91 @@ class AvView extends React.Component {
     }
 
     return (
-      <TouchableOpacity
-        onPress={this.handleOnPress}
-        activeOpacity={0.8}
-        style={[
-          this.props.style,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
+      <PinchGestureHandler
+        onGestureEvent={this.onZoomEvent}
+        onHandlerStateChange={this.onZoomStateChange}
       >
-        <AnimatedIcon
-          ref={this.handleLargeAnimatedIconRef}
-          name="heart"
-          color="red"
-          size={80}
-          style={styles.animatedIcon}
-          duration={800}
-          delay={200}
-        />
-        <Video
-          ref={(ref) => {
-            this.video = ref;
-          }}
-          source={{ uri: this.props.source }}
-          style={this.props.style}
-          rate={this.state.rate}
-          paused={this.state.paused}
-          volume={this.state.volume}
-          poster={this.props.preview}
-          posterResizeMode="cover"
-          muted={this.state.muted}
-          ignoreSilentSwitch={this.state.ignoreSilentSwitch}
-          resizeMode={"cover"}
-          onLoad={this.onLoad}
-          onBuffer={this.onBuffer}
-          onProgress={this.onProgress}
-          onEnd={() => null}
-          repeat={true}
-        />
-        {this.state.paused ? (
-          <View
-            style={{
-              position: "absolute",
-              height: 60,
-              width: 60,
-              justifyContent: "center",
-              borderRadius: 30,
-            }}
+        <Animated.View style={[{ transform: [{ scale: this.scale }] }]}>
+          <TouchableOpacity
+            onPress={this.handleOnPress}
+            activeOpacity={0.8}
+            style={[
+              this.props.style,
+              { justifyContent: "center", alignItems: "center" },
+            ]}
           >
-            <Ionicons
-              name="ios-play"
-              size={40}
-              color="white"
-              style={{
-                backgroundColor: "transparent",
-                alignSelf: "center",
-                // lineHeight: 40,
-                // marginLeft: 10,
-              }}
+            <AnimatedIcon
+              ref={this.handleLargeAnimatedIconRef}
+              name="heart"
+              color="red"
+              size={80}
+              style={styles.animatedIcon}
+              duration={800}
+              delay={200}
             />
-          </View>
-        ) : null}
-      </TouchableOpacity>
+            <Video
+              ref={(ref) => {
+                this.video = ref;
+              }}
+              source={{ uri: this.props.source }}
+              style={this.props.style}
+              rate={this.state.rate}
+              paused={this.state.paused}
+              volume={this.state.volume}
+              poster={this.props.preview}
+              posterResizeMode="cover"
+              muted={this.state.muted}
+              ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+              resizeMode={"cover"}
+              onLoad={this.onLoad}
+              onBuffer={this.onBuffer}
+              onProgress={this.onProgress}
+              onEnd={() => null}
+              repeat={true}
+            />
+
+            <TouchableOpacity
+              style={{ position: "absolute", top: 100, left: 0 }}
+              onPress={() => this.enterFullScreen()}
+            >
+              <MaterialCommunityIcons
+                name="fullscreen"
+                size={52}
+                color="white"
+                style={{
+                  backgroundColor: "transparent",
+                  alignSelf: "center",
+                  // lineHeight: 40,
+                  // marginLeft: 10,
+                }}
+              />
+            </TouchableOpacity>
+            {this.state.paused ? (
+              <View
+                style={{
+                  position: "absolute",
+                  height: 60,
+                  width: 60,
+                  justifyContent: "center",
+                  borderRadius: 30,
+                }}
+              >
+                <Ionicons
+                  name="ios-play"
+                  size={40}
+                  color="white"
+                  style={{
+                    backgroundColor: "transparent",
+                    alignSelf: "center",
+                    // lineHeight: 40,
+                    // marginLeft: 10,
+                  }}
+                />
+              </View>
+            ) : null}
+          </TouchableOpacity>
+        </Animated.View>
+      </PinchGestureHandler>
     );
   }
 }

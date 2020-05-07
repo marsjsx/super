@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 // @ts-ignore
 import CameraRollPicker from "./cameraRollPicker//index";
@@ -17,7 +18,6 @@ import { bindActionCreators } from "redux";
 import Video from "react-native-video";
 import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import ProgressiveImage from "../component/ProgressiveImage";
-
 
 class GalleryView extends Component {
   constructor(props: any) {
@@ -43,12 +43,21 @@ class GalleryView extends Component {
     var selectedFile = { ...current };
     if (selectedFile.type === "video") {
       selectedFile.duration = Math.round(current.playableDuration * 1000);
+    }
+
+    if (Platform.OS === "ios") {
       var ext = selectedFile.filename.split(".").pop();
+
       const appleId = selectedFile.uri.substring(5, 41);
       const uri = `assets-library://asset/asset.${ext}?id=${appleId}&ext=${ext}`;
 
       selectedFile.uri = uri;
+    } else if (Platform.OS === "android") {
+      if (selectedFile.type && selectedFile.type.includes("image")) {
+        selectedFile.type = "image";
+      }
     }
+
     // alert(JSON.stringify(selectedFile));
 
     this.props.updatePhoto(selectedFile);
@@ -61,15 +70,16 @@ class GalleryView extends Component {
 
     if (selectedFile.type === "image") {
       // this.setState({ paused: true });
+      // alert(JSON.stringify(selectedFile.uri));
 
       return (
-        // <Image source={{ uri: selectedFile.uri }} style={{ height: 400 }} />
-        <ProgressiveImage
-        style={{ height: 400, width: Dimensions.get("screen").width }}
-        resizeMode="cover"
-        transparentBackground="transparent"
-        source={{ uri: selectedFile.uri }}
-      />
+        <Image source={{ uri: selectedFile.uri }} style={{ height: 400 }} />
+        //   <ProgressiveImage
+        //   style={{ height: 400, width: Dimensions.get("screen").width }}
+        //   resizeMode="cover"
+        //   transparentBackground="transparent"
+        //   source={{ uri: selectedFile.uri }}
+        // />
       );
     } else if (selectedFile.type === "video") {
       return (

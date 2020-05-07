@@ -1,6 +1,14 @@
 import React from "react";
-import { View, StyleSheet, Animated, ActivityIndicator } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  ActivityIndicator,
+  Dimensions,
+} from "react-native";
 import FastImage from "react-native-fast-image";
+import { PinchGestureHandler, State } from "react-native-gesture-handler";
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   imageOverlay: {
@@ -26,6 +34,28 @@ class ProgressiveImage extends React.Component {
     };
   }
 
+  scale = new Animated.Value(1);
+
+  onZoomEvent = Animated.event(
+    [
+      {
+        nativeEvent: { scale: this.scale },
+      },
+    ],
+    {
+      useNativeDriver: true,
+    }
+  );
+
+  onZoomStateChange = (event) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      Animated.spring(this.scale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   thumbnailAnimated = new Animated.Value(0);
 
   // imageAnimated = new Animated.Value(0);
@@ -33,6 +63,7 @@ class ProgressiveImage extends React.Component {
   handleThumbnailLoad = () => {
     Animated.timing(this.thumbnailAnimated, {
       toValue: 1,
+      useNativeDriver: true,
     }).start();
   };
 
@@ -53,50 +84,54 @@ class ProgressiveImage extends React.Component {
     } = this.props;
 
     return (
-      <View
-        style={
-          transparentBackground ? styles.containerTransParent : styles.container
-        }
+      <PinchGestureHandler
+        onGestureEvent={this.onZoomEvent}
+        onHandlerStateChange={this.onZoomStateChange}
       >
-        {source.uri ? (
-          <ActivityIndicator
-            size="small"
-            color="rgb(215, 80, 80)"
-            style={[styles.imageOverlay, style]}
+        <Animated.View
+          style={[
+            transparentBackground
+              ? styles.containerTransParent
+              : styles.container,
+            { transform: [{ scale: this.scale }] },
+          ]}
+        >
+          {source.uri ? (
+            <ActivityIndicator
+              size="small"
+              color="rgb(215, 80, 80)"
+              style={[styles.imageOverlay, style]}
+              onLoad={this.onImageLoad}
+            />
+          ) : null}
+          <Animated.Image
+            {...props}
+            source={thumbnailSource}
+            style={[
+              style,
+              {
+                opacity: this.thumbnailAnimated,
+                // transform: [{ scale: this.scale }],
+              },
+            ]}
+            onLoad={this.handleThumbnailLoad}
+            blurRadius={1}
+          />
+
+          <FastImage
+            {...props}
+            source={source}
+            style={[
+              styles.imageOverlay,
+              {
+                opacity: this.state.opacity,
+              },
+              style,
+            ]}
             onLoad={this.onImageLoad}
           />
-        ) : null}
-
-        <Animated.Image
-          {...props}
-          source={thumbnailSource}
-          style={[style, { opacity: this.thumbnailAnimated }]}
-          onLoad={this.handleThumbnailLoad}
-          blurRadius={1}
-        />
-        {/* <Animated.Image
-          {...props}
-          source={source}
-          style={[styles.imageOverlay, { opacity: this.imageAnimated }, style]}
-          onLoad={this.onImageLoad}
-        /> */}
-
-        <FastImage
-          {...props}
-          source={source}
-          style={[styles.imageOverlay, { opacity: this.state.opacity }, style]}
-          onLoad={this.onImageLoad}
-        />
-
-        {/* <FastImage
-          style={{ width: 200, height: 200 }}
-          source={{
-            uri: "https://unsplash.it/400/400?image=1",
-            priority: FastImage.priority.normal,
-          }}
-          resizeMode={FastImage.resizeMode.contain}
-        /> */}
-      </View>
+        </Animated.View>
+      </PinchGestureHandler>
     );
   }
 }

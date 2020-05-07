@@ -604,7 +604,6 @@ export default styles = StyleSheet.create({
   },
   bottom: {
     width: width,
-    flex: 0.95,
     justifyContent: "flex-end",
     marginBottom: 15,
   },

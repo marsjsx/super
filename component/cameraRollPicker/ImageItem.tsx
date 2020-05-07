@@ -64,7 +64,6 @@ class ImageItem extends React.Component {
   }
 
   _handleClick(item: any) {
-    // alert(JSON.stringify(item));
     this.props.onClick(item);
   }
 }
