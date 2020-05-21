@@ -5,6 +5,8 @@ import {
   View,
   Text,
   ActivityIndicator,
+  FlatList,
+  PermissionsAndroid,
 } from "react-native";
 import PropTypes from "prop-types";
 import CameraRoll from "@react-native-community/cameraroll";
@@ -27,6 +29,7 @@ class CameraRollPicker extends Component {
         rowHasChanged: (r1, r2) => r1 !== r2,
       }),
     };
+    this.count = 0;
   }
 
   componentWillMount() {
@@ -47,7 +50,7 @@ class CameraRollPicker extends Component {
     }
   }
 
-  _fetch() {
+  async _fetch() {
     // @ts-ignore
     var { groupTypes, assetType } = this.props;
 
@@ -65,6 +68,15 @@ class CameraRollPicker extends Component {
       fetchParams.after = this.state.lastCursor;
     }
 
+    if (Platform.OS === "android") {
+      try {
+        const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+        await PermissionsAndroid.request(permission);
+      } catch (error) {
+        alert("Permission Denied, Can't access photos ");
+      }
+    }
+
     CameraRoll.getPhotos(fetchParams).then(
       (data) => this._appendImages(data),
       (e) => console.log(e)
@@ -72,7 +84,6 @@ class CameraRollPicker extends Component {
   }
 
   _appendImages(data: any) {
-
     var assets = data.edges;
     var newState = {
       loadingMore: false,
@@ -92,7 +103,6 @@ class CameraRollPicker extends Component {
         this._nEveryRow(newState.images, this.props.imagesPerRow)
       );
     }
-
     this.setState(newState);
   }
 
@@ -122,6 +132,7 @@ class CameraRollPicker extends Component {
       dataSource.getRowCount() > 0 ? (
         <ListView
           style={{ flex: 1 }}
+          horizontal={true}
           scrollRenderAheadDistance={scrollRenderAheadDistance}
           initialListSize={initialListSize}
           pageSize={pageSize}
@@ -181,13 +192,20 @@ class CameraRollPicker extends Component {
   }
 
   _renderRow(rowData) {
+    if (rowData.length && this.count == 0) {
+      var image = rowData[0].node.image;
+
+      image.type = rowData[0].node.type;
+      this._selectImage(image);
+    }
+
     var items = rowData.map((item) => {
       if (item === null) {
         return null;
       }
       return this._renderImage(item);
     });
-
+    this.count = this.count + 1;
     return <View style={styles.row}>{items}</View>;
   }
 
@@ -228,6 +246,7 @@ class CameraRollPicker extends Component {
       ),
     });
 
+    // alert(JSON.stringify(image));
     callback(selected, image);
   }
 

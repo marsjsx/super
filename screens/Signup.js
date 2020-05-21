@@ -135,6 +135,33 @@ class Signup extends React.Component {
       { cancelable: false }
     );
   };
+
+  onFaceBookLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.facebookLogin();
+      this.setState({ showLoading: false });
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(`Facebook Login Error: ${e}`);
+    }
+  };
+
+  appleLoginLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.appleLogin();
+      this.setState({ showLoading: false });
+
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(e.message);
+    }
+  };
   onPress = async () => {
     const { routeName } = this.props.navigation.state;
     if (routeName === "Signup") {
@@ -296,7 +323,7 @@ class Signup extends React.Component {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.buttonFacebook]}
-                  onPress={() => this.props.facebookLogin()}
+                  onPress={() => this.onFaceBookLogin()}
                 >
                   <Text style={styles.textA}>Signup with Facebook</Text>
                 </TouchableOpacity>
@@ -306,7 +333,7 @@ class Signup extends React.Component {
                     style={styles.buttonApple}
                     buttonStyle={AppleButton.Style.BLACK}
                     buttonType={AppleButton.Type.SIGN_IN}
-                    onPress={() => this.props.appleLogin()}
+                    onPress={() => this.appleLoginLogin()}
                   />
                 )}
 
@@ -314,6 +341,7 @@ class Signup extends React.Component {
                   style={{
                     textAlign: "center",
                     margin: 10,
+                    color: "gray",
                   }}
                 >
                   By continuning, you agree to {appName}'s{" "}
@@ -625,8 +653,14 @@ class Signup extends React.Component {
               ) : null}
               <View style={{ position: "absolute", top: 0, width: "100%" }}>
                 {this.state.showEditProfile ? (
-                  <Header transparent>
-                    <Left>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      padding: 10,
+                    }}
+                  >
+                    <View>
                       <Button
                         hasText
                         transparent
@@ -638,27 +672,27 @@ class Signup extends React.Component {
                           CANCEL
                         </Text>
                       </Button>
-                    </Left>
+                    </View>
 
-                    <Right>
+                    <View>
                       <Button hasText transparent onPress={this.onPress}>
                         <Text style={[styles.bold, { color: "white" }]}>
                           SAVE
                         </Text>
                       </Button>
-                    </Right>
-                  </Header>
+                    </View>
+                  </View>
                 ) : (
-                  <Header transparent>
-                    <Left>
+                  <View style={{ justifyContent: "flex-start" }}>
+                    <View>
                       <Button
                         transparent
                         onPress={() => this.props.navigation.goBack()}
                       >
                         <Icon name="arrow-back" />
                       </Button>
-                    </Left>
-                  </Header>
+                    </View>
+                  </View>
                 )}
               </View>
             </View>

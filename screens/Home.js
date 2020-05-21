@@ -19,6 +19,7 @@ import {
   ImageBackground,
   Dimensions,
   Proger,
+  Animated,
   Share,
   Alert,
   Linking,
@@ -47,10 +48,13 @@ import {
   Left,
   Right,
   Body,
+  Container,
   ActionSheet,
 } from "native-base";
 
 import ProgressBarAnimated from "../component/AnimatedProgressBar";
+
+import { PinchGestureHandler, State } from "react-native-gesture-handler";
 
 import { showLoader } from "../util/Loader";
 const barWidth = Dimensions.get("screen").width - 30;
@@ -64,7 +68,10 @@ import { ShareApi } from "react-native-fbsdk";
 import EmptyView from "../component/emptyview";
 import ParsedText from "react-native-parsed-text";
 import Dialog from "react-native-dialog";
-
+import {
+  InstagramProvider,
+  ElementContainer,
+} from "instagram-zoom-react-native";
 // import { Share } from "react-native";
 // import Share from "react-native-share";
 
@@ -110,6 +117,9 @@ class Home extends React.Component {
     );
     await Font.loadAsync({
       "open-sans-bold": require("../assets/fonts/OpenSans-Bold.ttf"),
+      Roboto: require("native-base/Fonts/Roboto.ttf"),
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+      ...Ionicons.font,
     });
     this.setState({ fontLoaded: true });
     this.setState({ showLoading: true });
@@ -361,12 +371,35 @@ class Home extends React.Component {
       duration: 2000,
     });
   };
+  scale = new Animated.Value(1);
+
+  onZoomEvent = Animated.event(
+    [
+      {
+        nativeEvent: { scale: this.scale },
+      },
+    ],
+    {
+      useNativeDriver: true,
+    }
+  );
+
+  onZoomStateChange = (event) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      Animated.spring(this.scale, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
   render() {
     let userFollowingList = [this.props.user.following];
     if (this.props.post === null) return null;
     return (
-      <View style={[styles.postPhoto, styles.center]}>
+      <View
+        style={[styles.postPhoto, styles.center, { backgroundColor: "black" }]}
+      >
         <EmptyView
           ref={(ref) => {
             this.sheetRef = ref;
@@ -396,277 +429,254 @@ class Home extends React.Component {
           renderItem={({ item }) => {
             const liked = item.likes.includes(this.props.user.uid);
             return (
-              <TouchableOpacity
-                activeOpacity={1}
-                style={styles.postPhoto}
-                id={item.id}
-                onPress={() => this.cellRefs[item.id].handleOnPress()}
-              >
-                {/* <ProgressiveImage
-                  thumbnailSource={{
-                    uri: item.preview,
-                  }}
-                  source={{ uri: item.postPhoto }}
-                  style={styles.postPhoto}
-                  resizeMode="cover"
-                /> */}
+              <InstagramProvider>
+                <ElementContainer>
+                  <TouchableOpacity
+                    activeOpacity={1}
+                    style={styles.postPhoto}
+                    id={item.id}
+                    onPress={() => this.cellRefs[item.id].handleOnPress()}
+                  >
+                    <AvView
+                      ref={(ref) => {
+                        this.cellRefs[item.id] = ref;
+                      }}
+                      type={item.type ? item.type : "image"}
+                      source={item.postPhoto}
+                      navigation={this.props.navigation}
+                      style={[styles.postPhoto]}
+                      onDoubleTap={() => this.onDoubleTap(item)}
+                      preview={item.preview}
+                    />
 
-                <AvView
-                  ref={(ref) => {
-                    this.cellRefs[item.id] = ref;
-                  }}
-                  type={item.type ? item.type : "image"}
-                  source={item.postPhoto}
-                  style={styles.postPhoto}
-                  onDoubleTap={() => this.onDoubleTap(item)}
-                  preview={item.preview}
-                />
-                {/* {alert(item.type ? item.type : "image")} */}
-                {/* <AvView
+                    {/* {alert(item.type ? item.type : "image")} */}
+                    {/* <AvView
                   type="video"
                   source="https://github.com/saitoxu/InstaClone/raw/master/contents/videos/garden.mov"
                 /> */}
 
-                {/* <DoubleTap onDoubleTap={() => this.onDoubleTap(item)}> */}
-                {/* <ImageBackground
+                    {/* <DoubleTap onDoubleTap={() => this.onDoubleTap(item)}> */}
+                    {/* <ImageBackground
                   style={[styles.postPhoto, { position: "absolute" }]}
                 > */}
-                <View style={[styles.bottom, styles.absolute]}>
-                  <View
-                    style={{
-                      alignItems: "flex-end",
-                      marginRight: 10,
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => this.showActionSheet(item)}
-                    >
-                      <Ionicons
-                        style={{
-                          margin: 5,
-                          color: "rgb(255,255,255)",
-                        }}
-                        name="ios-more"
-                        size={40}
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => this.likePost(item)}>
-                      <Ionicons
-                        style={{ margin: 5 }}
-                        color={liked ? "#db565b" : "#fff"}
-                        name={liked ? "ios-heart" : "ios-heart-empty"}
-                        size={40}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.props.navigation.navigate("Comment", item)
-                      }
-                    >
-                      <Ionicons
-                        style={{ margin: 5, color: "rgb(255,255,255)" }}
-                        name="ios-chatbubbles"
-                        size={40}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.onShare(item);
-                      }}
-                    >
-                      <Entypo
-                        style={{ margin: 5, color: "#3b5998" }}
-                        name="facebook-with-circle"
-                        size={40}
-                      />
-                      <EvilIcons
-                        style={{
-                          position: "absolute",
-                          margin: 7,
-                          color: "rgb(255,255,255)",
-                        }}
-                        name="sc-facebook"
-                        size={40}
-                      />
-                    </TouchableOpacity>
-
-                    {this.props.user.isSuperAdmin && (
-                      <TouchableOpacity
-                        style={styles.center}
-                        onPress={() =>
-                          this.props.navigation.navigate("PostReport", item)
-                        }
-                      >
-                        <Ionicons
-                          style={{ margin: 5 }}
-                          color="#db565b"
-                          name="ios-alert"
-                          size={40}
-                        />
-                        <Text
-                          style={[styles.bold, styles.white, { fontSize: 20 }]}
-                        >
-                          {item.reports ? item.reports.length : 0}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-
-                  <View style={[styles.row]}>
-                    <TouchableOpacity onPress={() => this.goToUser(item)}>
-                      <ProgressiveImage
-                        thumbnailSource={{
-                          uri: item.preview,
-                        }}
-                        transparentBackground="transparent"
-                        source={{ uri: item.photo }}
-                        style={styles.roundImage60}
-                      />
-
-                      {/* <Image
-                            style={styles.roundImage60}
-                            source={{ uri: item.photo }}
-                          /> */}
-                    </TouchableOpacity>
-                    <View style={{ width: "100%" }}>
+                    <View style={[styles.bottom, styles.absolute, {}]}>
                       <View
                         style={{
-                          borderBottomWidth: 0.5,
-                          borderBottomColor: "rgb(255,255,255)",
+                          marginRight: 10,
+                          alignSelf: "flex-end",
                         }}
                       >
                         <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "flex-start",
-                          }}
-                          onPress={() => this.goToUser(item)}
+                          onPress={() => this.showActionSheet(item)}
                         >
-                          {this.state.fontLoaded ? (
-                            <Text
-                              style={{
-                                fontFamily: "open-sans-bold",
-                                fontSize: 18,
-                                color: "rgb(255,255,255)",
-                              }}
-                            >
-                              {item.username}
-                            </Text>
-                          ) : null}
+                          <Ionicons
+                            style={{
+                              margin: 5,
+                              color: "rgb(255,255,255)",
+                            }}
+                            name="ios-more"
+                            size={40}
+                          />
                         </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => this.likePost(item)}>
+                          <Ionicons
+                            style={{ margin: 5 }}
+                            color={liked ? "#db565b" : "#fff"}
+                            name={liked ? "ios-heart" : "ios-heart-empty"}
+                            size={40}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.props.navigation.navigate("Comment", item)
+                          }
+                        >
+                          <Ionicons
+                            style={{ margin: 5, color: "rgb(255,255,255)" }}
+                            name="ios-chatbubbles"
+                            size={40}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.onShare(item);
+                          }}
+                        >
+                          <Entypo
+                            style={{ margin: 5, color: "#3b5998" }}
+                            name="facebook-with-circle"
+                            size={40}
+                          />
+                          <EvilIcons
+                            style={{
+                              position: "absolute",
+                              margin: 7,
+                              color: "rgb(255,255,255)",
+                            }}
+                            name="sc-facebook"
+                            size={40}
+                          />
+                        </TouchableOpacity>
+
+                        {this.props.user.isSuperAdmin && (
+                          <TouchableOpacity
+                            style={styles.center}
+                            onPress={() =>
+                              this.props.navigation.navigate("PostReport", item)
+                            }
+                          >
+                            <Ionicons
+                              style={{ margin: 5 }}
+                              color="#db565b"
+                              name="ios-alert"
+                              size={40}
+                            />
+                            <Text
+                              style={[
+                                styles.bold,
+                                styles.white,
+                                { fontSize: 20 },
+                              ]}
+                            >
+                              {item.reports ? item.reports.length : 0}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
-                      {/* <Text style={[styles.white, styles.small]}>
+
+                      <View style={[styles.row]}>
+                        <TouchableOpacity onPress={() => this.goToUser(item)}>
+                          <ProgressiveImage
+                            thumbnailSource={{
+                              uri: item.preview,
+                            }}
+                            transparentBackground="transparent"
+                            source={{ uri: item.photo }}
+                            style={styles.roundImage60}
+                          />
+
+                          {/* <Image
+                            style={styles.roundImage60}
+                            source={{ uri: item.photo }}
+                          /> */}
+                        </TouchableOpacity>
+                        <View style={{ width: "100%" }}>
+                          <View
+                            style={{
+                              borderBottomWidth: 0.5,
+                              borderBottomColor: "rgb(255,255,255)",
+                            }}
+                          >
+                            <TouchableOpacity
+                              style={{
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "flex-start",
+                              }}
+                              onPress={() => this.goToUser(item)}
+                            >
+                              {this.state.fontLoaded ? (
+                                <Text
+                                  style={{
+                                    fontFamily: "open-sans-bold",
+                                    fontSize: 18,
+                                    color: "rgb(255,255,255)",
+                                  }}
+                                >
+                                  {item.username}
+                                </Text>
+                              ) : null}
+                            </TouchableOpacity>
+                          </View>
+                          {/* <Text style={[styles.white, styles.small]}>
                         {moment(item.date).format("ll")}
                       </Text> */}
-                      {/* <TouchableOpacity
+                          {/* <TouchableOpacity
                             onPress={() => this.navigateMap(item)}
                           > */}
-                      <TouchableOpacity>
-                        <Text
+                          <TouchableOpacity>
+                            <Text
+                              style={styles.textD}
+                              ellipsizeMode="tail"
+                              numberOfLines={2}
+                            >
+                              {item.postLocation
+                                ? item.postLocation.name
+                                : null}
+                            </Text>
+                          </TouchableOpacity>
+
+                          <Text style={[styles.white, styles.small]}>
+                            {moment(item.date).format("ll")}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ marginLeft: 10 }}>
+                        <ParsedText
+                          parse={[
+                            {
+                              type: "url",
+                              style: styles.url,
+                              onPress: this.handleUrlPress,
+                            },
+                            { pattern: /42/, style: styles.magicNumber },
+                            { pattern: /#(\w+)/, style: styles.hashTag },
+                          ]}
                           style={styles.textD}
-                          ellipsizeMode="tail"
-                          numberOfLines={2}
                         >
-                          {item.postLocation ? item.postLocation.name : null}
-                        </Text>
-                      </TouchableOpacity>
-
-                      <Text style={[styles.white, styles.small]}>
-                        {moment(item.date).format("ll")}
-                      </Text>
+                          {item.postDescription}
+                        </ParsedText>
+                      </View>
                     </View>
-                  </View>
-
-                  <View style={{ marginLeft: 10 }}>
-                    <ParsedText
-                      parse={[
-                        {
-                          type: "url",
-                          style: styles.url,
-                          onPress: this.handleUrlPress,
-                        },
-                        { pattern: /42/, style: styles.magicNumber },
-                        { pattern: /#(\w+)/, style: styles.hashTag },
-                      ]}
-                      style={styles.textD}
-                    >
-                      {item.postDescription}
-                    </ParsedText>
-                  </View>
-                </View>
-                {/* </ImageBackground> */}
-                {/* </DoubleTap> */}
-              </TouchableOpacity>
+                    {/* </ImageBackground> */}
+                    {/* </DoubleTap> */}
+                  </TouchableOpacity>
+                </ElementContainer>
+              </InstagramProvider>
             );
           }}
         />
+
         <View
           style={{
             position: "absolute",
-            zIndex: 1,
-            width: "100%",
-            top: 0,
+            justifyContent: "space-between",
+            flexDirection: "row",
+            width: "57%",
+            right: 0,
+            top: 10,
           }}
         >
-          <Header transparent>
-            <Left>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Camera")}
-              >
-                <Ionicons
-                  style={{ left: 5, top: 13, color: "white" }}
-                  name={"ios-camera"}
-                  size={40}
-                />
-              </TouchableOpacity>
-            </Left>
-            <Body>
-              {/* <Title>Transparent</Title> */}
-              <Image
-                style={[styles.logoHeader, { width: 150, height: 45, top: 13 }]}
-                source={require("../assets/logo-1.png")}
-                resizeMode="contain"
-              />
-            </Body>
-            <Right>
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Messages")}
-              >
-                <Ionicons
-                  style={{ color: "white", top: 13, right: 5 }}
-                  name={"ios-paper-plane"}
-                  size={40}
-                />
+          <View style={{}}>
+            {/* <Title>Transparent</Title> */}
+            <Image
+              style={[styles.logoHeader, { width: 45, height: 45, top: 13 }]}
+              source={require("../assets/logo-1.png")}
+              resizeMode="contain"
+            />
+          </View>
 
-                {this.getUnSeenMessageCount() ? (
-                  <Badge style={{ position: "absolute", right: 0 }}>
-                    <Text style={{ color: "white" }}>
-                      {this.getUnSeenMessageCount()}
-                    </Text>
-                  </Badge>
-                ) : null}
-              </TouchableOpacity>
-            </Right>
-          </Header>
-          {/* {this.props.user.isSuperAdmin && (
+          <View style={{}}>
             <TouchableOpacity
-              style={{
-                alignSelf: "flex-start",
-                position: "absolute",
-                top: 150,
-              }}
-              onPress={() => this.likePost(item)}
+              onPress={() => this.props.navigation.navigate("Messages")}
             >
               <Ionicons
-                style={{ margin: 5 }}
-                color="#db565b"
-                name="ios-alert"
+                style={{ color: "white", top: 13, right: 10 }}
+                name={"ios-paper-plane"}
                 size={40}
               />
+
+              {this.getUnSeenMessageCount() ? (
+                <Badge style={{ position: "absolute", right: 5 }}>
+                  <Text style={{ color: "white" }}>
+                    {this.getUnSeenMessageCount()}
+                  </Text>
+                </Badge>
+              ) : null}
             </TouchableOpacity>
-          )} */}
+          </View>
         </View>
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
@@ -682,6 +692,7 @@ class Home extends React.Component {
           </Dialog.Description>
           <Dialog.Input
             value={this.state.reportReason}
+            underlineColorAndroid="#000"
             onChangeText={(input) => this.setState({ reportReason: input })}
             placeholder="Help Us by providing some more information on the problem"
             multiline={true}

@@ -87,59 +87,55 @@ export const login = () => {
 
 export const facebookLogin = () => {
   return async (dispatch) => {
-    try {
-      await Facebook.initializeAsync("239016010571551");
-      const {
-        type,
-        token,
-        expires,
-        permissions,
-        declinedPermissions,
-      } = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ["public_profile", "email"],
-      });
-      if (type === "success") {
-        // Build Firebase credential with the Facebook access token.
-        const credential = await firebase.auth.FacebookAuthProvider.credential(
-          token
-        );
-        // Sign in with credential from the Facebook user.
-        const firebaseResponse = await firebase
-          .auth()
-          .signInWithCredential(credential);
+    await Facebook.initializeAsync("239016010571551");
+    const {
+      type,
+      token,
+      expires,
+      permissions,
+      declinedPermissions,
+    } = await Facebook.logInWithReadPermissionsAsync({
+      permissions: ["public_profile", "email"],
+    });
+    if (type === "success") {
+      // Build Firebase credential with the Facebook access token.
+      const credential = await firebase.auth.FacebookAuthProvider.credential(
+        token
+      );
+      // Sign in with credential from the Facebook user.
+      const firebaseResponse = await firebase
+        .auth()
+        .signInWithCredential(credential);
 
-        var response = firebaseResponse.user;
-        const user = await db.collection("users").doc(response.uid).get();
-        if (!user.exists) {
-          var email =
-            response.email == null || response.email == undefined
-              ? response.providerData[0].email
-              : response.email;
+      var response = firebaseResponse.user;
+      const user = await db.collection("users").doc(response.uid).get();
+      if (!user.exists) {
+        var email =
+          response.email == null || response.email == undefined
+            ? response.providerData[0].email
+            : response.email;
 
-          if (email == null || email == undefined) {
-            email = response.providerData[0].uid + "@facebook.com";
-          }
-
-          const user = {
-            uid: response.uid,
-            email: email,
-            username: response.displayName,
-            bio: "",
-            photo: response.photoURL,
-            token: null,
-            followers: [],
-            following: [],
-          };
-          db.collection("users").doc(response.uid).set(user);
-          dispatch({ type: "LOGIN", payload: user });
-        } else {
-          dispatch(getUser(response.uid));
+        if (email == null || email == undefined) {
+          email = response.providerData[0].uid + "@facebook.com";
         }
+
+        const user = {
+          uid: response.uid,
+          email: email,
+          username: response.displayName,
+          bio: "",
+          photo: response.photoURL,
+          token: null,
+          followers: [],
+          following: [],
+        };
+        db.collection("users").doc(response.uid).set(user);
+        dispatch({ type: "LOGIN", payload: user });
       } else {
-        // type === 'cancel'
+        dispatch(getUser(response.uid));
       }
-    } catch ({ message }) {
-      alert(`Facebook Login Error: ${message}`);
+    } else {
+      // type === 'cancel'
     }
   };
 };
@@ -172,7 +168,7 @@ export const appleLogin = () => {
       const firebaseResponse = await firebase
         .auth()
         .signInWithEmailAndPassword(email, password);
-   
+
       var response = firebaseResponse.user;
       const user = await db.collection("users").doc(response.uid).get();
 

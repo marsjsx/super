@@ -16,7 +16,8 @@ class ImageItem extends React.Component {
     if (typeof containerWidth != "undefined") {
       width = containerWidth;
     }
-    this._imageSize = (width - (imagesPerRow + 1) * imageMargin) / imagesPerRow;
+    // this._imageSize = (width - (imagesPerRow + 1) * imageMargin) / imagesPerRow;
+    this._imageSize = 95;
   }
 
   render() {
@@ -44,6 +45,7 @@ class ImageItem extends React.Component {
           source={{ uri: image.uri }}
           style={{ height: this._imageSize, width: this._imageSize }}
         />
+
         {selected ? marker : null}
 
         {image.type === "video" ? (
@@ -64,7 +66,6 @@ class ImageItem extends React.Component {
   }
 
   _handleClick(item: any) {
-    // alert(JSON.stringify(item));
     this.props.onClick(item);
   }
 }

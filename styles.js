@@ -5,6 +5,15 @@ export default styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
+  MainContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: null,
+    height: null,
+  },
+
   center: {
     alignItems: "center",
     justifyContent: "center",
@@ -182,10 +191,10 @@ export default styles = StyleSheet.create({
   postPhoto: {
     ...Platform.select({
       ios: {
-        height: height - 50,
+        height: height - 0,
       },
       android: {
-        height: height,
+        height: height - 0,
       },
     }),
     // height: height ,
@@ -217,6 +226,14 @@ export default styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     margin: 10,
+    backgroundColor: "#adadad",
+  },
+
+  roundImage60s: {
+    width: 60,
+    height: 60,
+    margin: 8,
+    borderRadius: 30,
     backgroundColor: "#adadad",
   },
   roundImage60: {
@@ -606,7 +623,7 @@ export default styles = StyleSheet.create({
     width: width,
     flex: 0.95,
     justifyContent: "flex-end",
-    marginBottom: 15,
+    marginBottom: 65,
   },
   squareImage: {
     width: 60,
@@ -622,7 +639,7 @@ export default styles = StyleSheet.create({
     ...Platform.select({
       ios: {},
       android: {
-        marginLeft: width / 5,
+        // marginLeft: width / 5,
       },
     }),
   },

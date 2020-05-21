@@ -1,23 +1,24 @@
-import './src/fixtimerbug';
-import React from 'react';
-import SwitchNavigator from './navigation/SwitchNavigator';
-import reducer from './reducers';
-import thunkMiddleware from 'redux-thunk';
-import thunk from 'redux-thunk';
+import "./src/fixtimerbug";
+import React from "react";
+import SwitchNavigator from "./navigation/SwitchNavigator";
+import reducer from "./reducers";
+import thunkMiddleware from "redux-thunk";
+import thunk from "redux-thunk";
 //import logger from 'redux-logger';
-import firebase from './config/firebase';
-import { Provider } from 'react-redux';
-import {createStore, applyMiddleware,compose } from 'redux';
+import firebase from "./config/firebase";
+import { Provider } from "react-redux";
+import { createStore, applyMiddleware, compose } from "redux";
 const middleware = applyMiddleware(thunkMiddleware);
+import { View, Text, Platform } from "react-native";
+import { createStackNavigator, createAppContainer } from "react-navigation";
+
 import FlashMessage from "react-native-flash-message";
-
-
+import SplashScreen from "react-native-splash-screen";
 
 const middlewares = [thunk];
 
 // compose(applyMiddleware(thunk))(createStore)(reducer)
 // const store = createStore(reducer, middleware);
-
 
 const store = createStore(
   reducer,
@@ -25,13 +26,20 @@ const store = createStore(
   compose(applyMiddleware(...middlewares))
 );
 
-
 export default class App extends React.Component {
+  componentDidMount() {
+    // do stuff while splash screen is shown
+    // After having done stuff (such as async tasks) hide the splash screen
+    if (Platform.OS === "android") {
+      SplashScreen.hide();
+    }
+  }
+
   render() {
     return (
       <Provider store={store}>
-        <SwitchNavigator/>
-        <FlashMessage position="top" /> 
+        <SwitchNavigator />
+        <FlashMessage position="top" />
       </Provider>
     );
   }

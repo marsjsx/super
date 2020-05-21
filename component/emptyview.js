@@ -110,22 +110,36 @@ module.exports = createReactClass({
               },
             }}
           >
-            <Container style={{ flex: 1, width: "100%" }}>
-              <Header transparent>
-                <Left>
+            <Container
+              style={{
+                flex: 1,
+                width: "100%",
+              }}
+            >
+              <View
+                style={{
+                  width: "100%",
+                  flexDirection: "row",
+                  padding: 10,
+                  justifyContent: "space-between",
+                }}
+              >
+                <View>
                   <Button transparent onPress={() => this.RBSheet.close()}>
                     <Ionicons name="ios-close" size={32} />
                   </Button>
-                </Left>
+                </View>
 
-                <Right>
+                <View>
                   <Button transparent>
                     <Ionicons name="ios-help-circle-outline" size={32} />
                   </Button>
-                </Right>
-              </Header>
-              <Title>Sign up for {appName} </Title>
-              <Subtitle style={{ textAlign: "center", margin: 10 }}>
+                </View>
+              </View>
+              <Title style={{ color: "black" }}>Sign up for {appName} </Title>
+              <Subtitle
+                style={{ textAlign: "center", margin: 15, color: "gray" }}
+              >
                 Create a profile, follow other accounts, make your own videos,
                 and more{" "}
               </Subtitle>
@@ -199,6 +213,7 @@ module.exports = createReactClass({
                   style={{
                     textAlign: "center",
                     margin: 10,
+                    color: "gray",
                   }}
                 >
                   By continuning, you agree to {appName}'s{" "}
@@ -227,7 +242,7 @@ module.exports = createReactClass({
                 </Subtitle>
               </View>
 
-              <Footer>
+              <Footer style={{ backgroundColor: "#F5F5F5" }}>
                 <TouchableOpacity
                   onPress={() => {
                     this.RBSheet.close();

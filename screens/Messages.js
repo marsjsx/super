@@ -18,7 +18,21 @@ import {
 import { getMessages } from "../actions/message";
 import moment from "moment";
 import { groupBy, values } from "lodash";
-import { Badge, Content } from "native-base";
+import {
+  Container,
+  Badge,
+  Header,
+  Content,
+  List,
+  ListItem,
+  Title,
+  Subtitle,
+  Left,
+  Body,
+  Right,
+  Icon,
+  Thumbnail,
+} from "native-base";
 
 class Messages extends React.Component {
   componentDidMount = () => {
@@ -71,45 +85,97 @@ class Messages extends React.Component {
     // else if (!this.props.messages)
     //   return <ActivityIndicator style={styles.container} />;
     return (
-      <View style={[styles.container, { marginTop: 80 }]}>
+      <View style={[styles.container, { marginTop: 10 }]}>
         {/* {alert(JSON.stringify(this.props.messages.length))} */}
 
         <FlatList
           // keyExtractor={item => new Date().getTime()}
           data={orderBy(this.props.messages, "updatedAt", "desc")}
           renderItem={({ item, index }) => (
-            <TouchableOpacity
-              onPress={() => this.goToChat(item.members)}
-              style={[styles.row, styles.space, { marginBottom: 10 }]}
-            >
-              <ProgressiveImage
-                thumbnailSource={{
-                  uri: item.user.preview,
-                }}
-                transparentBackground="transparent"
-                source={{ uri: item.user.photo }}
-                style={styles.roundImage}
-              />
-              {/* <Image
-                style={styles.roundImage}
-                source={{ uri: item.user.photo }}
-              /> */}
-              <View style={[styles.container, styles.left]}>
-                <Text style={styles.bold}>{item.user.username}</Text>
-                {this.getLastMessage(item)}
-                {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
-                <Text style={[styles.gray, styles.small]}>
-                  {moment(item.updatedAt).format("ll")}
-                </Text>
-              </View>
-              {this.getUnSeenMessageCount(item) ? (
-                <Badge style={{ marginRight: 10, alignSelf: "center" }}>
-                  <Text style={{ color: "white" }}>
-                    {this.getUnSeenMessageCount(item)}
+            <ListItem avatar onPress={() => this.goToChat(item.members)}>
+              <Left>
+                <ProgressiveImage
+                  thumbnailSource={{
+                    uri: item.user.preview,
+                  }}
+                  transparentBackground="transparent"
+                  source={{ uri: item.user.photo }}
+                  style={styles.roundImage60s}
+                />
+              </Left>
+              <Body>
+                <View style={[styles.container, styles.center, styles.left]}>
+                  {/* <Text style={styles.bold}>{item.user.username}</Text> */}
+                  <Title>{item.user.username}</Title>
+                  {this.getLastMessage(item)}
+                  {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
+                  {/* <Text style={[styles.gray, styles.small]}>
+                    {moment(item.updatedAt).format("ll")}
+                  </Text> */}
+                </View>
+              </Body>
+              <Right>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={[styles.gray, { marginRight: 10 }]}>
+                    {moment(item.updatedAt).format("ll")}
                   </Text>
-                </Badge>
-              ) : null}
-            </TouchableOpacity>
+                  <Icon name="arrow-forward" />
+                </View>
+
+                {this.getUnSeenMessageCount(item) ? (
+                  <Badge
+                    style={{
+                      marginRight: 10,
+                      marginTop: 5,
+                      backgroundColor: "#00C853",
+                    }}
+                  >
+                    <Text style={{ color: "white" }}>
+                      {this.getUnSeenMessageCount(item)}
+                    </Text>
+                  </Badge>
+                ) : null}
+              </Right>
+            </ListItem>
+
+            // <TouchableOpacity
+            //   onPress={() => this.goToChat(item.members)}
+            //   style={[styles.row, styles.space, { marginBottom: 10 }]}
+            // >
+            //   <ProgressiveImage
+            //     thumbnailSource={{
+            //       uri: item.user.preview,
+            //     }}
+            //     transparentBackground="transparent"
+            //     source={{ uri: item.user.photo }}
+            //     style={styles.roundImage}
+            //   />
+            //   {/* <Image
+            //     style={styles.roundImage}
+            //     source={{ uri: item.user.photo }}
+            //   /> */}
+            //   <View style={[styles.container, styles.left]}>
+            //     <Text style={styles.bold}>{item.user.username}</Text>
+            //     {this.getLastMessage(item)}
+            //     {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
+            //     <Text style={[styles.gray, styles.small]}>
+            //       {moment(item.updatedAt).format("ll")}
+            //     </Text>
+            //   </View>
+            //   {this.getUnSeenMessageCount(item) ? (
+            //     <Badge style={{ marginRight: 10, alignSelf: "center" }}>
+            //       <Text style={{ color: "white" }}>
+            //         {this.getUnSeenMessageCount(item)}
+            //       </Text>
+            //     </Badge>
+            //   ) : null}
+            // </TouchableOpacity>
           )}
         />
       </View>

@@ -36,7 +36,9 @@ class CameraView extends Component {
       galleryImagePath: false,
       cameraImagePath: false,
       isRecording: false,
+      duration: 0,
       isCameraButton: false,
+      timer: null,
       animated: new Animated.Value(0),
       opacityA: new Animated.Value(1),
     };
@@ -153,10 +155,20 @@ class CameraView extends Component {
 
   startRecording = () => {
     if (this.camera) {
+      this.startTimer();
       this.camera
-        .recordAsync()
-        .then((data: any) => console.log("======data path===== ", data.path))
-        .catch((err: any) => console.error("==error==", err));
+        .recordAsync({ maxDuration: 59, quality: "4:3" })
+        .then((data: any) => {
+          let selectedfile = {};
+          selectedfile.uri = data.uri;
+          selectedfile.type = "video";
+
+          selectedfile.duration = this.state.duration * 1000;
+          this.clearTimer();
+          this.props.dispatch(updatePhoto(selectedfile));
+          this.props.navigation.navigate("PostDetail");
+        })
+        .catch((err: any) => alert("==error==" + err));
       this.setState({
         isRecording: true,
       });
@@ -169,8 +181,15 @@ class CameraView extends Component {
       this.setState({
         isRecording: false,
       });
+      this.stopTimer();
     }
   };
+
+  toggleRecording() {
+    const { isRecording } = this.state;
+
+    return isRecording ? this.stopRecording() : this.startRecording();
+  }
 
   cancleImage() {
     this.setState({ cameraImagePath: false });
@@ -185,54 +204,141 @@ class CameraView extends Component {
     }
   }
 
+  printChronometer = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remseconds = seconds % 60;
+    return (
+      "" +
+      (minutes < 10 ? "0" : "") +
+      minutes +
+      ":" +
+      (remseconds < 10 ? "0" : "") +
+      remseconds
+    );
+  };
+
+  startTimer() {
+    this.setState({ duration: 0 });
+
+    let timer = setInterval(() => {
+      this.setState({ duration: this.state.duration + 1 });
+    }, 1000);
+    this.setState({ timer });
+  }
+
+  stopTimer() {
+    clearInterval(this.state.timer);
+  }
+
+  clearTimer() {
+    this.setState({
+      timer: null,
+      duration: "00",
+    });
+  }
+
   renderCamera() {
     const { permissionsGranted } = this.state;
+    const { state, navigate } = this.props.navigation;
+
     if (permissionsGranted === false) {
       return this.renderNoPermissions();
     } else if (!this.state.cameraImagePath) {
-      return (
-        <RNCamera
-          ref={(cam) => {
-            this.camera = cam;
-          }}
-          style={styles.preview}
-          aspect={this.state.camera.aspect}
-          type={this.state.camera.type}
-          flashMode={this.state.camera.flashMode}
-          onFocusChanged={() => {}}
-          onZoomChanged={() => {}}
-          defaultTouchToFocus
-          mirrorImage={false}
-        >
-          <View style={[styles.bottomOverlay]}>
-            <View style={styles.frontCameraOverlay}>
+      if ((state && state.routeName === "Camera") || this.props.focused) {
+        return (
+          <RNCamera
+            ref={(cam) => {
+              this.camera = cam;
+            }}
+            style={styles.preview}
+            aspect={this.state.camera.aspect}
+            type={this.state.camera.type}
+            flashMode={this.state.camera.flashMode}
+            onFocusChanged={() => {}}
+            onZoomChanged={() => {}}
+            defaultTouchToFocus
+            mirrorImage={false}
+          >
+            {state && state.routeName === "Camera" && (
               <TouchableOpacity
-                style={styles.typeButton}
-                onPress={this.switchType}
+                style={{ position: "absolute", top: 15, left: 0 }}
+                onPress={() => this.props.navigation.goBack()}
               >
-                <Image source={this.typeIcon} />
+                <Ionicons
+                  style={[styles.icon, { marginLeft: 20 }]}
+                  name={"ios-arrow-back"}
+                  color="white"
+                  size={42}
+                />
               </TouchableOpacity>
+            )}
+            <View style={[styles.bottomOverlay]}>
+              <View style={styles.frontCameraOverlay}>
+                <TouchableOpacity
+                  style={styles.typeButton}
+                  onPress={this.switchType}
+                >
+                  <Image source={this.typeIcon} />
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.flashButton}
-                onPress={this.switchFlash}
-              >
-                <Image source={this.flashIcon} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.buttonOverlay}>
-              <TouchableOpacity
-                style={styles.captureButton}
-                onPress={this.takePicture}
-              >
-                <View style={styles.outerCircle}>
-                  <View style={styles.innerCircle}></View>
+                <TouchableOpacity
+                  style={styles.flashButton}
+                  onPress={this.switchFlash}
+                >
+                  <Image source={this.flashIcon} />
+                </TouchableOpacity>
+              </View>
+
+              {this.props.activeIndex == 2 ? (
+                <View style={styles.buttonOverlay}>
+                  <TouchableOpacity
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    onPress={() => {
+                      this.toggleRecording();
+                    }}
+                  >
+                    {/* <View> */}
+                    <Ionicons
+                      name={
+                        this.state.isRecording
+                          ? "ios-square"
+                          : "ios-radio-button-on"
+                      }
+                      size={94}
+                      color="red"
+                    />
+                    <Text
+                      style={{
+                        color: "white",
+                        position: "absolute",
+                      }}
+                    >
+                      {this.printChronometer(this.state.duration)}
+                    </Text>
+                    {/* </View> */}
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
+              ) : (
+                <View style={styles.buttonOverlay}>
+                  <TouchableOpacity
+                    style={styles.captureButton}
+                    onPress={this.takePicture}
+                  >
+                    <View style={styles.outerCircle}>
+                      <View style={styles.innerCircle}></View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
-          </View>
-        </RNCamera>
-      );
+          </RNCamera>
+        );
+      } else {
+        return <View style={{ flex: 1, backgroundColor: "black" }} />;
+      }
     }
     if (this.state.cameraImagePath) {
       return (
@@ -307,7 +413,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingLeft: 10,
     paddingRight: 10,
-    marginTop: 50,
   },
   cancleBtn: {
     padding: 20,
@@ -373,6 +478,8 @@ const styles = StyleSheet.create({
     width: 80,
     borderRadius: 50,
     borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
     borderColor: "#ccc",
   },
   innerCircle: {

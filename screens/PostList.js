@@ -49,6 +49,10 @@ import { ShareApi } from "react-native-fbsdk";
 import EmptyView from "../component/emptyview";
 import ParsedText from "react-native-parsed-text";
 import Dialog from "react-native-dialog";
+import {
+  InstagramProvider,
+  ElementContainer,
+} from "instagram-zoom-react-native";
 
 const cellHeight = height * 0.6;
 const cellWidth = width;
@@ -303,7 +307,7 @@ class PostListScreen extends React.Component {
     // alert(JSON.stringify(this.props.post.feed.length));
     if (this.props.post === null) return null;
     return (
-      <View style={[styles.postPhoto, styles.center]}>
+      <View style={[styles.fullScreen, styles.center]}>
         <EmptyView
           ref={(ref) => {
             this.sheetRef = ref;
@@ -327,191 +331,202 @@ class PostListScreen extends React.Component {
           renderItem={({ item }) => {
             const liked = item.likes.includes(this.props.user.uid);
             return (
-              <TouchableOpacity
-                activeOpacity={1}
-                style={styles.postPhoto}
-                id={item.id}
-                onPress={() => this.cellRefs[item.id].handleOnPress()}
-              >
-                <AvView
-                  ref={(ref) => {
-                    this.cellRefs[item.id] = ref;
-                  }}
-                  type={item.type ? item.type : "image"}
-                  source={item.postPhoto}
-                  style={styles.postPhoto}
-                  onDoubleTap={() => this.onDoubleTap(item)}
-                  preview={item.preview}
-                />
-
-                <View style={[styles.bottom, styles.absolute]}>
-                  <View
-                    style={{
-                      alignItems: "flex-end",
-                      marginRight: 10,
-                    }}
+              <InstagramProvider>
+                <ElementContainer>
+                  <TouchableOpacity
+                    activeOpacity={1}
+                    style={styles.fullScreen}
+                    id={item.id}
+                    onPress={() => this.cellRefs[item.id].handleOnPress()}
                   >
-                    <TouchableOpacity
-                      onPress={() => this.showActionSheet(item)}
-                    >
-                      <Ionicons
-                        style={{
-                          margin: 5,
-                          color: "rgb(255,255,255)",
-                        }}
-                        name="ios-more"
-                        size={40}
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => this.likePost(item)}>
-                      <Ionicons
-                        style={{ margin: 5 }}
-                        color={liked ? "#db565b" : "#fff"}
-                        name={liked ? "ios-heart" : "ios-heart-empty"}
-                        size={40}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.props.navigation.navigate("Comment", item)
-                      }
-                    >
-                      <Ionicons
-                        style={{ margin: 5, color: "rgb(255,255,255)" }}
-                        name="ios-chatbubbles"
-                        size={40}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        this.onShare(item);
+                    <AvView
+                      ref={(ref) => {
+                        this.cellRefs[item.id] = ref;
                       }}
-                    >
-                      <Entypo
-                        style={{ margin: 5, color: "#3b5998" }}
-                        name="facebook-with-circle"
-                        size={40}
-                      />
-                      <EvilIcons
-                        style={{
-                          position: "absolute",
-                          margin: 7,
-                          color: "rgb(255,255,255)",
-                        }}
-                        name="sc-facebook"
-                        size={40}
-                      />
-                    </TouchableOpacity>
+                      type={item.type ? item.type : "image"}
+                      source={item.postPhoto}
+                      navigation={this.props.navigation}
+                      style={styles.fullScreen}
+                      onDoubleTap={() => this.onDoubleTap(item)}
+                      preview={item.preview}
+                    />
 
-                    {this.props.user.isSuperAdmin && (
-                      <TouchableOpacity
-                        style={styles.center}
-                        onPress={() =>
-                          this.props.navigation.navigate("PostReport", item)
-                        }
-                      >
-                        <Ionicons
-                          style={{ margin: 5 }}
-                          color="#db565b"
-                          name="ios-alert"
-                          size={40}
-                        />
-                        <Text
-                          style={[styles.bold, styles.white, { fontSize: 20 }]}
-                        >
-                          {item.reports ? item.reports.length : 0}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-
-                  <View style={[styles.row]}>
-                    <TouchableOpacity onPress={() => this.goToUser(item)}>
-                      <ProgressiveImage
-                        thumbnailSource={{
-                          uri: item.preview,
-                        }}
-                        transparentBackground="transparent"
-                        source={{ uri: item.photo }}
-                        style={styles.roundImage60}
-                      />
-
-                      {/* <Image
-                            style={styles.roundImage60}
-                            source={{ uri: item.photo }}
-                          /> */}
-                    </TouchableOpacity>
-                    <View style={{ width: "100%" }}>
+                    <View style={[styles.bottom, styles.absolute]}>
                       <View
                         style={{
-                          borderBottomWidth: 0.5,
-                          borderBottomColor: "rgb(255,255,255)",
+                          alignItems: "flex-end",
+                          marginRight: 10,
                         }}
                       >
                         <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "flex-start",
-                          }}
-                          onPress={() => this.goToUser(item)}
+                          onPress={() => this.showActionSheet(item)}
                         >
-                          {this.state.fontLoaded ? (
-                            <Text
-                              style={{
-                                fontFamily: "open-sans-bold",
-                                fontSize: 18,
-                                color: "rgb(255,255,255)",
-                              }}
-                            >
-                              {item.username}
-                            </Text>
-                          ) : null}
+                          <Ionicons
+                            style={{
+                              margin: 5,
+                              color: "rgb(255,255,255)",
+                            }}
+                            name="ios-more"
+                            size={40}
+                          />
                         </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => this.likePost(item)}>
+                          <Ionicons
+                            style={{ margin: 5 }}
+                            color={liked ? "#db565b" : "#fff"}
+                            name={liked ? "ios-heart" : "ios-heart-empty"}
+                            size={40}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.props.navigation.navigate("Comment", item)
+                          }
+                        >
+                          <Ionicons
+                            style={{ margin: 5, color: "rgb(255,255,255)" }}
+                            name="ios-chatbubbles"
+                            size={40}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            this.onShare(item);
+                          }}
+                        >
+                          <Entypo
+                            style={{ margin: 5, color: "#3b5998" }}
+                            name="facebook-with-circle"
+                            size={40}
+                          />
+                          <EvilIcons
+                            style={{
+                              position: "absolute",
+                              margin: 7,
+                              color: "rgb(255,255,255)",
+                            }}
+                            name="sc-facebook"
+                            size={40}
+                          />
+                        </TouchableOpacity>
+
+                        {this.props.user.isSuperAdmin && (
+                          <TouchableOpacity
+                            style={styles.center}
+                            onPress={() =>
+                              this.props.navigation.navigate("PostReport", item)
+                            }
+                          >
+                            <Ionicons
+                              style={{ margin: 5 }}
+                              color="#db565b"
+                              name="ios-alert"
+                              size={40}
+                            />
+                            <Text
+                              style={[
+                                styles.bold,
+                                styles.white,
+                                { fontSize: 20 },
+                              ]}
+                            >
+                              {item.reports ? item.reports.length : 0}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
-                      {/* <Text style={[styles.white, styles.small]}>
+
+                      <View style={[styles.row]}>
+                        <TouchableOpacity onPress={() => this.goToUser(item)}>
+                          <ProgressiveImage
+                            thumbnailSource={{
+                              uri: item.preview,
+                            }}
+                            transparentBackground="transparent"
+                            source={{ uri: item.photo }}
+                            style={styles.roundImage60}
+                          />
+
+                          {/* <Image
+                            style={styles.roundImage60}
+                            source={{ uri: item.photo }}
+                          /> */}
+                        </TouchableOpacity>
+                        <View style={{ width: "100%" }}>
+                          <View
+                            style={{
+                              borderBottomWidth: 0.5,
+                              borderBottomColor: "rgb(255,255,255)",
+                            }}
+                          >
+                            <TouchableOpacity
+                              style={{
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "flex-start",
+                              }}
+                              onPress={() => this.goToUser(item)}
+                            >
+                              {this.state.fontLoaded ? (
+                                <Text
+                                  style={{
+                                    fontFamily: "open-sans-bold",
+                                    fontSize: 18,
+                                    color: "rgb(255,255,255)",
+                                  }}
+                                >
+                                  {item.username}
+                                </Text>
+                              ) : null}
+                            </TouchableOpacity>
+                          </View>
+                          {/* <Text style={[styles.white, styles.small]}>
                         {moment(item.date).format("ll")}
                       </Text> */}
-                      {/* <TouchableOpacity
+                          {/* <TouchableOpacity
                             onPress={() => this.navigateMap(item)}
                           > */}
-                      <TouchableOpacity>
-                        <Text
+                          <TouchableOpacity>
+                            <Text
+                              style={styles.textD}
+                              ellipsizeMode="tail"
+                              numberOfLines={2}
+                            >
+                              {item.postLocation
+                                ? item.postLocation.name
+                                : null}
+                            </Text>
+                          </TouchableOpacity>
+
+                          <Text style={[styles.white, styles.small]}>
+                            {moment(item.date).format("ll")}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ marginLeft: 10 }}>
+                        <ParsedText
+                          parse={[
+                            {
+                              type: "url",
+                              style: styles.url,
+                              onPress: this.handleUrlPress,
+                            },
+                            { pattern: /42/, style: styles.magicNumber },
+                            { pattern: /#(\w+)/, style: styles.hashTag },
+                          ]}
                           style={styles.textD}
-                          ellipsizeMode="tail"
-                          numberOfLines={2}
                         >
-                          {item.postLocation ? item.postLocation.name : null}
-                        </Text>
-                      </TouchableOpacity>
-
-                      <Text style={[styles.white, styles.small]}>
-                        {moment(item.date).format("ll")}
-                      </Text>
+                          {item.postDescription}
+                        </ParsedText>
+                      </View>
                     </View>
-                  </View>
-
-                  <View style={{ marginLeft: 10 }}>
-                    <ParsedText
-                      parse={[
-                        {
-                          type: "url",
-                          style: styles.url,
-                          onPress: this.handleUrlPress,
-                        },
-                        { pattern: /42/, style: styles.magicNumber },
-                        { pattern: /#(\w+)/, style: styles.hashTag },
-                      ]}
-                      style={styles.textD}
-                    >
-                      {item.postDescription}
-                    </ParsedText>
-                  </View>
-                </View>
-                {/* </ImageBackground> */}
-                {/* </DoubleTap> */}
-              </TouchableOpacity>
+                    {/* </ImageBackground> */}
+                    {/* </DoubleTap> */}
+                  </TouchableOpacity>
+                </ElementContainer>
+              </InstagramProvider>
             );
           }}
         />

@@ -16,6 +16,7 @@ import { NavigationEvents } from "react-navigation";
 import Swiper from "react-native-swiper";
 import GalleryView from "../../component/GalleryView";
 import CameraView from "../../component/CameraView";
+import CameraView1 from "../../component/CameraView";
 import CameraScreen from "../Camera";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { connect } from "react-redux";
@@ -26,11 +27,15 @@ class Add extends React.Component {
   constructor(props: any) {
     super(props);
     this.cellRefs = null;
+    this.cameraRef = null;
+    this.cameraRef2 = null;
 
     this.state = {
       isModalOpen: false,
       activeIndex: 0,
       isPaused: false,
+      cameraViewFocused: false,
+      cameraViewFocused2: false,
     };
   }
 
@@ -125,23 +130,29 @@ class Add extends React.Component {
           backButtonClose
         >
           {this.state.activeIndex < 1 ? (
-            <Header
-              style={{ backgroundColor: colors.black, borderBottomWidth: 0 }}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                backgroundColor: colors.black,
+                borderBottomWidth: 0,
+                padding: 10,
+              }}
             >
-              <Left>
+              <View>
                 <Button transparent onPress={this.closeModal}>
                   <Text style={styles.btnActions}>Cancel</Text>
                 </Button>
-              </Left>
+              </View>
               {/* <Body>
               <Text style={styles.btnActions}>Gallery</Text>
             </Body> */}
-              <Right>
+              <View>
                 <Button transparent onPress={this.onNext}>
                   <Text style={styles.btnActions}>Next</Text>
                 </Button>
-              </Right>
-            </Header>
+              </View>
+            </View>
           ) : null}
 
           <Content>
@@ -154,19 +165,49 @@ class Add extends React.Component {
               showsButtons={false}
               showsPagination={false}
               index={0}
-              onIndexChanged={(index: number) =>
-                this.setState({ activeIndex: index })
-              }
+              onIndexChanged={(index: number) => {
+                this.setState({ activeIndex: index });
+
+                if (index == 1) {
+                  this.setState({
+                    cameraViewFocused: true,
+                    cameraViewFocused2: false,
+                  });
+                }
+
+                if (index == 2) {
+                  this.setState({
+                    cameraViewFocused: false,
+                    cameraViewFocused2: true,
+                  });
+                }
+              }}
             >
               <View style={styles.slide1}>
                 <GalleryView isPaused={this.state.isPaused} />
               </View>
               <View style={styles.slide2}>
-                <CameraView navigation={this.props.navigation} />
+                <CameraView
+                  ref={(ref) => {
+                    this.cameraRef = ref;
+                  }}
+                  type="camera"
+                  activeIndex={this.state.activeIndex}
+                  navigation={this.props.navigation}
+                  focused={this.state.cameraViewFocused}
+                />
               </View>
-              {/* <View style={styles.slide2}>
-                <CameraView />
-              </View> */}
+              <View style={styles.slide2}>
+                <CameraView
+                  ref={(ref) => {
+                    this.cameraRef2 = ref;
+                  }}
+                  type="video"
+                  activeIndex={this.state.activeIndex}
+                  navigation={this.props.navigation}
+                  focused={this.state.cameraViewFocused2}
+                />
+              </View>
             </Swiper>
           </Content>
           <Footer
@@ -214,7 +255,7 @@ class Add extends React.Component {
                   Photo
                 </Text>
               </Button>
-              {/* <Button
+              <Button
                 transparent
                 onPress={() => this.segmentClicked(2)}
                 active={this.state.activeIndex === 0}
@@ -229,7 +270,7 @@ class Add extends React.Component {
                 >
                   Video
                 </Text>
-              </Button> */}
+              </Button>
             </View>
           </Footer>
         </Modal>

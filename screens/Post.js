@@ -5,11 +5,13 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
-import * as ImagePicker from "expo-image-picker";
+import * as ExpoImagePicker from "expo-image-picker";
 import { NavigationEvents } from "react-navigation";
 import { ProcessingManager } from "react-native-video-processing";
 import Loader from "../component/Loader";
 import EmptyView from "../component/emptyview";
+import * as ImageManipulator from "expo-image-manipulator";
+import ImagePicker from "react-native-image-crop-picker";
 
 import _ from "lodash";
 
@@ -125,6 +127,8 @@ class Post extends React.Component {
   onWillFocus = () => {
     if (!this.props.post.photo) {
       this.openLibrary();
+    } else if (this.props.post.photo.type === "image") {
+      this.cropImage();
     }
   };
 
@@ -150,6 +154,15 @@ class Post extends React.Component {
       >
         <Ionicons name="ios-reverse-camera" size={40} color="white" />
       </TouchableOpacity>
+
+      {this.props.post.photo && this.props.post.photo.type === "image" && (
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={() => this.cropImage()}
+        >
+          <Ionicons name="ios-crop" size={40} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -183,13 +196,50 @@ class Post extends React.Component {
     }
   };
 
+  cropImage = async () => {
+    await ImagePicker.openCropper({
+      path: this.props.post.photo.uri,
+      width: 300,
+      height: 400,
+    }).then((image) => {
+      console.log(image);
+      //alert(JSON.stringify(image));
+
+      var selectedFile = {};
+      selectedFile.height = image.height;
+      selectedFile.width = image.width;
+      selectedFile.uri = image.path;
+      selectedFile.type = "image";
+
+      this.props.updatePhoto(selectedFile);
+    });
+
+    // const manipResult = await ImageManipulator.manipulateAsync(
+    //   this.props.post.photo.uri,
+    //   [
+    //     {
+    //       crop: {
+    //         originX: 0,
+    //         originY: 0,
+    //         width: 200,
+    //         height: 200,
+    //       },
+    //     },
+    //   ],
+    //   { compress: 1, format: ImageManipulator.SaveFormat.PNG }
+    // );
+    // alert(JSON.stringify(manipResult));
+  };
+
   openLibrary = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      const selectedFile = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+      const selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
+        mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
         duration: 15000,
       });
+
       if (!selectedFile.cancelled) {
         //  alert(JSON.stringify(selectedFile));
         // const uri = image.uri;
@@ -202,6 +252,7 @@ class Post extends React.Component {
         //   maximumSize,
         //   "base64"
         // ).then((data) => alert(data));
+        //  alert(JSON.stringify(selectedFile));
         this.props.updatePhoto(selectedFile);
         if (selectedFile.type === "image") {
           this.props.createAndUpdatePreview(selectedFile.uri);
@@ -234,9 +285,9 @@ class Post extends React.Component {
   };
 
   getLocations = async () => {
-    const permission = await Permissions.askAsync(Permissions.LOCATION);
+    const permission = await await Location.requestPermissionsAsync();
     if (permission.status === "granted") {
-      const location = await Location.getCurrentPositionAsync();
+      const location = await Location.getCurrentPositionAsync({});
       const url = `${GOOGLE_API}?location=${location.coords.latitude},${location.coords.longitude}&rankby=distance&key=${ENV.googleApiKey}`;
       const response = await fetch(url);
       const data = await response.json();
@@ -451,14 +502,7 @@ class Post extends React.Component {
             ref={(ref) => {
               this.sheetRef = ref;
             }}
-            desc="You need to Login/Signup in order to upload posts"
-            button="Signup"
-            userId={this.props.user.uid}
-            openSheet={true}
             navigation={this.props.navigation}
-            icon={
-              <Ionicons style={{ margin: 5 }} name="ios-aperture" size={64} />
-            }
           />
           <ScrollView
             style={[{ width: "100%" }]}

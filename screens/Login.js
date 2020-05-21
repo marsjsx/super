@@ -66,6 +66,33 @@ class Login extends React.Component {
     }
   };
 
+  onFaceBookLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.facebookLogin();
+      this.setState({ showLoading: false });
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(`Facebook Login Error: ${e}`);
+    }
+  };
+
+  appleLoginLogin = async () => {
+    this.setState({ showLoading: true });
+    try {
+      await this.props.appleLogin();
+      this.setState({ showLoading: false });
+
+      // this.props.navigation.goBack();
+      //  this.props.navigation.navigate("Home");
+    } catch (e) {
+      this.setState({ showLoading: false });
+      alert(e.message);
+    }
+  };
+
   render() {
     return (
       <ImageBackground
@@ -120,7 +147,7 @@ class Login extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonFacebook}
-              onPress={() => this.props.facebookLogin()}
+              onPress={() => this.onFaceBookLogin()}
             >
               <Text style={styles.textA}>Login with Facebook</Text>
             </TouchableOpacity>
@@ -130,7 +157,7 @@ class Login extends React.Component {
                 style={styles.buttonApple}
                 buttonStyle={AppleButton.Style.WHITE}
                 buttonType={AppleButton.Type.SIGN_IN}
-                onPress={() => this.props.appleLogin()}
+                onPress={() => this.appleLoginLogin()}
               />
             )}
 
@@ -138,6 +165,7 @@ class Login extends React.Component {
               style={{
                 textAlign: "center",
                 margin: 10,
+                color: "gray",
               }}
             >
               By continuning, you agree to {appName}'s{" "}

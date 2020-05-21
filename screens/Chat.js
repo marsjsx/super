@@ -6,17 +6,28 @@ import {
   Text,
   Platform,
   KeyboardAvoidingView,
+  TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { connect } from "react-redux";
 import { addMessage, getMessages, updateSeenBy } from "../actions/message";
 import { bindActionCreators } from "redux";
 import { orderBy } from "lodash";
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Composer } from "react-native-gifted-chat";
+import { Container, Content, Badge, Icon } from "native-base";
+
+import {
+  getLocationAsync,
+  pickImageAsync,
+  takePictureAsync,
+} from "../component/mediaUtils";
 
 import {
   Bubble,
   GiftedChat,
   SystemMessage,
+  InputToolbar,
   IMessage,
 } from "react-native-gifted-chat";
 
@@ -148,7 +159,7 @@ class Chat extends Component {
       {
         pattern: /#(\w+)/,
         style: { textDecorationLine: "underline", color: "darkorange" },
-        onPress: () => Linking.openURL("http://gifted.chat")
+        onPress: () => Linking.openURL("http://gifted.chat"),
       },
     ];
   };
@@ -305,13 +316,83 @@ class Chat extends Component {
     return [];
   }
 
+  renderInputToolbar(props) {
+    //Add the extra styles via containerStyle
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={{ borderTopWidth: 0, borderTopColor: "#333" }}
+      />
+    );
+  }
+
+  renderSend(props) {
+    return (
+      <TouchableOpacity
+        onPress={() => props.onSend({ text: props.text.trim() }, true)}
+      >
+        <Text>SEND</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  renderComposer = (props) => {
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity
+          style={{ margin: 10 }}
+          onPress={() => takePictureAsync(this.onSendFromUser)}
+        >
+          <MaterialIcons
+            size={30}
+            color={"rgba(0,0,0,0.5)"}
+            name="camera-alt"
+          />
+        </TouchableOpacity>
+        <View
+          style={{
+            borderColor: "#BDBDBD",
+            borderWidth: 1,
+            flex: 1,
+            flexDirection: "row",
+            marginRight: 10,
+            borderRadius: 25,
+            justifyContent: "center",
+          }}
+        >
+          <Composer textInputStyle={{ flex: 1 }} {...props} />
+
+          <TouchableOpacity
+            style={{ margin: 1 }}
+            onPress={() => {
+              if (props.text.trim().length > 0) {
+                props.onSend({ text: props.text.trim() }, true);
+              }
+            }}
+          >
+            <MaterialCommunityIcons
+              size={34}
+              color="#00C853"
+              name="arrow-up-circle"
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   render() {
     if (!this.state.appIsReady) {
       return <ActivityIndicator />;
     }
     return (
       <View
-        style={[styles.container, { marginTop: 100 }]}
+        style={[styles.container, {}]}
         accessible
         accessibilityLabel="main"
         testID="main"
@@ -340,11 +421,13 @@ class Chat extends Component {
           user={user}
           scrollToBottom
           onLongPressAvatar={(user) => alert(JSON.stringify(user))}
+          renderInputToolbar={this.renderInputToolbar}
+          renderComposer={this.renderComposer}
           onPressAvatar={() => alert("short press")}
           keyboardShouldPersistTaps="never"
           renderAccessory={Platform.OS === "web" ? null : this.renderAccessory}
-          renderActions={this.renderCustomActions}
           renderBubble={this.renderBubble}
+          imageStyle={{ width: 250, height: 200 }}
           renderSystemMessage={this.renderSystemMessage}
           renderCustomView={this.renderCustomView}
           timeTextStyle={{
