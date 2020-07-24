@@ -13,6 +13,8 @@ import {
 import { Camera as RNCamera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
+import { openSettingsDialog } from "../util/Helper";
+
 import { updatePhoto, createAndUpdatePreview } from "../actions/post";
 import * as Permissions from "expo-permissions";
 
@@ -45,8 +47,33 @@ class CameraView extends Component {
   }
 
   async componentDidMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ permissionsGranted: status === "granted" });
+    const { status, granted } = await RNCamera.requestPermissionsAsync();
+    // const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    // alert("Permission Status " + granted);
+    this.setState({ permissionsGranted: granted });
+
+    // alert(this.state.permissionsGranted);
+
+    if (status === "granted") {
+    } else {
+      // alert("Denied");
+
+      openSettingsDialog(
+        "Failed to Access Camera, Please go to the Settings to enable access",
+        this.props.navigation
+      );
+    }
+  }
+
+  checkPermissions() {
+    if (this.state.permissionsGranted) {
+    } else {
+      // alert("Denied");
+      // openSettingsDialog(
+      //   "Failed to Access Camera, Please go to the Settings to enable access",
+      //   this.props.navigation
+      // );
+    }
   }
 
   takePicture = () => {
@@ -72,6 +99,7 @@ class CameraView extends Component {
 
   renderNoPermissions = () => (
     <View style={styles.noPermissions}>
+      {/* {this.checkPermissions()} */}
       <Text style={{ color: "white" }}>
         Camera permissions not granted - cannot open camera preview.
       </Text>
@@ -241,6 +269,7 @@ class CameraView extends Component {
     const { permissionsGranted } = this.state;
     const { state, navigate } = this.props.navigation;
 
+    // alert(!this.state.cameraImagePath);
     if (permissionsGranted === false) {
       return this.renderNoPermissions();
     } else if (!this.state.cameraImagePath) {
@@ -289,7 +318,7 @@ class CameraView extends Component {
                 </TouchableOpacity>
               </View>
 
-              {this.props.activeIndex == 2 ? (
+              {this.props.activeIndex == 3 ? (
                 <View style={styles.buttonOverlay}>
                   <TouchableOpacity
                     style={{
@@ -374,6 +403,8 @@ class CameraView extends Component {
   }
 
   render() {
+    const { state, navigate } = this.props.navigation;
+
     return <View style={styles.container}>{this.renderCamera()}</View>;
   }
 }

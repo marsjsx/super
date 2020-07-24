@@ -6,39 +6,59 @@ import * as ImageManipulator from "expo-image-manipulator";
 const PUSH_ENDPOINT = "https://exp.host/--/api/v2/push/send";
 import * as Permissions from "expo-permissions";
 import { updateFileUploadProgress } from "../actions/post";
-import { validURL } from "../util/Helper"
+import { validURL } from "../util/Helper";
+import RNFetchBlob from "rn-fetch-blob";
+var base64 = require("base-64");
 
+import * as FileSystem from "expo-file-system";
 export const uploadPhoto = (selectedFile) => {
-  
   return async (dispatch) => {
     try {
       var fileUri;
 
       if (selectedFile.uri) {
-
-        fileUri= selectedFile.uri;
+        fileUri = selectedFile.uri;
       } else {
         fileUri = selectedFile;
 
         if (validURL(fileUri)) {
-          return fileUri
+          return fileUri;
         }
       }
 
-      if (selectedFile.type === "image") {
-        const resize = await ImageManipulator.manipulateAsync(
-          fileUri,
-          [],
-          {
-            format: "jpeg",
-            compress: 0.6,
-          }
-        );
+      // if (selectedFile.type === "image") {
+      //   var compressRatio = 0.4;
+      //   var maxallowedFileSize = 3000 * 1024; // 2MB
 
-        fileUri = resize.uri;
+      //   if (selectedFile.size) {
+      //     if (selectedFile.size > maxallowedFileSize) {
+      //       compressRatio = 1;
 
-      }
+      //       const resize = await ImageManipulator.manipulateAsync(fileUri, [], {
+      //         // format: "jpeg",
+      //         compress: 0,
+      //         // base64: true,
+      //       });
 
+      //       // var decodedData = base64.decode(resize.base64);
+      //       // var bytes = decodedData.length;
+      //       // alert(bytes);
+
+      //       let fileInfo = await FileSystem.getInfoAsync(resize.uri);
+
+      //       // alert(JSON.stringify(fileInfo));
+      //       fileUri = resize.uri;
+      //     }
+
+      //     // else {
+      //     //   compressRatio = maxallowedFileSize / selectedFile.size;
+      //     // }
+      //   }
+
+      //   // alert(JSON.stringify(selectedFile));
+      // }
+
+      // alert(fileUri);
       const blob = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.onload = () => resolve(xhr.response);
@@ -58,10 +78,10 @@ export const uploadPhoto = (selectedFile) => {
               var progress =
                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
-                if (selectedFile.uri) {
-                  dispatch(updateFileUploadProgress(Math.round(progress)));
-                }
-            
+              if (selectedFile.uri) {
+                dispatch(updateFileUploadProgress(Math.round(progress)));
+              }
+
               // alert(progress + "");s
               console.log("Upload is " + progress + "% done");
               switch (snapshot.state) {

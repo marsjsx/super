@@ -6,6 +6,7 @@ import orderBy from "lodash/orderBy";
 import { sendNotification } from "./";
 import React from "react";
 import { getUser } from "./user";
+import FastImage from "react-native-fast-image";
 
 // import Toast from 'react-native-tiny-toast'
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -39,7 +40,7 @@ export const updatePhotoPreview = (input) => {
 
 export const createAndUpdatePreview = (input) => {
   return async (dispatch, getState) => {
-    buildPreview(input, 50, 50).then((image) => {
+    buildPreview(input, 100, 100).then((image) => {
       var imageData = "data:image/jpeg;base64," + image.base64;
       dispatch(updatePhotoPreview(imageData));
     });
@@ -66,38 +67,45 @@ export const uploadPost = () => {
       const { post, user } = getState();
 
       dispatch(uploadPhoto(post.photo)).then((imageurl) => {
-        const id = uuid.v4();
-        const type = post.photo.type;
-        //  alert(imageurl);
-        const upload = {
-          id: id,
-          postPhoto: imageurl,
-          type: type,
-          postDescription: post.description || " ",
-          postLocation: post.location || " ",
-          uid: user.uid,
-          photo: user.photo || " ",
-          preview: post.preview || "",
-          username: user.username,
-          likes: [],
-          comments: [],
-          reports: [],
-          date: new Date().getTime(),
-        };
+        if (imageurl) {
+          const id = uuid.v4();
+          const type = post.photo.type;
+          const upload = {
+            id: id,
+            postPhoto: imageurl,
+            type: type,
+            postDescription: post.description || " ",
+            postLocation: post.location || " ",
+            uid: user.uid,
+            photo: user.photo || " ",
+            preview: post.preview || "",
+            username: user.username,
+            likes: [],
+            comments: [],
+            reports: [],
+            views: 0,
+            viewers: [],
+            date: new Date().getTime(),
+          };
 
-        db.collection("posts").doc(id).set(upload);
-        dispatch(updateFileUploadProgress(-1));
-        dispatch(updatePhoto());
-        dispatch(updateDescription());
-        dispatch(updateLocation());
+          db.collection("posts").doc(id).set(upload);
+          dispatch(updateFileUploadProgress(-1));
+          dispatch(updatePhoto());
+          dispatch(updateDescription());
+          dispatch(updateLocation());
 
-        dispatch(getPosts());
-        showMessage({
-          message: "Post Uploaded",
-          description: "Post Uploaded Successfully",
-          type: "success",
-          duration: 4000,
-        });
+          dispatch(getPosts());
+          dispatch(getUser(user.uid, "LOGIN"));
+
+          showMessage({
+            message: "Post Uploaded",
+            description: "Post Uploaded Successfully",
+            type: "success",
+            duration: 4000,
+          });
+        } else {
+          alert("Image Upload Error");
+        }
 
         //  Toast.showSuccess("Post Uploaded Successfully");
       });
@@ -109,19 +117,32 @@ export const uploadPost = () => {
   };
 };
 
-function getProgressBar() {
-  return <Text>Testing This </Text>;
-}
-
 export const getPosts = () => {
   return async (dispatch, getState) => {
     try {
       const posts = await db.collection("posts").orderBy("date", "desc").get();
+      var images = [];
 
       let array = [];
       posts.forEach((post) => {
+        var item = post.data();
         array.push(post.data());
+        if (item.photo) {
+          images.push({
+            uri: item.photo,
+          });
+        }
+        if (item.type == "image") {
+          images.push({
+            uri: item.postPhoto,
+          });
+        }
       });
+
+      if (images.length > 0) {
+        // alert(JSON.stringify(images));
+        dispatch(preloadImages(images));
+      }
       //  dispatch({ type: "GET_POSTS", payload: orderBy(array, "date", "desc") });
       dispatch({ type: "GET_POSTS", payload: array });
     } catch (e) {
@@ -132,6 +153,15 @@ export const getPosts = () => {
   };
 };
 
+export const preloadImages = (images) => {
+  return async (dispatch, getState) => {
+    try {
+      FastImage.preload(images);
+    } catch (e) {
+      // alert(e);
+    }
+  };
+};
 export const getPostReports = (post) => {
   return async (dispatch, getState) => {
     try {
@@ -228,6 +258,48 @@ export const likePost = (post) => {
   };
 };
 
+export const logVideoView = (post) => {
+  return (dispatch, getState) => {
+    var { uid, username, photo } = getState().user;
+    if (uid === undefined) {
+      uid = "NA";
+    }
+    try {
+      if (uid !== "NA") {
+        const home = cloneDeep(getState().post.feed);
+
+        var viewers = [];
+        let newFeed = home.map((item) => {
+          if (item.id === post.id) {
+            if (item.viewers == null) {
+              item.viewers = [];
+            }
+            item.viewers.push(uid);
+            viewers = item.viewers;
+          }
+          return item;
+        });
+
+        // db.collection("posts")
+        //   .doc(post.id)
+        //   .update({
+        //     views: firebase.firestore.FieldValue.increment(1),
+        //   });
+        // alert(JSON.stringify(viewers));
+        db.collection("posts").doc(post.id).update({
+          viewers: viewers,
+        });
+
+        dispatch({ type: "GET_POSTS", payload: newFeed });
+        // dispatch(getPosts());
+        dispatch(getUser(response.user.uid));
+      }
+    } catch (e) {
+      /* alert(e) */
+    }
+  };
+};
+
 export const unlikePost = (post) => {
   return async (dispatch, getState) => {
     const { uid } = getState().user;
@@ -283,7 +355,11 @@ export const addComment = (text, post) => {
       comment.uid = post.uid;
       comment.type = "COMMENT";
       comments.push(comment);
+
+      post.comments = comments;
+
       dispatch({ type: "GET_COMMENTS", payload: comments.reverse() });
+      dispatch({ type: "UPDATE_POST", payload: post });
 
       dispatch(sendNotification(post.uid, text));
       db.collection("activity").doc().set(comment);

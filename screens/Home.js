@@ -12,7 +12,6 @@ import {
 import {
   Text,
   View,
-  Button,
   Image,
   FlatList,
   TouchableOpacity,
@@ -27,6 +26,7 @@ import {
 import {
   getPosts,
   likePost,
+  logVideoView,
   unlikePost,
   reportPost,
   getFilterPosts,
@@ -39,12 +39,30 @@ import DoubleTap from "../component/DoubleTap";
 import ProgressiveImage from "../component/ProgressiveImage";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { getMessages } from "../actions/message";
+import { PanoramaView } from "@lightbase/react-native-panorama-view";
+import Modal from "react-native-modal";
+import ImagePicker from "react-native-image-crop-picker";
+import Editor, { displayTextWithMentions } from "../component/mentioneditor";
+import db from "../config/firebase";
+
+import {
+  updatePhoto,
+  updateCompressedPhoto,
+  updateUser,
+  createAndUpdatePreview,
+} from "../actions/user";
+
+import * as Permissions from "expo-permissions";
+import { validURL, openSettingsDialog } from "../util/Helper";
+
 import {
   Header,
   Title,
+  Subtitle,
   Content,
   Icon,
   Badge,
+  Button,
   Left,
   Right,
   Body,
@@ -96,15 +114,43 @@ class Home extends React.Component {
       fontLoaded: false,
       showLoading: false,
       result: "",
+      timer: null,
       dialogVisible: false,
       reportReason: "",
       selectedPost: {},
+      isModalVisible: false,
     };
+
+    this.start = this.start.bind(this);
+  }
+
+  start(post) {
+    var self = this;
+
+    if (this.state.timer != null) {
+      this.resetTimer();
+    }
+
+    if (post.type === "video") {
+      let timer = setInterval(() => {
+        // log video view
+
+        this.props.logVideoView(post);
+
+        this.resetTimer();
+        // alert("View Counted");
+      }, 3000);
+      this.setState({ timer });
+    }
   }
 
   showDialog = () => {
     this.setState({ dialogVisible: true });
   };
+
+  resetTimer() {
+    clearInterval(this.state.timer);
+  }
 
   handleCancel = () => {
     this.setState({ dialogVisible: false });
@@ -114,6 +160,14 @@ class Home extends React.Component {
     this.willBlurSubscription = this.props.navigation.addListener(
       "willBlur",
       this.willBlurAction
+    );
+
+    // var str = "  pat   Super  ";
+    // var username = str.toLowerCase().replace(/\s+/g, "_");
+    // alert(username);
+    this.didFocusSubscription = this.props.navigation.addListener(
+      "didFocus",
+      this.didFocusAction
     );
     await Font.loadAsync({
       "open-sans-bold": require("../assets/fonts/OpenSans-Bold.ttf"),
@@ -130,11 +184,23 @@ class Home extends React.Component {
     }, 500); // simulating network
 
     this.setState({ showLoading: false });
+    // alert("didMount Called");
+
+    setTimeout(() => {
+      if (this.props.user.uid) {
+        if (!this.props.user.photo) {
+          if (!this.state.isModalVisible) {
+            this.toggleModal();
+          }
+        }
+      }
+    }, 2000);
   }
 
   componentWillUmount() {
     // remove listener
     this.willBlurSubscription.remove();
+    this.didFocusSubscription.remove();
   }
 
   willBlurAction = (payload) => {
@@ -144,6 +210,20 @@ class Home extends React.Component {
         cell.pauseVideo();
       }
     }
+  };
+
+  didFocusAction = (payload) => {
+    // alert("Focus Called");
+
+    setTimeout(() => {
+      if (this.props.user.uid) {
+        if (!this.props.user.photo) {
+          if (!this.state.isModalVisible) {
+            this.toggleModal();
+          }
+        }
+      }
+    }, 2000);
   };
 
   likePost = (post) => {
@@ -243,8 +323,11 @@ class Home extends React.Component {
 
     return unseenMessageCount;
   }
-
+  toggleModal = () => {
+    this.setState({ isModalVisible: !this.state.isModalVisible });
+  };
   getUploadingFile(progress) {
+    this.flatListRef.scrollToOffset({ animated: true, offset: 0 });
     return (
       <View
         style={[
@@ -333,6 +416,9 @@ class Home extends React.Component {
       const cell = this.cellRefs[item.key];
       if (cell) {
         if (item.isViewable) {
+          // alert(JSON.stringify(item.item.type));
+          this.start(item.item);
+
           this.currentVideoKey = item.key;
           cell.playVideo();
         } else {
@@ -393,13 +479,111 @@ class Home extends React.Component {
     }
   };
 
+  cropImage = async (selectedImage) => {
+    // alert(JSON.stringify(this.props.post.photo.uri));
+
+    await ImagePicker.openCropper({
+      path: selectedImage.path,
+      cropping: true,
+      width: 600,
+      height: 1000,
+
+      // width: selectedImage.width,
+      // height: selectedImage.height,
+
+      compressImageQuality: 0,
+    })
+      .then((image) => {
+        console.log(image);
+        // alert(JSON.stringify(image));
+
+        // var selectedFile = {};
+        // selectedFile.height = image.height;
+        // selectedFile.width = image.width;
+        // selectedFile.size = image.size;
+        // selectedFile.uri = image.path;
+        // selectedFile.type = "image";
+
+        this.props.updatePhoto(selectedImage.path);
+        this.props.updateCompressedPhoto(image.path);
+
+        this.props.createAndUpdatePreview(selectedImage.path);
+      })
+      .catch((err) => {
+        // Here you handle if the user cancels or any other errors
+      });
+  };
+
+  openLibrary = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      // const image = await ImagePicker.launchImageLibraryAsync({ quality: 0.1 });
+      // if (!image.cancelled) {
+      //   this.props.updatePhoto(image.uri);
+      //   this.props.createAndUpdatePreview(image.uri);
+      // } else {
+      // }
+
+      ImagePicker.openPicker({
+        compressImageQuality: 0.8,
+      }).then((image) => {
+        // alert(JSON.stringify(image));
+        this.cropImage(image);
+        // this.props.updatePhoto(image.path);
+        // this.props.createAndUpdatePreview(image.path);
+        // console.log(image);
+      });
+    } else {
+      // alert("Denied");
+
+      openSettingsDialog(
+        "Failed to Access Photos, Please go to the Settings to enable access",
+        this.props.navigation
+      );
+    }
+  };
+  handleNamePress = async (name, matchIndex /*: number*/) => {
+    // Alert.alert(`${name}`);
+    var mentionedName = name.replace("@", "");
+    var user_name = mentionedName.replace(/\s+/g, "");
+    // Alert.alert(`${user_name}`);
+
+    // alert(user_name.length);
+    const query = await db
+      .collection("users")
+      .where("user_name", "==", user_name)
+      .get();
+
+    if (query.size > 0) {
+      query.forEach((response) => {
+        let user = response.data();
+
+        this.goToUser(user);
+        return;
+      });
+    }
+  };
+  renderText(matchingString, matches) {
+    // matches => ["[@michel:5455345]", "@michel", "5455345"]
+    let pattern = /\[(@[^:]+):([^\]]+)\]/i;
+    let match = matchingString.match(pattern);
+    return `^^${match[1]}^^`;
+  }
+  saveProfilePhoto = async () => {
+    this.props.updateUser();
+    this.toggleModal();
+    showMessage({
+      message: "Uploading Image",
+      type: "info",
+      duration: 2000,
+    });
+  };
+
   render() {
     let userFollowingList = [this.props.user.following];
     if (this.props.post === null) return null;
     return (
-      <View
-        style={[styles.postPhoto, styles.center, { backgroundColor: "black" }]}
-      >
+      <View style={[styles.postPhoto, styles.center]}>
         <EmptyView
           ref={(ref) => {
             this.sheetRef = ref;
@@ -416,18 +600,21 @@ class Home extends React.Component {
           initialNumToRender="3"
           maxToRenderPerBatch="4"
           windowSize={8}
+          ref={(ref) => {
+            this.flatListRef = ref;
+          }}
           snapToAlignment={"top"}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
           pagingEnabled={true}
           onViewableItemsChanged={this._onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
-          removeClippedSubviews={true}
-          decelerationRate={"fast"}
+          removeClippedSubviews
           data={this.props.post.feed}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            const liked = item.likes.includes(this.props.user.uid);
+          renderItem={({ item, index }) => {
+            const liked =
+              item.likes && item.likes.includes(this.props.user.uid);
             return (
               <InstagramProvider>
                 <ElementContainer>
@@ -441,6 +628,7 @@ class Home extends React.Component {
                       ref={(ref) => {
                         this.cellRefs[item.id] = ref;
                       }}
+                      flow="home"
                       type={item.type ? item.type : "image"}
                       source={item.postPhoto}
                       navigation={this.props.navigation}
@@ -448,109 +636,217 @@ class Home extends React.Component {
                       onDoubleTap={() => this.onDoubleTap(item)}
                       preview={item.preview}
                     />
-
                     {/* {alert(item.type ? item.type : "image")} */}
                     {/* <AvView
                   type="video"
                   source="https://github.com/saitoxu/InstaClone/raw/master/contents/videos/garden.mov"
                 /> */}
-
                     {/* <DoubleTap onDoubleTap={() => this.onDoubleTap(item)}> */}
                     {/* <ImageBackground
                   style={[styles.postPhoto, { position: "absolute" }]}
                 > */}
-                    <View style={[styles.bottom, styles.absolute, {}]}>
-                      <View
-                        style={{
-                          marginRight: 10,
-                          alignSelf: "flex-end",
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => this.showActionSheet(item)}
-                        >
-                          <Ionicons
-                            style={{
-                              margin: 5,
-                              color: "rgb(255,255,255)",
-                            }}
-                            name="ios-more"
-                            size={40}
-                          />
-                        </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => this.likePost(item)}>
-                          <Ionicons
-                            style={{ margin: 5 }}
-                            color={liked ? "#db565b" : "#fff"}
-                            name={liked ? "ios-heart" : "ios-heart-empty"}
-                            size={40}
-                          />
-                        </TouchableOpacity>
+                    <View
+                      style={{
+                        marginRight: 10,
+                        right: 0,
+                        bottom: 0,
+                        top: 0,
+                        justifyContent: "center",
+                        position: "absolute",
+                      }}
+                    >
+                      {item.type === "vr" && (
                         <TouchableOpacity
-                          onPress={() =>
-                            this.props.navigation.navigate("Comment", item)
-                          }
-                        >
-                          <Ionicons
-                            style={{ margin: 5, color: "rgb(255,255,255)" }}
-                            name="ios-chatbubbles"
-                            size={40}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => {
-                            this.onShare(item);
+                          style={{
+                            borderColor: "rgb(255,255,255)",
+                            borderWidth: 3,
+                            width: 45,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: 45,
+                            borderRadius: 10,
                           }}
                         >
-                          <Entypo
-                            style={{ margin: 5, color: "#3b5998" }}
-                            name="facebook-with-circle"
-                            size={40}
-                          />
-                          <EvilIcons
+                          <Text
                             style={{
-                              position: "absolute",
-                              margin: 7,
                               color: "rgb(255,255,255)",
+                              fontSize: 20,
+                              fontWeight: "bold",
                             }}
-                            name="sc-facebook"
-                            size={40}
-                          />
-                        </TouchableOpacity>
-
-                        {this.props.user.isSuperAdmin && (
-                          <TouchableOpacity
-                            style={styles.center}
-                            onPress={() =>
-                              this.props.navigation.navigate("PostReport", item)
-                            }
                           >
-                            <Ionicons
-                              style={{ margin: 5 }}
-                              color="#db565b"
-                              name="ios-alert"
-                              size={40}
-                            />
+                            VR
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() => this.showActionSheet(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="ios-more"
+                          size={40}
+                        />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() => this.likePost(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                          }}
+                          color={liked ? "#db565b" : "#fff"}
+                          name={liked ? "ios-heart" : "ios-heart-empty"}
+                          size={40}
+                        />
+                        {item.likes && item.likes.length > 0 ? (
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.props.navigation.navigate(
+                                "LikersAndViewers",
+                                {
+                                  data: item.likes,
+                                  title: "Post Likers",
+                                }
+                              )
+                            }
+                            style={{
+                              justifyContent: "center",
+                              alignContent: "center",
+                            }}
+                          >
                             <Text
                               style={[
                                 styles.bold,
-                                styles.white,
-                                { fontSize: 20 },
+                                {
+                                  color: "white",
+                                  fontSize: 16,
+                                  textAlign: "center",
+                                },
                               ]}
                             >
-                              {item.reports ? item.reports.length : 0}
+                              {item.likes.length}
                             </Text>
                           </TouchableOpacity>
-                        )}
-                      </View>
+                        ) : null}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() =>
+                          this.props.navigation.navigate("Comment", item)
+                        }
+                      >
+                        <Ionicons
+                          style={{
+                            color: "rgb(255,255,255)",
+                            margin: 0,
+                          }}
+                          name="ios-chatbubbles"
+                          size={40}
+                        />
+                        {item.comments && item.comments.length > 0 ? (
+                          <Text
+                            style={[
+                              styles.bold,
+                              {
+                                color: "white",
+                                fontSize: 16,
+                                textAlign: "center",
+                              },
+                            ]}
+                          >
+                            {item.comments.length}
+                          </Text>
+                        ) : null}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.onShare(item);
+                        }}
+                      >
+                        <Entypo
+                          style={{ margin: 0, color: "#3b5998" }}
+                          name="facebook-with-circle"
+                          size={40}
+                        />
+                        <EvilIcons
+                          style={{
+                            position: "absolute",
+                            margin: 2,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="sc-facebook"
+                          size={40}
+                        />
+                      </TouchableOpacity>
+
+                      {this.props.user.isSuperAdmin && (
+                        <TouchableOpacity
+                          style={styles.center}
+                          onPress={() =>
+                            this.props.navigation.navigate("PostReport", item)
+                          }
+                        >
+                          <Ionicons
+                            style={{ margin: 0 }}
+                            color="#db565b"
+                            name="ios-alert"
+                            size={40}
+                          />
+                          <Text
+                            style={[
+                              styles.bold,
+                              styles.white,
+                              { fontSize: 16 },
+                            ]}
+                          >
+                            {item.reports ? item.reports.length : 0}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+
+                    <View style={[styles.bottom, styles.absolute, {}]}>
+                      {item.viewers && item.viewers.length > 0 ? (
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.props.navigation.navigate("LikersAndViewers", {
+                              data: item.viewers,
+                              flow: "Views",
+                              title: "Post Viewers",
+                            })
+                          }
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "open-sans-bold",
+                              color: "red",
+                              margin: 10,
+                            }}
+                          >
+                            {item.viewers.length} views
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
 
                       <View style={[styles.row]}>
                         <TouchableOpacity onPress={() => this.goToUser(item)}>
                           <ProgressiveImage
-                            thumbnailSource={{
-                              uri: item.preview,
-                            }}
+                            // thumbnailSource={{
+                            //   uri: item.preview,
+                            // }}
                             transparentBackground="transparent"
                             source={{ uri: item.photo }}
                             style={styles.roundImage60}
@@ -623,6 +919,11 @@ class Home extends React.Component {
                             },
                             { pattern: /42/, style: styles.magicNumber },
                             { pattern: /#(\w+)/, style: styles.hashTag },
+                            {
+                              pattern: / @(\w+)/,
+                              style: styles.username,
+                              onPress: this.handleNamePress,
+                            },
                           ]}
                           style={styles.textD}
                         >
@@ -669,7 +970,7 @@ class Home extends React.Component {
               />
 
               {this.getUnSeenMessageCount() ? (
-                <Badge style={{ position: "absolute", right: 5 }}>
+                <Badge style={{ position: "absolute", right: 5, top: 10 }}>
                   <Text style={{ color: "white" }}>
                     {this.getUnSeenMessageCount()}
                   </Text>
@@ -701,6 +1002,70 @@ class Home extends React.Component {
           <Dialog.Button label="Cancel" onPress={this.handleCancel} />
           <Dialog.Button label="Report" onPress={this.handleReport} />
         </Dialog.Container>
+
+        <Modal isVisible={this.state.isModalVisible}>
+          <View style={{ backgroundColor: "white" }}>
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Text
+                style={{
+                  margin: 10,
+                  flex: 1,
+                  fontSize: 20,
+                  textAlign: "left",
+                  alignSelf: "center",
+                  fontWeight: "bold",
+                  color: "black",
+                }}
+              >
+                Set Profile Photo
+              </Text>
+              <TouchableOpacity
+                onPress={this.toggleModal}
+                style={{ margin: 10 }}
+              >
+                <Ionicons name="ios-close" size={32}></Ionicons>
+              </TouchableOpacity>
+            </View>
+
+            <Text
+              style={{
+                margin: 10,
+                color: "black",
+              }}
+            >
+              Please pick a profile photo that will demonstrate your
+              trustworthiness, professionalism and likeability
+            </Text>
+
+            <View
+              style={[styles.borderAll, { height: height * 0.5, margin: 20 }]}
+            >
+              <Image
+                style={{ height: height * 0.5 }}
+                source={{ uri: this.props.user.photo }}
+                resizeMode="cover"
+              />
+            </View>
+            <Button
+              block
+              style={{ margin: 10, backgroundColor: "#0D47A1" }}
+              onPress={this.openLibrary}
+            >
+              <Text style={{ color: "white" }}>
+                {this.props.user.photo ? "Change Picture" : "Choose Picture"}
+              </Text>
+            </Button>
+            {this.props.user.photo ? (
+              <Button
+                onPress={this.saveProfilePhoto}
+                block
+                style={{ margin: 10, backgroundColor: "#0D47A1" }}
+              >
+                <Text style={{ color: "white" }}>Continue</Text>
+              </Button>
+            ) : null}
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -711,12 +1076,17 @@ const mapDispatchToProps = (dispatch) => {
     {
       getPosts,
       likePost,
+      logVideoView,
       unlikePost,
       getUser,
       reportPost,
       getFilterPosts,
       getMessages,
       deletePost,
+      updatePhoto,
+      updateCompressedPhoto,
+      updateUser,
+      createAndUpdatePreview,
     },
     dispatch
   );

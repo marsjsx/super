@@ -1,5 +1,7 @@
 PODS:
+  - Bolts/Tasks (1.9.0)
   - boost-for-react-native (1.63.0)
+  - CTPanoramaView (1.2)
   - DoubleConversion (1.1.6)
   - EXAV (8.1.0):
     - UMCore
@@ -28,6 +30,14 @@ PODS:
   - EXFont (8.1.0):
     - UMCore
     - UMFontInterface
+  - EXGL (8.3.1):
+    - EXGL_CPP
+    - UMCameraInterface
+    - UMCore
+    - UMFileSystemInterface
+  - EXGL_CPP (8.3.1):
+    - EXGL_CPP/EXGLContext (= 8.3.1)
+  - EXGL_CPP/EXGLContext (8.3.1)
   - EXImageLoader (1.0.1):
     - React-Core
     - UMCore
@@ -177,6 +187,18 @@ PODS:
     - nanopb/encode (= 0.3.9011)
   - nanopb/decode (0.3.9011)
   - nanopb/encode (0.3.9011)
+  - PanoramaView (0.1.3):
+    - PanoramaView/Core (= 0.1.3)
+    - React
+  - PanoramaView/Core (0.1.3):
+    - CTPanoramaView (= 1.2)
+    - React
+  - Permission-Camera (2.1.5):
+    - RNPermissions
+  - Permission-LocationWhenInUse (2.1.5):
+    - RNPermissions
+  - Permission-PhotoLibrary (2.1.5):
+    - RNPermissions
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
     - FBLazyVector (= 0.61.5)
@@ -356,6 +378,9 @@ PODS:
   - react-native-fbsdk/Share (1.1.2):
     - FBSDKShareKit (= 5.8)
     - React
+  - react-native-image-filter-kit (0.7.3):
+    - Bolts/Tasks (= 1.9.0)
+    - React
   - react-native-image-picker (2.3.1):
     - React
   - react-native-maps (0.26.1):
@@ -404,6 +429,8 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
     - ReactCommon/jscallinvoker (= 0.61.5)
+  - rn-fetch-blob (0.12.0):
+    - React-Core
   - RNAppleAuthentication (1.0.0):
     - React
   - RNCMaskedView (0.1.5):
@@ -431,6 +458,8 @@ PODS:
     - React-Core
     - React-RCTImage
     - TOCropViewController
+  - RNPermissions (2.1.5):
+    - React
   - RNReanimated (1.7.1):
     - React
   - RNScreens (2.2.0):
@@ -470,6 +499,8 @@ DEPENDENCIES:
   - EXFacebook (from `../node_modules/expo-facebook/ios`)
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
+  - EXGL (from `../node_modules/expo-gl/ios`)
+  - EXGL_CPP (from `../node_modules/expo-gl-cpp/cpp`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - EXImageManipulator (from `../node_modules/expo-image-manipulator/ios`)
   - EXImagePicker (from `../node_modules/expo-image-picker/ios`)
@@ -485,6 +516,10 @@ DEPENDENCIES:
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - "PanoramaView (from `../node_modules/@lightbase/react-native-panorama-view`)"
+  - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera.podspec`)
+  - Permission-LocationWhenInUse (from `../node_modules/react-native-permissions/ios/LocationWhenInUse.podspec`)
+  - Permission-PhotoLibrary (from `../node_modules/react-native-permissions/ios/PhotoLibrary.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -498,6 +533,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
   - react-native-fbsdk (from `../node_modules/react-native-fbsdk`)
+  - react-native-image-filter-kit (from `../node_modules/react-native-image-filter-kit`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -514,6 +550,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/jscallinvoker (from `../node_modules/react-native/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
@@ -521,6 +558,7 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
@@ -540,7 +578,9 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Bolts
     - boost-for-react-native
+    - CTPanoramaView
     - FBSDKCoreKit
     - FBSDKLoginKit
     - FBSDKShareKit
@@ -580,6 +620,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-file-system/ios"
   EXFont:
     :path: "../node_modules/expo-font/ios"
+  EXGL:
+    :path: "../node_modules/expo-gl/ios"
+  EXGL_CPP:
+    :path: "../node_modules/expo-gl-cpp/cpp"
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
   EXImageManipulator:
@@ -610,6 +654,14 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  PanoramaView:
+    :path: "../node_modules/@lightbase/react-native-panorama-view"
+  Permission-Camera:
+    :path: "../node_modules/react-native-permissions/ios/Camera.podspec"
+  Permission-LocationWhenInUse:
+    :path: "../node_modules/react-native-permissions/ios/LocationWhenInUse.podspec"
+  Permission-PhotoLibrary:
+    :path: "../node_modules/react-native-permissions/ios/PhotoLibrary.podspec"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -632,6 +684,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/cameraroll"
   react-native-fbsdk:
     :path: "../node_modules/react-native-fbsdk"
+  react-native-image-filter-kit:
+    :path: "../node_modules/react-native-image-filter-kit"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-maps:
@@ -662,6 +716,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   RNAppleAuthentication:
     :path: "../node_modules/@invertase/react-native-apple-authentication"
   RNCMaskedView:
@@ -676,6 +732,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNImageCropPicker:
     :path: "../node_modules/react-native-image-crop-picker"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -710,7 +768,9 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
+  CTPanoramaView: cc2a4e3bc324ccac4520375b131755747da27a7c
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   EXAV: ed8de7f07a76c540815fbb2cc4686b97f4b038b5
   EXCamera: e7e250c78f26468028c3866bb5c27e046f2b7b49
@@ -719,6 +779,8 @@ SPEC CHECKSUMS:
   EXFacebook: 984dafeac3dcd01a38ba38176b2afe53114d985f
   EXFileSystem: b82693d78de152efe10a77d4aac781f782e10916
   EXFont: 00c6f9daffd8f4f7775d4191a6464bcd9021044a
+  EXGL: 0c32d89258a134c924b21aca6ffacadc8909599f
+  EXGL_CPP: 2c6b8517bd3b95c0ecc064ae9d13a2b1ccbee676
   EXImageLoader: 5c9d1bf408443ac4d4f44463eaf3b0d03bc70425
   EXImageManipulator: 76857c4c37f983313cb7a8a2c0109e50d1005eb9
   EXImagePicker: 578529114ac96351296daccd493c419bbb347d33
@@ -752,6 +814,10 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: cea130bbfe5a7edc8d06d3f0d17288c32ffe9925
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
+  PanoramaView: a6253ccab49f49c4aa71c8e9f2ef3c5e30072037
+  Permission-Camera: 53d46bd722aea28d796e20f05fb3cbe6cde6ccb6
+  Permission-LocationWhenInUse: 16ecd20d82341c6b4336dfe5520c098bea85a2f5
+  Permission-PhotoLibrary: 3400b260e5f80e0dd9c04d00c2ceab233bf88427
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -763,6 +829,7 @@ SPEC CHECKSUMS:
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-cameraroll: 81c6c271b5b853da398ccecc7ad6a5f765fd3001
   react-native-fbsdk: c35d42169e64aaf66f01713c1e18d0674f7f6519
+  react-native-image-filter-kit: 2047cc603ee1b0e506a7b569ce174a7de6a5db15
   react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
   react-native-maps: 6e499eee4eabf422ba8b6f94e993cc768bf35153
   react-native-safe-area-context: 870aba8339684c9b888d42103580b687ff3f0d0c
@@ -778,6 +845,7 @@ SPEC CHECKSUMS:
   React-RCTText: 9ccc88273e9a3aacff5094d2175a605efa854dbe
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
+  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNAppleAuthentication: 954b347c26ffb638265c828a5003ce1fa6971120
   RNCMaskedView: c8b53164b85ecf94c9a44d67082df0f03c1f74cc
   RNFastImage: 35ae972d6727c84ee3f5c6897e07f84d0a3445e9
@@ -785,6 +853,7 @@ SPEC CHECKSUMS:
   RNFBAuth: c292603069a09065a1b4d3336148beff83e4c897
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNImageCropPicker: 38865ab4af1b0b2146ad66061196bc0184946855
+  RNPermissions: 1888705aebcc81714efa5dbff94351e4388ae012
   RNReanimated: 4e102df74a9674fa943e05f97f3362b6e44d0b48
   RNScreens: 812b79d384e2bea7eebc4ec981469160d4948fd5
   SDWebImage: 97351f6582ceca541ea294ba66a1fcb342a331c2
@@ -805,6 +874,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: 4e6c4c34a89512e2225d336154df1cb689226a29
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 3606368dd7fe70fa54f5dcfd393189026d12d229
+PODFILE CHECKSUM: 91e309097c65f32f440b268030d719dabde31a56
 
 COCOAPODS: 1.8.4

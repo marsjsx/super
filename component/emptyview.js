@@ -253,8 +253,14 @@ module.exports = createReactClass({
                     alignSelf: "center",
                   }}
                 >
-                  <Text> Already have an account?</Text>
-                  <Text style={{ color: "red" }}> Log in </Text>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {" "}
+                    Already have an account?
+                  </Text>
+                  <Text style={{ color: "red", fontWeight: "bold" }}>
+                    {" "}
+                    Log in{" "}
+                  </Text>
                 </TouchableOpacity>
               </Footer>
             </Container>

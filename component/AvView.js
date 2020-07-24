@@ -17,6 +17,7 @@ const { width } = Dimensions.get("window");
 import { PinchGestureHandler, State } from "react-native-gesture-handler";
 import styles from "../styles";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { PanoramaView } from "@lightbase/react-native-panorama-view";
 
 const AnimatedIcon = Animatable.createAnimatableComponent(Icon);
 
@@ -198,7 +199,64 @@ class AvView extends React.Component {
             resizeMode="cover"
           />
           <TouchableOpacity
-            style={{ position: "absolute", top: 23, left: 10 }}
+            style={{
+              position: "absolute",
+              top: this.props.flow === "home" ? 23 : 100,
+              left: 10,
+            }}
+            onPress={() => this.enterFullScreenImage()}
+          >
+            <Ionicons
+              name="md-phone-landscape"
+              size={40}
+              color="white"
+              style={{
+                backgroundColor: "transparent",
+                alignSelf: "center",
+                // lineHeight: 40,
+                // marginLeft: 10,
+              }}
+            />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      );
+    }
+    if (this.props.type === "vr") {
+      return (
+        <TouchableOpacity
+          style={{ justifyContent: "center" }}
+          onPress={this.handleOnPress}
+          activeOpacity={1}
+        >
+          {/* <Image
+              source={{ uri: this.props.source }}
+              style={{ width, height: this.state.imageHeight }}
+              resizeMode={"contain"}
+            /> */}
+          <AnimatedIcon
+            ref={this.handleLargeAnimatedIconRef}
+            name="heart"
+            color="red"
+            size={96}
+            style={styles.animatedIcon}
+            duration={800}
+            delay={200}
+          />
+          <PanoramaView
+            style={styles.postPhoto}
+            dimensions={{
+              height: Dimensions.get("window").height,
+              width: Dimensions.get("window").width,
+            }}
+            inputType="mono"
+            imageUrl={this.props.source}
+          />
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: this.props.flow === "home" ? 23 : 100,
+              left: 10,
+            }}
             onPress={() => this.enterFullScreenImage()}
           >
             <Ionicons

@@ -20,6 +20,8 @@ import CameraView1 from "../../component/CameraView";
 import CameraScreen from "../Camera";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { connect } from "react-redux";
+import { openSettingsDialog } from "../../util/Helper";
+import * as Permissions from "expo-permissions";
 
 class Add extends React.Component {
   swiper: any;
@@ -42,9 +44,9 @@ class Add extends React.Component {
   componentWillReceiveProps(nextProps: any) {
     // @ts-ignore
     const { activeIndex } = this.state;
-    if (activeIndex > 0) {
-      this.swiper.scrollBy(activeIndex * -1); //offset
-    }
+    // if (activeIndex > 0) {
+    //   this.swiper.scrollBy(activeIndex * -1); //offset
+    // }
   }
 
   async componentDidMount() {
@@ -53,10 +55,16 @@ class Add extends React.Component {
       "willBlur",
       this.willBlurAction
     );
+    this.willFocusSubscription = this.props.navigation.addListener(
+      "willFocus",
+      this.willFocusAction
+    );
   }
+
   componentWillUmount() {
     // remove listener
     this.willBlurSubscription.remove();
+    this.willFocusSubscription.remove();
   }
 
   willBlurAction = (payload) => {
@@ -65,6 +73,16 @@ class Add extends React.Component {
     // if (this.child) {
     //   this.child.pauseVideo;
     // }
+  };
+  willFocusAction = async (payload) => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+    } else {
+      openSettingsDialog(
+        "Failed to Access Photos, Please go to the Settings to enable access",
+        this.props.navigation
+      );
+    }
   };
 
   onMomentumScrollEnd(e: any, state: any, context: any) {
@@ -129,7 +147,7 @@ class Add extends React.Component {
           swipeArea={250}
           backButtonClose
         >
-          {this.state.activeIndex < 1 ? (
+          {this.state.activeIndex < 2 ? (
             <View
               style={{
                 flexDirection: "row",
@@ -168,14 +186,14 @@ class Add extends React.Component {
               onIndexChanged={(index: number) => {
                 this.setState({ activeIndex: index });
 
-                if (index == 1) {
+                if (index == 2) {
                   this.setState({
                     cameraViewFocused: true,
                     cameraViewFocused2: false,
                   });
                 }
 
-                if (index == 2) {
+                if (index == 3) {
                   this.setState({
                     cameraViewFocused: false,
                     cameraViewFocused2: true,
@@ -185,6 +203,9 @@ class Add extends React.Component {
             >
               <View style={styles.slide1}>
                 <GalleryView isPaused={this.state.isPaused} />
+              </View>
+              <View style={styles.slide4}>
+                <GalleryView type="vr" isPaused={this.state.isPaused} />
               </View>
               <View style={styles.slide2}>
                 <CameraView
@@ -252,18 +273,34 @@ class Add extends React.Component {
                         : colors.dark_gray,
                   })}
                 >
-                  Photo
+                  3D
                 </Text>
               </Button>
               <Button
                 transparent
                 onPress={() => this.segmentClicked(2)}
-                active={this.state.activeIndex === 0}
+                active={this.state.activeIndex === 2}
               >
                 <Text
                   style={Object.assign({}, styles.btnActions, {
                     color:
                       this.state.activeIndex === 2
+                        ? colors.white
+                        : colors.dark_gray,
+                  })}
+                >
+                  Photo
+                </Text>
+              </Button>
+              <Button
+                transparent
+                onPress={() => this.segmentClicked(3)}
+                active={this.state.activeIndex === 3}
+              >
+                <Text
+                  style={Object.assign({}, styles.btnActions, {
+                    color:
+                      this.state.activeIndex === 3
                         ? colors.white
                         : colors.dark_gray,
                   })}
@@ -311,6 +348,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slide1: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#9DD6EB",
+  },
+  slide4: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",

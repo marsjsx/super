@@ -14,6 +14,7 @@ import appleAuth, {
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
+import FastImage from "react-native-fast-image";
 
 export const updateEmail = (email) => {
   return { type: "UPDATE_EMAIL", payload: email };
@@ -49,12 +50,20 @@ export const updateBio = (bio) => {
   return { type: "UPDATE_BIO", payload: bio };
 };
 
+export const updateUserBio = (bio) => {
+  return { type: "UPDATE_USER_BIO", payload: bio };
+};
+
 export const updateWebsiteLabel = (label) => {
   return { type: "UPDATE_WEBSITE_LABEL", payload: label };
 };
 
 export const updatePhoto = (photo) => {
   return { type: "UPDATE_USER_PHOTO", payload: photo };
+};
+
+export const updateCompressedPhoto = (photo) => {
+  return { type: "UPDATE_COMPRESSED_USER_PHOTO", payload: photo };
 };
 
 export const updatePhotoPreview = (input) => {
@@ -119,12 +128,15 @@ export const facebookLogin = () => {
           email = response.providerData[0].uid + "@facebook.com";
         }
 
+        var username = response.displayName.toLowerCase().replace(/\s+/g, "_");
         const user = {
           uid: response.uid,
           email: email,
           username: response.displayName,
+          user_name: username,
           bio: "",
-          photo: response.photoURL,
+          userbio: "",
+          photo: response.photoURL + "?width=9999&height=9999",
           token: null,
           followers: [],
           following: [],
@@ -152,8 +164,10 @@ export const appleLogin = () => {
     });
 
     // 2). if the request was successful, extract the token and nonce
-    const { identityToken, nonce } = appleAuthRequestResponse;
+    const { identityToken, nonce, user } = appleAuthRequestResponse;
 
+    var userIdToken = user;
+    // alert(JSON.stringify(appleAuthRequestResponse));
     if (identityToken) {
       var data = {};
       data.email = appleAuthRequestResponse.email;
@@ -165,23 +179,35 @@ export const appleLogin = () => {
       data.password = appleAuthRequestResponse.email;
       const { email, password, username } = data;
 
-      const firebaseResponse = await firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password);
+      var userData = null;
+      const userQuery = await db
+        .collection("users")
+        .where("identityToken", "==", userIdToken)
+        .get();
+      // const user = await db.collection("users").doc(response.uid).get();
 
-      var response = firebaseResponse.user;
-      const user = await db.collection("users").doc(response.uid).get();
+      userQuery.forEach(function (response) {
+        userData = response.data();
+        return;
+      });
 
-      if (!user.exists) {
+      // alert(JSON.stringify(userData));
+      if (!userData) {
         const response = await firebase
           .auth()
           .createUserWithEmailAndPassword(email, password);
         if (response.user.uid) {
+          var user_name = username.toLowerCase().replace(/\s+/g, "_");
+
           const user = {
             uid: response.user.uid,
             email: email,
             username: username,
+            user_name: user_name,
             photo: "",
+            bio: "",
+            userbio: "",
+            identityToken: userIdToken,
             token: null,
             followers: [],
             following: [],
@@ -191,7 +217,11 @@ export const appleLogin = () => {
           dispatch({ type: "LOGIN", payload: user });
         }
       } else {
-        dispatch(getUser(response.uid));
+        // alert(userData.uid);
+        const response = await firebase
+          .auth()
+          .signInWithEmailAndPassword(userData.email, userData.email);
+        dispatch(getUser(response.user.uid));
       }
     } else {
       alert("Apple Login Failed");
@@ -200,12 +230,51 @@ export const appleLogin = () => {
   };
 };
 
+export const checkUserNameAvailable = (username, uid) => {
+  return async (dispatch, getState) => {
+    try {
+      const usernameQuery = await db
+        .collection("users")
+        .where("username", "==", username)
+        .get();
+      if (usernameQuery.size > 0) {
+        const checkUsernameAvailablity = () =>
+          new Promise((resolve, reject) => {
+            usernameQuery.forEach(async function (response) {
+              var user = await response.data();
+              if (uid && user.uid === uid) {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+              resolve(false);
+            });
+          });
+        let result = await checkUsernameAvailablity();
+        return result;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      return true;
+    }
+  };
+};
+
 export const getUser = (uid, type) => {
   return async (dispatch, getState) => {
     try {
       if (uid) {
+        var images = [];
+
         const userQuery = await db.collection("users").doc(uid).get();
         let user = userQuery.data();
+
+        if (user.photo) {
+          images.push({
+            uri: user.photo,
+          });
+        }
 
         let posts = [];
         const postsQuery = await db
@@ -228,6 +297,11 @@ export const getUser = (uid, type) => {
           dispatch({ type: "LOGIN", payload: user });
         } else {
           dispatch({ type: "GET_PROFILE", payload: user });
+        }
+
+        if (images.length > 0) {
+          // alert(JSON.stringify(images));
+          dispatch(preloadUserImages(images));
         }
 
         const followingQuery = db
@@ -291,7 +365,7 @@ export const getUser = (uid, type) => {
         });
       }
     } catch (e) {
-      alert("Error 5" + e);
+      alert("Error: User Not Found ");
     }
   };
 };
@@ -302,38 +376,65 @@ export const updateUser = () => {
       uid,
       username,
       bio,
+      userbio,
       photo,
       accountType,
       websiteLabel,
       phone,
       gender,
       dob,
+      compressedPhoto,
       preview,
     } = getState().user;
 
-    try {
-      dispatch(uploadPhoto(photo)).then((imageurl) => {
-        db.collection("users")
-          .doc(uid)
-          .update({
-            username: username || "",
-            bio: bio || "",
-            photo: imageurl,
-            preview: preview || "",
-            phone: phone || "",
-            gender: gender || "",
-            dob: dob || null,
-            accountType: accountType || null,
-            websiteLabel: websiteLabel || null,
-          });
+    var imageUri = "";
+    // imageUri = photo;
 
-        showMessage({
-          message: "",
-          description: "Profile Updated Successfully",
-          type: "success",
-          duration: 4000,
-        });
-      });
+    // alert("Compressed-" + compressedPhoto + "\n local-+" + photo);
+    if (compressedPhoto) {
+      imageUri = compressedPhoto;
+    } else {
+      imageUri = photo;
+    }
+
+    try {
+      dispatch(checkUserNameAvailable(username, uid)).then(
+        (usernameAvailable) => {
+          if (usernameAvailable) {
+            dispatch(uploadPhoto(imageUri)).then((imageurl) => {
+              db.collection("users")
+                .doc(uid)
+                .update({
+                  username: username || "",
+                  bio: bio || "",
+                  userbio: userbio || "",
+                  photo: imageurl,
+                  preview: preview || "",
+                  phone: phone || "",
+                  gender: gender || "",
+                  dob: dob || null,
+                  accountType: accountType || null,
+                  websiteLabel: websiteLabel || null,
+                });
+
+              showMessage({
+                message: "",
+                description: "Profile Updated Successfully",
+                type: "success",
+                duration: 4000,
+              });
+              dispatch(updateCompressedPhoto(""));
+            });
+          } else {
+            dispatch(getUser(uid, "LOGIN"));
+
+            alert("Username already exists, Please choose another username");
+            return "Username already exists";
+          }
+        }
+      );
+      // var result = await dispatch(checkUserNameAvailable(username));
+      // alert(result);
     } catch (e) {
       alert(e);
     }
@@ -386,28 +487,43 @@ export const deleteAllPosts = () => {
 
 export const signup = () => {
   return async (dispatch, getState) => {
-    // try {
-    const { email, password, username, bio } = getState().user;
-    const response = await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password);
-    if (response.user.uid) {
-      const user = {
-        uid: response.user.uid,
-        email: email,
-        username: username,
-        photo: "",
-        token: null,
-        followers: [],
-        following: [],
-        reports: [],
-      };
-      db.collection("users").doc(response.user.uid).set(user);
-      dispatch({ type: "LOGIN", payload: user });
+    try {
+      const { email, password, username, bio } = getState().user;
+
+      var usernameAvailable = await dispatch(
+        checkUserNameAvailable(username, null)
+      );
+      if (usernameAvailable) {
+        const response = await firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password);
+        if (response.user.uid) {
+          var user_name = username.toLowerCase().replace(/\s+/g, "_");
+
+          const user = {
+            uid: response.user.uid,
+            email: email,
+            username: username,
+            user_name: user_name,
+            photo: "",
+            token: null,
+            followers: [],
+            following: [],
+            reports: [],
+          };
+          db.collection("users").doc(response.user.uid).set(user);
+
+          // dispatch(getUser(response.user.uid));
+          // dispatch(allowNotifications());
+          dispatch({ type: "LOGIN", payload: user });
+        }
+      } else {
+        alert("Username already exists, Please choose another username");
+        return "Username already exists";
+      }
+    } catch (e) {
+      alert(e);
     }
-    // } catch (e) {
-    //   alert(e);
-    // }
   };
 };
 
@@ -474,6 +590,16 @@ export const passwordResetEmail = () => {
       });
     } catch (e) {
       alert(e);
+    }
+  };
+};
+
+export const preloadUserImages = (images) => {
+  return async (dispatch, getState) => {
+    try {
+      FastImage.preload(images);
+    } catch (e) {
+      // alert(e);
     }
   };
 };

@@ -5,6 +5,8 @@ import HomeScreen from "../screens/Home";
 import SearchScreen from "../screens/Search";
 import FilterScreen from "../screens/Filter";
 import PostScreen from "../screens/Post";
+import PostCaptions from "../screens/PostCaption";
+
 import ActivityScreen from "../screens/Activity";
 import ProfileScreen from "../screens/Profile";
 // import CameraScreen from "../screens/Camera";
@@ -22,6 +24,8 @@ import PayScreen from "../screens/Pay";
 import MessagesScreen from "../screens/Messages";
 import PostListScreen from "../screens/PostList";
 import MyFollowersAndFollowing from "../screens/MyFollowersAndFollowing";
+import LikersAndViewers from "../screens/LikersAndViewers";
+
 import { createAppContainer, createStackNavigator } from "react-navigation";
 
 import { TouchableOpacity, Image } from "react-native";
@@ -202,6 +206,13 @@ export const HomeNavigator = createAppContainer(
         gesturesEnabled: false,
       },
     },
+    PostCaption: {
+      screen: PostCaptions,
+      // navigationOptions: {
+      //   headerTransparent: true,
+      //   gesturesEnabled: false,
+      // },
+    },
     Pay: {
       screen: PayScreen,
       navigationOptions: ({ navigation }) => ({
@@ -227,6 +238,30 @@ export const HomeNavigator = createAppContainer(
             source={require("../assets/logo-1.png")}
           />
         ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    // LikersAndViewers: {
+    //   screen: LikersAndViewers,
+    //   navigationOptions: {
+    //     headerTransparent: true,
+    //     title: "LikersAndViewers",
+    //   },
+    // },
+    LikersAndViewers: {
+      screen: LikersAndViewers,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: false,
+        headerVisible: true,
+
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -391,6 +426,23 @@ export const SearchNavigator = createAppContainer(
           ),
         },
       },
+      LikersAndViewers: {
+        screen: LikersAndViewers,
+        navigationOptions: ({ navigation }) => ({
+          headerTransparent: false,
+          headerVisible: true,
+
+          headerLeft: (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        }),
+      },
       FullScreenImage: {
         screen: FullScreenImage,
         navigationOptions: ({ navigation }) => ({
@@ -452,10 +504,17 @@ export const PostNavigator = createAppContainer(
     },
     PostDetail: {
       screen: PostScreen,
-      navigationOptions: {
-        headerTransparent: true,
-        gesturesEnabled: false,
-      },
+      // navigationOptions: {
+      //   headerTransparent: true,
+      //   gesturesEnabled: false,
+      // },
+    },
+    PostCaption: {
+      screen: PostCaptions,
+      // navigationOptions: {
+      //   headerTransparent: true,
+      //   gesturesEnabled: false,
+      // },
     },
     Login: {
       screen: Login,
@@ -594,6 +653,23 @@ export const ActivityNavigator = createAppContainer(
         ),
       },
     },
+    LikersAndViewers: {
+      screen: LikersAndViewers,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: false,
+        headerVisible: true,
+
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
     FullScreenImage: {
       screen: FullScreenImage,
       navigationOptions: ({ navigation }) => ({
@@ -664,6 +740,23 @@ export const ProfileNavigator = createAppContainer(
           />
         ),
       },
+    },
+    LikersAndViewers: {
+      screen: LikersAndViewers,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: false,
+        headerVisible: true,
+
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
     },
     FullScreenImage: {
       screen: FullScreenImage,

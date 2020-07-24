@@ -13,11 +13,9 @@ import {
   ProfileNavigator,
 } from "./StackNavigator";
 
-import {
-  createBottomTabNavigator,
-  createAppContainer,
-  BottomTabBar,
-} from "react-navigation";
+import { createAppContainer } from "react-navigation";
+
+import { createBottomTabNavigator, BottomTabBar } from "react-navigation-tabs";
 
 import Add from "../screens/Add";
 
@@ -105,41 +103,31 @@ const TabNavigator = createBottomTabNavigator(
     },
   },
   {
-    // tabBarComponent: (props) => {
-    //   return (
-    //     <View>
-    //       <View
-    //         style={{
-    //           position: "absolute",
-    //           left: 0,
-    //           right: 0,
-    //           opacity: 0,
-    //           bottom: 0,
-    //           height: 85,
-    //           backgroundColor: "black",
-    //         }}
-    //       ></View>
-    //       <View
-    //         style={{
-    //           position: "absolute",
-    //           left: 0,
-    //           right: 0,
-    //           bottom: 0,
-    //           backgroundColor: "transparent",
-    //         }}
-    //       >
-    //         <TabBarComponent {...props} />
-    //       </View>
-    //     </View>
-    //   );
-    // },
+    tabBarComponent: (props) => {
+      var index = props.navigation.state.index;
+
+      if (index != 0) {
+        props.style.backgroundColor = "black";
+        if (Platform.OS == "android") {
+          props.style.opacity = 0.5;
+        } else {
+          props.style.opacity = 0.3;
+        }
+      } else {
+        props.style.backgroundColor = "transparent";
+        props.style.opacity = 1;
+      }
+
+      return <BottomTabBar {...props} />;
+    },
 
     tabBarOptions: {
       // headerTransparent: true,
-      tabBarTransparent: true,
+      // tabBarTransparent: true,
 
       style: {
         backgroundColor: "transparent",
+        // opacity: 0.4,
         borderTopWidth: 0,
         position: "absolute",
         left: 0,
@@ -154,7 +142,7 @@ const TabNavigator = createBottomTabNavigator(
             paddingTop: 15,
             paddingBottom: 0,
           },
-          height: 65,
+          // height: 65,
           // backgroundColor: "rgba(3,3,3,0)",
         }),
       },

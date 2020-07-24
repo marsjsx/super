@@ -24,7 +24,6 @@ import {
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FastImage from "react-native-fast-image";
 
-
 class Activity extends React.Component {
   state = {
     activity: [],
@@ -46,8 +45,8 @@ class Activity extends React.Component {
     this.setState({ activity: orderBy(activity, "date", "desc") });
   };
 
-  goToUser = (uid) => {
-    this.props.getUser(uid);
+  goToUser = async (uid) => {
+    await this.props.getUser(uid);
     this.props.navigation.navigate("Profile");
   };
 

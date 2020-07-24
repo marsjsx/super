@@ -19,12 +19,24 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { followUser, unfollowUser, getUser, logout } from "../actions/user";
+import { validURL } from "../util/Helper";
+
+import {
+  followUser,
+  unfollowUser,
+  getUser,
+  logout,
+  updateBio,
+  updateUser,
+  updateWebsiteLabel,
+} from "../actions/user";
 import { getMessages } from "../actions/message";
 import { getPosts, likePost, unlikePost, deletePost } from "../actions/post";
 import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
+import Dialog from "react-native-dialog";
+
 import moment from "moment";
 import DoubleTap from "../component/DoubleTap";
 import FadeInView from "../component/FadeInView";
@@ -38,6 +50,7 @@ import {
   Button,
   Content,
   Title,
+  Subtitle,
   ActionSheet,
   Text as NText,
 } from "native-base";
@@ -63,6 +76,9 @@ class Profile extends React.Component {
       position: 0,
       visible: false,
       changes: 1,
+      website: "",
+      websiteLabel: "",
+      dialogVisible: false,
     };
     this.scroll = null;
     this.scrollView = null;
@@ -275,32 +291,79 @@ class Profile extends React.Component {
     var url = user.bio;
 
     if (!url) {
-      showMessage({
-        message: "STOP",
-        description: `No Link Attached`,
-        type: "danger",
-        duration: 2000,
-      });
-    }
-
-    if (!url.startsWith("http")) {
-      url = `http://${url}`;
-    }
-
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-      // by some browser in the mobile
-      Linking.openURL(url);
+      if (this.props.user.uid === user.uid) {
+        this.setState({ dialogVisible: true });
+      } else {
+        showMessage({
+          message: "STOP",
+          description: `No Link Attached`,
+          type: "danger",
+          duration: 2000,
+        });
+      }
     } else {
-      showMessage({
-        message: "STOP",
-        description: `Don't know how to open this URL: ${url}`,
-        type: "danger",
-        duration: 2000,
-      });
+      if (!url.startsWith("http")) {
+        url = `http://${url}`;
+      }
+
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        Linking.openURL(url);
+      } else {
+        showMessage({
+          message: "STOP",
+          description: `Don't know how to open this URL: ${url}`,
+          type: "danger",
+          duration: 2000,
+        });
+      }
     }
+  };
+  handleCancel = () => {
+    this.setState({ dialogVisible: false });
+  };
+
+  handleOnUpdate = async () => {
+    if (this.state.website || this.state.websiteLabel) {
+      if (!this.state.website) {
+        showMessage({
+          message: "STOP",
+          description: "Please add website link for the website title",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+
+      if (!validURL(this.state.website)) {
+        showMessage({
+          message: "STOP",
+          description: "Please add valid website link",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+
+      if (!this.state.websiteLabel) {
+        showMessage({
+          message: "STOP",
+          description: "Please add website title for the website link",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+    }
+    this.props.updateBio(this.state.website);
+    this.props.updateWebsiteLabel(this.state.websiteLabel);
+
+    this.props.updateUser();
+
+    this.setState({ dialogVisible: false });
   };
 
   render() {
@@ -331,7 +394,7 @@ class Profile extends React.Component {
     }
     // if (!user.posts) return <ActivityIndicator style={styles.container} />;
     return (
-      <ScrollView ref={(c) => (this.scroll = c)}>
+      <ScrollView style={{ marginBottom: 0 }} ref={(c) => (this.scroll = c)}>
         <EmptyView
           ref={(ref) => {
             this.sheetRef = ref;
@@ -347,7 +410,7 @@ class Profile extends React.Component {
           resizeMode="cover"
         />
         <ImageBackground
-          style={[styles.profilePhoto, { position: "absolute" }]}
+          style={[styles.profileEditPhoto, { position: "absolute" }]}
         >
           <View style={[styles.bottom, { width: "100%" }]}>
             {state.routeName === "MyProfile" && user.photo === "" ? (
@@ -378,7 +441,7 @@ class Profile extends React.Component {
                       resizeMode="contain"
                     /> */}
 
-                    <Title style={[styles.textW]}>{user.username}</Title>
+                    <Title style={[styles.textW]}>@ {user.username}</Title>
                     <View
                       style={{
                         marginTop: 20,
@@ -391,7 +454,6 @@ class Profile extends React.Component {
                   </View>
 
                   <Button
-                    rounded
                     style={{ backgroundColor: "#ea5b62" }}
                     onPress={() => this.openUrl(user)}
                   >
@@ -401,7 +463,7 @@ class Profile extends React.Component {
                         { marginLeft: 40, marginRight: 40 },
                       ]}
                     >
-                      {user.websiteLabel ? user.websiteLabel : "Profile"}
+                      {user.websiteLabel ? user.websiteLabel : "Add a link"}
                     </Text>
                   </Button>
 
@@ -420,6 +482,17 @@ class Profile extends React.Component {
                         />
                       </TouchableOpacity>
                     )}
+                  <Text
+                    numberOfLines={2}
+                    style={[
+                      styles.bold,
+                      styles.textF,
+                      styles.white,
+                      styles.margin10,
+                    ]}
+                  >
+                    {user.userbio}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -521,6 +594,7 @@ class Profile extends React.Component {
           initialNumToRender="9"
           maxToRenderPerBatch="9"
           windowSize={12}
+          contentContainerStyle={{ marginBottom: 70 }}
           onRefresh={() => this.props.getPosts()}
           refreshing={false}
           horizontal={false}
@@ -577,6 +651,27 @@ class Profile extends React.Component {
             this.actionSheet = c;
           }}
         />
+
+        <Dialog.Container visible={this.state.dialogVisible}>
+          <Dialog.Title>Add your link</Dialog.Title>
+          <Dialog.Description>
+            Add your website label(Title) and website link
+          </Dialog.Description>
+          <Dialog.Input
+            value={this.state.websiteLabel}
+            underlineColorAndroid="#000"
+            onChangeText={(input) => this.setState({ websiteLabel: input })}
+            placeholder="Website Label"
+          />
+          <Dialog.Input
+            value={this.state.website}
+            underlineColorAndroid="#000"
+            onChangeText={(input) => this.setState({ website: input })}
+            placeholder="Website Link"
+          />
+          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+          <Dialog.Button label="Update" onPress={this.handleOnUpdate} />
+        </Dialog.Container>
       </ScrollView>
     );
   }
@@ -594,6 +689,9 @@ const mapDispatchToProps = (dispatch) => {
       unlikePost,
       getUser,
       logout,
+      updateBio,
+      updateUser,
+      updateWebsiteLabel,
     },
     dispatch
   );

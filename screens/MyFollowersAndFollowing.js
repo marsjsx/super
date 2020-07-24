@@ -11,7 +11,7 @@ import {
   Body,
   Title,
   Tab,
-  Tabs
+  Tabs,
 } from "native-base";
 import MyFollowers from "./Followers";
 import MyFollowings from "./Followers";
@@ -21,7 +21,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { getMessages } from "../actions/message";
 import moment from "moment";
@@ -46,6 +46,8 @@ class MyFollowersAndFollowing extends React.Component {
     } else {
       user = this.props.user;
     }
+
+    alert(JSON.stringify(user.myFollowings));
     return (
       <Container>
         <Header hasTabs>
@@ -72,15 +74,15 @@ class MyFollowersAndFollowing extends React.Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({ getMessages }, dispatch);
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     user: state.user,
     otherUser: state.profile,
-    messages: state.messages
+    messages: state.messages,
   };
 };
 

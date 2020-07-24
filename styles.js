@@ -125,6 +125,42 @@ export default styles = StyleSheet.create({
   small: {
     fontSize: 10,
   },
+  url: {
+    color: "red",
+    textDecorationLine: "underline",
+  },
+
+  email: {
+    textDecorationLine: "underline",
+  },
+
+  text: {
+    color: "black",
+    fontSize: 15,
+  },
+
+  phone: {
+    color: "blue",
+    textDecorationLine: "underline",
+  },
+
+  name: {
+    color: "red",
+  },
+
+  username: {
+    color: "blue",
+    fontWeight: "bold",
+  },
+
+  magicNumber: {
+    fontSize: 42,
+    color: "pink",
+  },
+
+  hashTag: {
+    fontStyle: "italic",
+  },
   input: {
     width: width * 0.9,
     margin: 10,
@@ -181,6 +217,10 @@ export default styles = StyleSheet.create({
     borderBottomWidth: 1,
     textAlign: "left",
   },
+  borderAll: {
+    borderColor: "#d3d3d3",
+    borderWidth: 1,
+  },
   border4: {
     width: "85%",
     borderColor: "rgb(175,175,175)",
@@ -212,7 +252,7 @@ export default styles = StyleSheet.create({
     width: Dimensions.get("screen").width,
   },
   postPhotoPreview: {
-    height: height * 0.9,
+    height: height * 0.7,
     width: width,
     marginBottom: 0,
   },
@@ -286,7 +326,6 @@ export default styles = StyleSheet.create({
     width: 200,
   },
   buttonPost: {
-    marginRight: 25,
     marginBottom: 40,
     marginTop: 40,
     paddingVertical: 10,
@@ -623,7 +662,7 @@ export default styles = StyleSheet.create({
     width: width,
     flex: 0.95,
     justifyContent: "flex-end",
-    marginBottom: 65,
+    paddingBottom: 65,
   },
   squareImage: {
     width: 60,
@@ -644,11 +683,16 @@ export default styles = StyleSheet.create({
     }),
   },
   profilePhoto: {
-    height: height * 0.81,
+    height: height * 1,
     width: width,
   },
+
+  profilePhoto22: {
+    height: height * 0.6,
+    width: width - 20,
+  },
   profileEditPhoto: {
-    height: height * 0.8,
+    height: height * 0.82,
     width: width,
   },
   profileLogo: {

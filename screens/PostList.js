@@ -22,6 +22,7 @@ import {
 import {
   getPosts,
   likePost,
+  logVideoView,
   unlikePost,
   reportPost,
   getFilterPosts,
@@ -34,7 +35,7 @@ import DoubleTap from "../component/DoubleTap";
 import ProgressiveImage from "../component/ProgressiveImage";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { getMessages } from "../actions/message";
-import { ActionSheet } from "native-base";
+import { ActionSheet, Badge } from "native-base";
 import ProgressBarAnimated from "../component/AnimatedProgressBar";
 
 import { showLoader } from "../util/Loader";
@@ -43,6 +44,7 @@ const barWidth = Dimensions.get("screen").width - 30;
 import AvView from "../component/AvView";
 
 const { height, width } = Dimensions.get("window");
+import db from "../config/firebase";
 
 import { ShareDialog } from "react-native-fbsdk";
 import { ShareApi } from "react-native-fbsdk";
@@ -75,10 +77,35 @@ class PostListScreen extends React.Component {
       fontLoaded: false,
       showLoading: false,
       result: "",
+      timer: null,
       dialogVisible: false,
       reportReason: "",
       selectedPost: {},
     };
+    this.start = this.start.bind(this);
+  }
+
+  start(post) {
+    var self = this;
+
+    if (this.state.timer != null) {
+      this.resetTimer();
+    }
+
+    if (post.type === "video") {
+      let timer = setInterval(() => {
+        // log video view
+        //  alert("View Counted");
+        this.props.logVideoView(post);
+
+        this.resetTimer();
+      }, 3000);
+      this.setState({ timer });
+    }
+  }
+
+  resetTimer() {
+    clearInterval(this.state.timer);
   }
 
   async componentDidMount() {
@@ -152,6 +179,9 @@ class PostListScreen extends React.Component {
       const cell = this.cellRefs[item.key];
       if (cell) {
         if (item.isViewable) {
+          // alert(JSON.stringify(item.item.type));
+          this.start(item.item);
+
           this.currentVideoKey = item.key;
           cell.playVideo();
         } else {
@@ -282,6 +312,32 @@ class PostListScreen extends React.Component {
       duration: 2000,
     });
   };
+  handleNamePress = async (name, matchIndex /*: number*/) => {
+    // Alert.alert(`${name}`);
+    var mentionedName = name.replace("@", "");
+    var user_name = mentionedName.replace(/\s+/g, "");
+
+    // alert(user_name.length);
+    const query = await db
+      .collection("users")
+      .where("user_name", "==", user_name)
+      .get();
+
+    if (query.size > 0) {
+      query.forEach((response) => {
+        let user = response.data();
+
+        this.goToUser(user);
+        return;
+      });
+    }
+  };
+  renderText(matchingString, matches) {
+    // matches => ["[@michel:5455345]", "@michel", "5455345"]
+    let pattern = /\[(@[^:]+):([^\]]+)\]/i;
+    let match = matchingString.match(pattern);
+    return `^^${match[1]}^^`;
+  }
 
   render() {
     let posts = {};
@@ -323,8 +379,7 @@ class PostListScreen extends React.Component {
           pagingEnabled={true}
           onViewableItemsChanged={this._onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
-          removeClippedSubviews={true}
-          decelerationRate={"fast"}
+          removeClippedSubviews
           // initialScrollIndex={selectedIndex}
           data={posts}
           keyExtractor={(item) => item.id}
@@ -351,98 +406,206 @@ class PostListScreen extends React.Component {
                       preview={item.preview}
                     />
 
-                    <View style={[styles.bottom, styles.absolute]}>
-                      <View
-                        style={{
-                          alignItems: "flex-end",
-                          marginRight: 10,
-                        }}
-                      >
+                    <View
+                      style={{
+                        marginRight: 10,
+                        right: 0,
+                        bottom: 0,
+                        top: 0,
+                        justifyContent: "center",
+                        position: "absolute",
+                      }}
+                    >
+                      {item.type === "vr" && (
                         <TouchableOpacity
-                          onPress={() => this.showActionSheet(item)}
-                        >
-                          <Ionicons
-                            style={{
-                              margin: 5,
-                              color: "rgb(255,255,255)",
-                            }}
-                            name="ios-more"
-                            size={40}
-                          />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => this.likePost(item)}>
-                          <Ionicons
-                            style={{ margin: 5 }}
-                            color={liked ? "#db565b" : "#fff"}
-                            name={liked ? "ios-heart" : "ios-heart-empty"}
-                            size={40}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() =>
-                            this.props.navigation.navigate("Comment", item)
-                          }
-                        >
-                          <Ionicons
-                            style={{ margin: 5, color: "rgb(255,255,255)" }}
-                            name="ios-chatbubbles"
-                            size={40}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => {
-                            this.onShare(item);
+                          style={{
+                            borderColor: "rgb(255,255,255)",
+                            borderWidth: 3,
+                            width: 45,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: 45,
+                            borderRadius: 10,
                           }}
                         >
-                          <Entypo
-                            style={{ margin: 5, color: "#3b5998" }}
-                            name="facebook-with-circle"
-                            size={40}
-                          />
-                          <EvilIcons
+                          <Text
                             style={{
-                              position: "absolute",
-                              margin: 7,
                               color: "rgb(255,255,255)",
+                              fontSize: 20,
+                              fontWeight: "bold",
                             }}
-                            name="sc-facebook"
-                            size={40}
-                          />
-                        </TouchableOpacity>
-
-                        {this.props.user.isSuperAdmin && (
-                          <TouchableOpacity
-                            style={styles.center}
-                            onPress={() =>
-                              this.props.navigation.navigate("PostReport", item)
-                            }
                           >
-                            <Ionicons
-                              style={{ margin: 5 }}
-                              color="#db565b"
-                              name="ios-alert"
-                              size={40}
-                            />
+                            VR
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() => this.showActionSheet(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="ios-more"
+                          size={40}
+                        />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() => this.likePost(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                          }}
+                          color={liked ? "#db565b" : "#fff"}
+                          name={liked ? "ios-heart" : "ios-heart-empty"}
+                          size={40}
+                        />
+                        {item.likes && item.likes.length > 0 ? (
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.props.navigation.navigate(
+                                "LikersAndViewers",
+                                {
+                                  data: item.likes,
+                                  title: "Post Likers",
+                                }
+                              )
+                            }
+                            style={{
+                              justifyContent: "center",
+                              alignContent: "center",
+                            }}
+                          >
                             <Text
                               style={[
                                 styles.bold,
-                                styles.white,
-                                { fontSize: 20 },
+                                {
+                                  color: "white",
+                                  fontSize: 16,
+                                  textAlign: "center",
+                                },
                               ]}
                             >
-                              {item.reports ? item.reports.length : 0}
+                              {item.likes.length}
                             </Text>
                           </TouchableOpacity>
-                        )}
-                      </View>
+                        ) : null}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                        }}
+                        onPress={() =>
+                          this.props.navigation.navigate("Comment", item)
+                        }
+                      >
+                        <Ionicons
+                          style={{
+                            color: "rgb(255,255,255)",
+                            margin: 0,
+                          }}
+                          name="ios-chatbubbles"
+                          size={40}
+                        />
+                        {item.comments && item.comments.length > 0 ? (
+                          <Text
+                            style={[
+                              styles.bold,
+                              {
+                                color: "white",
+                                fontSize: 16,
+                                textAlign: "center",
+                              },
+                            ]}
+                          >
+                            {item.comments.length}
+                          </Text>
+                        ) : null}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.onShare(item);
+                        }}
+                      >
+                        <Entypo
+                          style={{ margin: 0, color: "#3b5998" }}
+                          name="facebook-with-circle"
+                          size={40}
+                        />
+                        <EvilIcons
+                          style={{
+                            position: "absolute",
+                            margin: 2,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="sc-facebook"
+                          size={40}
+                        />
+                      </TouchableOpacity>
+
+                      {this.props.user.isSuperAdmin && (
+                        <TouchableOpacity
+                          style={styles.center}
+                          onPress={() =>
+                            this.props.navigation.navigate("PostReport", item)
+                          }
+                        >
+                          <Ionicons
+                            style={{ margin: 0 }}
+                            color="#db565b"
+                            name="ios-alert"
+                            size={40}
+                          />
+                          <Text
+                            style={[
+                              styles.bold,
+                              styles.white,
+                              { fontSize: 16 },
+                            ]}
+                          >
+                            {item.reports ? item.reports.length : 0}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    <View style={[styles.bottom, styles.absolute, {}]}>
+                      {item.viewers && item.viewers.length > 0 ? (
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.props.navigation.navigate("LikersAndViewers", {
+                              data: item.viewers,
+                              flow: "Views",
+                              title: "Post Viewers",
+                            })
+                          }
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "open-sans-bold",
+                              color: "red",
+                              margin: 10,
+                            }}
+                          >
+                            {item.viewers.length} views
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
 
                       <View style={[styles.row]}>
                         <TouchableOpacity onPress={() => this.goToUser(item)}>
                           <ProgressiveImage
-                            thumbnailSource={{
-                              uri: item.preview,
-                            }}
+                            // thumbnailSource={{
+                            //   uri: item.preview,
+                            // }}
                             transparentBackground="transparent"
                             source={{ uri: item.photo }}
                             style={styles.roundImage60}
@@ -515,6 +678,11 @@ class PostListScreen extends React.Component {
                             },
                             { pattern: /42/, style: styles.magicNumber },
                             { pattern: /#(\w+)/, style: styles.hashTag },
+                            {
+                              pattern: / @(\w+)/,
+                              style: styles.username,
+                              onPress: this.handleNamePress,
+                            },
                           ]}
                           style={styles.textD}
                         >
@@ -562,6 +730,7 @@ const mapDispatchToProps = (dispatch) => {
     {
       getPosts,
       likePost,
+      logVideoView,
       unlikePost,
       getUser,
       reportPost,

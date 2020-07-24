@@ -122,7 +122,7 @@ class CameraRollPicker extends Component {
 
     if (this.state.initialLoading) {
       return (
-        <View style={[styles.loader, { backgroundColor }]}>
+        <View style={[styles.loader, { backgroundColor, width: "100%" }]}>
           {loader || <ActivityIndicator />}
         </View>
       );
@@ -132,7 +132,6 @@ class CameraRollPicker extends Component {
       dataSource.getRowCount() > 0 ? (
         <ListView
           style={{ flex: 1 }}
-          horizontal={true}
           scrollRenderAheadDistance={scrollRenderAheadDistance}
           initialListSize={initialListSize}
           pageSize={pageSize}
@@ -247,7 +246,7 @@ class CameraRollPicker extends Component {
     });
 
     // alert(JSON.stringify(image));
-    callback(selected, image);
+   callback(selected, image);
   }
 
   _nEveryRow(data: any, n: any) {

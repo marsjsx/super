@@ -488,12 +488,14 @@
 				"${PODS_ROOT}/FBSDKCoreKit/FacebookSDKStrings.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNImageCropPicker/QBImagePicker.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController/TOCropViewControllerBundle.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/react-native-image-filter-kit/bundle.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/FacebookSDKStrings.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/QBImagePicker.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TOCropViewControllerBundle.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bundle.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -607,7 +609,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingDebug.entitlements;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 31;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -615,7 +617,7 @@
 				INFOPLIST_FILE = BareSuper/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.3.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -640,7 +642,7 @@
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 31;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -648,7 +650,7 @@
 				INFOPLIST_FILE = BareSuper/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.3.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

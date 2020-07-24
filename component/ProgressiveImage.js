@@ -4,7 +4,9 @@ import {
   StyleSheet,
   Animated,
   ActivityIndicator,
+  Image,
   Dimensions,
+  ImageBackground,
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import { PinchGestureHandler, State } from "react-native-gesture-handler";
@@ -101,14 +103,32 @@ class ProgressiveImage extends React.Component {
           { transform: [{ scale: this.scale }] },
         ]}
       >
-        {source.uri ? (
+        {thumbnailSource &&
+        thumbnailSource.uri &&
+        thumbnailSource.uri.length > 2 ? null : (
+          <Animated.Image
+            {...props}
+            resizeMode="contain"
+            source={require("../assets/profilePlaceholder.png")}
+            style={[
+              styles.imageOverlay,
+              {
+                opacity: 1,
+              },
+              style,
+            ]}
+          />
+        )}
+
+        {/* )} */}
+        {/* {source.uri && source.uri.length > 2 ? (
           <ActivityIndicator
             size="small"
             color="rgb(215, 80, 80)"
             style={[styles.imageOverlay, style]}
             onLoad={this.onImageLoad}
           />
-        ) : null}
+        ) : null} */}
         <Animated.Image
           {...props}
           source={thumbnailSource}
@@ -126,6 +146,7 @@ class ProgressiveImage extends React.Component {
         <FastImage
           {...props}
           source={source}
+          // source={{ uri: source.uri, priority: FastImage.priority.low }}
           style={[
             styles.imageOverlay,
             {

@@ -12,6 +12,9 @@ import Loader from "../component/Loader";
 import EmptyView from "../component/emptyview";
 import * as ImageManipulator from "expo-image-manipulator";
 import ImagePicker from "react-native-image-crop-picker";
+import { PanoramaView } from "@lightbase/react-native-panorama-view";
+import Editor, { displayTextWithMentions } from "../component/mentioneditor";
+import db from "../config/firebase";
 
 import _ from "lodash";
 
@@ -48,6 +51,7 @@ import {
   Label,
   Picker,
   Icon,
+  Button,
   Textarea,
   Form,
   Content,
@@ -58,6 +62,8 @@ import { Dropdown } from "react-native-material-dropdown";
 import { Trimmer, VideoPlayer } from "react-native-video-processing";
 // import { Audio, Video } from "expo-av";
 import Video from "react-native-video";
+import Filter from "../component/Filter";
+import ImageFilters from "../component/ImageFilters";
 
 import {
   Ionicons,
@@ -66,32 +72,103 @@ import {
   MaterialCommunityIcons,
   Octicons,
 } from "@expo/vector-icons";
-
+const { height, width } = Dimensions.get("window");
+var self;
 class Post extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerRight: (
+        <TouchableOpacity onPress={navigation.getParam("onNext")}>
+          <Text
+            style={{
+              color: "dodgerblue",
+              fontWeight: "bold",
+              padding: 5,
+              fontSize: 16,
+            }}
+          >
+            Next{" "}
+          </Text>
+        </TouchableOpacity>
+      ),
+    };
+  };
+
   constructor(props) {
     super(props);
     this.sheetRef = {};
+    this.lastPress = 0;
 
     this.state = {
       showModal: false,
       locations: [],
+      users: [],
+      loading: false,
+      timer: null,
       showLoading: false,
       selectedSource: "",
       selectedSource: "",
       language: "",
+      filteredImage: "",
       startTime: 0,
       endTime: 59,
       showSignUpSheet: false,
       selectedLocation: "",
       currentTime: 0,
+      initialValue: "",
+      showEditor: true,
+      message: null,
+      messages: [],
+      index: 0,
+      clearInput: false,
+      showMentions: false /**use this parameter to programmatically trigger the mentionsList */,
     };
+    this.start = this.start.bind(this);
   }
-  componentDidMount() {
-    this.getLocations();
+
+  async componentDidMount() {
+    self = this;
+    // alert("didMount Called");
+    this.props.navigation.setParams({ onNext: this._onNext });
+
     const selectedFile = this.props.post.photo;
     if (selectedFile) {
       this.processSelectedImage(selectedFile);
     }
+
+    this.onWillFocus();
+
+    let search = this.state.users;
+
+    // alert(searchQuery);
+
+    const query = await db.collection("users").get();
+
+    // alert(query.size);
+
+    query.forEach((response) => {
+      let user = response.data();
+      if (user.user_name) {
+        var data = {
+          id: user.uid,
+          name: user.username,
+          username: user.user_name,
+          gender: "",
+          photo: user.photo,
+        };
+
+        search.push(data);
+      }
+    });
+    // alert(search.length);
+    this.setState({ users: search });
+  }
+
+  loadImage() {
+    this.setState({ loading: true });
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 3000);
   }
 
   post = async () => {
@@ -118,6 +195,10 @@ class Post extends React.Component {
       this.props.uploadPost();
       this.props.navigation.goBack();
       this.props.navigation.navigate("Home");
+    } else if (this.props.post.photo.type === "vr") {
+      this.props.uploadPost();
+      this.props.navigation.goBack();
+      this.props.navigation.navigate("Home");
     } else {
       // trim video first
       this.trimVideo();
@@ -128,16 +209,19 @@ class Post extends React.Component {
     if (!this.props.post.photo) {
       this.openLibrary();
     } else if (this.props.post.photo.type === "image") {
+      //alert(JSON.stringify(this.props.post.photo));
       this.cropImage();
+    } else if (this.props.post.photo.type === "vr") {
+      this.cropImage("vr");
     }
   };
 
   renderTopBar = () => (
     <View
       style={{
-        backgroundColor: "transparent",
         alignSelf: "flex-end",
         position: "absolute",
+        shadowOpacity: 1,
         paddingTop: Constants.statusBarHeight,
       }}
     >
@@ -146,6 +230,12 @@ class Post extends React.Component {
         onPress={() => this.openLibrary()}
       >
         <Foundation name="thumbnails" size={40} color="white" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.toggleButton}
+        onPress={() => this.open3DLibrary()}
+      >
+        <MaterialCommunityIcons name="video-3d" size={40} color="white" />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -163,6 +253,13 @@ class Post extends React.Component {
           <Ionicons name="ios-crop" size={40} color="white" />
         </TouchableOpacity>
       )}
+      {/* <Button
+        rounded
+        onPress={this.post}
+        style={[styles.toggleButton, { backgroundColor: "orange" }]}
+      >
+        <Text style={{ color: "white", fontWeight: "bold" }}>Post</Text>
+      </Button> */}
     </View>
   );
 
@@ -183,7 +280,7 @@ class Post extends React.Component {
           endTime: Math.round(selectedFile.duration / 1000),
         });
       }
-      const maximumSize = { width: 50, height: 500 };
+      const maximumSize = { width: 300, height: 500 };
       ProcessingManager.getPreviewForSecond(
         selectedFile.uri,
         1,
@@ -196,39 +293,40 @@ class Post extends React.Component {
     }
   };
 
-  cropImage = async () => {
+  cropImage = async (type) => {
+    // alert(JSON.stringify(this.props.post.photo.uri));
+
     await ImagePicker.openCropper({
       path: this.props.post.photo.uri,
-      width: 300,
-      height: 400,
-    }).then((image) => {
-      console.log(image);
-      //alert(JSON.stringify(image));
+      cropping: true,
+      // width: 1200,
+      width: type ? this.props.post.photo.width : 600,
+      height: type ? this.props.post.photo.height : 1000,
+      // width: this.props.post.photo.width,
+      // height: this.props.post.photo.height,
+      // // height: 1500,
 
-      var selectedFile = {};
-      selectedFile.height = image.height;
-      selectedFile.width = image.width;
-      selectedFile.uri = image.path;
-      selectedFile.type = "image";
+      // compressImageQuality: type ? 0.4 : 0,
+    })
+      .then((image) => {
+        console.log(image);
+        // alert(JSON.stringify(image));
+        this.props.createAndUpdatePreview(image.path);
 
-      this.props.updatePhoto(selectedFile);
-    });
+        var selectedFile = {};
+        selectedFile.height = image.height;
+        selectedFile.width = image.width;
+        selectedFile.size = image.size;
+        selectedFile.uri = image.path;
+        selectedFile.type = type ? "vr" : "image";
 
-    // const manipResult = await ImageManipulator.manipulateAsync(
-    //   this.props.post.photo.uri,
-    //   [
-    //     {
-    //       crop: {
-    //         originX: 0,
-    //         originY: 0,
-    //         width: 200,
-    //         height: 200,
-    //       },
-    //     },
-    //   ],
-    //   { compress: 1, format: ImageManipulator.SaveFormat.PNG }
-    // );
-    // alert(JSON.stringify(manipResult));
+        this.props.updatePhoto(selectedFile);
+        this.loadImage();
+      })
+      .catch((err) => {
+        // this.props.navigation.goBack();
+        // Here you handle if the user cancels or any other errors
+      });
   };
 
   openLibrary = async () => {
@@ -236,12 +334,11 @@ class Post extends React.Component {
     if (status === "granted") {
       const selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
         mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
+        // allowsEditing: true,
         duration: 15000,
       });
 
       if (!selectedFile.cancelled) {
-        //  alert(JSON.stringify(selectedFile));
         // const uri = image.uri;
         // this.setState({ selectedSource: uri });
 
@@ -255,7 +352,9 @@ class Post extends React.Component {
         //  alert(JSON.stringify(selectedFile));
         this.props.updatePhoto(selectedFile);
         if (selectedFile.type === "image") {
-          this.props.createAndUpdatePreview(selectedFile.uri);
+          //  this.props.createAndUpdatePreview(selectedFile.uri);
+          this.setState({ index: 0 });
+          this.cropImage();
         } else if (selectedFile.type === "video") {
           this.setState({
             startTime: 0,
@@ -284,38 +383,40 @@ class Post extends React.Component {
     }
   };
 
-  getLocations = async () => {
-    const permission = await await Location.requestPermissionsAsync();
-    if (permission.status === "granted") {
-      const location = await Location.getCurrentPositionAsync({});
-      const url = `${GOOGLE_API}?location=${location.coords.latitude},${location.coords.longitude}&rankby=distance&key=${ENV.googleApiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      this.setState({ locations: data.results });
+  open3DLibrary = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      const selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
+        mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
+      });
+
+      if (!selectedFile.cancelled) {
+        selectedFile.type = "vr";
+        this.props.updatePhoto(selectedFile);
+        this.props.createAndUpdatePreview(selectedFile.uri);
+        this.cropImage("vr");
+      }
     }
   };
 
-  locationItems = () =>
-    this.state.locations.map((s, i) => {
-      return (
-        <Picker.Item
-          label={s.name + "\n" + s.vicinity}
-          value={s}
-          onPress={() => this.setLocation(item)}
-        />
-      );
-    });
+  _onNext() {
+    var _this = self;
+    // alert("Called");
+    if (_this.props.post.photo.type === "image") {
+      if (_this.state.filteredImage) {
+        // alert(this.state.filteredImage);
+        _this.props.createAndUpdatePreview(_this.state.filteredImage);
 
-  setLocation(location) {
-    const place = {
-      name: location.name + "\n" + location.vicinity,
-      coords: {
-        lat: location.geometry.location.lat,
-        lng: location.geometry.location.lng,
-      },
-    };
-    this.props.updateLocation(place);
-    this.setState({ selectedLocation: location });
+        // var selectedFile = this.props.post.photo;
+        // selectedFile.uri = this.state.filteredImage;
+
+        //   this.props.updatePhoto(selectedFile);
+      }
+
+      _this.props.navigation.navigate("PostCaption", {
+        filteredImage: _this.state.filteredImage,
+      });
+    }
   }
 
   trimVideo() {
@@ -381,10 +482,108 @@ class Post extends React.Component {
     if (selectedFile) {
       if (selectedFile.type === "image") {
         return (
-          <Image
-            style={styles.postPhotoPreview}
-            source={{ uri: this.props.post.photo.uri }}
-          />
+          <View>
+            <ImageFilters
+              key={""}
+              name={""}
+              index={this.state.index}
+              resizeMode={"cover"}
+              onExtractImage={({ nativeEvent }) => {
+                this.setState({ filteredImage: nativeEvent.uri });
+                // alert(nativeEvent.uri)
+              }}
+              extractImageEnabled={true}
+              style={styles.postPhotoPreview}
+              url={this.props.post.photo.uri}
+              onChange={(index) => {
+                // this.setState({ index: index });
+              }}
+            />
+            {/* <Gingham
+              image={
+                <Image
+                  style={styles.postPhotoPreview}
+                  source={{ uri: this.props.post.photo.uri }}
+                  resizeMode={"cover"}
+                />
+              }
+            /> */}
+            <FlatList
+              horizontal={true}
+              keyExtractor={(item) => JSON.stringify(item.name)}
+              data={[
+                "Normal",
+                "Inkwell",
+                "Reyes",
+                "Moon",
+                "Lark",
+                "Clarendon",
+                "Slumber",
+                "Aden",
+                "Perpetua",
+                "Mayfair",
+                "Rise",
+                "Hudson",
+                "Valencia",
+                "Xpro2",
+                "Willow",
+                "Lofi",
+                "Gingham",
+                "Nashville",
+              ]}
+              renderItem={({ index, item }) => (
+                <ImageFilters
+                  key={item}
+                  name={item}
+                  index={index}
+                  selectedIndex={this.state.index}
+                  resizeMode={"cover"}
+                  style={{ width: 120, height: 120 }}
+                  url={this.props.post.photo.uri}
+                  onChange={(value) => {
+                    // alert(index);
+                    this.setState({ index: index });
+
+                    if (index === 0) {
+                      this.setState({ filteredImage: "" });
+                    }
+                  }}
+                ></ImageFilters>
+              )}
+            />
+          </View>
+          // <Image
+          //   style={styles.postPhotoPreview}
+          //   // source={{ uri: this.props.post.photo.uri }}
+          //   source={{ uri: " https://i.imgur.com/5EOyTDQ.jpg" }}
+          // />
+        );
+      }
+      if (selectedFile.type === "vr") {
+        return (
+          <View>
+            <PanoramaView
+              style={styles.postPhotoPreview}
+              dimensions={{
+                height: height * 0.7,
+                width: width,
+              }}
+              inputType="mono"
+              imageUrl={this.props.post.photo.uri}
+            />
+            <Text
+              style={{
+                color: "rgb(255,255,255)",
+                fontSize: 28,
+                position: "absolute",
+                fontWeight: "bold",
+                top: 100,
+                left: 20,
+              }}
+            >
+              VR
+            </Text>
+          </View>
         );
       } else if (selectedFile.type === "video") {
         return (
@@ -467,37 +666,103 @@ class Post extends React.Component {
       this.videoPlayerRef.seek(this.state.startTime);
     }
   };
+  onChangeHandler = async (message) => {
+    var searchQuery = message.displayText;
+    this.props.updateDescription(searchQuery);
+    var index = searchQuery.lastIndexOf("@");
+    if (index >= 0) {
+      var query = searchQuery.substring(index, searchQuery.length);
+      // alert(query);
+      var search = query.replace("@", "");
+      if (search.length > 0) {
+        // alert(search);
+        // var search = message.text.replace("@", "");
+        this.start(search);
+      }
+    }
+  };
+
+  resetTimer() {
+    clearInterval(this.state.timer);
+  }
+
+  start(searchQuery) {
+    // alert(searchQuery);
+
+    var self = this;
+    if (this.state.timer != null) {
+      this.resetTimer();
+    }
+
+    let timer = setInterval(async () => {
+      this.resetTimer();
+      // alert(JSON.stringify(searchQuery));
+
+      // let search = [];
+      // let search = this.state.users;
+
+      // // alert(searchQuery);
+
+      // const query = await db
+      //   .collection("users")
+      //   .where("username", ">=", searchQuery)
+      //   .get();
+
+      // // alert(query.size);
+
+      // query.forEach((response) => {
+      //   if (response.data().username.includes(searchQuery)) {
+      //     let user = response.data();
+      //     var data = {
+      //       id: user.uid,
+      //       name: user.username,
+      //       username: user.user_name,
+      //       gender: "",
+      //       photo: user.photo,
+      //     };
+
+      //     search.push(data);
+      //   }
+      // });
+      // // alert(JSON.stringify(search.length));
+      // this.setState({ users: search });
+      //alert("View Counted");
+    }, 500);
+    this.setState({ timer });
+
+    this.setState({
+      clearInput: false,
+    });
+    //  this.props.updateDescription(searchQuery)
+  }
+
+  toggleEditor = () => {
+    /**
+     * This callback will be called
+     * once user left the input field.
+     * This will handle blur event.
+     */
+    // this.setState({
+    //   showEditor: false,
+    // })
+  };
+
+  onHideMentions = () => {
+    /**
+     * This callback will be called
+     * When MentionsList hide due to any user change
+     */
+    this.setState({
+      showMentions: false,
+    });
+  };
 
   render() {
-    let data = [
-      {
-        value: "Brian Helm",
-      },
-      {
-        value: "Pat Hustad",
-      },
-    ];
-    let dataLoc = [
-      {
-        value: "Pacific City",
-      },
-      {
-        value: "RC Cafe",
-      },
-      {
-        value: "Pub House",
-      },
-      {
-        value: "Left Coast Brewing",
-      },
-    ];
+    // const filter = this.filters[this.state.index];
 
     return (
       <View style={{ flex: 1, width: "100%", height: "100%" }}>
-        <KeyboardAvoidingView
-          style={{ flex: 1, width: "100%" }}
-          behavior={"padding"}
-        >
+        <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
           <EmptyView
             ref={(ref) => {
               this.sheetRef = ref;
@@ -505,54 +770,38 @@ class Post extends React.Component {
             navigation={this.props.navigation}
           />
           <ScrollView
-            style={[{ width: "100%" }]}
+            style={[{ width: "100%", height: "100%" }]}
             contentContainerStyle={{ alignItems: "center" }}
           >
-            <NavigationEvents onWillFocus={this.onWillFocus} />
-
+            {/* <NavigationEvents onWillFocus={this.onWillFocus} /> */}
             {this.getSelectedComponent()}
-            {/* <Image
-              style={styles.postPhotoPreview}
-              source={{ uri: this.props.post.photo.uri }}
-            /> */}
             {this.renderTopBar()}
 
-            <View style={{ marginTop: 20 }}>
-              {/* <Item floatingLabel>
-                <Label>Write a caption..</Label> */}
-              {/* <Label>Write a caption..</Label> */}
-              <Textarea
-                rowSpan={5}
-                placeholder="Write a caption....."
-                bordered
-                value={this.props.post.description}
-                onChangeText={(text) => this.props.updateDescription(text)}
-              />
+            {/* <TouchableOpacity
+              style={{
+                position: "absolute",
+                right: 16,
+                top: 100,
+                zIndex: 100,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                this.onNext();
+              }}
+            >
+              <Text
+                style={{
+                  color: "blue",
+                  padding: 10,
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
+              >
+                Next{" "}
+              </Text>
+            </TouchableOpacity> */}
 
-              {/* </Item> */}
-              {this.state.locations.length > 0 ? (
-                <Item underline>
-                  <Picker
-                    iosIcon={<Icon name="arrow-down" />}
-                    mode="dropdown"
-                    style={{
-                      marginTop: 10,
-                      width: Dimensions.get("screen").width - 30,
-                    }}
-                    placeholder="Add a Location"
-                    placeholderStyle={{ color: "#bfc6ea" }}
-                    placeholderIconColor="#007aff"
-                    selectedValue={this.state.selectedLocation}
-                    onValueChange={this.setLocation.bind(this)}
-                  >
-                    {this.locationItems()}
-                  </Picker>
-                </Item>
-              ) : null}
-              <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
-                <Text>Post</Text>
-              </TouchableOpacity>
-            </View>
             {/* <Dropdown label='Tag People' data={data} containerStyle={styles.dropDown}/>
       <Dropdown label='Add Location' data={dataLoc} containerStyle={styles.dropDown} />
       <View style={[styles.postShare, styles.row, styles.space,]}>
@@ -569,8 +818,8 @@ class Post extends React.Component {
       </View> */}
           </ScrollView>
         </KeyboardAvoidingView>
-        {this.state.showLoading ? (
-          <Loader message="Posting, Please wait... " bgColor="white" />
+        {this.state.loading ? (
+          <Loader message="Loading image, Please wait... " bgColor="white" />
         ) : null}
       </View>
     );

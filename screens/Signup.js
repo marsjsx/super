@@ -2,9 +2,11 @@ import React from "react";
 import styles from "../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
+import ImagePicker from "react-native-image-crop-picker";
+
 import * as Permissions from "expo-permissions";
-import { validURL } from "../util/Helper";
+import { validURL, openSettingsDialog } from "../util/Helper";
 
 import {
   Text,
@@ -20,10 +22,12 @@ import {
 } from "react-native";
 import {
   updatePhoto,
+  updateCompressedPhoto,
   updateEmail,
   updatePassword,
   updateUsername,
   updateBio,
+  updateUserBio,
   updateWebsiteLabel,
   signup,
   updateUser,
@@ -163,6 +167,9 @@ class Signup extends React.Component {
     }
   };
   onPress = async () => {
+    // this.props.navigation.navigate("Home");
+    // return;
+
     const { routeName } = this.props.navigation.state;
     if (routeName === "Signup") {
       if (
@@ -172,13 +179,16 @@ class Signup extends React.Component {
       ) {
         this.setState({ showLoading: true });
         try {
-          this.props.signup();
+          await this.props.signup();
+          this.setState({ showLoading: false });
+
           // this.props.navigation.goBack();
           //  this.props.navigation.navigate("Home");
         } catch (e) {
+          this.setState({ showLoading: false });
+
           alert(e);
         }
-        this.setState({ showLoading: false });
       }
     } else {
       if (!this.props.user.photo) {
@@ -233,15 +243,68 @@ class Signup extends React.Component {
     }
   };
 
+  cropImage = async (selectedImage) => {
+    // alert(JSON.stringify(this.props.post.photo.uri));
+
+    await ImagePicker.openCropper({
+      path: selectedImage.path,
+      cropping: true,
+      // width: 1200,
+      width: 600,
+      height: 1000,
+      // width: selectedImage.width,
+      // height: selectedImage.height,
+      // // height: 1500,
+
+      compressImageQuality: 0,
+    })
+      .then((image) => {
+        console.log(image);
+        // alert(JSON.stringify(image));
+
+        // var selectedFile = {};
+        // selectedFile.height = image.height;
+        // selectedFile.width = image.width;
+        // selectedFile.size = image.size;
+        // selectedFile.uri = image.path;
+        // selectedFile.type = "image";
+
+        this.props.updatePhoto(image.path);
+        this.props.updateCompressedPhoto(image.path);
+
+        this.props.createAndUpdatePreview(image.path);
+      })
+      .catch((err) => {
+        // Here you handle if the user cancels or any other errors
+      });
+  };
+
   openLibrary = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      const image = await ImagePicker.launchImageLibraryAsync();
-      if (!image.cancelled) {
-        this.props.updatePhoto(image.uri);
-        this.props.createAndUpdatePreview(image.uri);
-      } else {
-      }
+      // const image = await ImagePicker.launchImageLibraryAsync({ quality: 0.1 });
+      // if (!image.cancelled) {
+      //   this.props.updatePhoto(image.uri);
+      //   this.props.createAndUpdatePreview(image.uri);
+      // } else {
+      // }
+
+      ImagePicker.openPicker({
+        compressImageQuality: 0.8,
+      }).then((image) => {
+        // alert(JSON.stringify(image));
+        this.cropImage(image);
+        // this.props.updatePhoto(image.path);
+        // this.props.createAndUpdatePreview(image.path);
+        // console.log(image);
+      });
+    } else {
+      // alert("Denied");
+
+      openSettingsDialog(
+        "Failed to Access Photos, Please go to the Settings to enable access",
+        this.props.navigation
+      );
     }
   };
 
@@ -466,6 +529,17 @@ class Signup extends React.Component {
                     <Input
                       value={this.props.user.username}
                       onChangeText={(input) => this.props.updateUsername(input)}
+                    />
+                  </Item>
+
+                  <Item
+                    floatingLabel
+                    style={[styles.textInput, { marginTop: 10 }]}
+                  >
+                    <Label>Bio</Label>
+                    <Input
+                      value={this.props.user.userbio}
+                      onChangeText={(input) => this.props.updateUserBio(input)}
                     />
                   </Item>
 
@@ -707,12 +781,14 @@ const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
       updatePhoto,
+      updateCompressedPhoto,
       uploadPhoto,
       updateUser,
       updateEmail,
       updatePassword,
       updateUsername,
       updateBio,
+      updateUserBio,
       updateWebsiteLabel,
       signup,
       facebookLogin,

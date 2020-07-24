@@ -16,8 +16,8 @@ class ImageItem extends React.Component {
     if (typeof containerWidth != "undefined") {
       width = containerWidth;
     }
-    // this._imageSize = (width - (imagesPerRow + 1) * imageMargin) / imagesPerRow;
-    this._imageSize = 95;
+    this._imageSize = (width - (imagesPerRow + 1) * imageMargin) / imagesPerRow;
+    // this._imageSize = 95;
   }
 
   render() {

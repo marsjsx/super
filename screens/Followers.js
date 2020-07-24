@@ -13,7 +13,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { getUser } from "../actions/user";
 
@@ -26,21 +26,22 @@ class Followers extends React.Component {
     // this.props.getMessages();
   };
 
-  goToUser = user => {
+  goToUser = (user) => {
     this.props.getUser(user.uid);
     this.props.navigation.navigate("Profile");
   };
 
   render() {
+    // alert(JSON.stringify(this.props.data));
     return (
       <View style={[styles.container, { marginTop: 20 }]}>
         <FlatList
-          initialNumToRender="20"
-          maxToRenderPerBatch="20"
-          windowSize={20}
+          initialNumToRender="10"
+          maxToRenderPerBatch="10"
+          windowSize={10}
           data={this.props.data}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
-          keyExtractor={item => JSON.stringify(item.uid)}
+          keyExtractor={(item) => JSON.stringify(item.uid)}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => this.goToUser(item)}
@@ -48,7 +49,7 @@ class Followers extends React.Component {
             >
               <ProgressiveImage
                 thumbnailSource={{
-                  uri: item.preview
+                  uri: item.preview,
                 }}
                 transparentBackground="transparent"
                 source={{ uri: item.photo }}
@@ -68,13 +69,13 @@ class Followers extends React.Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({ getUser }, dispatch);
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
   };
 };
 

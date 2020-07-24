@@ -12,6 +12,8 @@ const user = (state = {}, action) => {
       return { ...state, username: action.payload };
     case "UPDATE_BIO":
       return { ...state, bio: action.payload };
+    case "UPDATE_USER_BIO":
+      return { ...state, userbio: action.payload };
     case "UPDATE_WEBSITE_LABEL":
       return { ...state, websiteLabel: action.payload };
     case "UPDATE_GENDER":
@@ -24,6 +26,8 @@ const user = (state = {}, action) => {
       return { ...state, dob: action.payload };
     case "UPDATE_USER_PHOTO":
       return { ...state, photo: action.payload };
+    case "UPDATE_COMPRESSED_USER_PHOTO":
+      return { ...state, compressedPhoto: action.payload };
     case "UPDATE_USER_PHOTO_PREVIEW":
       return { ...state, preview: action.payload };
     case "GET_TOKEN":
@@ -86,6 +90,17 @@ const post = (state = null, action) => {
       return { ...state, feed: action.payload };
     case "POST_REPORTS":
       return { ...state, postReports: action.payload };
+    case "UPDATE_POST": {
+      let post = action.payload;
+      return {
+        ...state,
+        feed: state.feed.map((content, i) =>
+          content.id === post.id
+            ? { ...content, comments: post.comments }
+            : content
+        ),
+      };
+    }
     case "GET_COMMENTS":
       return { ...state, comments: action.payload };
     case "UPDATE_PROGRESS":

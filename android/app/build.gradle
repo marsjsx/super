@@ -109,8 +109,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
     }
     splits {
         abi {
@@ -161,6 +161,8 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 def enableHermes = project.ext.react.get("enableHermes", false);
 
 dependencies {
+    implementation project(':rn-fetch-blob')
+    implementation project(':@lightbase_react-native-panorama-view')
     implementation project(':react-native-splash-screen')
     implementation project(':react-native-safe-area-context')
     implementation project(':react-native-reanimated')

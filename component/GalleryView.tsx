@@ -18,6 +18,7 @@ import { bindActionCreators } from "redux";
 import Video from "react-native-video";
 import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import ProgressiveImage from "../component/ProgressiveImage";
+import { PanoramaView } from "@lightbase/react-native-panorama-view";
 
 const { height, width } = Dimensions.get("window");
 
@@ -41,10 +42,12 @@ class GalleryView extends Component {
   }
 
   getSelectedImages(image: any, current: any) {
-    // alert(JSON.stringify(current));
     var selectedFile = { ...current };
     if (selectedFile.type === "video") {
       selectedFile.duration = Math.round(current.playableDuration * 1000);
+    }
+    if (this.props.type) {
+      selectedFile.type = "vr";
     }
 
     if (Platform.OS === "ios") {
@@ -59,6 +62,7 @@ class GalleryView extends Component {
         selectedFile.type = "image";
       }
     }
+    // alert(JSON.stringify(selectedFile));
 
     //aalert(JSON.stringify(selectedFile));
 
@@ -69,16 +73,17 @@ class GalleryView extends Component {
 
   getSelectedFilePreview() {
     const { selectedFile, photos } = this.state;
+    // alert("Selected" + JSON.stringify(selectedFile));
 
     if (selectedFile.type === "image") {
       // this.setState({ paused: true });
-      // alert(JSON.stringify(selectedFile.uri));
+      //  alert(JSON.stringify(selectedFile.uri));
 
       return (
         <Image
           source={{ uri: selectedFile.uri }}
           resizeMode="cover"
-          style={{ height: height * 0.7 }}
+          style={{ height: height * 0.58 }}
         />
         //   <ProgressiveImage
         //   style={{ height: 400, width: Dimensions.get("screen").width }}
@@ -86,6 +91,40 @@ class GalleryView extends Component {
         //   transparentBackground="transparent"
         //   source={{ uri: selectedFile.uri }}
         // />
+      );
+    } else if (selectedFile.type === "vr") {
+      // this.setState({ paused: true });
+      //  alert(JSON.stringify(selectedFile.uri));
+
+      return (
+        <View>
+          {/* <PanoramaView
+            style={styles.postPhotoPreview}
+            dimensions={{
+              height: height * 0.7,
+              width: width,
+            }}
+            inputType="mono"
+            imageUrl={selectedFile.uri}
+          /> */}
+          <Image
+            source={{ uri: selectedFile.uri }}
+            resizeMode="cover"
+            style={{ height: height * 0.58 }}
+          />
+          <Text
+            style={{
+              color: "rgb(255,255,255)",
+              fontSize: 28,
+              position: "absolute",
+              fontWeight: "bold",
+              top: 100,
+              left: 20,
+            }}
+          >
+            VR
+          </Text>
+        </View>
       );
     } else if (selectedFile.type === "video") {
       return (
@@ -98,7 +137,7 @@ class GalleryView extends Component {
               this.video = ref;
             }}
             style={{
-              height: height * 0.7,
+              height: height * 0.6,
               width: Dimensions.get("screen").width,
             }}
             source={{ uri: selectedFile.uri }}
@@ -142,8 +181,8 @@ class GalleryView extends Component {
     // @ts-ignore
     const { selectedFile, photos } = this.state;
     return (
-      <View style={{ flex: 1 }}>
-        <ParallaxScrollView
+      <View style={{ flex: 1, backgroundColor: "black" }}>
+        {/* <ParallaxScrollView
           style={{ flex: 1, backgroundColor: "hotpink", overflow: "hidden" }}
           renderBackground={() => (
             <View style={styles.galleryView}>
@@ -162,28 +201,37 @@ class GalleryView extends Component {
               }}
             ></Text>
           )}
-          parallaxHeaderHeight={height * 0.7}
+          parallaxHeaderHeight={height * 0.5}
           stickyHeaderHeight={0}
-        >
-          <View
-            style={{
-              alignItems: "center",
-              width: Dimensions.get("window").width,
-            }}
-          >
-            <CameraRollPicker
-              initialListSize={1}
-              pageSize={3}
-              removeClippedSubviews={true}
-              groupTypes="All"
-              maximum={1}
-              assetType="All"
-              imagesPerRow={3}
-              imageMargin={1}
-              callback={this.getSelectedImages.bind(this)}
-            />
+        > */}
+
+        <View style={[styles.galleryView, { height: height * 0.58 }]}>
+          <View style={styles.imagePreview}>
+            {selectedFile && this.getSelectedFilePreview()}
           </View>
-        </ParallaxScrollView>
+        </View>
+
+        <View
+          style={{
+            alignItems: "center",
+            width: Dimensions.get("window").width,
+            height: height * 0.42,
+          }}
+        >
+          <CameraRollPicker
+            initialListSize={1}
+            pageSize={3}
+            removeClippedSubviews={true}
+            groupTypes="All"
+            maximum={1}
+            type={this.props.type}
+            assetType={this.props.type ? "Photos" : "All"}
+            imagesPerRow={3}
+            imageMargin={1}
+            callback={this.getSelectedImages.bind(this)}
+          />
+        </View>
+        {/* </ParallaxScrollView> */}
       </View>
     );
   }

@@ -6,7 +6,19 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 target 'BareSuper' do
   rnPrefix = "../node_modules/react-native"
 
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
+
+
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
+  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse.podspec"
+  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary.podspec"
+
+
+
   # React Native and its dependencies
+  # pod 'RNGL', :path => '../node_modules/gl-react-native'
+
   pod 'FBLazyVector', :path => "#{rnPrefix}/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "#{rnPrefix}/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "#{rnPrefix}/Libraries/RCTRequired"
@@ -54,5 +66,11 @@ target 'BareSuper' do
   pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
 
   pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
+  pod 'PanoramaView', :path => '../node_modules/@lightbase/react-native-panorama-view'
+
+  pod 'rn-fetch-blob',:path => '../node_modules/rn-fetch-blob'
+
+
 
 end
