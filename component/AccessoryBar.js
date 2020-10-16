@@ -15,14 +15,14 @@ export default class AccessoryBar extends React.Component {
     return (
       <View style={styles.container}>
         <Button onPress={() => pickImageAsync(onSend)} name='photo' />
-        <Button onPress={() => takePictureAsync(onSend)} name='camera' />
+        <Button onPress={() => takePictureAsync(onSend)} name='camera-alt' />
         <Button onPress={() => getLocationAsync(onSend)} name='my-location' />
-        <Button
+        {/* <Button
           onPress={() => {
             isTyping()
           }}
           name='chat'
-        />
+        /> */}
       </View>
     )
   }

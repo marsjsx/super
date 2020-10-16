@@ -21,7 +21,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { getMessages } from "../actions/message";
 import moment from "moment";
@@ -47,7 +46,7 @@ class MyFollowersAndFollowing extends React.Component {
       user = this.props.user;
     }
 
-    alert(JSON.stringify(user.myFollowings));
+    // alert(JSON.stringify(user.myFollowings));
     return (
       <Container>
         <Header hasTabs>

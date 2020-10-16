@@ -6,14 +6,14 @@ import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { orderBy } from "lodash";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
-
+import Swipeout from "react-native-swipeout";
 import {
   View,
   FlatList,
   Text,
   Image,
+  TouchableHighlight,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { getMessages } from "../actions/message";
 import moment from "moment";
@@ -39,9 +39,13 @@ class Messages extends React.Component {
     this.props.getMessages();
   };
 
-  goToChat = (members) => {
+  goToChat = (members, username) => {
     const uid = members.filter((id) => id !== this.props.user.uid);
-    this.props.navigation.navigate("Chat", uid[0]);
+
+    this.props.navigation.navigate("Chat", {
+      uid: uid[0],
+      title: username,
+    });
   };
 
   getLastMessage(message) {
@@ -68,6 +72,10 @@ class Messages extends React.Component {
     return unseenMessageCount;
   }
 
+  deleteMessages(item) {
+    alert("Coming Soon ");
+  }
+
   render() {
     if (!this.props.user.uid || !this.props.messages.length) {
       return (
@@ -87,96 +95,90 @@ class Messages extends React.Component {
     return (
       <View style={[styles.container, { marginTop: 10 }]}>
         {/* {alert(JSON.stringify(this.props.messages.length))} */}
-
         <FlatList
           // keyExtractor={item => new Date().getTime()}
+          keyExtractor={(item) => item.id}
           data={orderBy(this.props.messages, "updatedAt", "desc")}
-          renderItem={({ item, index }) => (
-            <ListItem avatar onPress={() => this.goToChat(item.members)}>
-              <Left>
-                <ProgressiveImage
-                  thumbnailSource={{
-                    uri: item.user.preview,
-                  }}
-                  transparentBackground="transparent"
-                  source={{ uri: item.user.photo }}
-                  style={styles.roundImage60s}
-                />
-              </Left>
-              <Body>
-                <View style={[styles.container, styles.center, styles.left]}>
-                  {/* <Text style={styles.bold}>{item.user.username}</Text> */}
-                  <Title>{item.user.username}</Title>
-                  {this.getLastMessage(item)}
-                  {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
-                  {/* <Text style={[styles.gray, styles.small]}>
+          renderItem={({ item, index }) => {
+            let swipeBtns = [
+              {
+                text: "Delete",
+                backgroundColor: "red",
+                underlayColor: "rgba(0, 0, 0, 1, 0.6)",
+                onPress: () => {
+                  this.deleteMessages(item);
+                },
+              },
+            ];
+            return (
+              <Swipeout
+                right={swipeBtns}
+                autoClose="true"
+                backgroundColor="transparent"
+              >
+                <TouchableHighlight>
+                  <ListItem
+                    avatar
+                    onPress={() =>
+                      this.goToChat(item.members, item.user.username)
+                    }
+                  >
+                    <Left>
+                      <ProgressiveImage
+                        thumbnailSource={{
+                          uri: item.user.preview,
+                        }}
+                        transparentBackground="transparent"
+                        source={{ uri: item.user.photo }}
+                        style={styles.roundImage60s}
+                      />
+                    </Left>
+                    <Body>
+                      <View
+                        style={[styles.container, styles.center, styles.left]}
+                      >
+                        {/* <Text style={styles.bold}>{item.user.username}</Text> */}
+                        <Title>{item.user.username}</Title>
+                        {this.getLastMessage(item)}
+                        {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
+                        {/* <Text style={[styles.gray, styles.small]}>
                     {moment(item.updatedAt).format("ll")}
                   </Text> */}
-                </View>
-              </Body>
-              <Right>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={[styles.gray, { marginRight: 10 }]}>
-                    {moment(item.updatedAt).format("ll")}
-                  </Text>
-                  <Icon name="arrow-forward" />
-                </View>
+                      </View>
+                    </Body>
+                    <Right>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={[styles.gray, { marginRight: 10 }]}>
+                          {moment(item.updatedAt).format("ll")}
+                        </Text>
+                        <Icon name="arrow-forward" />
+                      </View>
 
-                {this.getUnSeenMessageCount(item) ? (
-                  <Badge
-                    style={{
-                      marginRight: 10,
-                      marginTop: 5,
-                      backgroundColor: "#00C853",
-                    }}
-                  >
-                    <Text style={{ color: "white" }}>
-                      {this.getUnSeenMessageCount(item)}
-                    </Text>
-                  </Badge>
-                ) : null}
-              </Right>
-            </ListItem>
-
-            // <TouchableOpacity
-            //   onPress={() => this.goToChat(item.members)}
-            //   style={[styles.row, styles.space, { marginBottom: 10 }]}
-            // >
-            //   <ProgressiveImage
-            //     thumbnailSource={{
-            //       uri: item.user.preview,
-            //     }}
-            //     transparentBackground="transparent"
-            //     source={{ uri: item.user.photo }}
-            //     style={styles.roundImage}
-            //   />
-            //   {/* <Image
-            //     style={styles.roundImage}
-            //     source={{ uri: item.user.photo }}
-            //   /> */}
-            //   <View style={[styles.container, styles.left]}>
-            //     <Text style={styles.bold}>{item.user.username}</Text>
-            //     {this.getLastMessage(item)}
-            //     {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
-            //     <Text style={[styles.gray, styles.small]}>
-            //       {moment(item.updatedAt).format("ll")}
-            //     </Text>
-            //   </View>
-            //   {this.getUnSeenMessageCount(item) ? (
-            //     <Badge style={{ marginRight: 10, alignSelf: "center" }}>
-            //       <Text style={{ color: "white" }}>
-            //         {this.getUnSeenMessageCount(item)}
-            //       </Text>
-            //     </Badge>
-            //   ) : null}
-            // </TouchableOpacity>
-          )}
+                      {this.getUnSeenMessageCount(item) ? (
+                        <Badge
+                          style={{
+                            marginRight: 10,
+                            marginTop: 5,
+                            backgroundColor: "#00C853",
+                          }}
+                        >
+                          <Text style={{ color: "white" }}>
+                            {this.getUnSeenMessageCount(item)}
+                          </Text>
+                        </Badge>
+                      ) : null}
+                    </Right>
+                  </ListItem>
+                </TouchableHighlight>
+              </Swipeout>
+            );
+          }}
         />
       </View>
     );

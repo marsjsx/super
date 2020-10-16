@@ -3,6 +3,7 @@ import styles from "../styles";
 import firebase from "firebase";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
+import { getPosts } from "../actions/post";
 import {
   Text,
   View,
@@ -19,9 +20,10 @@ import {
   facebookLogin,
 } from "../actions/user";
 import FadeInView from "../component/FadeInView";
+import SplashScreen from "react-native-splash-screen";
 
 class Splash extends React.Component {
-  componentDidMount = () => {
+  componentDidMount = async () => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.props.getUser(user.uid, "LOGIN");
@@ -30,7 +32,6 @@ class Splash extends React.Component {
         // }
       }
     });
-
     this.props.navigation.navigate("Home");
   };
 
@@ -82,7 +83,7 @@ class Splash extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
-    { updateEmail, updatePassword, login, getUser, facebookLogin },
+    { updateEmail, updatePassword, login, getUser, facebookLogin, getPosts },
     dispatch
   );
 };
@@ -90,6 +91,7 @@ const mapDispatchToProps = (dispatch) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
+    post: state.post,
   };
 };
 

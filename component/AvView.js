@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   Animated,
+  ActivityIndicator,
   Dimensions,
   TouchableOpacity,
 } from "react-native";
@@ -13,7 +14,7 @@ import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import ProgressiveImage from "./ProgressiveImage";
 import * as Animatable from "react-native-animatable";
 import Icon from "react-native-vector-icons/AntDesign";
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 import { PinchGestureHandler, State } from "react-native-gesture-handler";
 import styles from "../styles";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -34,6 +35,7 @@ class AvView extends React.Component {
       controls: false,
       paused: true,
       skin: "custom",
+      vrLoaded: false,
       ignoreSilentSwitch: null,
       isBuffering: false,
       imageHeight: 0,
@@ -115,10 +117,10 @@ class AvView extends React.Component {
   };
 
   enterFullScreenImage = async () => {
-    // ScreenOrientation.unlockAsync();
-    // await ScreenOrientation.lockAsync(
-    //   ScreenOrientation.OrientationLock.LANDSCAPE
-    // );
+    ScreenOrientation.unlockAsync();
+    await ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.LANDSCAPE
+    );
     this.props.navigation.navigate("FullScreenImage", { data: this.props });
   };
 
@@ -167,6 +169,17 @@ class AvView extends React.Component {
     }
     this.lastPress = time;
   };
+  onImageLoad = () => {
+    // alert("Called");
+    this.setState({ vrLoaded: true });
+  };
+  handleThumbnailLoad = () => {
+    Animated.timing(this.thumbnailAnimated, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+  thumbnailAnimated = new Animated.Value(0);
 
   render() {
     if (this.props.type === "image") {
@@ -196,12 +209,14 @@ class AvView extends React.Component {
             }}
             source={{ uri: this.props.source }}
             style={this.props.style}
-            resizeMode="cover"
+            // resizeMode={"stretch"}
           />
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               position: "absolute",
-              top: this.props.flow === "home" ? 23 : 100,
+              top: this.props.flow === "home" ? 33 : 100,
+              // top: 100,
+
               left: 10,
             }}
             onPress={() => this.enterFullScreenImage()}
@@ -213,11 +228,12 @@ class AvView extends React.Component {
               style={{
                 backgroundColor: "transparent",
                 alignSelf: "center",
+                shadowOpacity: 1,
                 // lineHeight: 40,
                 // marginLeft: 10,
               }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </TouchableOpacity>
       );
     }
@@ -242,6 +258,18 @@ class AvView extends React.Component {
             duration={800}
             delay={200}
           />
+          {/* <Animated.Image
+            source={{ uri: this.props.preview }}
+            style={[
+              this.props.style,
+              {
+                opacity: this.thumbnailAnimated,
+                // transform: [{ scale: this.scale }],
+              },
+            ]}
+            onLoad={this.handleThumbnailLoad}
+            blurRadius={1}
+          /> */}
           <PanoramaView
             style={styles.postPhoto}
             dimensions={{
@@ -250,11 +278,30 @@ class AvView extends React.Component {
             }}
             inputType="mono"
             imageUrl={this.props.source}
+            onImageLoaded={this.onImageLoad}
+            enableTouchTracking={true}
           />
-          <TouchableOpacity
+          {/* {this.state.vrLoaded && (
+            <View
+              style={{
+                position: "absolute",
+                top: height / 2 - 30,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="rgb(215, 80, 80)" />
+            </View>
+          )} */}
+
+          {/* <TouchableOpacity
             style={{
               position: "absolute",
-              top: this.props.flow === "home" ? 23 : 100,
+              top: this.props.flow === "home" ? 33 : 100,
+              // top: 100,
               left: 10,
             }}
             onPress={() => this.enterFullScreenImage()}
@@ -266,11 +313,12 @@ class AvView extends React.Component {
               style={{
                 backgroundColor: "transparent",
                 alignSelf: "center",
+                shadowOpacity: 1,
                 // lineHeight: 40,
                 // marginLeft: 10,
               }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </TouchableOpacity>
       );
     }
@@ -310,7 +358,7 @@ class AvView extends React.Component {
             poster={this.props.preview}
             posterResizeMode="cover"
             muted={this.state.muted}
-            ignoreSilentSwitch={this.state.ignoreSilentSwitch}
+            ignoreSilentSwitch={"ignore"}
             resizeMode={"cover"}
             onLoad={this.onLoad}
             onBuffer={this.onBuffer}
@@ -320,7 +368,12 @@ class AvView extends React.Component {
           />
 
           <TouchableOpacity
-            style={{ position: "absolute", top: 100, left: 0 }}
+            style={{
+              position: "absolute",
+              shadowOpacity: 1,
+              top: this.props.flow === "home" ? 33 : 100,
+              left: 0,
+            }}
             onPress={() => this.enterFullScreen()}
           >
             <MaterialCommunityIcons
@@ -330,6 +383,7 @@ class AvView extends React.Component {
               style={{
                 backgroundColor: "transparent",
                 alignSelf: "center",
+                shadowOpacity: 1,
                 // lineHeight: 40,
                 // marginLeft: 10,
               }}

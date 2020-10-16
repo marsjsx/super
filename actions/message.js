@@ -221,6 +221,7 @@ export const getMessages = () => {
 
             let members = response.data().members;
             let updatedAt = response.data().updatedAt;
+            let messageId = response.id;
 
             const id = members.filter((id) => id !== uid)[0];
 
@@ -260,6 +261,8 @@ export const getMessages = () => {
                 user: user,
                 chats: chat,
                 updatedAt: updatedAt,
+                id: messageId,
+                key: messageId,
               });
               listmessages = [...listmessages];
               // newlist = listmessages;

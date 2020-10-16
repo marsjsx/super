@@ -152,14 +152,33 @@ module.exports = createReactClass({
                     iconLeft
                     onPress={() => {
                       this.RBSheet.close();
+                      this.props.navigation.navigate("Login");
+                    }}
+                  >
+                    {/* <Ionicons size={24} name="md-person" />
+Login
+Signup
+                    <Text style={{ marginLeft: 20 }}>Use phone or email</Text> */}
+                    <Text style={{ fontWeight: "500" }}>L O G I N</Text>
+                  </Button>
+                  <Button
+                    block
+                    bordered
+                    iconLeft
+                    style={{ marginTop: 10 }}
+                    onPress={() => {
+                      this.RBSheet.close();
                       this.props.navigation.navigate("Signup");
                     }}
                   >
-                    <Ionicons size={24} name="md-person" />
+                    {/* <Ionicons size={24} name="md-person" />
 
-                    <Text style={{ marginLeft: 20 }}>Use phone or email</Text>
+                    <Text style={{ marginLeft: 20 }}>
+                      Login with phone or email
+                    </Text> */}
+                    <Text style={{ fontWeight: "500" }}>S I G N U P</Text>
                   </Button>
-                  <Button
+                  {/* <Button
                     block
                     bordered
                     iconLeft
@@ -207,7 +226,7 @@ module.exports = createReactClass({
                         this.props.navigation.navigate("Signup");
                       }}
                     />
-                  )}
+                  )} */}
                 </View>
                 <Subtitle
                   style={{

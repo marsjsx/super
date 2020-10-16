@@ -1,5 +1,5 @@
 import firebase from 'firebase';
-import { firebase as firebase1 } from '@react-native-firebase/auth';
+// import { firebase as firebase1 } from '@react-native-firebase/auth';
 
 import ENV from '../env';
 require('firebase/firestore')
@@ -15,7 +15,7 @@ const config = {
 };
 
 firebase.initializeApp(config)
-firebase1.initializeApp(config)
+// firebase1.initializeApp(config)
 
 const db = firebase.firestore()
 

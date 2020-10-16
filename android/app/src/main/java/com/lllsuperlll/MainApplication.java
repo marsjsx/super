@@ -4,6 +4,10 @@ import android.app.Application;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.reactnativecommunity.imageeditor.ImageEditorPackage;
+import io.codebakery.imagerotate.ImageRotatePackage;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import nl.lightbase.PanoramaViewPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;

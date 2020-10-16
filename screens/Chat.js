@@ -7,7 +7,6 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { connect } from "react-redux";
 import { addMessage, getMessages, updateSeenBy } from "../actions/message";
@@ -16,6 +15,7 @@ import { orderBy } from "lodash";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Composer } from "react-native-gifted-chat";
 import { Container, Content, Badge, Icon } from "native-base";
+import { showLoader } from "../util/Loader";
 
 import {
   getLocationAsync,
@@ -53,7 +53,13 @@ const otherUser = {
   avatar: "https://facebook.github.io/react/img/logo_og.png",
 };
 
-class Chat extends Component {
+class Chat extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.getParam("title", ""),
+    };
+  };
+
   state = {
     inverted: false,
     step: 0,
@@ -135,7 +141,7 @@ class Chat extends Component {
 
     // alert(JSON.stringify(sentMessages));
 
-    this.props.addMessage(params, sentMessages);
+    this.props.addMessage(params.uid, sentMessages);
   };
 
   botSend = (step = 0) => {
@@ -295,7 +301,7 @@ class Chat extends Component {
 
     if (this.props.messages.length) {
       var chatlist = this.props.messages.filter(
-        (message) => message.user.uid === params
+        (message) => message.user.uid === params.uid
       );
 
       // alert(JSON.stringify(chatlist[0].chats));
@@ -344,7 +350,7 @@ class Chat extends Component {
           alignItems: "center",
         }}
       >
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{ margin: 10 }}
           onPress={() => takePictureAsync(this.onSendFromUser)}
         >
@@ -353,14 +359,14 @@ class Chat extends Component {
             color={"rgba(0,0,0,0.5)"}
             name="camera-alt"
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View
           style={{
             borderColor: "#BDBDBD",
             borderWidth: 1,
             flex: 1,
             flexDirection: "row",
-            marginRight: 10,
+            marginHorizontal: 5,
             borderRadius: 25,
             justifyContent: "center",
           }}
@@ -388,7 +394,7 @@ class Chat extends Component {
 
   render() {
     if (!this.state.appIsReady) {
-      return <ActivityIndicator />;
+      return showLoader("");
     }
     return (
       <View
@@ -420,10 +426,10 @@ class Chat extends Component {
           parsePatterns={this.parsePatterns}
           user={user}
           scrollToBottom
-          onLongPressAvatar={(user) => alert(JSON.stringify(user))}
+          // onLongPressAvatar={(user) => alert(JSON.stringify(user))}
           renderInputToolbar={this.renderInputToolbar}
           renderComposer={this.renderComposer}
-          onPressAvatar={() => alert("short press")}
+          // onPressAvatar={() => alert("short press")}
           keyboardShouldPersistTaps="never"
           renderAccessory={Platform.OS === "web" ? null : this.renderAccessory}
           renderBubble={this.renderBubble}

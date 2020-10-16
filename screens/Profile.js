@@ -9,7 +9,6 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator,
   ImageBackground,
   Alert,
   Platform,
@@ -18,13 +17,19 @@ import {
   findNodeHandle,
   Dimensions,
   ScrollView,
+  StatusBar,
 } from "react-native";
 import { validURL } from "../util/Helper";
+import { showLoader } from "../util/Loader";
+import RBSheet from "react-native-raw-bottom-sheet";
+import { AntDesign } from "react-native-vector-icons";
 
 import {
   followUser,
   unfollowUser,
   getUser,
+  blockUser,
+  unblockUser,
   logout,
   updateBio,
   updateUser,
@@ -32,7 +37,12 @@ import {
 } from "../actions/user";
 import { getMessages } from "../actions/message";
 import { getPosts, likePost, unlikePost, deletePost } from "../actions/post";
-import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  Entypo,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import Dialog from "react-native-dialog";
@@ -45,11 +55,13 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import AvView from "../component/AvView";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import EmptyView from "../component/emptyview";
+import Scale from "../helpers/Scale";
 
 import {
   Button,
   Content,
   Title,
+  Icon,
   Subtitle,
   ActionSheet,
   Text as NText,
@@ -59,12 +71,44 @@ const viewabilityConfig = {
   itemVisiblePercentThreshold: 90,
 };
 
-var BUTTONS = ["Message", "Report", "Cancel"];
+var BUTTONS = ["Message", "Report", "Block", "Cancel"];
+var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
+
 var DESTRUCTIVE_INDEX = 1;
-var CANCEL_INDEX = 2;
+var CANCEL_INDEX = 3;
 const { height, width } = Dimensions.get("window");
+import { isUserBlocked } from "../util/Helper";
 
 class Profile extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    if (
+      navigation.state.params &&
+      navigation.state.params.userProfile === "show"
+    ) {
+      //Show Header by returning header
+      return {
+        headerRight: (
+          <TouchableOpacity
+            style={{ marginRight: 24, shadowOpacity: 0.5 }}
+            onPress={navigation.getParam("showActionSheet")}
+          >
+            <Ionicons
+              style={{
+                color: "white",
+              }}
+              name="ios-more"
+              size={40}
+            />
+          </TouchableOpacity>
+        ),
+      };
+    } else {
+      //Hide Header by returning null
+      // return { headerRight: null };
+      return { headerRight: null };
+    }
+  };
+
   constructor(props) {
     super(props);
     this.page;
@@ -77,23 +121,52 @@ class Profile extends React.Component {
       visible: false,
       changes: 1,
       website: "",
+      userBlocked: false,
       websiteLabel: "",
+      showLoading: false,
       dialogVisible: false,
     };
     this.scroll = null;
     this.scrollView = null;
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     const { state, navigate } = this.props.navigation;
+    const { uid } = state.params;
 
-    if (state.routeName === "MyProfile") {
-      // alert(this.props.user.uid);
+    this.props.navigation.setParams({
+      showActionSheet: this.showActionSheet,
+    });
+
+    this.props.navigation.setParams({
+      goToChat: this.goToChat,
+    });
+
+    if (state.routeName === "Profile") {
+      if (uid) {
+        this.props.navigation.setParams({
+          userProfile: "show",
+        });
+        this.setState({ showLoading: true });
+
+        await this.props.getUser(uid);
+        this.setState({ showLoading: false });
+      }
+    } else {
       this.props.getUser(this.props.user.uid, "LOGIN");
     }
-
-    this.props.getPosts();
+    // this.props.getPosts();
   };
+
+  goToChat() {
+    var user = this.props.profile;
+
+    this.props.navigation.navigate("Chat", {
+      uid: user.uid,
+      title: user.username,
+    });
+    // this.props.navigation.navigate("Chat", this.props.profile.uid);
+  }
 
   goIndex = (index) => {
     this.flatListRef.scrollToIndex({ animated: true, index: index });
@@ -102,6 +175,11 @@ class Profile extends React.Component {
   logout = () => {
     firebase.auth().signOut();
     this.props.logout();
+    showMessage({
+      message: "User Logged Out Successfully",
+      type: "success",
+      duration: 2000,
+    });
     this.props.navigation.navigate("login");
   };
 
@@ -154,7 +232,7 @@ class Profile extends React.Component {
 
     var message = "";
     var type = "success";
-    if (user.followers.indexOf(this.props.user.uid) >= 0) {
+    if (this.props.user.following.indexOf(user.uid) >= 0) {
       this.props.unfollowUser(user);
       message = "User unfollowed successfully";
       type = "danger";
@@ -246,16 +324,26 @@ class Profile extends React.Component {
     }
   };
 
-  showActionSheet = (user) => {
+  showActionSheet = () => {
+    var user = this.props.profile;
+    var options = BUTTONS;
+    if (isUserBlocked(this.props.user, user.uid)) {
+      // if (this.state.userBlocked) {
+      // BUTTONS[2] = "UnBlock";
+      options = BUTTONS1;
+    } else {
+      // BUTTONS[2] = "Block";
+      options = BUTTONS;
+    }
     this.actionSheet._root.showActionSheet(
       {
-        options: BUTTONS,
+        options: options,
         cancelButtonIndex: CANCEL_INDEX,
         destructiveButtonIndex: DESTRUCTIVE_INDEX,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
-        if ("Report" === BUTTONS[buttonIndex]) {
+        if ("Report" === options[buttonIndex]) {
           Alert.alert(
             "Report user?",
             "Press OK to Report. This action is irreversible, it cannot be undone.",
@@ -279,14 +367,75 @@ class Profile extends React.Component {
             ],
             { cancelable: false }
           );
-        } else if ("Message" === BUTTONS[buttonIndex]) {
-          this.props.navigation.navigate("Chat", user.uid);
+        } else if ("Message" === options[buttonIndex]) {
+          this.props.navigation.navigate("Chat", {
+            uid: user.uid,
+            title: user.username,
+          });
+          //  this.props.navigation.navigate("Chat", user.uid);
+        } else if ("Block" === options[buttonIndex]) {
+          Alert.alert(
+            "Block Account",
+            "They won't be able to find your profile, posts or story on l l l s u p e r l l l.\n l l l s u p e r l l l won't let them know that you've blocked them.",
+            [
+              {
+                text: "Cancel",
+                onPress: () => alert("Cancelled"),
+                style: "cancel",
+              },
+              {
+                text: "Block",
+                onPress: () => {
+                  this.props.blockUser(user);
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+
+          // this.props.blockUser(user.uid);
+          // var description = "User blocked sucessfully";
+          // var message = "Block User";
+
+          // if (this.state.userBlocked) {
+          //   description = "User Unblocked";
+          //   message = "Unblock User";
+          // }
+          // showMessage({
+          //   message: message,
+          //   description: description,
+          //   type: "info",
+          //   duration: 2000,
+          // });
+          // this.setState({ userBlocked: !this.state.userBlocked });
+        } else if ("Unblock" === options[buttonIndex]) {
+          this.unBlockUser(user);
         } else {
         }
       }
     );
   };
 
+  unBlockUser(user) {
+    Alert.alert(
+      `Unblock ${user.username}?`,
+      "They will now be able to see your posts and follow you on l l l s u p e r l l l.\n l l l s u p e r l l l won't let them know that you've unblocked them.",
+      [
+        {
+          text: "Cancel",
+          // onPress: () => alert("Cancelled"),
+          style: "cancel",
+        },
+        {
+          text: "Unblock",
+          onPress: () => {
+            this.props.unblockUser(user.uid);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  }
   openUrl = async (user) => {
     var url = user.bio;
 
@@ -366,6 +515,376 @@ class Profile extends React.Component {
     this.setState({ dialogVisible: false });
   };
 
+  getProfileComponent(user) {
+    const { state, navigate } = this.props.navigation;
+    let userblocked = isUserBlocked(this.props.user, user.uid);
+
+    return (
+      <View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <TouchableOpacity
+            style={{
+              padding: Scale.moderateScale(10),
+              marginTop: Scale.moderateScale(32),
+              marginLeft: Scale.moderateScale(18),
+            }}
+            onPress={() => this.RBSheet.close()}
+          >
+            <AntDesign name="left" size={30} color="#000" />
+          </TouchableOpacity>
+          {state.routeName != "MyProfile" && (
+            <TouchableOpacity
+              style={{
+                padding: Scale.moderateScale(10),
+                marginTop: Scale.moderateScale(32),
+                marginRight: Scale.moderateScale(18),
+              }}
+              onPress={() => {
+                this.RBSheet.close();
+                this.goToChat();
+              }}
+            >
+              <SimpleLineIcons name={"paper-plane"} size={30} color="#000" />
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={[styles.center]}>
+          <TouchableOpacity>
+            <ProgressiveImage
+              transparentBackground="transparent"
+              source={{ uri: user.photo }}
+              style={styles.roundImage100}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              justifyContent: "center",
+              alignItems: "flex-start",
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: "400",
+                fontSize: 18,
+                color: "#000",
+              }}
+            >
+              {user.username}
+            </Text>
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.followBar,
+              styles.bottomgreyborder,
+              {
+                marginTop: Scale.moderateScale(14),
+                marginBottom: Scale.moderateScale(14),
+                paddingBottom: Scale.moderateScale(14),
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={[styles.center, {}]}
+              onPress={() => {
+                this.RBSheet.close();
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Followers",
+                  route: state.routeName,
+                });
+              }}
+            >
+              <Text
+                style={[
+                  styles.bold,
+                  styles.textF,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {user.followers && user.followers.length
+                  ? user.followers.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.grey]}> Followers</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.center, {}]}
+              onPress={() => {
+                this.RBSheet.close();
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Following",
+                  route: state.routeName,
+                });
+              }}
+            >
+              <Text
+                style={[
+                  styles.bold,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {user.following && user.following.length
+                  ? user.following.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.grey]}> Following</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.center, {}]} onPress={() => {}}>
+              <Text
+                style={[
+                  styles.bold,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {"-"}
+              </Text>
+              <Text style={[styles.grey]}> Likes</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: Scale.moderateScale(30),
+                marginRight: Scale.moderateScale(40),
+              }}
+            >
+              <Text style={[styles.bold, styles.black, { width: "30%" }]}>
+                Name:
+              </Text>
+              <Text
+                style={[
+                  styles.grey,
+                  styles.margin10,
+                  { width: "70%", textAlign: "right" },
+                ]}
+              >
+                {user.username}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: Scale.moderateScale(30),
+                marginRight: Scale.moderateScale(40),
+              }}
+            >
+              <Text style={[styles.bold, styles.black, { width: "30%" }]}>
+                Bio:
+              </Text>
+              <Text
+                style={[
+                  styles.grey,
+                  styles.margin10,
+                  { width: "70%", textAlign: "right" },
+                ]}
+              >
+                {user.userbio || "-"}
+              </Text>
+            </View>
+
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "45%", textAlign: "right" },
+                ]}
+              >
+                Website:
+              </Text>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "55%", textAlign: "left" },
+                ]}
+              >
+                {user.bio}
+              </Text>
+            </View>
+
+            {state.routeName === "MyProfile" && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "45%", textAlign: "right" },
+                  ]}
+                >
+                  Website Label:
+                </Text>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "55%", textAlign: "left" },
+                  ]}
+                >
+                  {user.websiteLabel}
+                </Text>
+              </View>
+            )}
+
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "45%", textAlign: "right" },
+                ]}
+              >
+                Gender:
+              </Text>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "55%", textAlign: "left" },
+                ]}
+              >
+                {user.gender}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "45%", textAlign: "right" },
+                ]}
+              >
+                Birthdate:
+              </Text>
+              <Text
+                style={[
+                  styles.textB,
+                  styles.margin10,
+                  { width: "55%", textAlign: "left" },
+                ]}
+              >
+                {user.dob ? moment(user.dob).format("ll") : "-"}
+              </Text>
+            </View>
+            {state.routeName === "MyProfile" && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "45%", textAlign: "right" },
+                  ]}
+                >
+                  Account Type:
+                </Text>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "55%", textAlign: "left" },
+                  ]}
+                >
+                  {user.accountType}
+                </Text>
+              </View>
+            )}
+            {state.routeName === "MyProfile" && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "45%", textAlign: "right" },
+                  ]}
+                >
+                  Email:
+                </Text>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "55%", textAlign: "left" },
+                  ]}
+                >
+                  {user.email}
+                </Text>
+              </View>
+            )}
+
+            {state.routeName === "MyProfile" && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "45%", textAlign: "right" },
+                  ]}
+                >
+                  Phone:
+                </Text>
+                <Text
+                  style={[
+                    styles.textB,
+                    styles.margin10,
+                    { width: "55%", textAlign: "left" },
+                  ]}
+                >
+                  {user.phone}
+                </Text>
+              </View>
+            )}
+          </View>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 15,
+              marginTop: Scale.moderateScale(10),
+            }}
+            onPress={() => {
+              this.RBSheet.close();
+              this.props.navigation.navigate("BlockedUsers");
+            }}
+          >
+            <Text style={{ flex: 1 }}>Blocked Accounts </Text>
+            <Ionicons name="ios-arrow-forward" size={20} color="black" />
+          </TouchableOpacity>
+          <Button block light style={styles.margin10} onPress={this.logout}>
+            <Text>Logout</Text>
+          </Button>
+          <TouchableOpacity
+            style={{
+              marginTop: Scale.moderateScale(10),
+            }}
+            onPress={() => {
+              if (state.routeName === "MyProfile") {
+                this.RBSheet.close();
+                this.props.navigation.navigate("Edit");
+              }
+            }}
+          >
+            <Image
+              style={[
+                styles.profileLogo1,
+                { transform: [{ rotate: "90deg" }] },
+              ]}
+              source={require("../assets/logo-1.png")}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   render() {
     let user = {};
 
@@ -392,287 +911,336 @@ class Profile extends React.Component {
         );
       }
     }
+    let userblocked = isUserBlocked(this.props.user, user.uid);
+
     // if (!user.posts) return <ActivityIndicator style={styles.container} />;
     return (
-      <ScrollView style={{ marginBottom: 0 }} ref={(c) => (this.scroll = c)}>
-        <EmptyView
-          ref={(ref) => {
-            this.sheetRef = ref;
-          }}
-          navigation={this.props.navigation}
-        />
-        <ProgressiveImage
-          thumbnailSource={{
-            uri: user.preview,
-          }}
-          source={{ uri: user.photo }}
-          style={[styles.profilePhoto]}
-          resizeMode="cover"
-        />
-        <ImageBackground
-          style={[styles.profileEditPhoto, { position: "absolute" }]}
-        >
-          <View style={[styles.bottom, { width: "100%" }]}>
-            {state.routeName === "MyProfile" && user.photo === "" ? (
-              <View
-                style={[styles.center, styles.container, { width: "100%" }]}
-              >
-                <Button
-                  bordered
-                  danger
-                  onPress={() => this.props.navigation.navigate("Edit")}
+      <View style={styles.container}>
+        {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
+
+        <ScrollView style={{ marginBottom: 0 }} ref={(c) => (this.scroll = c)}>
+          <EmptyView
+            ref={(ref) => {
+              this.sheetRef = ref;
+            }}
+            navigation={this.props.navigation}
+          />
+
+          <ProgressiveImage
+            thumbnailSource={{
+              uri: user.preview,
+            }}
+            source={{ uri: user.photo }}
+            style={[styles.profilePhoto]}
+            resizeMode="cover"
+          />
+          <ImageBackground
+            style={[styles.profileEditPhoto, { position: "absolute" }]}
+          >
+            <View style={[styles.bottom, { width: "100%" }]}>
+              {state.routeName === "MyProfile" && user.photo === "" ? (
+                <View
+                  style={[styles.center, styles.container, { width: "100%" }]}
                 >
-                  <Text style={{ color: "red" }}>Add Profile Photo</Text>
-                </Button>
-              </View>
-            ) : (
-              <View />
-            )}
-          </View>
-          <View style={[{ width: "100%", marginTop: -10 }]} />
-          <View style={[styles.row, styles.space, { width: "100%" }]}>
-            <View style={styles.container}>
-              <View style={[styles.row, styles.space, { width: "100%" }]}>
-                <View style={[styles.center, { flex: 1 }]}>
-                  <View>
-                    {/* <Image
-                      style={[styles.logoHeader, { width: 45, height: 45 }]}
-                      source={require("../assets/logo-1.png")}
-                      resizeMode="contain"
-                    /> */}
-
-                    <Title style={[styles.textW]}>@ {user.username}</Title>
-                    <View
-                      style={{
-                        marginTop: 20,
-                        marginBottom: 20,
-                        width: width,
-                        borderBottomColor: "gray",
-                        borderBottomWidth: 2,
-                      }}
-                    />
-                  </View>
-
                   <Button
-                    style={{ backgroundColor: "#ea5b62" }}
-                    onPress={() => this.openUrl(user)}
+                    bordered
+                    danger
+                    onPress={() => this.props.navigation.navigate("Edit")}
                   >
-                    <Text
-                      style={[
-                        styles.textW,
-                        { marginLeft: 40, marginRight: 40 },
-                      ]}
-                    >
-                      {user.websiteLabel ? user.websiteLabel : "Add a link"}
-                    </Text>
+                    <Text style={{ color: "red" }}>Add Profile Photo</Text>
                   </Button>
-
-                  {state.routeName != "MyProfile" &&
-                    this.props.user.uid !== user.uid && (
+                </View>
+              ) : (
+                <View />
+              )}
+            </View>
+            <View style={[{ width: "100%", marginTop: -10 }]} />
+            <View style={[styles.row, styles.space, { width: "100%" }]}>
+              <View style={styles.container}>
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.props.navigation.navigate("ViewProfile", {
+                        routeName: state.routeName,
+                        title: user.username,
+                      });
+                      // this.RBSheet.open()
+                    }}
+                  >
+                    <Image
+                      style={[
+                        styles.profileLogo1,
+                        { transform: [{ rotate: "90deg" }] },
+                      ]}
+                      source={require("../assets/logo-3.png")}
+                    />
+                  </TouchableOpacity>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 18,
+                      color: "rgb(255,255,255)",
+                    }}
+                  >
+                    @ {user.username}
+                  </Text>
+                  {this.props.user.uid != user.uid &&
+                    !userblocked &&
+                    this.props.user.following &&
+                    this.props.user.following.indexOf(user.uid) < 0 && (
                       <TouchableOpacity
-                        onPress={() => this.showActionSheet(user)}
+                        onPress={() => this.follow(user)}
+                        style={{ marginHorizontal: Scale.moderateScale(10) }}
                       >
-                        <Ionicons
+                        <Text
                           style={{
-                            margin: 5,
-                            color: "rgb(255,255,255)",
+                            color: "#00ff00",
+                            fontWeight: "bold",
+                            padding: Scale.moderateScale(5),
+                            fontSize: Scale.moderateScale(14),
                           }}
-                          name="ios-more"
-                          size={40}
-                        />
+                        >
+                          +follow
+                        </Text>
                       </TouchableOpacity>
                     )}
-                  <Text
-                    numberOfLines={2}
-                    style={[
-                      styles.bold,
-                      styles.textF,
-                      styles.white,
-                      styles.margin10,
-                    ]}
-                  >
-                    {user.userbio}
-                  </Text>
                 </View>
+                {/* <TouchableOpacity
+                  style={{
+                    alignSelf: "center",
+                    margin: Scale.moderateScale(10),
+                  }}
+                  onPress={() => this.showActionSheet()}
+                >
+                  <Ionicons
+                    style={{
+                      color: "white",
+                    }}
+                    name="ios-more"
+                    size={40}
+                  />
+                </TouchableOpacity> */}
+                <Text
+                  numberOfLines={2}
+                  style={[
+                    styles.bold,
+                    styles.textF,
+                    styles.white,
+                    styles.margin10,
+                    ,
+                    { fontSize: Scale.moderateScale(15) },
+                  ]}
+                >
+                  {user.userbio}
+                </Text>
               </View>
             </View>
-          </View>
-        </ImageBackground>
-        <View
-          style={[styles.row, styles.space, styles.followBar, { marginTop: 0 }]}
-        >
-          {/* <View style={styles.center}>
-            <Text style={[styles.bold, styles.textF]}>
-              {user.posts && user.posts.length ? user.posts.length : "0"}
-            </Text>
-            <Text style={[styles.bold, styles.textF]}>posts</Text>
-          </View> */}
-
-          <TouchableOpacity
-            style={[styles.center, { flexDirection: "row" }]}
-            onPress={() =>
-              this.props.navigation.navigate("MyFollowersAndFollowing", {
-                data: "Followers",
-                route: state.routeName,
-              })
-            }
+          </ImageBackground>
+          {/* <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.followBar,
+              { marginTop: 0 },
+            ]}
           >
-            <Text style={[styles.bold, styles.textF]}>
-              {user.followers && user.followers.length
-                ? user.followers.length
-                : "0"}
-            </Text>
-            <Text style={[styles.bold, styles.textF]}> followers</Text>
-          </TouchableOpacity>
-
-          {state.routeName === "MyProfile" ||
-          this.props.user.uid === user.uid ? (
-            <Button
-              bordered
-              dark
-              onPress={() => this.props.navigation.navigate("Edit")}
-            >
-              <Text
-                style={[
-                  styles.small,
-                  styles.bold,
-                  { marginRight: 10, marginLeft: 10 },
-                ]}
-              >
-                EDIT PROFILE
-              </Text>
-            </Button>
-          ) : (
-            <Button
-              bordered
-              danger={
-                user.followers &&
-                user.followers.indexOf(this.props.user.uid) >= 0
+            <TouchableOpacity
+              style={[styles.center, { flexDirection: "row" }]}
+              onPress={() =>
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Followers",
+                  route: state.routeName,
+                })
               }
-              info={
-                !(
+            >
+              <Text style={[styles.bold, styles.textF]}>
+                {user.followers && user.followers.length
+                  ? user.followers.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.bold, styles.textF]}> followers</Text>
+            </TouchableOpacity>
+
+            {state.routeName === "MyProfile" ||
+            this.props.user.uid === user.uid ? (
+              <Button
+                bordered
+                dark
+                onPress={() => this.props.navigation.navigate("Edit")}
+              >
+                <Text
+                  style={[
+                    styles.small,
+                    styles.bold,
+                    { marginRight: 10, marginLeft: 10 },
+                  ]}
+                >
+                  EDIT PROFILE
+                </Text>
+              </Button>
+            ) : (
+              <Button
+                bordered
+                danger={
                   user.followers &&
                   user.followers.indexOf(this.props.user.uid) >= 0
-                )
-              }
-              onPress={() => this.follow(user)}
-            >
-              <NText
-                style={[
-                  styles.small,
-                  styles.bold,
-                  { marginRight: 10, marginLeft: 10 },
-                ]}
+                }
+                info={
+                  !(
+                    user.followers &&
+                    user.followers.indexOf(this.props.user.uid) >= 0
+                  )
+                }
+                onPress={() => {
+                  userblocked ? this.unBlockUser(user) : this.follow(user);
+                }}
               >
-                {user.followers &&
-                user.followers.indexOf(this.props.user.uid) >= 0
-                  ? "UNFOLLOW"
-                  : "FOLLOW"}
-              </NText>
-            </Button>
+                <NText
+                  style={[
+                    styles.small,
+                    styles.bold,
+                    { marginRight: 10, marginLeft: 10 },
+                  ]}
+                >
+                  {userblocked
+                    ? "Unblock"
+                    : this.props.user.following &&
+                      this.props.user.following.indexOf(user.uid) >= 0
+                    ? "UNFOLLOW"
+                    : "FOLLOW"}
+                </NText>
+              </Button>
+            )}
+
+            <TouchableOpacity
+              style={[styles.center, { flexDirection: "row" }]}
+              onPress={() =>
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Following",
+                  route: state.routeName,
+                })
+              }
+            >
+              <Text style={[styles.bold, styles.textF]}>
+                {user.following && user.following.length
+                  ? user.following.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.bold, styles.textF]}> following</Text>
+            </TouchableOpacity>
+          </View> */}
+
+          {!userblocked && (
+            <FlatList
+              initialNumToRender="9"
+              maxToRenderPerBatch="9"
+              windowSize={12}
+              contentContainerStyle={{ marginBottom: 150 }}
+              // onRefresh={() => this.props.getPosts()}
+              refreshing={false}
+              horizontal={false}
+              numColumns={3}
+              data={user.posts}
+              extraData={user}
+              onViewableItemsChanged={this._onViewableItemsChanged}
+              viewabilityConfig={viewabilityConfig}
+              removeClippedSubviews={true}
+              keyExtractor={(item, index) => [item.id, index]}
+              onEndReachedThreshold={0.4}
+              renderItem={({ item, index }) => {
+                const liked = item.likes.includes(this.props.user.uid);
+                const visible = this.state.visible;
+                return (
+                  <View>
+                    <TouchableOpacity
+                      id={item.id}
+                      onPress={() => [this.onSelect(item, index)]}
+                      activeOpacity={0.6}
+                      onLongPress={() => this.activateLongPress(item)}
+                    >
+                      <View style={[styles.center]}>
+                        <ProgressiveImage
+                          id={item.id}
+                          thumbnailSource={{
+                            uri: item.preview,
+                          }}
+                          source={{ uri: item.postPhoto }}
+                          type={item.type}
+                          style={styles.squareLarge}
+                          resizeMode="cover"
+                        />
+                        {item.type === "video" ? (
+                          <Ionicons
+                            name="ios-play"
+                            size={40}
+                            color="white"
+                            style={{
+                              backgroundColor: "transparent",
+                              alignSelf: "center",
+                              position: "absolute",
+                            }}
+                          />
+                        ) : null}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                );
+              }}
+            />
           )}
 
-          <TouchableOpacity
-            style={[styles.center, { flexDirection: "row" }]}
-            onPress={() =>
-              this.props.navigation.navigate("MyFollowersAndFollowing", {
-                data: "Following",
-                route: state.routeName,
-              })
-            }
-          >
-            <Text style={[styles.bold, styles.textF]}>
-              {user.following && user.following.length
-                ? user.following.length
-                : "0"}
-            </Text>
-            <Text style={[styles.bold, styles.textF]}> following</Text>
-          </TouchableOpacity>
-        </View>
-
-        <FlatList
-          initialNumToRender="9"
-          maxToRenderPerBatch="9"
-          windowSize={12}
-          contentContainerStyle={{ marginBottom: 70 }}
-          onRefresh={() => this.props.getPosts()}
-          refreshing={false}
-          horizontal={false}
-          numColumns={3}
-          data={user.posts}
-          extraData={user}
-          onViewableItemsChanged={this._onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          removeClippedSubviews={true}
-          keyExtractor={(item, index) => [item.id, index]}
-          onEndReachedThreshold={0.4}
-          renderItem={({ item, index }) => {
-            const liked = item.likes.includes(this.props.user.uid);
-            const visible = this.state.visible;
-            return (
-              <View>
-                <TouchableOpacity
-                  id={item.id}
-                  onPress={() => [this.onSelect(item, index)]}
-                  activeOpacity={0.6}
-                  onLongPress={() => this.activateLongPress(item)}
-                >
-                  <View style={[styles.center]}>
-                    <ProgressiveImage
-                      id={item.id}
-                      thumbnailSource={{
-                        uri: item.preview,
-                      }}
-                      source={{ uri: item.postPhoto }}
-                      style={styles.squareLarge}
-                      resizeMode="cover"
-                    />
-                    {item.type === "video" ? (
-                      <Ionicons
-                        name="ios-play"
-                        size={40}
-                        color="white"
-                        style={{
-                          backgroundColor: "transparent",
-                          alignSelf: "center",
-                          position: "absolute",
-                        }}
-                      />
-                    ) : null}
-                  </View>
-                </TouchableOpacity>
-              </View>
-            );
-          }}
-        />
-
-        <ActionSheet
-          ref={(c) => {
-            this.actionSheet = c;
-          }}
-        />
-
-        <Dialog.Container visible={this.state.dialogVisible}>
-          <Dialog.Title>Add your link</Dialog.Title>
-          <Dialog.Description>
-            Add your website label(Title) and website link
-          </Dialog.Description>
-          <Dialog.Input
-            value={this.state.websiteLabel}
-            underlineColorAndroid="#000"
-            onChangeText={(input) => this.setState({ websiteLabel: input })}
-            placeholder="Website Label"
+          <ActionSheet
+            ref={(c) => {
+              this.actionSheet = c;
+            }}
           />
-          <Dialog.Input
-            value={this.state.website}
-            underlineColorAndroid="#000"
-            onChangeText={(input) => this.setState({ website: input })}
-            placeholder="Website Link"
-          />
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
-          <Dialog.Button label="Update" onPress={this.handleOnUpdate} />
-        </Dialog.Container>
-      </ScrollView>
+
+          <Dialog.Container visible={this.state.dialogVisible}>
+            <Dialog.Title>Add your link</Dialog.Title>
+            <Dialog.Description>
+              Add your website label(Title) and website link
+            </Dialog.Description>
+            <Dialog.Input
+              value={this.state.websiteLabel}
+              underlineColorAndroid="#000"
+              onChangeText={(input) => this.setState({ websiteLabel: input })}
+              placeholder="Website Label"
+            />
+            <Dialog.Input
+              value={this.state.website}
+              underlineColorAndroid="#000"
+              onChangeText={(input) => this.setState({ website: input })}
+              placeholder="Website Link"
+            />
+            <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+            <Dialog.Button label="Update" onPress={this.handleOnUpdate} />
+          </Dialog.Container>
+        </ScrollView>
+        <RBSheet
+          ref={(ref) => {
+            this.RBSheet = ref;
+          }}
+          height={height * 1}
+          openDuration={250}
+          customStyles={{
+            container: {
+              // justifyContent: "center",
+              // alignItems: "center",
+            },
+          }}
+        >
+          {this.getProfileComponent(user)}
+        </RBSheet>
+      </View>
     );
   }
 }
@@ -686,6 +1254,8 @@ const mapDispatchToProps = (dispatch) => {
       deletePost,
       getPosts,
       likePost,
+      blockUser,
+      unblockUser,
       unlikePost,
       getUser,
       logout,

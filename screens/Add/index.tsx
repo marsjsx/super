@@ -1,5 +1,12 @@
 import React from "react";
-import { StyleSheet, View, Text, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  Platform,
+  StatusBar,
+} from "react-native";
 import {
   Body,
   Button,
@@ -35,6 +42,7 @@ class Add extends React.Component {
     this.state = {
       isModalOpen: false,
       activeIndex: 0,
+      footerHeight: 60,
       isPaused: false,
       cameraViewFocused: false,
       cameraViewFocused2: false,
@@ -75,13 +83,15 @@ class Add extends React.Component {
     // }
   };
   willFocusAction = async (payload) => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status === "granted") {
-    } else {
-      openSettingsDialog(
-        "Failed to Access Photos, Please go to the Settings to enable access",
-        this.props.navigation
-      );
+    if (Platform.OS === "ios") {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status === "granted") {
+      } else {
+        openSettingsDialog(
+          "Failed to Access Photos, Please go to the Settings to enable access",
+          this.props.navigation
+        );
+      }
     }
   };
 
@@ -107,7 +117,7 @@ class Add extends React.Component {
   };
 
   closeModal = () => {
-    this.setState({ isModalOpen: false });
+    this.setState({ isModalOpen: false, isPaused: true });
     this.props.navigation.navigate("Home");
   };
 
@@ -124,6 +134,8 @@ class Add extends React.Component {
     }
 
     // alert(JSON.stringify(this.props.post.photo))
+    this.setState({ isPaused: true });
+
     this.props.navigation.navigate("PostDetail");
   };
 
@@ -133,6 +145,7 @@ class Add extends React.Component {
 
     return (
       <Container>
+        {Platform.OS === "ios" && <StatusBar hidden />}
         <NavigationEvents
           onDidFocus={(payload) => {
             this.setState({ isModalOpen: true });
@@ -147,93 +160,94 @@ class Add extends React.Component {
           swipeArea={250}
           backButtonClose
         >
-          {this.state.activeIndex < 2 ? (
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                backgroundColor: colors.black,
-                borderBottomWidth: 0,
-                padding: 10,
-              }}
-            >
-              <View>
-                <Button transparent onPress={this.closeModal}>
-                  <Text style={styles.btnActions}>Cancel</Text>
-                </Button>
-              </View>
-              {/* <Body>
-              <Text style={styles.btnActions}>Gallery</Text>
-            </Body> */}
-              <View>
-                <Button transparent onPress={this.onNext}>
-                  <Text style={styles.btnActions}>Next</Text>
-                </Button>
-              </View>
+          {/* <Content> */}
+          <Swiper
+            ref={(component) => (this.swiper = component)}
+            removeClippedSubviews={false}
+            onMomentumScrollEnd={this.onMomentumScrollEnd.bind(this)}
+            loop={false}
+            style={styles.wrapper}
+            showsButtons={false}
+            showsPagination={false}
+            index={0}
+            onIndexChanged={(index: number) => {
+              this.setState({ activeIndex: index });
+              if (index == 0) {
+                this.setState({ isPaused: false });
+              } else {
+                this.setState({ isPaused: true });
+              }
+
+              if (index == 2) {
+                this.setState({
+                  cameraViewFocused: true,
+                  cameraViewFocused2: false,
+                });
+              }
+
+              if (index == 3) {
+                this.setState({
+                  cameraViewFocused: false,
+                  cameraViewFocused2: true,
+                });
+              }
+            }}
+          >
+            <View style={styles.slide1}>
+              <GalleryView
+                activeIndex={this.state.activeIndex}
+                isPaused={this.state.isPaused}
+                closeModel={this.closeModal}
+                onNext={this.onNext}
+                footerHeight={this.state.footerHeight}
+                navigation={this.props.navigation}
+              />
             </View>
-          ) : null}
-
-          <Content>
-            <Swiper
-              ref={(component) => (this.swiper = component)}
-              removeClippedSubviews={false}
-              onMomentumScrollEnd={this.onMomentumScrollEnd.bind(this)}
-              loop={false}
-              style={styles.wrapper}
-              showsButtons={false}
-              showsPagination={false}
-              index={0}
-              onIndexChanged={(index: number) => {
-                this.setState({ activeIndex: index });
-
-                if (index == 2) {
-                  this.setState({
-                    cameraViewFocused: true,
-                    cameraViewFocused2: false,
-                  });
-                }
-
-                if (index == 3) {
-                  this.setState({
-                    cameraViewFocused: false,
-                    cameraViewFocused2: true,
-                  });
-                }
-              }}
-            >
-              <View style={styles.slide1}>
-                <GalleryView isPaused={this.state.isPaused} />
-              </View>
-              <View style={styles.slide4}>
-                <GalleryView type="vr" isPaused={this.state.isPaused} />
-              </View>
-              <View style={styles.slide2}>
-                <CameraView
-                  ref={(ref) => {
-                    this.cameraRef = ref;
-                  }}
-                  type="camera"
+            <View style={styles.slide4}>
+              {this.state.activeIndex === 1 && (
+                <GalleryView
                   activeIndex={this.state.activeIndex}
+                  type="vr"
+                  footerHeight={this.state.footerHeight}
+                  closeModel={this.closeModal}
+                  onNext={this.onNext}
+                  isPaused={this.state.isPaused}
                   navigation={this.props.navigation}
-                  focused={this.state.cameraViewFocused}
                 />
-              </View>
-              <View style={styles.slide2}>
-                <CameraView
-                  ref={(ref) => {
-                    this.cameraRef2 = ref;
-                  }}
-                  type="video"
+              )}
+              {/* <GalleryView
                   activeIndex={this.state.activeIndex}
-                  navigation={this.props.navigation}
-                  focused={this.state.cameraViewFocused2}
-                />
-              </View>
-            </Swiper>
-          </Content>
+                  type="vr"
+                  isPaused={this.state.isPaused}
+                /> */}
+            </View>
+            <View style={styles.slide2}>
+              <CameraView
+                ref={(ref) => {
+                  this.cameraRef = ref;
+                }}
+                type="camera"
+                activeIndex={this.state.activeIndex}
+                navigation={this.props.navigation}
+                focused={this.state.cameraViewFocused}
+              />
+            </View>
+            <View style={styles.slide2}>
+              <CameraView
+                ref={(ref) => {
+                  this.cameraRef2 = ref;
+                }}
+                type="video"
+                activeIndex={this.state.activeIndex}
+                navigation={this.props.navigation}
+                focused={this.state.cameraViewFocused2}
+              />
+            </View>
+          </Swiper>
+          {/* </Content> */}
           <Footer
             style={{
-              backgroundColor: colors.black,
+              backgroundColor: "#f5f5f5",
               borderTopWidth: 0,
             }}
           >
@@ -242,6 +256,10 @@ class Add extends React.Component {
                 flexDirection: "row",
                 justifyContent: "space-around",
                 flex: 1,
+              }}
+              onLayout={(event) => {
+                var { x, y, width, height } = event.nativeEvent.layout;
+                this.setState({ footerHeight: height });
               }}
             >
               <Button
@@ -253,7 +271,7 @@ class Add extends React.Component {
                   style={Object.assign({}, styles.btnActions, {
                     color:
                       this.state.activeIndex === 0
-                        ? colors.white
+                        ? colors.black
                         : colors.dark_gray,
                   })}
                 >
@@ -269,11 +287,11 @@ class Add extends React.Component {
                   style={Object.assign({}, styles.btnActions, {
                     color:
                       this.state.activeIndex === 1
-                        ? colors.white
+                        ? colors.black
                         : colors.dark_gray,
                   })}
                 >
-                  3D
+                  360
                 </Text>
               </Button>
               <Button
@@ -285,7 +303,7 @@ class Add extends React.Component {
                   style={Object.assign({}, styles.btnActions, {
                     color:
                       this.state.activeIndex === 2
-                        ? colors.white
+                        ? colors.black
                         : colors.dark_gray,
                   })}
                 >
@@ -301,7 +319,7 @@ class Add extends React.Component {
                   style={Object.assign({}, styles.btnActions, {
                     color:
                       this.state.activeIndex === 3
-                        ? colors.white
+                        ? colors.black
                         : colors.dark_gray,
                   })}
                 >

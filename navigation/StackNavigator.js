@@ -5,10 +5,17 @@ import HomeScreen from "../screens/Home";
 import SearchScreen from "../screens/Search";
 import FilterScreen from "../screens/Filter";
 import PostScreen from "../screens/Post";
+import VideoCover from "../screens/videocover";
+import CropperPage from "../screens/CropperPage";
+
 import PostCaptions from "../screens/PostCaption";
 
 import ActivityScreen from "../screens/Activity";
 import ProfileScreen from "../screens/Profile";
+import ViewProfileScreen from "../screens/ViewProfile";
+
+import BlockedUsers from "../screens/BlockedUsers";
+
 // import CameraScreen from "../screens/Camera";
 import CameraScreen from "../component/CameraView";
 import FullScreenImage from "../component/FullScreenImage";
@@ -106,7 +113,7 @@ export const HomeNavigator = createAppContainer(
       screen: CommentScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        title: "Comments",
+        // title: "Comments",
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -170,7 +177,7 @@ export const HomeNavigator = createAppContainer(
       screen: ChatScreen,
       navigationOptions: ({ navigation }) => ({
         // headerTransparent: true,
-        title: "Chat",
+        // title: "Chat",
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -228,16 +235,61 @@ export const HomeNavigator = createAppContainer(
         ),
       }),
     },
+
     Profile: {
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        headerTitle: (
-          <Image
-            style={styles.profileLogo}
-            source={require("../assets/logo-1.png")}
-          />
+        // headerTitle: (
+        //   <Image
+        //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
         ),
+      }),
+    },
+    ViewProfile: {
+      screen: ViewProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // title: "Chat",
+
+        // headerTitle: (
+        //   <Image
+        //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    MyFollowersAndFollowing: {
+      screen: MyFollowersAndFollowing,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -248,6 +300,19 @@ export const HomeNavigator = createAppContainer(
           </TouchableOpacity>
         ),
       }),
+    },
+    PostListScreen: {
+      screen: PostListScreen,
+      navigationOptions: {
+        headerTransparent: true,
+        title: null,
+        // headerTitle: (
+        //   <Image
+        //     style={styles.profileLogo}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+      },
     },
     // LikersAndViewers: {
     //   screen: LikersAndViewers,
@@ -343,6 +408,25 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
     tabBarVisible = false;
   }
   if (
+    navigation.state.routes.some((route) => route.routeName === "ViewProfile")
+  ) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some(
+      (route) => route.routeName === "MyFollowersAndFollowing"
+    )
+  ) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some(
+      (route) => route.routeName === "LikersAndViewers"
+    )
+  ) {
+    tabBarVisible = false;
+  }
+  if (
     navigation.state.routes.some((route) => route.routeName === "PostReport")
   ) {
     tabBarVisible = false;
@@ -381,12 +465,48 @@ export const SearchNavigator = createAppContainer(
         screen: ProfileScreen,
         navigationOptions: ({ navigation }) => ({
           headerTransparent: true,
-          headerTitle: (
-            <Image
-              style={styles.profileLogo}
-              source={require("../assets/logo-1.png")}
-            />
+          headerLeft: (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[
+                  styles.icon,
+                  { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+                ]}
+                name={"ios-arrow-back"}
+                size={40}
+              />
+            </TouchableOpacity>
           ),
+        }),
+      },
+      ViewProfile: {
+        screen: ViewProfileScreen,
+        navigationOptions: ({ navigation }) => ({
+          headerTransparent: true,
+          // headerTitle: (
+          //   <Image
+          //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+          //     source={require("../assets/logo-1.png")}
+          //   />
+          // ),
+          headerLeft: (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[
+                  styles.icon,
+                  { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+                ]}
+                name={"ios-arrow-back"}
+                size={40}
+              />
+            </TouchableOpacity>
+          ),
+        }),
+      },
+      MyFollowersAndFollowing: {
+        screen: MyFollowersAndFollowing,
+        navigationOptions: ({ navigation }) => ({
+          headerTransparent: true,
           headerLeft: (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
@@ -418,12 +538,12 @@ export const SearchNavigator = createAppContainer(
         navigationOptions: {
           headerTransparent: true,
           title: null,
-          headerTitle: (
-            <Image
-              style={styles.profileLogo}
-              source={require("../assets/logo-1.png")}
-            />
-          ),
+          // headerTitle: (
+          //   <Image
+          //     style={styles.profileLogo}
+          //     source={require("../assets/logo-1.png")}
+          //   />
+          // ),
         },
       },
       LikersAndViewers: {
@@ -485,6 +605,18 @@ SearchNavigator.navigationOptions = ({ navigation }) => {
   if (navigation.state.routes.some((route) => route.routeName === "Profile")) {
     tabBarVisible = false;
   }
+  if (
+    navigation.state.routes.some((route) => route.routeName === "ViewProfile")
+  ) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some(
+      (route) => route.routeName === "MyFollowersAndFollowing"
+    )
+  ) {
+    tabBarVisible = false;
+  }
 
   return {
     tabBarVisible,
@@ -504,17 +636,35 @@ export const PostNavigator = createAppContainer(
     },
     PostDetail: {
       screen: PostScreen,
-      // navigationOptions: {
-      //   headerTransparent: true,
-      //   gesturesEnabled: false,
-      // },
+      navigationOptions: {
+        headerTransparent: true,
+        gesturesEnabled: false,
+      },
     },
+    VideoCover: {
+      screen: VideoCover,
+      navigationOptions: {
+        // headerTransparent: true,
+        title: "Choose Video Cover",
+        gesturesEnabled: false,
+      },
+    },
+    // CropperPage: {
+    //   screen: CropperPage,
+    //   // header: null,
+    //   navigationOptions: {
+    //     headerTransparent: true,
+    //     title: "Crop Image",
+    //     gesturesEnabled: false,
+    //   },
+    // },
     PostCaption: {
       screen: PostCaptions,
-      // navigationOptions: {
-      //   headerTransparent: true,
-      //   gesturesEnabled: false,
-      // },
+      navigationOptions: {
+        // headerTransparent: true,
+        // gesturesEnabled: false,
+        title: "Post Caption",
+      },
     },
     Login: {
       screen: Login,
@@ -623,12 +773,48 @@ export const ActivityNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
-        headerTitle: (
-          <Image
-            style={styles.profileLogo}
-            source={require("../assets/logo-1.png")}
-          />
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
         ),
+      }),
+    },
+    ViewProfile: {
+      screen: ViewProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // headerTitle: (
+        //   <Image
+        //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    MyFollowersAndFollowing: {
+      screen: MyFollowersAndFollowing,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -645,12 +831,12 @@ export const ActivityNavigator = createAppContainer(
       navigationOptions: {
         headerTransparent: true,
         title: null,
-        headerTitle: (
-          <Image
-            style={styles.profileLogo}
-            source={require("../assets/logo-1.png")}
-          />
-        ),
+        // headerTitle: (
+        //   <Image
+        //     style={styles.profileLogo}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
       },
     },
     LikersAndViewers: {
@@ -701,6 +887,11 @@ ActivityNavigator.navigationOptions = ({ navigation }) => {
     tabBarVisible = false;
   }
   if (
+    navigation.state.routes.some((route) => route.routeName === "ViewProfile")
+  ) {
+    tabBarVisible = false;
+  }
+  if (
     navigation.state.routes.some(
       (route) => route.routeName === "PostListScreen"
     )
@@ -720,25 +911,43 @@ export const ProfileNavigator = createAppContainer(
       navigationOptions: {
         headerTransparent: true,
         title: null,
-        headerTitle: (
-          <Image
-            style={styles.profileLogo}
-            source={require("../assets/logo-1.png")}
-          />
-        ),
       },
+    },
+    ViewProfile: {
+      screen: ViewProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // headerTitle: (
+        //   <Image
+        //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
+        ),
+      }),
     },
     PostListScreen: {
       screen: PostListScreen,
       navigationOptions: {
         headerTransparent: true,
         title: null,
-        headerTitle: (
-          <Image
-            style={styles.profileLogo}
-            source={require("../assets/logo-1.png")}
-          />
-        ),
+        // headerTitle: (
+        //   <Image
+        //     style={styles.profileLogo}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
       },
     },
     LikersAndViewers: {
@@ -789,6 +998,23 @@ export const ProfileNavigator = createAppContainer(
         // ),
       }),
     },
+    BlockedUsers: {
+      screen: BlockedUsers,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: false,
+        headerVisible: true,
+        title: "Blocked accounts",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
     Reset: {
       screen: Reset,
       navigationOptions: ({ navigation }) => ({
@@ -834,6 +1060,48 @@ export const ProfileNavigator = createAppContainer(
               style={[styles.icon, { marginLeft: 20 }]}
               name={"ios-arrow-back"}
               size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    Profile: {
+      screen: ProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+    ViewProfile: {
+      screen: ViewProfileScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // headerTitle: (
+        //   <Image
+        //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
+        //     source={require("../assets/logo-1.png")}
+        //   />
+        // ),
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[
+                styles.icon,
+                { marginLeft: 20, color: "white", shadowOpacity: 0.5 },
+              ]}
+              name={"ios-arrow-back"}
+              size={40}
             />
           </TouchableOpacity>
         ),
@@ -892,6 +1160,18 @@ ProfileNavigator.navigationOptions = ({ navigation }) => {
   }
 
   if (navigation.state.routes.some((route) => route.routeName === "Edit")) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some((route) => route.routeName === "ViewProfile")
+  ) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some(
+      (route) => route.routeName === "MyFollowersAndFollowing"
+    )
+  ) {
     tabBarVisible = false;
   }
   if (

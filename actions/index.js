@@ -9,13 +9,20 @@ import { updateFileUploadProgress } from "../actions/post";
 import { validURL } from "../util/Helper";
 import RNFetchBlob from "rn-fetch-blob";
 var base64 = require("base-64");
+import storage from "@react-native-firebase/storage";
 
 import * as FileSystem from "expo-file-system";
+
+async function isDataURL(s) {
+  return !!s.match(isDataURL.regex);
+}
+
+isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+
 export const uploadPhoto = (selectedFile) => {
   return async (dispatch) => {
     try {
       var fileUri;
-
       if (selectedFile.uri) {
         fileUri = selectedFile.uri;
       } else {
@@ -57,17 +64,39 @@ export const uploadPhoto = (selectedFile) => {
 
       //   // alert(JSON.stringify(selectedFile));
       // }
-
+      let uploadTask = null;
       // alert(fileUri);
-      const blob = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = () => resolve(xhr.response);
-        xhr.responseType = "blob";
-        xhr.open("GET", fileUri, true);
-        xhr.send(null);
-      });
-      const uploadTask = firebase.storage().ref().child(uuid.v4()).put(blob);
 
+      var isBase64DataURL = await isDataURL(fileUri);
+      if (isBase64DataURL) {
+        // alert("Base64");
+        uploadTask = storage()
+          .ref()
+          .child(uuid.v4())
+          .putString(fileUri, "data_url");
+        // var blob = null;
+        // blob = await new Promise((resolve, reject) => {
+        //   const xhr = new XMLHttpRequest();
+        //   xhr.onload = () => resolve(xhr.response);
+        //   xhr.responseType = "blob";
+        //   xhr.open("GET", fileUri, true);
+        //   xhr.send(null);
+        // });
+        // uploadTask = firebase.storage().ref().child(uuid.v4()).put(blob);
+      } else {
+        uploadTask = storage().ref().child(uuid.v4()).putFile(fileUri);
+      }
+
+      // var blob = null;
+      // blob = await new Promise((resolve, reject) => {
+      //   const xhr = new XMLHttpRequest();
+      //   xhr.onload = () => resolve(xhr.response);
+      //   xhr.responseType = "blob";
+      //   xhr.open("GET", fileUri, true);
+      //   xhr.send(null);
+      // });
+
+      // const uploadTask = firebase.storage().ref().child(uuid.v4()).put(blob);
       const uploadingFile = () =>
         new Promise((resolve, reject) => {
           uploadTask.on(
@@ -79,7 +108,9 @@ export const uploadPhoto = (selectedFile) => {
                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
               if (selectedFile.uri) {
+                // if (!videoCover) {
                 dispatch(updateFileUploadProgress(Math.round(progress)));
+                // }
               }
 
               // alert(progress + "");s
@@ -117,6 +148,30 @@ export const uploadPhoto = (selectedFile) => {
     }
   };
 };
+
+function urlToBlob(url) {
+  return new Promise((resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.onerror = reject;
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        resolve(xhr.response);
+      }
+    };
+    xhr.open("GET", url);
+    xhr.responseType = "blob"; // convert type
+    xhr.send();
+  });
+}
+
+function isBase64(str) {
+  try {
+    return btoa(atob(str)) == str;
+  } catch (err) {
+    alert(err);
+    return false;
+  }
+}
 
 export function functionUploadPhoto(image) {
   return async (dispatch) => {

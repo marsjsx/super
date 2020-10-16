@@ -99,10 +99,7 @@ class Login extends React.Component {
         source={require("../temp/black-gray-back.png")}
         style={[styles.container, styles.center]}
       >
-        <KeyboardAvoidingView
-          style={{ flex: 1, width: "100%" }}
-          behavior={"padding"}
-        >
+        <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
           <ScrollView
             style={[{ width: "100%" }]}
             contentContainerStyle={[styles.center]}
@@ -114,7 +111,9 @@ class Login extends React.Component {
 
             <Item floatingLabel style={[styles.textInput]}>
               <Icon name="ios-person" style={{ color: "#ffffff" }} />
-              <Label style={{ color: "#ffffff" }}>Email</Label>
+              <Label style={{ color: "#ffffff", fontWeight: "500" }}>
+                Email or Username
+              </Label>
               <Input
                 style={{ color: "#ffffff" }}
                 value={this.props.user.email}
@@ -124,7 +123,9 @@ class Login extends React.Component {
 
             <Item floatingLabel style={[styles.textInput]}>
               <Icon name="ios-key" style={{ color: "#ffffff" }} />
-              <Label style={{ color: "#ffffff" }}>Password</Label>
+              <Label style={{ color: "#ffffff", fontWeight: "500" }}>
+                Password
+              </Label>
               <Input
                 style={{ color: "#ffffff" }}
                 value={this.props.user.password}
@@ -145,7 +146,7 @@ class Login extends React.Component {
             >
               <Text style={styles.textA}> Login </Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.buttonFacebook}
               onPress={() => this.onFaceBookLogin()}
             >
@@ -159,7 +160,7 @@ class Login extends React.Component {
                 buttonType={AppleButton.Type.SIGN_IN}
                 onPress={() => this.appleLoginLogin()}
               />
-            )}
+            )} */}
 
             <Subtitle
               style={{
@@ -192,6 +193,8 @@ class Login extends React.Component {
         </KeyboardAvoidingView>
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
+
+        <Image source={require("../assets/logoW.png")} resizeMode="center" />
       </ImageBackground>
     );
   }

@@ -1,4 +1,6 @@
 import { combineReducers } from "redux";
+import _ from "lodash";
+import orderBy from "lodash/orderBy";
 
 const user = (state = {}, action) => {
   switch (action.type) {
@@ -32,6 +34,13 @@ const user = (state = {}, action) => {
       return { ...state, preview: action.payload };
     case "GET_TOKEN":
       return { ...state, token: action.payload };
+    case "UPDATE_FOLLOWING":
+      return { ...state, following: action.payload };
+    case "UPDATE_BLOCKED_USERS":
+      return { ...state, blockedUsers: action.payload };
+
+    case "UPDATE_BLOCKED_USERS_IDS":
+      return { ...state, blocked: action.payload };
 
     case "DELETE_POST": {
       if (!state.posts) {
@@ -52,6 +61,24 @@ const profile = (state = {}, action) => {
   switch (action.type) {
     case "GET_PROFILE":
       return action.payload;
+
+    case "FOLLOW_USER": {
+      var profile = state;
+      var following = [...profile.following];
+      following.push(action.payload);
+      // alert(JSON.stringify(profile));
+      // return {
+      //   profile,
+      // };
+      // return {
+      //   ...state,
+      //   myFollowings: following,
+      // };
+    }
+
+    case "UNFOLLOW_USER": {
+      return action.payload;
+    }
 
     case "DELETE_POST_PROFILE": {
       if (!state.posts) {
@@ -76,18 +103,41 @@ const messages = (state = {}, action) => {
   }
 };
 
-const post = (state = null, action) => {
+const post = (state = { newPosts: [], followingfeed: [] }, action) => {
   switch (action.type) {
     case "UPDATE_POST_PHOTO":
       return { ...state, photo: action.payload };
+    case "SHOW_LOADING":
+      return { ...state, loading: true };
     case "UPDATE_POST_PREVIEW":
       return { ...state, preview: action.payload };
+    case "UPDATE_VIDEO_COVER":
+      return { ...state, videocover: action.payload };
+    case "NEW_POST_ADDED":
+      return {
+        ...state,
+        feed: orderBy([...state.feed, action.payload], "date", "desc"),
+      };
+    // case "NEW_POST_ADDED":
+    //   return { ...state, feed: action.payload };
+    case "FOLLOWING_POSTS":
+      return { ...state, followingfeed: action.payload };
     case "UPDATE_DESCRIPTION":
       return { ...state, description: action.payload };
     case "UPDATE_LOCATION":
       return { ...state, location: action.payload };
     case "GET_POSTS":
-      return { ...state, feed: action.payload };
+      return { ...state, feed: action.payload, loading: false };
+    case "NEW_POSTS":
+      return { ...state, newPosts: action.payload };
+    case "MERGE_NEW_POSTS":
+      return {
+        ...state,
+        feed: [...action.payload],
+        newPosts: [],
+      };
+    case "LAST_VISIBLE":
+      return { ...state, lastVisible: action.payload };
     case "POST_REPORTS":
       return { ...state, postReports: action.payload };
     case "UPDATE_POST": {
@@ -148,7 +198,8 @@ const appReducer = combineReducers({
 
 const rootReducer = (state, action) => {
   if (action.type === "USER_LOGOUT") {
-    state = undefined;
+    state.user = undefined;
+    state.messages = undefined;
   }
   return appReducer(state, action);
 };

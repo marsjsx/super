@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 
+#import <Firebase.h>
+
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
@@ -15,7 +17,7 @@
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <EXScreenOrientation/EXScreenOrientationViewController.h>
-
+#import "RNSplashScreen.h"
 
 
 @interface AppDelegate ()
@@ -31,9 +33,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // Add me --- \/
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
   
   self.moduleRegistryAdapter = [[UMModuleRegistryAdapter alloc] initWithModuleRegistryProvider:[[UMModuleRegistryProvider alloc] init]];
   self.launchOptions = launchOptions;
+// [NSThread sleepForTimeInterval:4.0];
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 #ifdef DEBUG
@@ -48,6 +55,8 @@
 
   [[FBSDKApplicationDelegate sharedInstance] application:application
     didFinishLaunchingWithOptions:launchOptions];
+
+//  [RNSplashScreen show];  // here
 
   return YES;
 }
@@ -77,6 +86,7 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+[RNSplashScreen showSplash:@"LaunchScreen" inRootView:rootView];
 
   return bridge;
 }

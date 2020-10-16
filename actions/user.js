@@ -11,6 +11,7 @@ import appleAuth, {
   AppleAuthRequestScope,
   AppleAuthRequestOperation,
 } from "@invertase/react-native-apple-authentication";
+import { filterBlockedPosts } from "./post";
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
@@ -87,6 +88,7 @@ export const login = () => {
         .auth()
         .signInWithEmailAndPassword(email, password);
       dispatch(getUser(response.user.uid));
+      dispatch(filterBlockedPosts());
       dispatch(allowNotifications());
     } catch (e) {
       alert(e);
@@ -140,6 +142,8 @@ export const facebookLogin = () => {
           token: null,
           followers: [],
           following: [],
+          blocked: [],
+          blockedBy: [],
         };
         db.collection("users").doc(response.uid).set(user);
         dispatch({ type: "LOGIN", payload: user });
@@ -210,6 +214,8 @@ export const appleLogin = () => {
             identityToken: userIdToken,
             token: null,
             followers: [],
+            blocked: [],
+            blockedBy: [],
             following: [],
             reports: [],
           };
@@ -269,8 +275,7 @@ export const getUser = (uid, type) => {
 
         const userQuery = await db.collection("users").doc(uid).get();
         let user = userQuery.data();
-
-        if (user.photo) {
+        if (user.photo && user.photo.length > 15) {
           images.push({
             uri: user.photo,
           });
@@ -370,6 +375,34 @@ export const getUser = (uid, type) => {
   };
 };
 
+export const getBlockedUser = () => {
+  return async (dispatch, getState) => {
+    const user = getState().user;
+    try {
+      const followingQuery = db
+        .collection("users")
+        .where("blockedBy", "array-contains", user.uid)
+        .get();
+
+      followingQuery.then((snapshot) => {
+        if (snapshot.size > 0) {
+          var blockedUsers = snapshot.docs.map((doc) => doc.data());
+
+          // alert(JSON.stringify(blockedUsers));
+          dispatch({
+            type: "LOGIN",
+            payload: { ...user, blockedUsers: blockedUsers },
+          });
+
+          // dispatch(filterBlockedPosts());
+        }
+      });
+    } catch (e) {
+      alert("Error:" + e);
+    }
+  };
+};
+
 export const updateUser = () => {
   return async (dispatch, getState) => {
     const {
@@ -402,13 +435,17 @@ export const updateUser = () => {
         (usernameAvailable) => {
           if (usernameAvailable) {
             dispatch(uploadPhoto(imageUri)).then((imageurl) => {
+              var user_name = username.toLowerCase().replace(/\s+/g, "_");
+
               db.collection("users")
                 .doc(uid)
                 .update({
                   username: username || "",
+                  user_name: user_name,
                   bio: bio || "",
                   userbio: userbio || "",
                   photo: imageurl,
+                  updatedAt: new Date().getTime(),
                   preview: preview || "",
                   phone: phone || "",
                   gender: gender || "",
@@ -435,6 +472,124 @@ export const updateUser = () => {
       );
       // var result = await dispatch(checkUserNameAvailable(username));
       // alert(result);
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
+export const blockUser = (blockedUser) => {
+  return async (dispatch, getState) => {
+    const {
+      uid,
+      photo,
+      username,
+      following,
+      blockedUsers,
+      blocked,
+    } = getState().user;
+
+    var blockedUsersList = blockedUsers;
+    var blockedUserIds = blocked;
+    if (!blockedUsers) {
+      blockedUsersList = [];
+    }
+    if (!blocked) {
+      blockedUserIds = [];
+    }
+    try {
+      db.collection("users")
+        .doc(uid)
+        .update({
+          blocked: firebase.firestore.FieldValue.arrayUnion(blockedUser.uid),
+        });
+
+      db.collection("users")
+        .doc(blockedUser.uid)
+        .update({
+          blockedBy: firebase.firestore.FieldValue.arrayUnion(uid),
+        });
+
+      blockedUsersList.push(blockedUser);
+      blockedUserIds.push(blockedUser.uid);
+
+      dispatch({
+        type: "UPDATE_BLOCKED_USERS",
+        payload: [...blockedUsersList],
+      });
+
+      dispatch({
+        type: "UPDATE_BLOCKED_USERS_IDS",
+        payload: [...blockedUserIds],
+      });
+
+      showMessage({
+        message: "",
+        description: "User Blocked Successfully",
+        type: "info",
+        duration: 2000,
+      });
+      dispatch(filterBlockedPosts());
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
+export const unblockUser = (blockedUid) => {
+  return async (dispatch, getState) => {
+    const {
+      uid,
+      photo,
+      username,
+      following,
+      blockedUsers,
+      blocked,
+    } = getState().user;
+    var blockedUsersList = getState().user.blockedUsers;
+    var blockedUserIds = blocked;
+    if (!blockedUsers) {
+      blockedUsersList = [];
+    }
+    if (!blocked) {
+      blockedUserIds = [];
+    }
+
+    try {
+      db.collection("users")
+        .doc(uid)
+        .update({
+          blocked: firebase.firestore.FieldValue.arrayRemove(blockedUid),
+        });
+
+      db.collection("users")
+        .doc(blockedUid)
+        .update({
+          blockedBy: firebase.firestore.FieldValue.arrayRemove(uid),
+        });
+
+      blockedUsersList = blockedUsersList.filter(
+        (value) => value.uid !== blockedUid
+      );
+
+      blockedUserIds = blockedUserIds.filter((uid) => uid !== blockedUid);
+      dispatch({
+        type: "UPDATE_BLOCKED_USERS",
+        payload: [...blockedUsersList],
+      });
+
+      dispatch({
+        type: "UPDATE_BLOCKED_USERS_IDS",
+        payload: [...blockedUserIds],
+      });
+
+      showMessage({
+        message: "",
+        description: "User Unblocked ",
+        type: "info",
+        duration: 2000,
+      });
+      dispatch(filterBlockedPosts());
     } catch (e) {
       alert(e);
     }
@@ -506,16 +661,20 @@ export const signup = () => {
             username: username,
             user_name: user_name,
             photo: "",
+            createdAt: new Date().getTime(),
             token: null,
             followers: [],
             following: [],
             reports: [],
+            blocked: [],
+            blockedBy: [],
           };
           db.collection("users").doc(response.user.uid).set(user);
 
           // dispatch(getUser(response.user.uid));
           // dispatch(allowNotifications());
           dispatch({ type: "LOGIN", payload: user });
+          dispatch(filterBlockedPosts());
         }
       } else {
         alert("Username already exists, Please choose another username");
@@ -529,7 +688,7 @@ export const signup = () => {
 
 export const followUser = (user) => {
   return async (dispatch, getState) => {
-    const { uid, photo, username } = getState().user;
+    const { uid, photo, username, following } = getState().user;
     try {
       db.collection("users")
         .doc(user.uid)
@@ -541,6 +700,9 @@ export const followUser = (user) => {
         .update({
           following: firebase.firestore.FieldValue.arrayUnion(user.uid),
         });
+      following.push(user.uid);
+
+      dispatch({ type: "UPDATE_FOLLOWING", payload: [...following] });
       db.collection("activity").doc().set({
         followerId: uid,
         followerPhoto: photo,
@@ -551,8 +713,33 @@ export const followUser = (user) => {
         date: new Date().getTime(),
         type: "FOLLOWER",
       });
+
+      // const profile = { ...getState().profile };
+      // // alert(JSON.stringify(profile.following));
+      // var following = [...profile.following];
+      // // alert(JSON.stringify(following));
+
+      // following.push(user.uid);
+      // profile.following = following;
+      // // dispatch({
+      // //   type: "GET_PROFILE",
+      // //   payload: { ...profile },
+      // // });
+      // dispatch({ type: "GET_PROFILE", payload: profile });
+
+      // const profile = { ...getState().profile };
+
+      // var following = [...profile.following];
+      // following.push(user.uid);
+      // // profile.following = following;
+      // dispatch({
+      //   type: "GET_PROFILE",
+      //   payload: { ...profile, myFollowings: following },
+      // });
+      // dispatch({ type: "FOLLOW_USER", payload: user.uid });
+
+      //    dispatch(getUser(user.uid));
       dispatch(sendNotification(user.uid, "Started Following You"));
-      dispatch(getUser(user.uid));
     } catch (e) {
       /* console.error(e) */
     }
@@ -561,7 +748,7 @@ export const followUser = (user) => {
 
 export const unfollowUser = (user) => {
   return async (dispatch, getState) => {
-    const { uid, photo, username } = getState().user;
+    const { uid, photo, username, following } = getState().user;
     try {
       db.collection("users")
         .doc(user.uid)
@@ -573,7 +760,10 @@ export const unfollowUser = (user) => {
         .update({
           following: firebase.firestore.FieldValue.arrayRemove(user.uid),
         });
-      dispatch(getUser(user.uid));
+      var filteredAry = following.filter((e) => e !== user.uid);
+      dispatch({ type: "UPDATE_FOLLOWING", payload: [...filteredAry] });
+
+      //   dispatch(getUser(user.uid));
     } catch (e) {
       /* console.error(e) */
     }

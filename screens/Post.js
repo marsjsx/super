@@ -15,6 +15,8 @@ import ImagePicker from "react-native-image-crop-picker";
 import { PanoramaView } from "@lightbase/react-native-panorama-view";
 import Editor, { displayTextWithMentions } from "../component/mentioneditor";
 import db from "../config/firebase";
+import Scale from "../helpers/Scale";
+import CropperPage from "../screens/CropperPage";
 
 import _ from "lodash";
 
@@ -23,6 +25,7 @@ import {
   updateLocation,
   uploadPost,
   updatePhoto,
+  filterBlockedPosts,
   createAndUpdatePreview,
   updatePhotoPreview,
 } from "../actions/post";
@@ -39,11 +42,13 @@ import {
   KeyboardAvoidingView,
   Alert,
   Dimensions,
+  ActivityIndicator,
   ImageBackground,
 } from "react-native";
 const GOOGLE_API =
   "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 import { uploadPhoto } from "../actions/index";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 import {
   Item,
@@ -62,9 +67,8 @@ import { Dropdown } from "react-native-material-dropdown";
 import { Trimmer, VideoPlayer } from "react-native-video-processing";
 // import { Audio, Video } from "expo-av";
 import Video from "react-native-video";
-import Filter from "../component/Filter";
 import ImageFilters from "../component/ImageFilters";
-
+import ImageEditor from "@react-native-community/image-editor";
 import {
   Ionicons,
   MaterialIcons,
@@ -74,35 +78,83 @@ import {
 } from "@expo/vector-icons";
 const { height, width } = Dimensions.get("window");
 var self;
+const filters = [
+  "normal",
+  "nightvision",
+  "technicolor",
+  "invert",
+  "inkwell",
+  "kodachrome",
+  "luminance",
+  "polaroid",
+  "rgba",
+  "greyscale",
+  "lsd",
+  "vintage",
+  "sepia",
+  "warm",
+  "night",
+  "duotone",
+  "colortone",
+  "browni",
+
+  // "Willow",
+  // "Lofi",
+  // "Gingham",
+  // "Nashville",
+  // "Reyes",
+  // "Moon",
+  // "Lark",
+  // "Clarendon",
+  // "Slumber",
+  // "Aden",
+  // "Perpetua",
+  // "Mayfair",
+  // "Rise",
+  // "Hudson",
+  // "Valencia",
+  // "Xpro2",
+];
 class Post extends React.Component {
   static navigationOptions = ({ navigation }) => {
-    return {
-      headerRight: (
-        <TouchableOpacity onPress={navigation.getParam("onNext")}>
-          <Text
-            style={{
-              color: "dodgerblue",
-              fontWeight: "bold",
-              padding: 5,
-              fontSize: 16,
-            }}
-          >
-            Next{" "}
-          </Text>
-        </TouchableOpacity>
-      ),
-    };
+    if (
+      navigation.state.params &&
+      navigation.state.params.fullscreen === false
+    ) {
+      //Hide Header by returning null
+      return { header: null };
+    } else {
+      //Show Header by returning header
+      return {
+        headerRight: (
+          <TouchableOpacity onPress={navigation.getParam("onNext")}>
+            <Text
+              style={{
+                color: "dodgerblue",
+                fontWeight: "bold",
+                padding: 5,
+                fontSize: 16,
+              }}
+            >
+              Next{" "}
+            </Text>
+          </TouchableOpacity>
+        ),
+      };
+    }
   };
 
   constructor(props) {
     super(props);
     this.sheetRef = {};
     this.lastPress = 0;
-
+    //Default visible isVisible
+    this.isVisible = true;
     this.state = {
       showModal: false,
       locations: [],
       users: [],
+      filters: [],
       loading: false,
       timer: null,
       showLoading: false,
@@ -120,6 +172,8 @@ class Post extends React.Component {
       message: null,
       messages: [],
       index: 0,
+      paused: false,
+      isCropped: false,
       clearInput: false,
       showMentions: false /**use this parameter to programmatically trigger the mentionsList */,
     };
@@ -132,6 +186,7 @@ class Post extends React.Component {
     this.props.navigation.setParams({ onNext: this._onNext });
 
     const selectedFile = this.props.post.photo;
+    // alert(JSON.stringify(selectedFile));
     if (selectedFile) {
       this.processSelectedImage(selectedFile);
     }
@@ -164,11 +219,50 @@ class Post extends React.Component {
     this.setState({ users: search });
   }
 
-  loadImage() {
-    this.setState({ loading: true });
-    setTimeout(() => {
-      this.setState({ loading: false });
-    }, 3000);
+  onFullScreen() {
+    // Set the params to pass in fullscreen isVisible to navigationOptions
+    this.props.navigation.setParams({
+      fullscreen: !this.isVisible,
+    });
+    this.isVisible = !this.isVisible;
+  }
+
+  loadImage(index) {
+    // if (index < 7) {
+    //   this.setState({ loading: true });
+    // } else {
+    //   this.setState({ loading: false });
+    // }
+    // this.setState({ loading: true });
+    // // alert(index);
+    // // if (index < filters.length) {
+
+    if (index < 18) {
+      if (index === 0) {
+        var stateFilters = this.state.filters;
+        stateFilters.push(filters[index]);
+        stateFilters.push(filters[index + 1]);
+        stateFilters.push(filters[index + 2]);
+        this.setState({ filters: stateFilters });
+        index = index + 3;
+        // this.loadImage(number);
+      }
+
+      // else{
+
+      // }
+      setTimeout(() => {
+        // this.setState({ loading: false });
+        var stateFilters = this.state.filters;
+        stateFilters.push(filters[index]);
+        stateFilters.push(filters[index + 1]);
+        stateFilters.push(filters[index + 2]);
+        this.setState({ filters: stateFilters });
+        var number = index + 3;
+        this.loadImage(number);
+        // this.setState({ loading: false });
+      }, 700);
+    }
   }
 
   post = async () => {
@@ -209,8 +303,8 @@ class Post extends React.Component {
     if (!this.props.post.photo) {
       this.openLibrary();
     } else if (this.props.post.photo.type === "image") {
-      //alert(JSON.stringify(this.props.post.photo));
-      this.cropImage();
+      // alert(JSON.stringify(this.props.post.photo));
+      this.onFullScreen();
     } else if (this.props.post.photo.type === "vr") {
       this.cropImage("vr");
     }
@@ -295,23 +389,26 @@ class Post extends React.Component {
 
   cropImage = async (type) => {
     // alert(JSON.stringify(this.props.post.photo.uri));
-
     await ImagePicker.openCropper({
       path: this.props.post.photo.uri,
       cropping: true,
-      // width: 1200,
-      width: type ? this.props.post.photo.width : 600,
-      height: type ? this.props.post.photo.height : 1000,
-      // width: this.props.post.photo.width,
-      // height: this.props.post.photo.height,
-      // // height: 1500,
-
-      // compressImageQuality: type ? 0.4 : 0,
+      width: type
+        ? this.props.post.photo.width < 7000
+          ? this.props.post.photo.width
+          : 7000
+        : 1400,
+      height: type
+        ? this.props.post.photo.height < 4000
+          ? this.props.post.photo.height
+          : 4000
+        : 2600,
+      compressImageQuality: 0.8,
     })
       .then((image) => {
         console.log(image);
         // alert(JSON.stringify(image));
         this.props.createAndUpdatePreview(image.path);
+        // this.cleanTempImages();
 
         var selectedFile = {};
         selectedFile.height = image.height;
@@ -321,10 +418,16 @@ class Post extends React.Component {
         selectedFile.type = type ? "vr" : "image";
 
         this.props.updatePhoto(selectedFile);
-        this.loadImage();
+        this.setState({ isCropped: true });
+        this.setState({ filters: [] });
+        if (selectedFile.type === "image") {
+          this.loadImage(0);
+        }
       })
       .catch((err) => {
-        // this.props.navigation.goBack();
+        // alert("Called");
+        // this.cleanTempImages();
+        this.props.navigation.goBack();
         // Here you handle if the user cancels or any other errors
       });
   };
@@ -352,6 +455,8 @@ class Post extends React.Component {
         //  alert(JSON.stringify(selectedFile));
         this.props.updatePhoto(selectedFile);
         if (selectedFile.type === "image") {
+          this.setState({ isCropped: false });
+
           //  this.props.createAndUpdatePreview(selectedFile.uri);
           this.setState({ index: 0 });
           this.cropImage();
@@ -368,7 +473,7 @@ class Post extends React.Component {
               endTime: Math.round(selectedFile.duration / 1000),
             });
           }
-          const maximumSize = { width: 50, height: 500 };
+          const maximumSize = { width: 80, height: 80 };
           ProcessingManager.getPreviewForSecond(
             selectedFile.uri,
             1,
@@ -391,6 +496,7 @@ class Post extends React.Component {
       });
 
       if (!selectedFile.cancelled) {
+        this.setState({ isCropped: false });
         selectedFile.type = "vr";
         this.props.updatePhoto(selectedFile);
         this.props.createAndUpdatePreview(selectedFile.uri);
@@ -402,20 +508,41 @@ class Post extends React.Component {
   _onNext() {
     var _this = self;
     // alert("Called");
+
+    if (!_this.props.user.uid) {
+      _this.sheetRef.openSheet();
+      return;
+    }
+
+    if (_this.props.post.photo == null || _this.props.post.photo == undefined) {
+      showMessage({
+        message: "STOP",
+        description: "Please select an image/video",
+        type: "danger",
+        duration: 3000,
+      });
+
+      return;
+    }
+
     if (_this.props.post.photo.type === "image") {
       if (_this.state.filteredImage) {
-        // alert(this.state.filteredImage);
         _this.props.createAndUpdatePreview(_this.state.filteredImage);
-
-        // var selectedFile = this.props.post.photo;
-        // selectedFile.uri = this.state.filteredImage;
-
-        //   this.props.updatePhoto(selectedFile);
       }
+      _this.setState({ paused: true });
 
       _this.props.navigation.navigate("PostCaption", {
         filteredImage: _this.state.filteredImage,
       });
+    } else if (_this.props.post.photo.type === "vr") {
+      _this.setState({ paused: true });
+
+      _this.props.navigation.navigate("PostCaption", {
+        filteredImage: "",
+      });
+    } else {
+      // trim video first
+      _this.trimVideo();
     }
   }
 
@@ -426,7 +553,8 @@ class Post extends React.Component {
     const options = {
       startTime: this.state.startTime,
       endTime: this.state.endTime,
-      quality: "1280x720", // iOS only
+      quality: "720×480", // iOS only
+      // quality: "1280x720", // iOS only
       // saveToCameraRoll: true, // default is false // iOS only
       // saveWithCurrentDate: true, // default is false // iOS only
     };
@@ -444,35 +572,26 @@ class Post extends React.Component {
           duration: duration,
           uri: newSource,
         });
-        this.setState({ showLoading: false });
+        this.setState({ showLoading: false, paused: true });
+        // _this.setState({ paused: true });
 
-        this.props.uploadPost();
-        this.props.navigation.goBack();
+        // this.props.navigation.navigate("PostCaption", {
+        //   filteredImage: "",
+        // });
 
-        this.props.navigation.navigate("Home");
+        this.props.navigation.navigate("VideoCover", {
+          filteredImage: "",
+        });
       });
-
-    // this.videoPlayerRef
-    //   .trim(options)
-    //   .then((newSource) => {
-    //     // alert(JSON.stringify(newSource));
-
-    //     const duration = this.state.endTime - this.state.startTime;
-
-    //     this.props.updatePhoto({
-    //       ...this.props.post.photo,
-    //       duration: duration,
-    //       uri: newSource,
-    //     });
-
-    //     this.props.uploadPost();
-    //     this.props.navigation.navigate("Home");
-    //   })
-    //   .catch(console.warn);
   }
   onEnd = () => {
     this.videoPlayerRef.seek(this.state.startTime);
   };
+
+  handleOnPress = () => {
+    this.setState({ paused: !this.state.paused });
+  };
+
   getSelectedComponent() {
     const selectedFile = this.props.post.photo;
 
@@ -482,18 +601,19 @@ class Post extends React.Component {
     if (selectedFile) {
       if (selectedFile.type === "image") {
         return (
-          <View>
+          <View style={{}}>
             <ImageFilters
               key={""}
               name={""}
               index={this.state.index}
-              resizeMode={"cover"}
+              resizeMode={"contain"}
               onExtractImage={({ nativeEvent }) => {
                 this.setState({ filteredImage: nativeEvent.uri });
                 // alert(nativeEvent.uri)
               }}
               extractImageEnabled={true}
-              style={styles.postPhotoPreview}
+              style={[styles.postPhotoPreview, { backgroundColor: "#000000" }]}
+              // style={[styles.fullWidth, { aspectRatio: 1200 / 1700 }]}
               url={this.props.post.photo.uri}
               onChange={(index) => {
                 // this.setState({ index: index });
@@ -511,34 +631,20 @@ class Post extends React.Component {
             <FlatList
               horizontal={true}
               keyExtractor={(item) => JSON.stringify(item.name)}
-              data={[
-                "Normal",
-                "Inkwell",
-                "Reyes",
-                "Moon",
-                "Lark",
-                "Clarendon",
-                "Slumber",
-                "Aden",
-                "Perpetua",
-                "Mayfair",
-                "Rise",
-                "Hudson",
-                "Valencia",
-                "Xpro2",
-                "Willow",
-                "Lofi",
-                "Gingham",
-                "Nashville",
-              ]}
+              data={this.state.filters}
               renderItem={({ index, item }) => (
                 <ImageFilters
                   key={item}
                   name={item}
                   index={index}
+                  extractImageEnabled={false}
                   selectedIndex={this.state.index}
                   resizeMode={"cover"}
-                  style={{ width: 120, height: 120 }}
+                  style={{
+                    width: Scale.moderateScale(85),
+                    height: Scale.moderateScale(85),
+                    marginRight: 5,
+                  }}
                   url={this.props.post.photo.uri}
                   onChange={(value) => {
                     // alert(index);
@@ -548,7 +654,7 @@ class Post extends React.Component {
                       this.setState({ filteredImage: "" });
                     }
                   }}
-                ></ImageFilters>
+                />
               )}
             />
           </View>
@@ -560,31 +666,35 @@ class Post extends React.Component {
         );
       }
       if (selectedFile.type === "vr") {
-        return (
-          <View>
-            <PanoramaView
-              style={styles.postPhotoPreview}
-              dimensions={{
-                height: height * 0.7,
-                width: width,
-              }}
-              inputType="mono"
-              imageUrl={this.props.post.photo.uri}
-            />
-            <Text
-              style={{
-                color: "rgb(255,255,255)",
-                fontSize: 28,
-                position: "absolute",
-                fontWeight: "bold",
-                top: 100,
-                left: 20,
-              }}
-            >
-              VR
-            </Text>
-          </View>
-        );
+        if (this.state.isCropped) {
+          return (
+            <View>
+              <PanoramaView
+                style={styles.postPhotoPreview}
+                dimensions={{
+                  height: height,
+                  width: width,
+                }}
+                inputType="mono"
+                imageUrl={this.props.post.photo.uri}
+              />
+              <Text
+                style={{
+                  color: "rgb(255,255,255)",
+                  fontSize: 28,
+                  position: "absolute",
+                  fontWeight: "bold",
+                  top: 100,
+                  left: 20,
+                  shadowOpacity: 1,
+                }}
+              >
+                360
+              </Text>
+            </View>
+          );
+        }
+        return null;
       } else if (selectedFile.type === "video") {
         return (
           <View style={styles.videoPlayer}>
@@ -603,50 +713,93 @@ class Post extends React.Component {
               endTime={14} // seconds
               onChange={({ nativeEvent }) => console.log({ nativeEvent })} // get Current time on every second
             /> */}
-
-            <Video
-              source={{ uri: this.props.post.photo.uri }} // Can be a URL or a local file.
-              ref={(ref) => {
-                this.videoPlayerRef = ref;
-              }} // Store reference
-              onEnd={this.onEnd}
-              style={styles.videoPlayer}
-              onProgress={this.onProgress}
-              resizeMode="cover"
-            />
-            <View style={{ position: "absolute", bottom: 0 }}>
-              <Trimmer
-                source={this.props.post.photo.uri}
-                height={50}
-                width={Dimensions.get("screen").width}
-                onTrackerMove={(e) => alert(e.currentTime)} // iOS only
-                currentTime={this.state.currentTime} // use this prop to set tracker position iOS only
-                themeColor={"blue"} // iOS only
-                thumbWidth={30} // iOS only
-                trackerColor={"green"} // iOS only
-                minLength={3}
-                maxLength={60}
-                // showTrackerHandle={true}
-                resizeMode={VideoPlayer.Constants.resizeMode.CONTAIN}
-                onChange={(e) => {
-                  this.setState({
-                    startTime: Math.round(e.startTime),
-                    endTime: Math.round(e.endTime),
-                  });
-                  this.videoPlayerRef.seek(this.state.startTime);
-                  // this.videoPlayerRef.seek(this.state.startTime);
-                  // this.onEnd;
-                }}
+            <TouchableOpacity
+              style={{ justifyContent: "center", alignItems: "center" }}
+              onPress={this.handleOnPress}
+              activeOpacity={0.8}
+            >
+              <Video
+                source={{ uri: this.props.post.photo.uri }} // Can be a URL or a local file.
+                ref={(ref) => {
+                  this.videoPlayerRef = ref;
+                }} // Store reference
+                onEnd={this.onEnd}
+                style={styles.videoPlayer}
+                paused={this.state.paused}
+                onProgress={this.onProgress}
+                resizeMode="cover"
               />
-              <Text
+              {this.state.paused ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    height: 60,
+                    width: 60,
+                    justifyContent: "center",
+                    borderRadius: 30,
+                  }}
+                >
+                  <Ionicons
+                    name="ios-play"
+                    size={40}
+                    color="white"
+                    style={{
+                      backgroundColor: "transparent",
+                      alignSelf: "center",
+                      // lineHeight: 40,
+                      // marginLeft: 10,
+                    }}
+                  />
+                </View>
+              ) : null}
+            </TouchableOpacity>
+            <View
+              style={{
+                position: "absolute",
+                bottom: 0,
+                backgroundColor: "black",
+              }}
+            >
+              <View
                 style={{
-                  padding: 10,
-                  backgroundColor: "black",
-                  color: "white",
+                  marginHorizontal: 20,
                 }}
               >
-                {`${this.state.endTime - this.state.startTime} second selected`}
-              </Text>
+                <Trimmer
+                  source={this.props.post.photo.uri}
+                  height={50}
+                  width={Dimensions.get("screen").width - 40}
+                  onTrackerMove={(e) => alert(e.currentTime)} // iOS only
+                  currentTime={this.state.currentTime} // use this prop to set tracker position iOS only
+                  themeColor={"blue"} // iOS only
+                  thumbWidth={30} // iOS only
+                  trackerColor={"green"} // iOS only
+                  minLength={3}
+                  maxLength={60}
+                  // showTrackerHandle={true}
+                  resizeMode={VideoPlayer.Constants.resizeMode.CONTAIN}
+                  onChange={(e) => {
+                    this.setState({
+                      startTime: Math.round(e.startTime),
+                      endTime: Math.round(e.endTime),
+                    });
+                    this.videoPlayerRef.seek(this.state.startTime);
+                    // this.videoPlayerRef.seek(this.state.startTime);
+                    // this.onEnd;
+                  }}
+                />
+                <Text
+                  style={{
+                    padding: 10,
+                    backgroundColor: "black",
+                    color: "white",
+                  }}
+                >
+                  {`${
+                    this.state.endTime - this.state.startTime
+                  } second selected`}
+                </Text>
+              </View>
             </View>
           </View>
         );
@@ -757,11 +910,88 @@ class Post extends React.Component {
     });
   };
 
+  onSave = (uri) => {
+    // alert(JSON.stringify(info.image));
+    // const { width, height, uri, type } = this.props.post.photo;
+    // var cropData = {
+    //   offset: { x: info.image.x, y: 0 },
+    //   size: { width: width, height: height },
+    //   displaySize: { width: 600, height: 1000 },
+    //   resizeMode: "cover",
+    //   // offset: { x: info.image.x, y: info.image.y },
+    //   // size: { width: info.area.width, height: info.area.height },
+    //   // displaySize: { width: info.area.width, height: info.area.height },
+    //   // displaySize: {width: number, height: number},
+    //   // resizeMode: 'contain' | 'cover' | 'stretch',
+    // };
+
+    // // alert(info.image.width + "---------" + info.image.height);
+
+    // ImageEditor.cropImage(uri, cropData).then((uri) => {
+    //   console.log("Cropped image uri", uri);
+    //   // alert(JSON.stringify(uri));
+    //   this.props.createAndUpdatePreview(uri);
+    //   // this.cleanTempImages();
+
+    //   var selectedFile = {};
+    //   selectedFile.height = info.image.height;
+    //   selectedFile.width = info.image.width;
+    //   // selectedFile.size = image.size;
+    //   selectedFile.uri = uri;
+    //   selectedFile.type = "image";
+
+    //   this.props.updatePhoto(selectedFile);
+    //   this.setState({ isCropped: true });
+    //   this.setState({ filters: [] });
+    //   this.loadImage(0);
+
+    //   this.onFullScreen();
+    // });
+    this.props.createAndUpdatePreview(uri);
+    // this.cleanTempImages();
+
+    var selectedFile = {};
+    // selectedFile.height = info.image.height;
+    // selectedFile.width = info.image.width;
+    // selectedFile.size = image.size;
+    selectedFile.uri = uri;
+    selectedFile.type = "image";
+
+    this.props.updatePhoto(selectedFile);
+    this.setState({ isCropped: true });
+    this.setState({ filters: [] });
+    this.loadImage(0);
+
+    this.onFullScreen();
+  };
+
+  onCancel = () => {
+    this.props.navigation.goBack();
+  };
+
   render() {
     // const filter = this.filters[this.state.index];
+    const selectedFile = this.props.post.photo;
+    const { width, height, uri, type } = this.props.post.photo;
+    const { navigate } = this.props.navigation;
 
+    if (type == "image" && !this.state.isCropped) {
+      return (
+        <CropperPage
+          photo={this.props.post.photo}
+          onSave={this.onSave}
+          onCancel={this.onCancel}
+        />
+      );
+    }
     return (
-      <View style={{ flex: 1, width: "100%", height: "100%" }}>
+      <View
+        style={{
+          flex: 1,
+          width: "100%",
+          height: "100%",
+        }}
+      >
         <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
           <EmptyView
             ref={(ref) => {
@@ -775,9 +1005,11 @@ class Post extends React.Component {
           >
             {/* <NavigationEvents onWillFocus={this.onWillFocus} /> */}
             {this.getSelectedComponent()}
-            {this.renderTopBar()}
-
-            {/* <TouchableOpacity
+            {/* {selectedFile &&
+              selectedFile.type !== "video" &&
+              this.renderTopBar()} */}
+            {/* 
+            <TouchableOpacity
               style={{
                 position: "absolute",
                 right: 16,
@@ -834,6 +1066,7 @@ const mapDispatchToProps = (dispatch) => {
       updateLocation,
       uploadPhoto,
       updatePhoto,
+      filterBlockedPosts,
       createAndUpdatePreview,
       updatePhotoPreview,
     },

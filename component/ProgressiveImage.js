@@ -5,6 +5,7 @@ import {
   Animated,
   ActivityIndicator,
   Image,
+  Text,
   Dimensions,
   ImageBackground,
 } from "react-native";
@@ -85,10 +86,24 @@ class ProgressiveImage extends React.Component {
     const {
       thumbnailSource,
       source,
+      type,
       style,
       transparentBackground,
       ...props
     } = this.props;
+
+    var imageSource = source.uri ? source.uri : null;
+    // const normalisedSource =
+    //   source &&
+    //   typeof source.uri === "string" &&
+    //   !source.uri.split("https://")[1]
+    //     ? null
+    //     : source;
+
+    const normalisedSource =
+      source && typeof source.uri === "string" && source.uri.length > 20
+        ? source
+        : null;
 
     return (
       // <PinchGestureHandler
@@ -103,12 +118,11 @@ class ProgressiveImage extends React.Component {
           { transform: [{ scale: this.scale }] },
         ]}
       >
-        {thumbnailSource &&
+        {/* {thumbnailSource &&
         thumbnailSource.uri &&
-        thumbnailSource.uri.length > 2 ? null : (
+        thumbnailSource.uri.length < 20 ? null : (
           <Animated.Image
             {...props}
-            resizeMode="contain"
             source={require("../assets/profilePlaceholder.png")}
             style={[
               styles.imageOverlay,
@@ -118,7 +132,7 @@ class ProgressiveImage extends React.Component {
               style,
             ]}
           />
-        )}
+        )} */}
 
         {/* )} */}
         {/* {source.uri && source.uri.length > 2 ? (
@@ -129,33 +143,67 @@ class ProgressiveImage extends React.Component {
             onLoad={this.onImageLoad}
           />
         ) : null} */}
-        <Animated.Image
-          {...props}
-          source={thumbnailSource}
-          style={[
-            style,
-            {
-              opacity: this.thumbnailAnimated,
-              // transform: [{ scale: this.scale }],
-            },
-          ]}
-          onLoad={this.handleThumbnailLoad}
-          blurRadius={1}
-        />
-
-        <FastImage
-          {...props}
-          source={source}
-          // source={{ uri: source.uri, priority: FastImage.priority.low }}
-          style={[
-            styles.imageOverlay,
-            {
-              opacity: this.state.opacity,
-            },
-            style,
-          ]}
-          onLoad={this.onImageLoad}
-        />
+        {/* {alert(type)} */}
+        {thumbnailSource &&
+        thumbnailSource.uri &&
+        thumbnailSource.uri.length > 20 ? (
+          <Animated.Image
+            {...props}
+            source={thumbnailSource}
+            style={[
+              style,
+              {
+                opacity: this.thumbnailAnimated,
+                // transform: [{ scale: this.scale }],
+              },
+            ]}
+            onLoad={this.handleThumbnailLoad}
+            blurRadius={type === "video" ? 0 : 1}
+          />
+        ) : (
+          <Animated.Image
+            {...props}
+            source={require("../assets/profilePlaceholder.png")}
+            style={[
+              style,
+              {
+                opacity: 1,
+                // transform: [{ scale: this.scale }],
+              },
+            ]}
+          />
+        )}
+        {/* {alert(source.uri)} */}
+        {type !== "vr" && normalisedSource && (
+          <FastImage
+            {...props}
+            source={source}
+            // source={{ uri: source.uri, priority: FastImage.priority.low }}
+            style={[
+              styles.imageOverlay,
+              {
+                opacity: this.state.opacity,
+              },
+              style,
+            ]}
+            onLoad={this.onImageLoad}
+          />
+        )}
+        {type === "vr" && (
+          <Text
+            style={{
+              color: "rgb(255,255,255)",
+              fontSize: 20,
+              right: 10,
+              top: 10,
+              position: "absolute",
+              shadowOpacity: 1,
+              fontWeight: "bold",
+            }}
+          >
+            360
+          </Text>
+        )}
       </Animated.View>
       // </PinchGestureHandler>
     );

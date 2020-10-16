@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   Image,
   View,
+  Platform,
   Animated,
   Dimensions,
+  PermissionsAndroid,
 } from "react-native";
 // import {RNCamera} from 'react-native-camera';
 import { Camera as RNCamera } from "expo-camera";
@@ -33,7 +35,7 @@ class CameraView extends Component {
         // orientation: RNCamera.Constants.Orientation.auto,
         flashMode: RNCamera.Constants.FlashMode.auto,
       },
-      permissionsGranted: false,
+      permissionsGranted: true,
 
       galleryImagePath: false,
       cameraImagePath: false,
@@ -47,17 +49,42 @@ class CameraView extends Component {
   }
 
   async componentDidMount() {
+    // const { status, granted } = await RNCamera.requestPermissionsAsync();
+    // // const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    // // alert("Permission Status " + granted);
+    // this.setState({ permissionsGranted: granted });
+
+    // // alert(this.state.permissionsGranted);
+
+    // if (status === "granted") {
+    // } else {
+    //   // alert("Denied");
+
+    //   openSettingsDialog(
+    //     "Failed to Access Camera, Please go to the Settings to enable access",
+    //     this.props.navigation
+    //   );
+    // }
+    this.didFocusSubscription = this.props.navigation.addListener(
+      "didFocus",
+      this.didFocusAction
+    );
+  }
+  componentWillUmount() {
+    // remove listener
+    this.didFocusSubscription.remove();
+  }
+  didFocusAction = (payload) => {
+    this.checkPermissions();
+  };
+
+  async checkPermissions() {
     const { status, granted } = await RNCamera.requestPermissionsAsync();
-    // const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    // alert("Permission Status " + granted);
+    // alert(granted);
     this.setState({ permissionsGranted: granted });
-
-    // alert(this.state.permissionsGranted);
-
-    if (status === "granted") {
+    if (granted) {
     } else {
       // alert("Denied");
-
       openSettingsDialog(
         "Failed to Access Camera, Please go to the Settings to enable access",
         this.props.navigation
@@ -65,18 +92,18 @@ class CameraView extends Component {
     }
   }
 
-  checkPermissions() {
-    if (this.state.permissionsGranted) {
-    } else {
-      // alert("Denied");
-      // openSettingsDialog(
-      //   "Failed to Access Camera, Please go to the Settings to enable access",
-      //   this.props.navigation
-      // );
+  takePicture = async () => {
+    if (
+      Platform.OS === "android" &&
+      !(await this.hasCameraAndroidPermission())
+    ) {
+      openSettingsDialog(
+        "Failed to Access Device Camera, Please go to the Settings to enable camera access",
+        this.props.navigation
+      );
+      return;
     }
-  }
 
-  takePicture = () => {
     if (this.camera) {
       const options = { quality: 0.5 };
       this.camera
@@ -96,6 +123,22 @@ class CameraView extends Component {
         .catch((err: any) => console.error(err));
     }
   };
+
+  async hasCameraAndroidPermission() {
+    const permission = PermissionsAndroid.PERMISSIONS.CAMERA;
+
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+    try {
+      const status = await PermissionsAndroid.request(permission);
+      return status === "granted";
+    } catch (error) {
+      // return false;
+      alert("Permission Denied, Can't access camera ");
+    }
+  }
 
   renderNoPermissions = () => (
     <View style={styles.noPermissions}>
@@ -180,9 +223,30 @@ class CameraView extends Component {
     //   this.setState({galleryImagePath:`data:image/jpg;base64,${data}`});
     // });
   }
+  async hasAndroidPermission() {
+    const permission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
 
-  startRecording = () => {
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+    try {
+      const status = await PermissionsAndroid.request(permission);
+      return status === "granted";
+    } catch (error) {
+      // return false;
+      alert("Permission Denied, Can't record video ");
+    }
+  }
+  startRecording = async () => {
     if (this.camera) {
+      if (Platform.OS === "android" && !(await this.hasAndroidPermission())) {
+        openSettingsDialog(
+          "Failed to record audio, Please go to the Settings to enable recording audio",
+          this.props.navigation
+        );
+        return;
+      }
       this.startTimer();
       this.camera
         .recordAsync({ maxDuration: 59, quality: "4:3" })
@@ -265,14 +329,18 @@ class CameraView extends Component {
     });
   }
 
-  renderCamera() {
-    const { permissionsGranted } = this.state;
+  renderCamera(permissionsGranted) {
+    // const { permissionsGranted } = this.state;
     const { state, navigate } = this.props.navigation;
 
     // alert(!this.state.cameraImagePath);
     if (permissionsGranted === false) {
+      // alert(permissionsGranted);
+
       return this.renderNoPermissions();
     } else if (!this.state.cameraImagePath) {
+      // alert(permissionsGranted);
+
       if ((state && state.routeName === "Camera") || this.props.focused) {
         return (
           <RNCamera
@@ -404,8 +472,11 @@ class CameraView extends Component {
 
   render() {
     const { state, navigate } = this.props.navigation;
-
-    return <View style={styles.container}>{this.renderCamera()}</View>;
+    return (
+      <View style={styles.container}>
+        {this.renderCamera(this.state.permissionsGranted)}
+      </View>
+    );
   }
 }
 const mapDispatchToProps = (dispatch) => {

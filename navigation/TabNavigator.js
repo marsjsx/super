@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, Platform, StatusBar } from "react-native";
+import { Text, View, Platform, StatusBar, Image } from "react-native";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -14,6 +14,7 @@ import {
 } from "./StackNavigator";
 
 import { createAppContainer } from "react-navigation";
+import styles from "../styles";
 
 import { createBottomTabNavigator, BottomTabBar } from "react-navigation-tabs";
 
@@ -65,10 +66,17 @@ const TabNavigator = createBottomTabNavigator(
         header: null,
         tabBarLabel: " ",
         tabBarIcon: ({ focused }) => (
-          <Ionicons
-            color={"white"}
-            name={focused ? "ios-camera" : "ios-camera"}
-            size={36}
+          // <Ionicons
+          //   color={"white"}
+          //   name={focused ? "ios-camera" : "ios-camera"}
+          //   size={36}
+          // />
+          <Image
+            style={[
+              styles.profileLogo,
+              { transform: [{ rotate: "90deg" }, { scale: 1.2 }] },
+            ]}
+            source={require("../assets/logo-3.png")}
           />
         ),
       },
@@ -129,6 +137,7 @@ const TabNavigator = createBottomTabNavigator(
         backgroundColor: "transparent",
         // opacity: 0.4,
         borderTopWidth: 0,
+        shadowOpacity: 1,
         position: "absolute",
         left: 0,
         right: 0,

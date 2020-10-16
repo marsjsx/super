@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Dimensions,
   ActivityIndicator,
   FlatList,
   PermissionsAndroid,
@@ -13,6 +14,33 @@ import CameraRoll from "@react-native-community/cameraroll";
 // @ts-ignore
 import ListView from "deprecated-react-native-listview";
 import ImageItem from "./ImageItem";
+import { openSettingsDialog } from "../../util/Helper";
+
+const { height, width } = Dimensions.get("window");
+
+const requestCameraPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      {
+        title: "Cool Photo App Camera Permission",
+        message:
+          "Cool Photo App needs access to your camera " +
+          "so you can take awesome pictures.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can use the camera");
+    } else {
+      console.log("Camera permission denied");
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+};
 
 class CameraRollPicker extends Component {
   constructor(props: any) {
@@ -67,23 +95,57 @@ class CameraRollPicker extends Component {
     if (this.state.lastCursor) {
       fetchParams.after = this.state.lastCursor;
     }
-
-    if (Platform.OS === "android") {
-      try {
-        const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-        await PermissionsAndroid.request(permission);
-      } catch (error) {
-        alert("Permission Denied, Can't access photos ");
-      }
+    // requestCameraPermission();
+    if (Platform.OS === "android" && !(await this.hasAndroidPermission())) {
+      openSettingsDialog(
+        "Failed to Access Device Storage, Please go to the Settings to enable storage access",
+        this.props.navigation
+      );
+      return;
     }
 
     CameraRoll.getPhotos(fetchParams).then(
       (data) => this._appendImages(data),
       (e) => console.log(e)
     );
+
+    // if (Platform.OS === "android") {
+    //   try {
+    //     const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+    //     await PermissionsAndroid.request(permission);
+    //     CameraRoll.getPhotos(fetchParams).then(
+    //       (data) => this._appendImages(data),
+    //       (e) => console.log(e)
+    //     );
+    //   } catch (error) {
+    //     alert("Permission Denied, Can't access photos ");
+    //   }
+    // } else {
+    //   CameraRoll.getPhotos(fetchParams).then(
+    //     (data) => this._appendImages(data),
+    //     (e) => console.log(e)
+    //   );
+    // }
+  }
+
+  async hasAndroidPermission() {
+    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+    try {
+      const status = await PermissionsAndroid.request(permission);
+      return status === "granted";
+    } catch (error) {
+      // return false;
+      alert("Permission Denied, Can't access photos ");
+    }
   }
 
   _appendImages(data: any) {
+    // alert(JSON.stringify(data));
     var assets = data.edges;
     var newState = {
       loadingMore: false,
@@ -108,6 +170,9 @@ class CameraRollPicker extends Component {
 
   render() {
     var { dataSource } = this.state;
+    // {
+    //   alert(JSON.stringify(dataSource));
+    // }
     var {
       scrollRenderAheadDistance,
       initialListSize,
@@ -195,6 +260,7 @@ class CameraRollPicker extends Component {
       var image = rowData[0].node.image;
 
       image.type = rowData[0].node.type;
+      // alert(JSON.stringify(image));
       this._selectImage(image);
     }
 
@@ -221,7 +287,8 @@ class CameraRollPicker extends Component {
     }
   }
 
-  _selectImage(image) {
+  async _selectImage(image) {
+    // alert(image.uri);
     var { maximum, imagesPerRow, callback, selectSingleItem } = this.props;
 
     var selected = this.state.selected,
@@ -244,9 +311,15 @@ class CameraRollPicker extends Component {
         this._nEveryRow(this.state.images, imagesPerRow)
       ),
     });
+    var selectedFile = { ...image };
 
-    // alert(JSON.stringify(image));
-   callback(selected, image);
+    // let imageInfo = await CameraRoll.getSelectedPhoto(image.uri);
+    // // alert(JSON.stringify(imageInfo));
+    // var uri = imageInfo.node.image.filepath;
+    // selectedFile.uri = uri;
+    // // alert(uri);
+
+    callback(selected, selectedFile);
   }
 
   _nEveryRow(data: any, n: any) {

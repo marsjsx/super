@@ -1,5 +1,9 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
 const { height, width } = Dimensions.get("window");
+const aspectRatio = width / height;
+
+import { Header } from "react-navigation";
+import Scale from "./helpers/Scale";
 
 export default styles = StyleSheet.create({
   container: {
@@ -122,8 +126,17 @@ export default styles = StyleSheet.create({
   gray: {
     color: "#adadad",
   },
+  grey: {
+    color: "#696969",
+  },
+  black: {
+    color: "#000",
+  },
   small: {
     fontSize: 10,
+  },
+  medium: {
+    fontSize: 12,
   },
   url: {
     color: "red",
@@ -149,7 +162,7 @@ export default styles = StyleSheet.create({
   },
 
   username: {
-    color: "blue",
+    color: "rgba(209, 84, 84, 0.85)",
     fontWeight: "bold",
   },
 
@@ -162,13 +175,13 @@ export default styles = StyleSheet.create({
     fontStyle: "italic",
   },
   input: {
-    width: width * 0.9,
+    width: width * 0.8,
     margin: 10,
     padding: 10,
     alignSelf: "center",
     borderColor: "#d3d3d3",
     borderWidth: 1,
-    borderRadius: 50,
+    borderRadius: 15,
     fontSize: 16,
   },
   inputSearch: {
@@ -252,13 +265,15 @@ export default styles = StyleSheet.create({
     width: Dimensions.get("screen").width,
   },
   postPhotoPreview: {
-    height: height * 0.7,
+    height: height - Scale.moderateScale(115),
     width: width,
     marginBottom: 0,
   },
   videoPlayer: {
-    height: height * 0.6,
+    // height: height - (Header.HEIGHT + Scale.moderateScale(20)),
+    height: height - (Header.HEIGHT + Scale.moderateScale(40)),
     width: width,
+    // flex: 1,
     marginBottom: 0,
   },
   roundImage: {
@@ -286,9 +301,30 @@ export default styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: "#adadad",
   },
+  roundImage80: {
+    width: Scale.moderateScale(80),
+    height: Scale.moderateScale(80),
+    borderRadius: Scale.moderateScale(40),
+    marginTop: Scale.moderateScale(10),
+    marginBottom: Scale.moderateScale(10),
+    marginLeft: Scale.moderateScale(10),
+    marginRight: Scale.moderateScale(10),
+    backgroundColor: "#adadad",
+  },
+  roundImage100: {
+    width: Scale.moderateScale(100),
+    height: Scale.moderateScale(100),
+    borderRadius: Scale.moderateScale(50),
+    marginTop: Scale.moderateScale(10),
+    marginBottom: Scale.moderateScale(10),
+    marginLeft: Scale.moderateScale(10),
+    marginRight: Scale.moderateScale(10),
+    backgroundColor: "#adadad",
+  },
   squareLarge: {
     width: width * 0.33,
-    height: 170,
+    aspectRatio: aspectRatio,
+    // height: 170,
     margin: 1,
     backgroundColor: "#d3d3d3",
   },
@@ -692,7 +728,7 @@ export default styles = StyleSheet.create({
     width: width - 20,
   },
   profileEditPhoto: {
-    height: height * 0.82,
+    height: height * 0.92,
     width: width,
   },
   profileLogo: {
@@ -704,6 +740,11 @@ export default styles = StyleSheet.create({
     }),
     width: 50,
     height: 50,
+  },
+  profileLogo1: {
+    width: 80,
+    height: 80,
+    marginHorizontal: 10,
   },
   followBar: {
     paddingHorizontal: "10%",
@@ -791,5 +832,35 @@ export default styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     top: 0,
+  },
+  rowBack: {
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "100%",
+    // flex: 1,
+    flexDirection: "row",
+  },
+
+  activeLabel: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "#00ff00",
+    fontSize: Scale.moderateScale(16),
+  },
+  bottomwhiteborder: {
+    // borderBottomWidth: 2,
+    // marginLeft: Scale.moderateScale(10),
+    // marginRight: Scale.moderateScale(10),
+    // borderBottomColor: "#00ff00",
+  },
+  bottomgreyborder: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#dcdcdc",
+  },
+  inactiveLabel: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "white",
+    fontSize: Scale.moderateScale(16),
   },
 });

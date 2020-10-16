@@ -7,6 +7,8 @@ import ImagePicker from "react-native-image-crop-picker";
 
 import * as Permissions from "expo-permissions";
 import { validURL, openSettingsDialog } from "../util/Helper";
+import { Ionicons } from "@expo/vector-icons";
+import Scale from "../helpers/Scale";
 
 import {
   Text,
@@ -14,6 +16,7 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Dimensions,
   ImageBackground,
   ScrollView,
   KeyboardAvoidingView,
@@ -73,7 +76,7 @@ import ProgressiveImage from "../component/ProgressiveImage";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { showLoader } from "../util/Loader";
 import { name as appName } from "../app.json";
-
+const { height, width } = Dimensions.get("window");
 import appleAuth, {
   AppleButton,
   AppleAuthRequestScope,
@@ -248,15 +251,15 @@ class Signup extends React.Component {
 
     await ImagePicker.openCropper({
       path: selectedImage.path,
-      cropping: true,
+      // cropping: true,
       // width: 1200,
-      width: 600,
-      height: 1000,
+      width: width * 1.5,
+      height: height * 1.5,
       // width: selectedImage.width,
       // height: selectedImage.height,
       // // height: 1500,
 
-      compressImageQuality: 0,
+      // compressImageQuality: 0.8,
     })
       .then((image) => {
         console.log(image);
@@ -332,10 +335,7 @@ class Signup extends React.Component {
             source={require("../temp/white-grey-back.png")}
             style={[styles.container, styles.center]}
           >
-            <KeyboardAvoidingView
-              style={{ flex: 1, width: "100%" }}
-              behavior={"padding"}
-            >
+            <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
               <ScrollView
                 style={[{ width: "100%" }]}
                 contentContainerStyle={[styles.center]}
@@ -346,27 +346,25 @@ class Signup extends React.Component {
                 />
 
                 <Item floatingLabel style={[styles.textInput]}>
-                  <Label>Email</Label>
+                  <Label style={{ fontWeight: "500" }}>Email</Label>
                   <Input
                     value={this.props.user.email}
                     onChangeText={(input) => this.props.updateEmail(input)}
                   />
                 </Item>
-
                 <Item floatingLabel style={[styles.textInput]}>
-                  <Label>Password</Label>
+                  <Label style={{ fontWeight: "500" }}>Username</Label>
+                  <Input
+                    value={this.props.user.username}
+                    onChangeText={(input) => this.props.updateUsername(input)}
+                  />
+                </Item>
+                <Item floatingLabel style={[styles.textInput]}>
+                  <Label style={{ fontWeight: "500" }}>Password</Label>
                   <Input
                     value={this.props.user.password}
                     onChangeText={(input) => this.props.updatePassword(input)}
                     secureTextEntry={true}
-                  />
-                </Item>
-
-                <Item floatingLabel style={[styles.textInput]}>
-                  <Label>Username</Label>
-                  <Input
-                    value={this.props.user.username}
-                    onChangeText={(input) => this.props.updateUsername(input)}
                   />
                 </Item>
 
@@ -384,7 +382,7 @@ class Signup extends React.Component {
                 >
                   <Text style={styles.textA}>Signup</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={[styles.buttonFacebook]}
                   onPress={() => this.onFaceBookLogin()}
                 >
@@ -398,7 +396,7 @@ class Signup extends React.Component {
                     buttonType={AppleButton.Type.SIGN_IN}
                     onPress={() => this.appleLoginLogin()}
                   />
-                )}
+                )} */}
 
                 <Subtitle
                   style={{
@@ -436,6 +434,8 @@ class Signup extends React.Component {
             {this.state.showLoading
               ? showLoader("Loading, Please wait... ")
               : null}
+
+            <Image source={require("../assets/logo.png")} resizeMode="center" />
           </ImageBackground>
         ) : (
           <ScrollView>
@@ -452,7 +452,10 @@ class Signup extends React.Component {
                 style={[
                   styles.profileEditPhoto,
                   styles.bottomLine,
-                  { position: "absolute", justifyContent: "flex-end" },
+                  {
+                    position: "absolute",
+                    justifyContent: "flex-end",
+                  },
                 ]}
               >
                 <View style={[styles.bottom, { width: "100%" }]}>
@@ -472,29 +475,24 @@ class Signup extends React.Component {
                     <View />
                   )}
                 </View>
-              </ImageBackground>
 
-              <TouchableOpacity
-                style={[
-                  styles.center,
-                  {
-                    marginTop: 25,
-                  },
-                ]}
-                onPress={this.openLibrary}
-              >
-                <Text
-                  style={[
-                    styles.bold,
-                    {
-                      color: "rgb(237,75,75)",
-                      textDecorationLine: "underline",
-                    },
-                  ]}
+                <TouchableOpacity
+                  style={[styles.center, { marginBottom: 10 }]}
+                  onPress={this.openLibrary}
                 >
-                  Change profile photo
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.bold,
+                      {
+                        color: "rgb(237,75,75)",
+                        textDecorationLine: "underline",
+                      },
+                    ]}
+                  >
+                    Change profile photo
+                  </Text>
+                </TouchableOpacity>
+              </ImageBackground>
 
               {!this.state.showEditProfile ? (
                 <TouchableOpacity
@@ -534,7 +532,10 @@ class Signup extends React.Component {
 
                   <Item
                     floatingLabel
-                    style={[styles.textInput, { marginTop: 10 }]}
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
                   >
                     <Label>Bio</Label>
                     <Input
@@ -545,7 +546,10 @@ class Signup extends React.Component {
 
                   <Item
                     inlineLabel
-                    style={[styles.textInput, { marginTop: 10 }]}
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
                   >
                     <Label>Password</Label>
                     <Button
@@ -559,7 +563,10 @@ class Signup extends React.Component {
 
                   <Item
                     floatingLabel
-                    style={[styles.textInput, { marginTop: 10 }]}
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
                   >
                     <Label>Website</Label>
                     <Input
@@ -570,7 +577,10 @@ class Signup extends React.Component {
                   </Item>
                   <Item
                     floatingLabel
-                    style={[styles.textInput, { marginTop: 10 }]}
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
                   >
                     <Label>Website Label</Label>
                     <Input
@@ -582,7 +592,13 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
+                  <Item
+                    picker
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
+                  >
                     <Label>Account Type: </Label>
                     <Picker
                       mode="dropdown"
@@ -598,6 +614,27 @@ class Signup extends React.Component {
                       <Picker.Item label="Business" value="Business" />
                     </Picker>
                   </Item>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: 15,
+                      marginTop: Scale.moderateScale(15),
+                      borderBottomWidth: 0.5,
+                      borderBottomColor: "black",
+                    }}
+                    onPress={() =>
+                      this.props.navigation.navigate("BlockedUsers")
+                    }
+                  >
+                    <Text style={{ flex: 1 }}>Blocked Accounts </Text>
+                    <Ionicons
+                      name="ios-arrow-forward"
+                      size={20}
+                      color="black"
+                    />
+                  </TouchableOpacity>
 
                   <Text
                     style={[
@@ -624,7 +661,7 @@ class Signup extends React.Component {
 
                   <Item
                     floatingLabel
-                    style={[styles.textInput, { marginTop: 10 }]}
+                    style={[styles.textInput, { marginTop: Scale.moderateScale(15) }]}
                   >
                     <Label>Phone</Label>
                     <Input
@@ -634,7 +671,7 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
+                  <Item picker style={[styles.textInput, { marginTop: Scale.moderateScale(15)}]}>
                     <Label>Gender: </Label>
                     <Picker
                       mode="dropdown"
@@ -655,7 +692,7 @@ class Signup extends React.Component {
                     </Picker>
                   </Item>
 
-                  <Item picker style={[styles.textInput, { marginTop: 10 }]}>
+                  <Item picker style={[styles.textInput, { marginTop: Scale.moderateScale(15) }]}>
                     <Label>Birthdate: </Label>
 
                     <DatePicker
