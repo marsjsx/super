@@ -38,7 +38,8 @@ const user = (state = {}, action) => {
       return { ...state, following: action.payload };
     case "UPDATE_BLOCKED_USERS":
       return { ...state, blockedUsers: action.payload };
-
+    case "LAST_VISIBLE_MESSAGE":
+      return { ...state, lastVisible: action.payload };
     case "UPDATE_BLOCKED_USERS_IDS":
       return { ...state, blocked: action.payload };
 
@@ -98,6 +99,8 @@ const messages = (state = {}, action) => {
   switch (action.type) {
     case "GET_MESSAGES":
       return action.payload;
+    // case "LAST_VISIBLE_MESSAGE":
+    //   return { ...state, lastVisible: action.payload };
     default:
       return state;
   }
@@ -169,6 +172,22 @@ const post = (state = { newPosts: [], followingfeed: [] }, action) => {
   }
 };
 
+const activity = (state = { activities: [] }, action) => {
+  switch (action.type) {
+    case "SHOW_ACTIVITIES_LOADING":
+      return { ...state, loading: true };
+
+    case "GET_ACTIVITIES":
+      return { ...state, activities: action.payload, loading: false };
+
+    case "LAST_VISIBLE":
+      return { ...state, lastVisible: action.payload };
+
+    default:
+      return state;
+  }
+};
+
 const modal = (state = null, action) => {
   switch (action.type) {
     case "OPEN_MODAL":
@@ -183,6 +202,7 @@ const modal = (state = null, action) => {
 const appReducer = combineReducers({
   user,
   post,
+  activity,
   modal,
   profile,
   messages,

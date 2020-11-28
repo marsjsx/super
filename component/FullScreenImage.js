@@ -39,7 +39,7 @@ class FullScreenImage extends React.Component {
       "willBlur",
       this.willBlurAction
     );
-    ScreenOrientation.unlockAsync();
+    // ScreenOrientation.unlockAsync();
   }
 
   componentWillUmount() {
@@ -48,10 +48,10 @@ class FullScreenImage extends React.Component {
   }
 
   willBlurAction = async (payload) => {
-    ScreenOrientation.unlockAsync();
-    await ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.PORTRAIT
-    );
+    // ScreenOrientation.unlockAsync();
+    // await ScreenOrientation.lockAsync(
+    //   ScreenOrientation.OrientationLock.PORTRAIT
+    // );
   };
 
   async changeScreenOrientation() {

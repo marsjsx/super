@@ -141,6 +141,27 @@ export const uploadPost = () => {
   };
 };
 
+export const getPostById = (postId) => {
+  return async (dispatch, getState) => {
+    try {
+      let posts = [];
+      const query = await db
+        .collection("posts")
+        .where("id", "==", postId)
+        .get();
+      query.forEach((response) => {
+        posts.push(response.data());
+      });
+      if (posts.length > 0) {
+        dispatch({ type: "NEW_POST_ADDED", payload: posts[0] });
+      }
+    } catch (e) {
+      alert("Upload Error: " + e);
+
+      /* console.error(e) */
+    }
+  };
+};
 export const uploadPostVideo = () => {
   return async (dispatch, getState) => {
     try {
@@ -350,10 +371,10 @@ export const newPostsListner = () => {
               }
             }
             if (change.type === "modified") {
-              console.log("Modified : ", change.doc.data());
+              // console.log("Modified : ", change.doc.data());
             }
             if (change.type === "removed") {
-              console.log("Removed : ", change.doc.data());
+              // console.log("Removed : ", change.doc.data());
             }
           });
           initialState = false;
@@ -366,17 +387,21 @@ export const newPostsListner = () => {
 
 export const getMorePosts = () => {
   return async (dispatch, getState) => {
-    // alert(limit);
     const { lastVisible, feed } = getState().post;
+    var lastFetchedPostDate;
 
+    if (feed && feed.length > 0) {
+      lastFetchedPostDate = feed[feed.length - 1].date;
+    }
     try {
       dispatch({ type: "SHOW_LOADING", payload: true });
       var posts;
       if (lastVisible) {
+        // alert(lastFetchedPostDate);
         posts = await db
           .collection("posts")
           .orderBy("date", "desc")
-          .startAfter(lastVisible)
+          .startAfter(lastFetchedPostDate)
           .limit(18)
           .get();
       } else {
@@ -685,7 +710,7 @@ export const likePost = (post) => {
 
       db.collection("activity").doc().set({
         postId: post.id,
-        postPhoto: post.postPhoto,
+        postPhoto: post.preview,
         likerId: uid,
         postType: post.type,
         likerPhoto: photo,
@@ -913,7 +938,7 @@ export const addComment = (text, post) => {
           comments: firebase.firestore.FieldValue.arrayUnion(comment),
         });
       comment.postId = post.id;
-      comment.postPhoto = post.postPhoto;
+      comment.postPhoto = post.preview;
       comment.uid = post.uid;
       comment.type = "COMMENT";
       comments.push(comment);
@@ -979,7 +1004,7 @@ export const reportPost = (post, reason) => {
         if (response.data().uid) {
           db.collection("activity").doc().set({
             postId: post.id,
-            postPhoto: post.postPhoto,
+            postPhoto: post.preview,
             reporterId: uid,
             reportReason: reason,
             reporterPhoto: photo,

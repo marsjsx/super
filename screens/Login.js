@@ -50,6 +50,7 @@ class Login extends React.Component {
         if (this.props.user != null) {
           this.props.navigation.goBack();
           this.props.navigation.navigate("Home");
+          this.props.navigation.navigate("WelcomeScreen");
         }
       }
     });

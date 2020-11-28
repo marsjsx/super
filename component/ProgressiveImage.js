@@ -118,22 +118,6 @@ class ProgressiveImage extends React.Component {
           { transform: [{ scale: this.scale }] },
         ]}
       >
-        {/* {thumbnailSource &&
-        thumbnailSource.uri &&
-        thumbnailSource.uri.length < 20 ? null : (
-          <Animated.Image
-            {...props}
-            source={require("../assets/profilePlaceholder.png")}
-            style={[
-              styles.imageOverlay,
-              {
-                opacity: 1,
-              },
-              style,
-            ]}
-          />
-        )} */}
-
         {/* )} */}
         {/* {source.uri && source.uri.length > 2 ? (
           <ActivityIndicator
@@ -146,7 +130,7 @@ class ProgressiveImage extends React.Component {
         {/* {alert(type)} */}
         {thumbnailSource &&
         thumbnailSource.uri &&
-        thumbnailSource.uri.length > 20 ? (
+        thumbnailSource.uri.length > 10 ? (
           <Animated.Image
             {...props}
             source={thumbnailSource}
@@ -158,7 +142,7 @@ class ProgressiveImage extends React.Component {
               },
             ]}
             onLoad={this.handleThumbnailLoad}
-            blurRadius={type === "video" ? 0 : 1}
+            // blurRadius={type === "video" ? 0 : 1}
           />
         ) : (
           <Animated.Image
@@ -173,8 +157,8 @@ class ProgressiveImage extends React.Component {
             ]}
           />
         )}
-        {/* {alert(source.uri)} */}
-        {type !== "vr" && normalisedSource && (
+        {/* {type !== "vr" && normalisedSource && ( */}
+        {type != "video" && normalisedSource && (
           <FastImage
             {...props}
             source={source}

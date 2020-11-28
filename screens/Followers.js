@@ -7,13 +7,7 @@ import { orderBy } from "lodash";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
 
-import {
-  View,
-  FlatList,
-  Text,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import { getUser } from "../actions/user";
 
 import moment from "moment";
@@ -28,8 +22,8 @@ class Followers extends React.Component {
   goToUser = (user) => {
     // this.props.getUser(user.uid);
     // this.props.navigation.navigate("Profile");
-
     this.props.navigation.navigate("Profile", { uid: user.uid });
+    // alert("Test");
   };
 
   render() {

@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import db from "../config/firebase";
 import { getUser } from "../actions/user";
-import { getPosts, getMorePosts } from "../actions/post";
+import {  getMorePosts } from "../actions/post";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import ProgressiveImage from "../component/ProgressiveImage";
 import _ from "lodash";
@@ -37,7 +37,6 @@ class Search extends React.Component {
   };
 
   componentDidMount() {
-    //  this.props.getPosts();
   }
 
   searchUser = async () => {
@@ -345,7 +344,7 @@ class Search extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ getUser, getPosts, getMorePosts }, dispatch);
+  return bindActionCreators({ getUser, getMorePosts }, dispatch);
 };
 
 const mapStateToProps = (state) => {

@@ -2,12 +2,20 @@ import React from "react";
 import styles from "../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { Text, View, FlatList, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import db from "../config/firebase";
 import orderBy from "lodash/orderBy";
 import moment from "moment";
 import EmptyView from "../component/emptyview";
 import { getUser } from "../actions/user";
+import { getMoreActivities } from "../actions/activity";
+
 import { showLoader } from "../util/Loader";
 import {
   Ionicons,
@@ -17,20 +25,51 @@ import {
   Feather,
 } from "@expo/vector-icons";
 import { followUser } from "../actions/user";
+import { getPostById } from "../actions/post";
+
 import { showMessage, hideMessage } from "react-native-flash-message";
 import FastImage from "react-native-fast-image";
 
 class Activity extends React.Component {
   state = {
     activity: [],
+    refreshing: false,
     showLoading: false,
   };
 
   componentDidMount = async () => {
     if (this.props.user && this.props.user.uid) {
-      this.setState({ showLoading: true });
-      await this.getActivity();
-      this.setState({ showLoading: false });
+      if (this.props.activity.activities.length < 1) {
+        this.setState({ showLoading: true });
+        // await this.getActivity();
+        await this.props.getMoreActivities();
+
+        // alert(JSON.stringify(this.props.activity.activities));
+        this.setState({ showLoading: false });
+      }
+    }
+  };
+
+  // Retrieve More
+  retrieveMore = async () => {
+    if (!this.state.refreshing) {
+      this.setState({
+        refreshing: true,
+      });
+      try {
+        // alert("Called");
+
+        await this.props.getMoreActivities();
+        this.setState({
+          refreshing: false,
+        });
+      } catch (error) {
+        alert(error);
+        console.log(error);
+        this.setState({
+          refreshing: false,
+        });
+      }
     }
   };
 
@@ -61,9 +100,16 @@ class Activity extends React.Component {
     });
   };
 
-  goToPost = (data) => {
+  goToPost = async (data) => {
+    // this.getPost(data.postId);
+
     switch (data.type) {
       case "LIKE":
+        this.setState({ showLoading: true });
+
+        await this.props.getPostById(data.postId);
+        this.setState({ showLoading: false });
+
         if (!this.props.user.posts) {
           this.showNoPostMessage();
           return;
@@ -74,15 +120,18 @@ class Activity extends React.Component {
 
         if (index < 0) {
           this.showNoPostMessage();
-          return;
+        } else {
+          this.props.navigation.navigate("PostListScreen", {
+            selectedIndex: index,
+            route: "MyProfile",
+          });
         }
-
-        this.props.navigation.navigate("PostListScreen", {
-          selectedIndex: index,
-          route: "MyProfile",
-        });
 
       case "COMMENT":
+        this.setState({ showLoading: true });
+
+        await this.props.getPostById(data.postId);
+        this.setState({ showLoading: false });
         if (!this.props.user.posts) {
           this.showNoPostMessage();
           return;
@@ -92,15 +141,18 @@ class Activity extends React.Component {
         );
         if (index < 0) {
           this.showNoPostMessage();
-          return;
+        } else {
+          this.props.navigation.navigate("PostListScreen", {
+            selectedIndex: index,
+            route: "MyProfile",
+          });
         }
 
-        this.props.navigation.navigate("PostListScreen", {
-          selectedIndex: index,
-          route: "MyProfile",
-        });
-
       case "REPORT":
+        this.setState({ showLoading: true });
+
+        await this.props.getPostById(data.postId);
+        this.setState({ showLoading: false });
         if (!this.props.post.feed) {
           this.showNoPostMessage();
           return;
@@ -111,12 +163,12 @@ class Activity extends React.Component {
 
         if (index < 0) {
           this.showNoPostMessage();
-          return;
+        } else {
+          this.props.navigation.navigate("PostListScreen", {
+            selectedIndex: index,
+            route: "Search",
+          });
         }
-        this.props.navigation.navigate("PostListScreen", {
-          selectedIndex: index,
-          route: "Search",
-        });
 
       default:
         null;
@@ -236,7 +288,7 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <Text style={styles.bold}>{item.commenterName}</Text>
-              <Text style={styles.gray}>{`cpmmented: "${item.comment}"`}</Text>
+              <Text style={styles.gray}>{`commented: "${item.comment}"`}</Text>
               <Text style={[styles.gray, styles.small]}>
                 {moment(item.date).format("ll")}
               </Text>
@@ -288,9 +340,39 @@ class Activity extends React.Component {
     }
   };
 
+  // // Render Footer
+  // renderFooter = () => {
+  //   try {
+  //     // Check If Loading
+  //     if (this.state.refreshing) {
+  //       return <ActivityIndicator />;
+  //     } else {
+  //       return <View />;
+  //     }
+  //   } catch (error) {
+  //     alert(error);
+  //     return <View />;
+  //     // console.log(error);
+  //   }
+  // };
+
+    // Render Footer
+    renderFooter = () => {
+      try {
+        // Check If Loading
+        if (this.state.refreshing) {
+          return <ActivityIndicator />;
+        } else {
+          return null;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
   render() {
     if (this.state.showLoading) return showLoader("Loading, Please wait... ");
-    if (!this.props.user.uid || this.state.activity.length <= 0) {
+    if (!this.props.user.uid) {
       return (
         <EmptyView
           desc="All user activities will appear here"
@@ -301,6 +383,8 @@ class Activity extends React.Component {
         />
       );
     }
+
+    // alert(JSON.stringify(this.props.activity.activities));
     return (
       <View style={[styles.container, { marginTop: 100 }]}>
         {/* <EmptyView
@@ -311,9 +395,13 @@ class Activity extends React.Component {
           icon={<Feather style={{ margin: 5 }} name="activity" size={64} />}
         /> */}
         <FlatList
-          onRefresh={() => this.getActivity()}
-          refreshing={false}
-          data={this.state.activity}
+          onRefresh={() => this.props.getMoreActivities()}
+          data={this.props.activity.activities}
+          refreshing={this.state.refreshing}
+          onEndReached={this.retrieveMore}
+          ListFooterComponent={this.renderFooter}
+          ListEmptyComponent={<EmptyView desc="No Data Found" />}
+          onEndReachedThreshold={0}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => this.renderList(item)}
         />
@@ -326,6 +414,8 @@ const mapDispatchToProps = (dispatch) => {
     {
       getUser,
       followUser,
+      getMoreActivities,
+      getPostById,
     },
     dispatch
   );
@@ -335,6 +425,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     post: state.post,
+    activity: state.activity,
   };
 };
 

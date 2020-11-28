@@ -392,16 +392,18 @@ class Post extends React.Component {
     await ImagePicker.openCropper({
       path: this.props.post.photo.uri,
       cropping: true,
-      width: type
-        ? this.props.post.photo.width < 7000
-          ? this.props.post.photo.width
-          : 7000
-        : 1400,
-      height: type
-        ? this.props.post.photo.height < 4000
-          ? this.props.post.photo.height
-          : 4000
-        : 2600,
+      width: this.props.post.photo.width,
+      height: this.props.post.photo.height,
+      // width: type
+      //   ? this.props.post.photo.width < 7000
+      //     ? this.props.post.photo.width
+      //     : 7000
+      //   : 1400,
+      // height: type
+      //   ? this.props.post.photo.height < 4000
+      //     ? this.props.post.photo.height
+      //     : 4000
+      //   : 2600,
       compressImageQuality: 0.8,
     })
       .then((image) => {
@@ -553,7 +555,7 @@ class Post extends React.Component {
     const options = {
       startTime: this.state.startTime,
       endTime: this.state.endTime,
-      quality: "720×480", // iOS only
+      quality: "640*360", // iOS only
       // quality: "1280x720", // iOS only
       // saveToCameraRoll: true, // default is false // iOS only
       // saveWithCurrentDate: true, // default is false // iOS only

@@ -188,7 +188,7 @@ export default styles = StyleSheet.create({
     width: width * 0.8,
     margin: 10,
     padding: 10,
-    alignSelf: "center",
+    // alignSelf: "center",
     borderColor: "#d3d3d3",
     borderWidth: 1,
     borderRadius: 5,
@@ -617,9 +617,9 @@ export default styles = StyleSheet.create({
     color: "rgb(255, 255, 255)",
     textAlign: "left",
     fontWeight: "300",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 7,
-    textShadowColor: "#000000",
+    // textShadowOffset: { width: 1, height: 1 },
+    // textShadowRadius: 7,
+    // textShadowColor: "#000000",
   },
   textE: {
     letterSpacing: 1,
@@ -700,6 +700,13 @@ export default styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingBottom: 65,
   },
+  bottomProfile: {
+    width: width,
+    flex: 1,
+    flex: 0.98,
+    justifyContent: "flex-end",
+    paddingBottom: 16,
+  },
   squareImage: {
     width: 60,
     height: 60,
@@ -729,6 +736,10 @@ export default styles = StyleSheet.create({
   },
   profileEditPhoto: {
     height: height * 0.92,
+    width: width,
+  },
+  profilePhoto: {
+    height: height * 1,
     width: width,
   },
   profileLogo: {

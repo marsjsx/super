@@ -6,10 +6,17 @@ import {
   Text,
   Platform,
   KeyboardAvoidingView,
+  Modal,
+  TouchableHighlight,
   TouchableOpacity,
 } from "react-native";
 import { connect } from "react-redux";
-import { addMessage, getMessages, updateSeenBy } from "../actions/message";
+import {
+  addMessage,
+  getMessages,
+  updateSeenBy,
+  deleteMessage,
+} from "../actions/message";
 import { bindActionCreators } from "redux";
 import { orderBy } from "lodash";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -52,6 +59,7 @@ const otherUser = {
   name: "React Native",
   avatar: "https://facebook.github.io/react/img/logo_og.png",
 };
+var self;
 
 class Chat extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -69,12 +77,14 @@ class Chat extends React.Component {
     isLoadingEarlier: false,
     appIsReady: false,
     isTyping: true,
+    modalVisible: false,
   };
 
   _isMounted = false;
 
   componentDidMount() {
     this._isMounted = true;
+    self = this;
 
     let loggedInUser = this.props.user;
     user = {
@@ -83,7 +93,7 @@ class Chat extends React.Component {
       avatar: loggedInUser.photo,
     };
 
-    this.props.getMessages();
+    // this.props.getMessages();
 
     // this.getUserChat();
     // init with only system messages
@@ -391,7 +401,49 @@ class Chat extends React.Component {
       </View>
     );
   };
+  onLongPress(context, message) {
+    // alert(JSON.stringify(self.props.user.uid));
+    // alert(this.props.user.uid + "----" + JSON.stringify(message.user._id));
+    // console.log(context, message);
+    // const options = ["Delete Message", "Cancel"];
+    // const cancelButtonIndex = options.length - 1;
+    // context.actionSheet().showActionSheetWithOptions(
+    //   {
+    //     options,
+    //     cancelButtonIndex,
+    //   },
+    //   (buttonIndex) => {
+    //     switch (buttonIndex) {
+    //       case 0:
+    //         // Your delete logic
+    //         break;
+    //     }
+    //   }
+    // );
 
+    const { params } = self.props.navigation.state;
+    const options = ["Delete Message", "Copy Text", "Cancel"];
+    const cancelButtonIndex = options.length - 1;
+    context.actionSheet().showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+      },
+      (buttonIndex) => {
+        switch (buttonIndex) {
+          case 0: {
+            self.props.deleteMessage(params.uid, message._id);
+            // Your delete logic
+            break;
+          }
+          case 1:
+            Clipboard.setString(this.props.currentMessage.text);
+            break;
+        }
+      }
+    );
+  }
+  // }
   render() {
     if (!this.state.appIsReady) {
       return showLoader("");
@@ -441,7 +493,67 @@ class Chat extends React.Component {
             right: { color: "yellow" },
           }}
           isTyping={this.state.isTyping}
+          onLongPress={this.onLongPress}
         />
+        {/* 
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 22,
+            }}
+          >
+            <View
+              style={{
+                margin: 20,
+                backgroundColor: "white",
+                borderRadius: 20,
+                padding: 35,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+              }}
+            >
+              <TouchableHighlight
+                style={{
+                  backgroundColor: "#F194FF",
+                  borderRadius: 20,
+                  padding: 10,
+                  elevation: 2,
+                  backgroundColor: "#2196F3",
+                }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  Hide Modal
+                </Text>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </Modal> */}
         {Platform.OS === "android" ? <KeyboardSpacer /> : null}
       </View>
     );
@@ -450,7 +562,7 @@ class Chat extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
-    { addMessage, getMessages, updateSeenBy },
+    { addMessage, getMessages, updateSeenBy, deleteMessage },
     dispatch
   );
 };

@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-gifted-chat/lib/Day.js b/node_modules/react-native-gifted-chat/lib/Day.js
+index 7829a72..78ff09f 100644
+--- a/node_modules/react-native-gifted-chat/lib/Day.js
++++ b/node_modules/react-native-gifted-chat/lib/Day.js
+@@ -26,7 +26,7 @@ export default class Day extends PureComponent {
+             return (<View style={[styles.container, containerStyle]}>
+           <View style={wrapperStyle}>
+             <Text style={[styles.text, textStyle]}>
+-              {dayjs(currentMessage.createdAt)
++              {this.props.customDate?this.props.customDate(currentMessage.createdAt):dayjs(currentMessage.createdAt)
+                 .locale(this.context.getLocale())
+                 .format(dateFormat)}
+             </Text>

@@ -17,7 +17,8 @@ import { createAppContainer } from "react-navigation";
 import styles from "../styles";
 
 import { createBottomTabNavigator, BottomTabBar } from "react-navigation-tabs";
-
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Add from "../screens/Add";
 
 const TabBarComponent = (props) => <BottomTabBar {...props} />;

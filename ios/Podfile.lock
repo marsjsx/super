@@ -53,7 +53,7 @@ PODS:
   - EXPermissions (8.1.0):
     - UMCore
     - UMPermissionsInterface
-  - EXScreenOrientation (1.1.1):
+  - EXScreenOrientation (1.0.0):
     - React-Core
     - UMCore
   - EXSQLite (8.1.0):
@@ -108,7 +108,7 @@ PODS:
     - GoogleUtilities/Environment (~> 6.7)
     - GoogleUtilities/Logger (~> 6.7)
     - nanopb (~> 1.30906.0)
-  - FirebaseStorage (3.9.0):
+  - FirebaseStorage (3.9.1):
     - FirebaseCore (~> 6.10)
     - GTMSessionFetcher/Core (~> 1.1)
   - Folly (2018.10.22.00):
@@ -121,7 +121,7 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - GoogleDataTransport (7.4.0):
+  - GoogleDataTransport (7.5.1):
     - nanopb (~> 1.30906.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
     - GoogleUtilities/Environment
@@ -138,7 +138,7 @@ PODS:
   - "GoogleUtilities/NSData+zlib (6.7.2)"
   - GoogleUtilities/Reachability (6.7.2):
     - GoogleUtilities/Logger
-  - GTMSessionFetcher/Core (1.4.0)
+  - GTMSessionFetcher/Core (1.5.0)
   - libwebp (1.1.0):
     - libwebp/demux (= 1.1.0)
     - libwebp/mux (= 1.1.0)
@@ -165,7 +165,7 @@ PODS:
     - RNPermissions
   - Permission-PhotoLibrary (2.1.5):
     - RNPermissions
-  - PromisesObjC (1.2.10)
+  - PromisesObjC (1.2.11)
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
     - FBLazyVector (= 0.61.5)
@@ -329,7 +329,7 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
   - React-jsinspector (0.61.5)
-  - react-native-cameraroll (1.5.2):
+  - react-native-cameraroll (1.8.1):
     - React
   - react-native-fbsdk (1.1.2):
     - React
@@ -355,7 +355,7 @@ PODS:
     - React
   - react-native-maps (0.26.1):
     - React
-  - react-native-safe-area-context (0.6.0):
+  - react-native-safe-area-context (0.6.4):
     - React
   - react-native-slider (3.0.3):
     - React
@@ -443,13 +443,17 @@ PODS:
     - React
   - RNScreens (2.2.0):
     - React
-  - SDWebImage (5.9.1):
-    - SDWebImage/Core (= 5.9.1)
-  - SDWebImage/Core (5.9.1)
+  - RNSnackbar (2.2.4):
+    - React-Core
+  - RNVectorIcons (7.1.0):
+    - React
+  - SDWebImage (5.10.0):
+    - SDWebImage/Core (= 5.10.0)
+  - SDWebImage/Core (5.10.0)
   - SDWebImageWebPCoder (0.4.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.5)
-  - TOCropViewController (2.5.4)
+  - TOCropViewController (2.5.5)
   - UMAppLoader (1.0.1)
   - UMBarCodeScannerInterface (5.1.0)
   - UMCameraInterface (5.1.0)
@@ -543,6 +547,8 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSnackbar (from `../node_modules/react-native-snackbar`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - UMBarCodeScannerInterface (from `../node_modules/unimodules-barcode-scanner-interface/ios`)
   - UMCameraInterface (from `../node_modules/unimodules-camera-interface/ios`)
@@ -722,6 +728,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSnackbar:
+    :path: "../node_modules/react-native-snackbar"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   UMAppLoader:
     :path: "../node_modules/unimodules-app-loader/ios"
   UMBarCodeScannerInterface:
@@ -756,24 +766,24 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CTPanoramaView: cc2a4e3bc324ccac4520375b131755747da27a7c
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EXAV: 2edd9cd30fe98d04b55325303c7ff01db02d1d0f
-  EXCamera: a7d29d25bf78a058c9111080cc1fc5b73814ce09
-  EXConstants: 5304709b1bea70a4828f48ba4c7fc3ec3b2d9b17
-  EXErrorRecovery: 8f4c21ab2f51bf75defe4536f841a37de59b0661
-  EXFacebook: 74d53d9da75d1a953f1821dd417594ed18d7a72f
-  EXFileSystem: cf4232ba7c62dc49b78c2d36005f97b6fddf0b01
-  EXFont: 8326ecf966be559f7ced7c8e221a32fc4d9ed8b0
-  EXImageLoader: 5ad6896fa1ef2ee814b551873cbf7a7baccc694a
-  EXImageManipulator: 97f61d14c292714d66884e83697e794f8cefe0b0
-  EXImagePicker: 4126814cba56cc3dc5e7fc47abce0b263da84609
-  EXKeepAwake: d045bc2cf1ad5a04f0323cc7c894b95b414042e0
-  EXLinearGradient: 97d8095d1e4ad96f7893e010e564796ed8aeea42
-  EXLocation: bbd487fd96a18a3ad9725389bbb94c4a5f78edf3
-  EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
-  EXScreenOrientation: c9cfb33eaff7ce83330c5238eba523d027b9eb53
-  EXSQLite: 877ad6c8eb169353a2f94d5ad26510ffadd46a1f
-  EXUpdates: b56d0da2a4cd0bc04eea9074d2514050290348d3
-  EXWebBrowser: 4118b18d151fd03c935bd9de4cd312d2b33ec2c5
+  EXAV: ed8de7f07a76c540815fbb2cc4686b97f4b038b5
+  EXCamera: e7e250c78f26468028c3866bb5c27e046f2b7b49
+  EXConstants: 9f18e9ef229706394f41735d9c7f309d479b36c0
+  EXErrorRecovery: 88541714d9bbf8a823f4ee0b7078a92d3e0e42d2
+  EXFacebook: 984dafeac3dcd01a38ba38176b2afe53114d985f
+  EXFileSystem: b82693d78de152efe10a77d4aac781f782e10916
+  EXFont: 00c6f9daffd8f4f7775d4191a6464bcd9021044a
+  EXImageLoader: 5c9d1bf408443ac4d4f44463eaf3b0d03bc70425
+  EXImageManipulator: 76857c4c37f983313cb7a8a2c0109e50d1005eb9
+  EXImagePicker: 578529114ac96351296daccd493c419bbb347d33
+  EXKeepAwake: 4b53df0b4e87aa9f38bf57461e07fc167716a760
+  EXLinearGradient: 8189387e3a65c2a9ba5507432e3a099ea8f7ea86
+  EXLocation: 0397e4f11666d6ceb026b6424fdf66995c604964
+  EXPermissions: d2cafee9c72578ecc9ca121481e6c4a04a798861
+  EXScreenOrientation: 7d604b15370a9d7c6e59ce04a1d29fecf769560e
+  EXSQLite: 15268ec49f859e4594fe5b0a1c7a47913da0b67e
+  EXUpdates: d322154583386a237818dea1bd001d63e67343f6
+  EXWebBrowser: 9e11185de5c41c8d67a2daa7f2d42ab50deccc84
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
   FBReactNativeSpec: 118d0d177724c2d67f08a59136eb29ef5943ec75
   FBSDKCoreKit: e7dcac0aabcfb09d0166998edd95fe3b05a0ce5d
@@ -783,19 +793,19 @@ SPEC CHECKSUMS:
   FirebaseAuth: 300433de340c1b058dbb8aec224a3f1bcfda5184
   FirebaseCore: 9a41e2de78fef10f63cee30ab10e2945266bc1fc
   FirebaseCoreDiagnostics: 770ac5958e1372ce67959ae4b4f31d8e127c3ac1
-  FirebaseStorage: 33b92875a9b556824886cc7a65120c7d2cb3a8d8
+  FirebaseStorage: 15e0f15ef3c7fec3d1899d68623e47d4447066b4
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  GoogleDataTransport: b7f406340a291370045a270c599e53c6fa6ec20f
+  GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
-  GTMSessionFetcher: 6f5c8abbab8a9bce4bb3f057e317728ec6182b10
+  GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   PanoramaView: a6253ccab49f49c4aa71c8e9f2ef3c5e30072037
-  Permission-Camera: afad27bf90337684d4a86f3825112d648c8c4d3b
-  Permission-LocationWhenInUse: 3624cf08c12c6019926aba3054efee7f4f8ee91e
-  Permission-PhotoLibrary: 4d2eff62c8f4b8a27bcf045c0e36f5047efbbf20
-  PromisesObjC: b14b1c6b68e306650688599de8a45e49fae81151
+  Permission-Camera: 53d46bd722aea28d796e20f05fb3cbe6cde6ccb6
+  Permission-LocationWhenInUse: 16ecd20d82341c6b4336dfe5520c098bea85a2f5
+  Permission-PhotoLibrary: 3400b260e5f80e0dd9c04d00c2ceab233bf88427
+  PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -805,16 +815,16 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
-  react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
+  react-native-cameraroll: 3e8adeb9ebf054c75054bf2b9cbbd53cd188c05d
   react-native-fbsdk: c35d42169e64aaf66f01713c1e18d0674f7f6519
-  react-native-image-editor: 9361a215c3991cafbe5e7f28cbbad6e72c9c2705
-  react-native-image-filter-kit: 2513a9f5d67d35aa7b72a7a31e2123d7b1b3cf33
-  react-native-image-picker: 6a850c41f57f0848d918c2a77aedd7aa272ffa30
+  react-native-image-editor: bd67912f38a8e7a895bf6eb8f445acdcefd8fd0c
+  react-native-image-filter-kit: 2047cc603ee1b0e506a7b569ce174a7de6a5db15
+  react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
   react-native-maps: 6e499eee4eabf422ba8b6f94e993cc768bf35153
-  react-native-safe-area-context: d288138da2c800caa111f9352e9333f186a06ead
-  react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
+  react-native-safe-area-context: 042dfc9d4db17196841df962ba9497f6e7a5bd02
+  react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-video: eee541262ada11bc7ffe8ec5508e6a877937c462
+  react-native-video: aa527b0acb37f94c4491e70df0274cb26979405d
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
   React-RCTBlob: d89293cc0236d9cb0933d85e430b0bbe81ad1d72
@@ -827,8 +837,8 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNAppleAuthentication: 954b347c26ffb638265c828a5003ce1fa6971120
-  RNCAsyncStorage: 2a692bcb9b69b76a2f1a95f33db057129700af64
-  RNCMaskedView: dd13f9f7b146a9ad82f9b7eb6c9b5548fcf6e990
+  RNCAsyncStorage: 3eea36d9460c5159b592f9ecbe5a77f8aca98006
+  RNCMaskedView: c8b53164b85ecf94c9a44d67082df0f03c1f74cc
   RNFastImage: 35ae972d6727c84ee3f5c6897e07f84d0a3445e9
   RNFBApp: a74d8259d827c8bf55100e759cffa2e50ba6fe30
   RNFBAuth: ccae9605207f4a3bc6e03cd0adb5433872ef4418
@@ -836,27 +846,29 @@ SPEC CHECKSUMS:
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNImageCropPicker: 38865ab4af1b0b2146ad66061196bc0184946855
   RNImageRotate: 61c62c5a907405821e28dc8c0e04e4fdc909b1fa
-  RNPermissions: ad71dd4f767ec254f2cd57592fbee02afee75467
+  RNPermissions: 1888705aebcc81714efa5dbff94351e4388ae012
   RNReanimated: 4e102df74a9674fa943e05f97f3362b6e44d0b48
   RNScreens: 812b79d384e2bea7eebc4ec981469160d4948fd5
-  SDWebImage: a990c053fff71e388a10f3357edb0be17929c9c5
+  RNSnackbar: 3d8ca64e917b2a4510a626f10b18ce47a4273313
+  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
+  SDWebImage: 9169792e9eec3e45bba2a0c02f74bf8bd922d1ee
   SDWebImageWebPCoder: 36f8f47bd9879a8aea6044765c1351120fd8e3a8
-  TOCropViewController: 2a1ae1242600b1f2d996fd91a5268b2309a33b5c
-  UMAppLoader: 90273a65f9b1d789214e0c913dfcabc7a1b1590e
-  UMBarCodeScannerInterface: 9dc692b87e5f20fe277fa57aa47f45d418c3cc6c
-  UMCameraInterface: 625878bbf2ba188a8548675e1d1d2e438a653e6d
-  UMConstantsInterface: 64060cf86587bcd90b1dbd804cceb6d377a308c1
-  UMCore: d6117852f32c74cde466b863cfdeaa0960186249
-  UMFaceDetectorInterface: d6677d6ddc9ab95a0ca857aa7f8ba76656cc770f
-  UMFileSystemInterface: c70ea7147198b9807080f3597f26236be49b0165
-  UMFontInterface: d9d3b27af698c5389ae9e20b99ef56a083f491fb
-  UMImageLoaderInterface: 14dd2c46c67167491effc9e91250e9510f12709e
-  UMPermissionsInterface: 5e83a9167c177e4a0f0a3539345983cc749efb3e
-  UMReactNativeAdapter: 126da3486c1a1f11945b649d557d6c2ebb9407b2
-  UMSensorsInterface: 48941f70175e2975af1a9386c6d6cb16d8126805
-  UMTaskManagerInterface: cb890c79c63885504ddc0efd7a7d01481760aca2
+  TOCropViewController: da59f531f8ac8a94ef6d6c0fc34009350f9e8bfe
+  UMAppLoader: 83885655be9ce3e5b3684d20f9973da67b78b3a9
+  UMBarCodeScannerInterface: aa3409ab9d108866e55c09ad0292e4a6c08a7775
+  UMCameraInterface: 9d5da92c521e0af7815afbf77ea19bd0312b4928
+  UMConstantsInterface: 4a1d3062a89421d3290bbe8f75efabd849935bea
+  UMCore: db7c5b08deef44d881b9524e5ab39fd14bdc24fe
+  UMFaceDetectorInterface: c6d69c914426fc29f5a2442411a575e887adb823
+  UMFileSystemInterface: bee6c9ca4f3d70da5f7c9752efc8b3f3a7f47b61
+  UMFontInterface: 884955c5fd329095e2072d16de9b5bf1bce93005
+  UMImageLoaderInterface: 3781f05d7e0be1c5b00dd3cc9c390b94d8484300
+  UMPermissionsInterface: a3c5910e28a5ec31810dbfd1936e4948a4439310
+  UMReactNativeAdapter: e936c48fd15114cd1d5b06310797198a06f72ca0
+  UMSensorsInterface: fc92b1f92202166284ca0f95e0acc1daab5d16a8
+  UMTaskManagerInterface: 4e6c4c34a89512e2225d336154df1cb689226a29
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 5f7dbb3136c709f5bf380e8a292e114de8c7adce
+PODFILE CHECKSUM: de0d686710398f5e0fcd9b8741d736f49e4c27e1
 
 COCOAPODS: 1.8.4

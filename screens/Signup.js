@@ -113,6 +113,7 @@ class Signup extends React.Component {
           if (this.props.user != null) {
             this.props.navigation.goBack();
             this.props.navigation.navigate("Home");
+            this.props.navigation.navigate("WelcomeScreen");
           }
         }
       });
@@ -661,7 +662,10 @@ class Signup extends React.Component {
 
                   <Item
                     floatingLabel
-                    style={[styles.textInput, { marginTop: Scale.moderateScale(15) }]}
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
                   >
                     <Label>Phone</Label>
                     <Input
@@ -671,7 +675,13 @@ class Signup extends React.Component {
                     />
                   </Item>
 
-                  <Item picker style={[styles.textInput, { marginTop: Scale.moderateScale(15)}]}>
+                  <Item
+                    picker
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
+                  >
                     <Label>Gender: </Label>
                     <Picker
                       mode="dropdown"
@@ -692,7 +702,13 @@ class Signup extends React.Component {
                     </Picker>
                   </Item>
 
-                  <Item picker style={[styles.textInput, { marginTop: Scale.moderateScale(15) }]}>
+                  <Item
+                    picker
+                    style={[
+                      styles.textInput,
+                      { marginTop: Scale.moderateScale(15) },
+                    ]}
+                  >
                     <Label>Birthdate: </Label>
 
                     <DatePicker

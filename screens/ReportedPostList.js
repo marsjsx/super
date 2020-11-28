@@ -24,7 +24,6 @@ import {
   Linking,
 } from "react-native";
 import {
-  getPosts,
   likePost,
   unlikePost,
   reportPost,
@@ -114,10 +113,6 @@ class ReportedPostList extends React.Component {
     this.setState({ fontLoaded: true });
     this.setState({ showLoading: true });
     await this.props.getPosts();
-
-    setTimeout(() => {
-      this.props.getMessages();
-    }, 500); // simulating network
 
     this.setState({ showLoading: false });
   }

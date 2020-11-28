@@ -36,7 +36,7 @@ import {
   updateWebsiteLabel,
 } from "../actions/user";
 import { getMessages } from "../actions/message";
-import { getPosts, likePost, unlikePost, deletePost } from "../actions/post";
+import { likePost, unlikePost, deletePost } from "../actions/post";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -72,6 +72,8 @@ const viewabilityConfig = {
 };
 
 var BUTTONS = ["Message", "Report", "Block", "Cancel"];
+var MYPROFILE_BUTTONS = ["My Profile", "Logout"];
+
 var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
 
 var DESTRUCTIVE_INDEX = 1;
@@ -79,34 +81,27 @@ var CANCEL_INDEX = 3;
 const { height, width } = Dimensions.get("window");
 import { isUserBlocked } from "../util/Helper";
 
+var self;
 class Profile extends React.Component {
   static navigationOptions = ({ navigation }) => {
-    if (
-      navigation.state.params &&
-      navigation.state.params.userProfile === "show"
-    ) {
-      //Show Header by returning header
-      return {
-        headerRight: (
-          <TouchableOpacity
-            style={{ marginRight: 24, shadowOpacity: 0.5 }}
-            onPress={navigation.getParam("showActionSheet")}
-          >
-            <Ionicons
-              style={{
-                color: "white",
-              }}
-              name="ios-more"
-              size={40}
-            />
-          </TouchableOpacity>
-        ),
-      };
-    } else {
-      //Hide Header by returning null
-      // return { headerRight: null };
-      return { headerRight: null };
-    }
+    //Show Header by returning header
+    return {
+      headerRight: (
+        <TouchableOpacity
+          style={{ marginRight: 24, shadowOpacity: 0.5 }}
+          onPress={() => self.openProfileActions()}
+        >
+          <Ionicons
+            style={{
+              color: "white",
+            }}
+            name="ios-more"
+            size={40}
+          />
+        </TouchableOpacity>
+      ),
+      title: navigation.getParam("title", ""),
+    };
   };
 
   constructor(props) {
@@ -131,32 +126,65 @@ class Profile extends React.Component {
   }
 
   componentDidMount = async () => {
+    self = this;
     const { state, navigate } = this.props.navigation;
     const { uid } = state.params;
-
-    this.props.navigation.setParams({
-      showActionSheet: this.showActionSheet,
-    });
-
     this.props.navigation.setParams({
       goToChat: this.goToChat,
     });
+    // this.props.navigation.setParams({
+    //   showActionSheet: this.showActionSheet,
+    // });
+    // alert("Called");
 
     if (state.routeName === "Profile") {
       if (uid) {
+        // this.props.navigation.setParams({
+        //   userProfile: "show",
+        // });
+
         this.props.navigation.setParams({
-          userProfile: "show",
+          showActionSheet: this.showActionSheet,
         });
         this.setState({ showLoading: true });
 
         await this.props.getUser(uid);
         this.setState({ showLoading: false });
+
+        this.props.navigation.setParams({
+          title: `@${this.props.profile.username}`,
+        });
       }
     } else {
+      // this.props.navigation.setParams({
+      //   userProfile: "show",
+      // });
+      this.props.navigation.setParams({
+        showActionSheet: this.showMyProfileActionSheet,
+      });
       this.props.getUser(this.props.user.uid, "LOGIN");
+
+      this.props.navigation.setParams({
+        title: `@${this.props.user.username}`,
+      });
     }
-    // this.props.getPosts();
   };
+
+  openProfileActions() {
+    const { state, navigate } = this.props.navigation;
+    // this.props.navigation.setParams({
+    //   showActionSheet: this.showActionSheet,
+    // });
+
+    if (state.routeName === "Profile") {
+      const { uid } = state.params;
+      if (uid) {
+        this.showActionSheet();
+      }
+    } else {
+      this.showMyProfileActionSheet();
+    }
+  }
 
   goToChat() {
     var user = this.props.profile;
@@ -416,6 +444,43 @@ class Profile extends React.Component {
     );
   };
 
+  showMyProfileActionSheet = () => {
+    if (!(this.props.user && this.props.user.uid)) {
+      return;
+    }
+    var user = this.props.user;
+    var options = MYPROFILE_BUTTONS;
+    const { state, navigate } = this.props.navigation;
+    this.actionSheet._root.showActionSheet(
+      {
+        options: options,
+        // cancelButtonIndex: CANCEL_INDEX,
+        destructiveButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        //this.setState({ clicked: BUTTONS[buttonIndex] });
+        if ("Logout" === options[buttonIndex]) {
+          this.logout();
+        } else if ("My Profile" === options[buttonIndex]) {
+          this.props.navigation.navigate("ViewProfile", {
+            routeName: state.routeName,
+            title: user.username,
+          });
+        } else {
+        }
+      }
+    );
+  };
+  logout = () => {
+    firebase.auth().signOut();
+    this.props.logout();
+    showMessage({
+      message: "User Logged Out Successfully",
+      type: "success",
+      duration: 2000,
+    });
+    this.props.navigation.navigate("login");
+  };
   unBlockUser(user) {
     Alert.alert(
       `Unblock ${user.username}?`,
@@ -935,9 +1000,9 @@ class Profile extends React.Component {
             resizeMode="cover"
           />
           <ImageBackground
-            style={[styles.profileEditPhoto, { position: "absolute" }]}
+            style={[styles.profilePhoto, { position: "absolute" }]}
           >
-            <View style={[styles.bottom, { width: "100%" }]}>
+            <View style={[styles.bottomProfile, { width: "100%" }]}>
               {state.routeName === "MyProfile" && user.photo === "" ? (
                 <View
                   style={[styles.center, styles.container, { width: "100%" }]}
@@ -956,18 +1021,24 @@ class Profile extends React.Component {
             </View>
             <View style={[{ width: "100%", marginTop: -10 }]} />
             <View style={[styles.row, styles.space, { width: "100%" }]}>
-              <View style={styles.container}>
+              <View style={[styles.container, {}]}>
                 <View
                   style={[
                     styles.row,
                     {
                       width: "100%",
-                      justifyContent: "center",
+                      marginBottom: Scale.moderateScale(32),
+                      // justifyContent: "center",
                       alignItems: "center",
                     },
                   ]}
                 >
                   <TouchableOpacity
+                    style={{
+                      alignSelf: "center",
+                      alignSelf: "center",
+                      marginLeft: "38%",
+                    }}
                     onPress={() => {
                       this.props.navigation.navigate("ViewProfile", {
                         routeName: state.routeName,
@@ -984,7 +1055,7 @@ class Profile extends React.Component {
                       source={require("../assets/logo-3.png")}
                     />
                   </TouchableOpacity>
-                  <Text
+                  {/* <Text
                     style={{
                       fontWeight: "bold",
                       fontSize: 18,
@@ -992,11 +1063,11 @@ class Profile extends React.Component {
                     }}
                   >
                     @ {user.username}
-                  </Text>
-                  {this.props.user.uid != user.uid &&
+                  </Text> */}
+                  {this.props.user.uid != user.uid ? (
                     !userblocked &&
                     this.props.user.following &&
-                    this.props.user.following.indexOf(user.uid) < 0 && (
+                    this.props.user.following.indexOf(user.uid) < 0 ? (
                       <TouchableOpacity
                         onPress={() => this.follow(user)}
                         style={{ marginHorizontal: Scale.moderateScale(10) }}
@@ -1012,7 +1083,24 @@ class Profile extends React.Component {
                           +follow
                         </Text>
                       </TouchableOpacity>
-                    )}
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => this.follow(user)}
+                        style={{ marginHorizontal: Scale.moderateScale(10) }}
+                      >
+                        <Text
+                          style={{
+                            color: "rgb(215, 80, 80)",
+                            fontWeight: "bold",
+                            padding: Scale.moderateScale(5),
+                            fontSize: Scale.moderateScale(14),
+                          }}
+                        >
+                          unfollow
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  ) : null}
                 </View>
                 {/* <TouchableOpacity
                   style={{
@@ -1029,7 +1117,7 @@ class Profile extends React.Component {
                     size={40}
                   />
                 </TouchableOpacity> */}
-                <Text
+                {/* <Text
                   numberOfLines={2}
                   style={[
                     styles.bold,
@@ -1041,6 +1129,16 @@ class Profile extends React.Component {
                   ]}
                 >
                   {user.userbio}
+                </Text> */}
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: Scale.moderateScale(16),
+                    color: "rgb(255,255,255)",
+                    alignSelf: "center",
+                  }}
+                >
+                  {"swipe up"}
                 </Text>
               </View>
             </View>
@@ -1145,7 +1243,6 @@ class Profile extends React.Component {
               maxToRenderPerBatch="9"
               windowSize={12}
               contentContainerStyle={{ marginBottom: 150 }}
-              // onRefresh={() => this.props.getPosts()}
               refreshing={false}
               horizontal={false}
               numColumns={3}
@@ -1252,7 +1349,6 @@ const mapDispatchToProps = (dispatch) => {
       unfollowUser,
       getMessages,
       deletePost,
-      getPosts,
       likePost,
       blockUser,
       unblockUser,

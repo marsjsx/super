@@ -117,10 +117,10 @@ class AvView extends React.Component {
   };
 
   enterFullScreenImage = async () => {
-    ScreenOrientation.unlockAsync();
-    await ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.LANDSCAPE
-    );
+    // ScreenOrientation.unlockAsync();
+    // await ScreenOrientation.lockAsync(
+    //   ScreenOrientation.OrientationLock.LANDSCAPE
+    // );
     this.props.navigation.navigate("FullScreenImage", { data: this.props });
   };
 
@@ -366,7 +366,7 @@ class AvView extends React.Component {
             onEnd={() => null}
             repeat={true}
           />
-
+{/* 
           <TouchableOpacity
             style={{
               position: "absolute",
@@ -388,7 +388,7 @@ class AvView extends React.Component {
                 // marginLeft: 10,
               }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           {this.state.paused ? (
             <View
               style={{

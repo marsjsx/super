@@ -2,11 +2,13 @@ import React from "react";
 import styles from "../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { orderBy } from "lodash";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
 import Swipeout from "react-native-swipeout";
+import Snackbar from "react-native-snackbar";
+
 import {
   View,
   FlatList,
@@ -14,8 +16,9 @@ import {
   Image,
   TouchableHighlight,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { getMessages } from "../actions/message";
+import { getMessages, deleteUserMessages } from "../actions/message";
 import moment from "moment";
 import { groupBy, values } from "lodash";
 import {
@@ -33,10 +36,48 @@ import {
   Icon,
   Thumbnail,
 } from "native-base";
+import { Ionicons } from "react-native-vector-icons";
 
 class Messages extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    //Show Header by returning header
+    return {
+      headerRight: (
+        <TouchableOpacity
+          style={{ marginRight: 24 }}
+          onPress={navigation.getParam("newMessage")}
+        >
+          <Ionicons
+            style={{
+              color: "#000",
+            }}
+            name="ios-create"
+            size={32}
+          />
+        </TouchableOpacity>
+      ),
+    };
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      refreshing: false,
+    };
+    this.onEndReachedCalledDuringMomentum = true;
+  }
+
   componentDidMount = () => {
-    this.props.getMessages();
+    if (!this.props.messages) {
+      this.props.getMessages();
+    }
+    this.props.navigation.setParams({
+      newMessage: this.goToNewMessage,
+    });
+  };
+
+  goToNewMessage = () => {
+    this.props.navigation.navigate("NewMessage");
   };
 
   goToChat = (members, username) => {
@@ -73,8 +114,65 @@ class Messages extends React.Component {
   }
 
   deleteMessages(item) {
-    alert("Coming Soon ");
+    // alert(JSON.stringify(item.members));
+    if (item && item.members) {
+      if (Array.isArray(item.members)) {
+        const uid = item.members.filter((id) => id !== this.props.user.uid);
+        this.props.deleteUserMessages(uid);
+      } else if (item.members.members) {
+        if (Array.isArray(item.members.members)) {
+          const uid = item.members.members.filter(
+            (id) => id !== this.props.user.uid
+          );
+          this.props.deleteUserMessages(uid);
+        }
+      }
+    } else {
+      Snackbar.show({
+        text: "Something went wrong",
+        backgroundColor: constants.colors.info,
+        duration: Snackbar.LENGTH_LONG,
+      });
+    }
   }
+
+  onEndReached = async ({ distanceFromEnd }) => {
+    if (!this.onEndReachedCalledDuringMomentum) {
+      // alert("Called");
+
+      if (!this.state.refreshing) {
+        this.setState({
+          refreshing: true,
+        });
+        try {
+          await this.props.getMessages();
+          this.setState({
+            refreshing: false,
+          });
+        } catch (error) {
+          console.log(error);
+          this.setState({
+            refreshing: false,
+          });
+        }
+      }
+      this.onEndReachedCalledDuringMomentum = true;
+    }
+  };
+
+  // Render Footer
+  renderFooter = () => {
+    try {
+      // Check If Loading
+      if (this.state.refreshing) {
+        return <ActivityIndicator />;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     if (!this.props.user.uid || !this.props.messages.length) {
@@ -99,6 +197,13 @@ class Messages extends React.Component {
           // keyExtractor={item => new Date().getTime()}
           keyExtractor={(item) => item.id}
           data={orderBy(this.props.messages, "updatedAt", "desc")}
+          refreshing={this.state.refreshing}
+          onEndReached={this.onEndReached.bind(this)}
+          onEndReachedThreshold={0.5}
+          onMomentumScrollBegin={() => {
+            this.onEndReachedCalledDuringMomentum = false;
+          }}
+          ListFooterComponent={this.renderFooter}
           renderItem={({ item, index }) => {
             let swipeBtns = [
               {
@@ -197,7 +302,7 @@ const LastMessage = ({
   </View>
 );
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ getMessages }, dispatch);
+  return bindActionCreators({ getMessages, deleteUserMessages }, dispatch);
 };
 
 const mapStateToProps = (state) => {

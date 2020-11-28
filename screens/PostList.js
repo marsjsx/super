@@ -9,6 +9,7 @@ import {
   EvilIcons,
 } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/Feather";
+import constants from "../constants";
 
 import {
   Text,
@@ -23,7 +24,6 @@ import {
   Proger,
 } from "react-native";
 import {
-  getPosts,
   likePost,
   logVideoView,
   unlikePost,
@@ -179,8 +179,10 @@ class PostListScreen extends React.Component {
   };
 
   goToUser = (user) => {
-    this.props.getUser(user.uid);
-    this.props.navigation.navigate("Profile");
+    // this.props.getUser(user.uid);
+    // this.props.navigation.navigate("Profile");
+
+    this.props.navigation.navigate("Profile", { uid: user.uid });
   };
 
   _onViewableItemsChanged = (props) => {
@@ -603,19 +605,19 @@ class PostListScreen extends React.Component {
 
   renderItem = ({ item, index }) => {
     const config = {
-      velocityThreshold: 0.3,
+      velocityThreshold: 0.8,
       directionalOffsetThreshold: 80,
     };
     const liked =
       item && item.likes ? item.likes.includes(this.props.user.uid) : false;
     return (
       <GestureRecognizer
-        onSwipe={(direction, state) => this.onSwipe(direction, state)}
-        onSwipeUp={(state) => this.onSwipeUp(state)}
-        onSwipeDown={(state) => this.onSwipeDown(state)}
-        onSwipeLeft={(state) => this.onSwipeLeft(state, item)}
-        onSwipeRight={(state) => this.onSwipeRight(state)}
-        config={config}
+        // onSwipe={(direction, state) => this.onSwipe(direction, state)}
+        // onSwipeUp={(state) => this.onSwipeUp(state)}
+        // onSwipeDown={(state) => this.onSwipeDown(state)}
+        // onSwipeLeft={(state) => this.onSwipeLeft(state, item)}
+        // onSwipeRight={(state) => this.onSwipeRight(state)}
+        // config={config}
         style={{
           flex: 1,
           // backgroundColor: this.state.backgroundColor,
@@ -625,7 +627,7 @@ class PostListScreen extends React.Component {
           <ElementContainer>
             <TouchableOpacity
               activeOpacity={1}
-              style={styles.fullScreen}
+              style={styles.postPhoto}
               id={item.id}
               onPress={() => this.cellRefs[item.id].handleOnPress()}
             >
@@ -633,16 +635,122 @@ class PostListScreen extends React.Component {
                 ref={(ref) => {
                   this.cellRefs[item.id] = ref;
                 }}
+                flow="home"
                 type={item.type ? item.type : "image"}
                 source={item.postPhoto}
                 navigation={this.props.navigation}
-                style={styles.fullScreen}
+                style={[styles.postPhoto]}
                 onDoubleTap={() => this.onDoubleTap(item)}
                 preview={item.preview}
               />
-              {/* {this.getRightBar(item, liked)} */}
 
+              {/* {this.getRightBar(item, liked)} */}
               <View style={[styles.bottom, styles.absolute, {}]}>
+                {(item.type == "video" || item.type == "image") && (
+                  <TouchableOpacity
+                    style={{
+                      width: Scale.moderateScale(45),
+                      height: Scale.moderateScale(45),
+                    }}
+                    onPress={() => {
+                      if (this.currentVideoKey) {
+                        const cell = this.cellRefs[this.currentVideoKey];
+                        if (cell) {
+                          item.type == "video"
+                            ? cell.enterFullScreen()
+                            : cell.enterFullScreenImage();
+                        }
+                      }
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="fullscreen"
+                      size={Scale.moderateScale(45)}
+                      color="white"
+                      style={{
+                        backgroundColor: "transparent",
+                        alignSelf: "center",
+                        shadowOpacity: 1,
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
+
+                {item.type === "vr" && (
+                  <TouchableOpacity
+                    style={{
+                      borderColor: "rgb(255,255,255)",
+                      borderWidth: 3,
+                      width: 45,
+                      margin: 10,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: 45,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "rgb(255,255,255)",
+                        fontSize: 20,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      360
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                {item.likes && item.likes.length > -1 ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate("LikersAndViewers", {
+                        data: item.likes,
+                        title: "Likes",
+                      })
+                    }
+                    style={{
+                      justifyContent: "center",
+                      alignContent: "center",
+                      marginTop: Scale.moderateScale(10),
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "open-sans-bold",
+                        color: constants.colors.superRed,
+                        marginHorizontal: 10,
+                        marginVertical: 2,
+                      }}
+                    >
+                      {item.likes.length} likes
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                {item.comments && item.comments.length > -1 ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate("Comment", item)
+                    }
+                    style={{
+                      justifyContent: "center",
+                      alignContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "open-sans-bold",
+                        color: constants.colors.superRed,
+                        marginHorizontal: 10,
+                        marginVertical: 2,
+                      }}
+                    >
+                      {item.comments.length} comments
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
                 {item.viewers && item.viewers.length > 0 ? (
                   <TouchableOpacity
                     onPress={() =>
@@ -657,8 +765,9 @@ class PostListScreen extends React.Component {
                     <Text
                       style={{
                         fontFamily: "open-sans-bold",
-                        color: "red",
+                        color: constants.colors.superRed,
                         margin: 10,
+                        marginVertical: 2,
                       }}
                     >
                       {item.viewers.length} views
@@ -666,7 +775,20 @@ class PostListScreen extends React.Component {
                   </TouchableOpacity>
                 ) : null}
 
-                <View style={[styles.row, { shadowOpacity: 1 }]}>
+                <Text
+                  style={[
+                    styles.white,
+                    styles.medium,
+                    styles.bold,
+                    { marginHorizontal: 10 },
+                  ]}
+                >
+                  {moment(item.date).format("ll")}
+                </Text>
+              </View>
+
+              <View style={[{ position: "absolute", top: 40 }]}>
+                <View style={[styles.row, {}]}>
                   <TouchableOpacity onPress={() => this.goToUser(item)}>
                     <ProgressiveImage
                       // thumbnailSource={{
@@ -674,19 +796,21 @@ class PostListScreen extends React.Component {
                       // }}
                       transparentBackground="transparent"
                       source={{ uri: item.photo }}
-                      style={styles.roundImage60}
+                      style={styles.roundImage}
                     />
                   </TouchableOpacity>
                   <View
                     style={{
-                      width: "100%",
-                      justifyContent: "center",
+                      width: "85%",
+                      // backgroundColor: "black",
+                      // justifyContent: "center",
                     }}
                   >
                     <View
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
+
                         // borderBottomWidth: 0.5,
                         // borderBottomColor: "rgb(255,255,255)",
                       }}
@@ -695,15 +819,17 @@ class PostListScreen extends React.Component {
                         style={{
                           justifyContent: "center",
                           alignItems: "flex-start",
+                          flex: 1,
                         }}
                         onPress={() => this.goToUser(item)}
                       >
                         {this.state.fontLoaded ? (
                           <Text
                             style={{
-                              fontFamily: "open-sans-bold",
-                              fontSize: 18,
+                              fontWeight: "bold",
+                              fontSize: Scale.moderateScale(14),
                               color: "rgb(255,255,255)",
+                              // ...constants.fonts.FreightSansLight,
                             }}
                           >
                             {item.username}
@@ -730,46 +856,69 @@ class PostListScreen extends React.Component {
                             </Text>
                           </TouchableOpacity>
                         )}
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                          marginLeft: Scale.moderateScale(10),
+                        }}
+                        onPress={() => this.showActionSheet(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="ios-more"
+                          size={40}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => this.props.navigation.goBack()}
+                      >
+                        <Ionicons
+                          style={[
+                            styles.icon,
+                            { marginHorizontal: Scale.moderateScale(10) },
+                          ]}
+                          name="ios-close"
+                          color="#fff"
+                          size={40}
+                        ></Ionicons>
+                      </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity>
-                      <Text
-                        style={styles.textD}
-                        ellipsizeMode="tail"
-                        numberOfLines={2}
+                    <View style={{}}>
+                      <ParsedText
+                        parse={[
+                          {
+                            type: "url",
+                            style: styles.url,
+                            onPress: this.handleUrlPress,
+                          },
+                          { pattern: /42/, style: styles.magicNumber },
+                          { pattern: /#(\w+)/, style: styles.hashTag },
+                          {
+                            pattern: / @(\w+)/,
+                            style: styles.username,
+                            onPress: this.handleNamePress,
+                          },
+                        ]}
+                        style={[
+                          styles.textD,
+                          // styles.bold,
+                          { fontSize: Scale.moderateScale(12) },
+                        ]}
                       >
-                        {item.postLocation ? item.postLocation.name : null}
-                      </Text>
-                    </TouchableOpacity>
-
-                    <Text style={[styles.white, styles.medium, styles.bold]}>
-                      {moment(item.date).format("ll")}
-                    </Text>
+                        {item.postDescription}
+                      </ParsedText>
+                    </View>
                   </View>
                 </View>
-
-                <View style={{ marginLeft: 10 }}>
-                  <ParsedText
-                    parse={[
-                      {
-                        type: "url",
-                        style: styles.url,
-                        onPress: this.handleUrlPress,
-                      },
-                      { pattern: /42/, style: styles.magicNumber },
-                      { pattern: /#(\w+)/, style: styles.hashTag },
-                      {
-                        pattern: / @(\w+)/,
-                        style: styles.username,
-                        onPress: this.handleNamePress,
-                      },
-                    ]}
-                    style={[styles.textD, styles.bold]}
-                  >
-                    {item.postDescription}
-                  </ParsedText>
-                </View>
+                {/* <TouchableOpacity style={{ margin: 10, padding: 5 }}>
+                  <Ionicons name="ios-close" color="#fff" size={40}></Ionicons>
+                </TouchableOpacity> */}
               </View>
+
               {/* </ImageBackground> */}
               {/* </DoubleTap> */}
             </TouchableOpacity>
@@ -778,6 +927,13 @@ class PostListScreen extends React.Component {
       </GestureRecognizer>
     );
   };
+
+  getItemLayout = (data, index) => ({
+    length: height,
+    offset: height * index,
+    index,
+  });
+
   render() {
     let posts = {};
     const { route, selectedIndex } = this.props.navigation.state.params;
@@ -791,18 +947,21 @@ class PostListScreen extends React.Component {
     }
 
     posts = [...posts];
-    if (posts && posts.length > 0 && selectedIndex >= 0) {
-      var obj = { ...posts[selectedIndex] };
+    // if (posts && posts.length > 0 && selectedIndex >= 0) {
+    //   var obj = { ...posts[selectedIndex] };
 
-      posts.splice(selectedIndex, 1);
+    //   posts.splice(selectedIndex, 1);
 
-      posts.splice(0, 0, obj);
-    }
+    //   posts.splice(0, 0, obj);
+    // }
 
     // alert(JSON.stringify(this.props.post.feed.length));
     if (this.props.post === null) return null;
     return (
-      <View style={[styles.fullScreen, styles.center]}>
+      <View
+        style={[styles.fullScreen, styles.center]}
+        // onLayout={() => this.onLayout()}
+      >
         {/* {alert(JSON.stringify(posts))} */}
         <EmptyView
           ref={(ref) => {
@@ -811,9 +970,12 @@ class PostListScreen extends React.Component {
           navigation={this.props.navigation}
         />
         <FlatList
-          initialNumToRender={3}
-          maxToRenderPerBatch={10}
-          windowSize={8}
+          ref={(ref) => {
+            this.flatListRef = ref;
+          }}
+          // initialNumToRender={posts.length}
+          // maxToRenderPerBatch={10}
+          // windowSize={8}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
           snapToAlignment={"top"}
           refreshing={false}
@@ -821,10 +983,20 @@ class PostListScreen extends React.Component {
           onViewableItemsChanged={this._onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           removeClippedSubviews={true}
-          // initialScrollIndex={selectedIndex}
+          initialScrollIndex={selectedIndex}
+          onScrollToIndexFailed={(info) => {
+            const wait = new Promise((resolve) => setTimeout(resolve, 500));
+            wait.then(() => {
+              this.flatListRef?.scrollToIndex({
+                index: selectedIndex,
+                animated: true,
+              });
+            });
+          }}
           data={posts}
           keyExtractor={(item) => item.id}
           renderItem={this.renderItem}
+          getItemLayout={this.getItemLayout}
         />
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
@@ -856,7 +1028,6 @@ class PostListScreen extends React.Component {
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
-      getPosts,
       followUser,
       likePost,
       logVideoView,

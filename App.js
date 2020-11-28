@@ -11,10 +11,18 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware, compose } from "redux";
 import { preloadImages } from "./actions/post";
 const middleware = applyMiddleware(thunkMiddleware);
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, SafeAreaView } from "react-native";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import { isUserBlocked } from "./util/Helper";
-
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from "react-native-safe-area-context";
+// import { SafeAreaView } from "react-native-safe-area-context";
+// import {
+//   SafeAreaProvider,
+//   initialWindowMetrics,
+// } from "react-native-safe-area-context";
 import FlashMessage from "react-native-flash-message";
 import SplashScreen from "react-native-splash-screen";
 import { loadFromlocalStorage, loadState, saveState } from "./helpers/cache";
@@ -138,10 +146,12 @@ export default class App extends React.Component {
       return <View />;
     } else {
       return (
-        <Provider store={this.state.store}>
-          <SwitchNavigator />
-          <FlashMessage position="top" />
-        </Provider>
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+          <Provider store={this.state.store}>
+            <SwitchNavigator />
+            <FlashMessage position="top" />
+          </Provider>
+        </SafeAreaProvider>
       );
     }
   }

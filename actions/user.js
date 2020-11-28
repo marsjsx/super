@@ -6,6 +6,8 @@ import { orderBy, groupBy, values } from "lodash";
 import { allowNotifications, sendNotification } from "./";
 import * as Facebook from "expo-facebook";
 import { uploadPhoto } from "../actions/index";
+import { getActivities } from "../actions/activity";
+
 import appleAuth, {
   AppleButton,
   AppleAuthRequestScope,
@@ -90,6 +92,7 @@ export const login = () => {
       dispatch(getUser(response.user.uid));
       dispatch(filterBlockedPosts());
       dispatch(allowNotifications());
+      dispatch(getActivities());
     } catch (e) {
       alert(e);
     }

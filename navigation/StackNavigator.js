@@ -25,6 +25,7 @@ import MapScreen from "../screens/Map";
 import EditScreen from "../screens/Signup";
 import DashScreen from "../screens/Dash";
 import CommentScreen from "../screens/Comment";
+import NewMessage from "../screens/NewMessage";
 import PostReportScreen from "../screens/PostReports";
 import ChatScreen from "../screens/Chat";
 import PayScreen from "../screens/Pay";
@@ -32,7 +33,7 @@ import MessagesScreen from "../screens/Messages";
 import PostListScreen from "../screens/PostList";
 import MyFollowersAndFollowing from "../screens/MyFollowersAndFollowing";
 import LikersAndViewers from "../screens/LikersAndViewers";
-
+import WelcomeScreen from "../screens/WelcomeScreen";
 import { createAppContainer, createStackNavigator } from "react-navigation";
 
 import { TouchableOpacity, Image } from "react-native";
@@ -173,6 +174,23 @@ export const HomeNavigator = createAppContainer(
         ),
       }),
     },
+    NewMessage: {
+      screen: NewMessage,
+      navigationOptions: ({ navigation }) => ({
+        // headerTransparent: true,
+        title: "New Message",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
+
     Chat: {
       screen: ChatScreen,
       navigationOptions: ({ navigation }) => ({
@@ -240,6 +258,7 @@ export const HomeNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
+        headerTintColor: "#fff",
         // headerTitle: (
         //   <Image
         //     style={[styles.profileLogo, { transform: [{ rotate: "90deg" }] }]}
@@ -303,16 +322,21 @@ export const HomeNavigator = createAppContainer(
     },
     PostListScreen: {
       screen: PostListScreen,
-      navigationOptions: {
-        headerTransparent: true,
-        title: null,
-        // headerTitle: (
-        //   <Image
-        //     style={styles.profileLogo}
-        //     source={require("../assets/logo-1.png")}
-        //   />
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+        // headerRight: (
+        //   <TouchableOpacity onPress={() => navigation.goBack()}>
+        //     <Ionicons
+        //       style={[styles.icon, { marginRight: 20 }]}
+        //       name="ios-close"
+        //       color="#fff"
+        //       size={40}
+        //     ></Ionicons>
+        //   </TouchableOpacity>
         // ),
-      },
+        // headerTransparent: true,
+        // headerLeft: null,
+      }),
     },
     // LikersAndViewers: {
     //   screen: LikersAndViewers,
@@ -375,6 +399,12 @@ export const HomeNavigator = createAppContainer(
         headerStyle: { backgroundColor: "transparent" },
       }),
     },
+    WelcomeScreen: {
+      screen: WelcomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+      }),
+    },
   })
 );
 
@@ -405,6 +435,11 @@ HomeNavigator.navigationOptions = ({ navigation }) => {
     tabBarVisible = false;
   }
   if (navigation.state.routes.some((route) => route.routeName === "Profile")) {
+    tabBarVisible = false;
+  }
+  if (
+    navigation.state.routes.some((route) => route.routeName === "WelcomeScreen")
+  ) {
     tabBarVisible = false;
   }
   if (
@@ -461,10 +496,28 @@ export const SearchNavigator = createAppContainer(
           ),
         },
       },
+      Comment: {
+        screen: CommentScreen,
+        navigationOptions: ({ navigation }) => ({
+          headerTransparent: true,
+          // title: "Comments",
+          headerLeft: (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        }),
+      },
       Profile: {
         screen: ProfileScreen,
         navigationOptions: ({ navigation }) => ({
           headerTransparent: true,
+          headerTintColor: "#fff",
+
           headerLeft: (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
@@ -535,16 +588,21 @@ export const SearchNavigator = createAppContainer(
       },
       PostListScreen: {
         screen: PostListScreen,
-        navigationOptions: {
-          headerTransparent: true,
-          title: null,
-          // headerTitle: (
-          //   <Image
-          //     style={styles.profileLogo}
-          //     source={require("../assets/logo-1.png")}
-          //   />
+        navigationOptions: ({ navigation }) => ({
+          header: null,
+          // headerRight: (
+          //   <TouchableOpacity onPress={() => navigation.goBack()}>
+          //     <Ionicons
+          //       style={[styles.icon, { marginRight: 20 }]}
+          //       name="ios-close"
+          //       color="#fff"
+          //       size={40}
+          //     ></Ionicons>
+          //   </TouchableOpacity>
           // ),
-        },
+          // headerTransparent: true,
+          // headerLeft: null,
+        }),
       },
       LikersAndViewers: {
         screen: LikersAndViewers,
@@ -577,6 +635,12 @@ export const SearchNavigator = createAppContainer(
               />
             </TouchableOpacity>
           ),
+        }),
+      },
+      WelcomeScreen: {
+        screen: WelcomeScreen,
+        navigationOptions: ({ navigation }) => ({
+          header: null,
         }),
       },
     },
@@ -617,7 +681,11 @@ SearchNavigator.navigationOptions = ({ navigation }) => {
   ) {
     tabBarVisible = false;
   }
-
+  if (
+    navigation.state.routes.some((route) => route.routeName === "WelcomeScreen")
+  ) {
+    tabBarVisible = false;
+  }
   return {
     tabBarVisible,
   };
@@ -640,6 +708,22 @@ export const PostNavigator = createAppContainer(
         headerTransparent: true,
         gesturesEnabled: false,
       },
+    },
+    Comment: {
+      screen: CommentScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // title: "Comments",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
     },
     VideoCover: {
       screen: VideoCover,
@@ -703,6 +787,12 @@ export const PostNavigator = createAppContainer(
         headerStyle: { backgroundColor: "transparent" },
       }),
     },
+    WelcomeScreen: {
+      screen: WelcomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+      }),
+    },
   })
 );
 
@@ -717,7 +807,11 @@ PostNavigator.navigationOptions = ({ navigation }) => {
   if (navigation.state.routes.some((route) => route.routeName === "Signup")) {
     tabBarVisible = false;
   }
-
+  if (
+    navigation.state.routes.some((route) => route.routeName === "WelcomeScreen")
+  ) {
+    tabBarVisible = false;
+  }
   return {
     tabBarVisible,
   };
@@ -769,10 +863,28 @@ export const ActivityNavigator = createAppContainer(
         headerStyle: { backgroundColor: "transparent" },
       }),
     },
+    Comment: {
+      screen: CommentScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // title: "Comments",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
     Profile: {
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
+        headerTintColor: "#fff",
+
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -828,16 +940,21 @@ export const ActivityNavigator = createAppContainer(
     },
     PostListScreen: {
       screen: PostListScreen,
-      navigationOptions: {
-        headerTransparent: true,
-        title: null,
-        // headerTitle: (
-        //   <Image
-        //     style={styles.profileLogo}
-        //     source={require("../assets/logo-1.png")}
-        //   />
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+        // headerRight: (
+        //   <TouchableOpacity onPress={() => navigation.goBack()}>
+        //     <Ionicons
+        //       style={[styles.icon, { marginRight: 20 }]}
+        //       name="ios-close"
+        //       color="#fff"
+        //       size={40}
+        //     ></Ionicons>
+        //   </TouchableOpacity>
         // ),
-      },
+        // headerTransparent: true,
+        // headerLeft: null,
+      }),
     },
     LikersAndViewers: {
       screen: LikersAndViewers,
@@ -872,6 +989,12 @@ export const ActivityNavigator = createAppContainer(
         ),
       }),
     },
+    WelcomeScreen: {
+      screen: WelcomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+      }),
+    },
   })
 );
 
@@ -898,6 +1021,11 @@ ActivityNavigator.navigationOptions = ({ navigation }) => {
   ) {
     tabBarVisible = false;
   }
+  if (
+    navigation.state.routes.some((route) => route.routeName === "WelcomeScreen")
+  ) {
+    tabBarVisible = false;
+  }
 
   return {
     tabBarVisible,
@@ -910,7 +1038,9 @@ export const ProfileNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: {
         headerTransparent: true,
-        title: null,
+        headerTintColor: "#fff",
+
+        // title: null,
       },
     },
     ViewProfile: {
@@ -937,18 +1067,39 @@ export const ProfileNavigator = createAppContainer(
         ),
       }),
     },
+    Comment: {
+      screen: CommentScreen,
+      navigationOptions: ({ navigation }) => ({
+        headerTransparent: true,
+        // title: "Comments",
+        headerLeft: (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      }),
+    },
     PostListScreen: {
       screen: PostListScreen,
-      navigationOptions: {
-        headerTransparent: true,
-        title: null,
-        // headerTitle: (
-        //   <Image
-        //     style={styles.profileLogo}
-        //     source={require("../assets/logo-1.png")}
-        //   />
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+        // headerRight: (
+        //   <TouchableOpacity onPress={() => navigation.goBack()}>
+        //     <Ionicons
+        //       style={[styles.icon, { marginRight: 20 }]}
+        //       name="ios-close"
+        //       color="#fff"
+        //       size={40}
+        //     ></Ionicons>
+        //   </TouchableOpacity>
         // ),
-      },
+        // headerTransparent: true,
+        // headerLeft: null,
+      }),
     },
     LikersAndViewers: {
       screen: LikersAndViewers,
@@ -1069,6 +1220,8 @@ export const ProfileNavigator = createAppContainer(
       screen: ProfileScreen,
       navigationOptions: ({ navigation }) => ({
         headerTransparent: true,
+        headerTintColor: "#fff",
+
         headerLeft: (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons
@@ -1144,6 +1297,12 @@ export const ProfileNavigator = createAppContainer(
         headerStyle: { backgroundColor: "transparent" },
       }),
     },
+    WelcomeScreen: {
+      screen: WelcomeScreen,
+      navigationOptions: ({ navigation }) => ({
+        header: null,
+      }),
+    },
   })
 );
 
@@ -1181,7 +1340,11 @@ ProfileNavigator.navigationOptions = ({ navigation }) => {
   ) {
     tabBarVisible = false;
   }
-
+  if (
+    navigation.state.routes.some((route) => route.routeName === "WelcomeScreen")
+  ) {
+    tabBarVisible = false;
+  }
   return {
     tabBarVisible,
   };

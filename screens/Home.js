@@ -14,6 +14,7 @@ import {
 
 import Icon from "react-native-vector-icons/Feather";
 import GestureRecognizer, { swipeDirections } from "../component/swipeguesture";
+import constants from "../constants";
 
 import { Icon as RNIonicons } from "react-native-vector-icons/Ionicons";
 import {
@@ -33,7 +34,6 @@ import {
   Linking,
 } from "react-native";
 import {
-  getPosts,
   newPostsListner,
   getMorePosts,
   mergeNewPosts,
@@ -71,6 +71,8 @@ import {
 
 import * as Permissions from "expo-permissions";
 import { validURL, openSettingsDialog } from "../util/Helper";
+import { getMoreActivities } from "../actions/activity";
+
 // import {
 //   NewsByFollowing,
 //   NewsByFollowingText,
@@ -207,7 +209,7 @@ class Home extends React.Component {
     if (this.props.post && this.props.post.feed) {
     } else {
       this.setState({ showLoading: true });
-      await this.props.getPosts();
+      await this.props.getMorePosts();
       this.setState({ showLoading: false });
     }
 
@@ -220,6 +222,9 @@ class Home extends React.Component {
       this.props.filterBlockedPosts();
 
       this.props.getMessages();
+
+      //get user activities
+      this.props.getMoreActivities();
     }, 1500); // simulating network
 
     setTimeout(() => {
@@ -693,7 +698,7 @@ class Home extends React.Component {
           right: 0,
           bottom: 0,
           top: 0,
-          shadowOpacity: 1,
+          shadowOpacity: 0,
           justifyContent: "center",
           position: "absolute",
         }}
@@ -893,27 +898,31 @@ class Home extends React.Component {
         break;
       case SWIPE_LEFT:
         // this.setState({ backgroundColor: "blue" });
+        // alert("You swiped left!11");
+
         break;
       case SWIPE_RIGHT:
         // this.setState({ backgroundColor: "yellow" });
+        // alert("You swiped Right!");
+
         break;
     }
   }
 
   renderItem = ({ item, index }) => {
     const config = {
-      velocityThreshold: 0.3,
+      velocityThreshold: 0.8,
       directionalOffsetThreshold: 80,
     };
     const liked = item.likes && item.likes.includes(this.props.user.uid);
     return (
       <GestureRecognizer
-        onSwipe={(direction, state) => this.onSwipe(direction, state)}
-        onSwipeUp={(state) => this.onSwipeUp(state)}
-        onSwipeDown={(state) => this.onSwipeDown(state)}
-        onSwipeLeft={(state) => this.onSwipeLeft(state, item)}
-        onSwipeRight={(state) => this.onSwipeRight(state)}
-        config={config}
+        // onSwipe={(direction, state) => this.onSwipe(direction, state)}
+        // onSwipeUp={(state) => this.onSwipeUp(state)}
+        // onSwipeDown={(state) => this.onSwipeDown(state)}
+        // onSwipeLeft={(state) => this.onSwipeLeft(state, item)}
+        // onSwipeRight={(state) => this.onSwipeRight(state)}
+        // config={config}
         style={{
           flex: 1,
           // backgroundColor: this.state.backgroundColor,
@@ -942,6 +951,109 @@ class Home extends React.Component {
 
               {/* {this.getRightBar(item, liked)} */}
               <View style={[styles.bottom, styles.absolute, {}]}>
+                {(item.type == "video" || item.type == "image") && (
+                  <TouchableOpacity
+                    style={{
+                      width: Scale.moderateScale(45),
+                      height: Scale.moderateScale(45),
+                    }}
+                    onPress={() => {
+                      if (this.currentVideoKey) {
+                        const cell = this.cellRefs[this.currentVideoKey];
+                        if (cell) {
+                          item.type == "video"
+                            ? cell.enterFullScreen()
+                            : cell.enterFullScreenImage();
+                        }
+                      }
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="fullscreen"
+                      size={Scale.moderateScale(45)}
+                      color="white"
+                      style={{
+                        backgroundColor: "transparent",
+                        alignSelf: "center",
+                        shadowOpacity: 1,
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
+                {item.type === "vr" && (
+                  <TouchableOpacity
+                    style={{
+                      borderColor: "rgb(255,255,255)",
+                      borderWidth: 3,
+                      width: 45,
+                      margin: 10,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: 45,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "rgb(255,255,255)",
+                        fontSize: 20,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      360
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {item.likes && item.likes.length > -1 ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate("LikersAndViewers", {
+                        data: item.likes,
+                        title: "Likes",
+                      })
+                    }
+                    style={{
+                      justifyContent: "center",
+                      alignContent: "center",
+                      marginTop: Scale.moderateScale(10),
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "open-sans-bold",
+                        color: constants.colors.superRed,
+                        marginHorizontal: 10,
+                        marginVertical: 2,
+                      }}
+                    >
+                      {item.likes.length} likes
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                {item.comments && item.comments.length > -1 ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.props.navigation.navigate("Comment", item)
+                    }
+                    style={{
+                      justifyContent: "center",
+                      alignContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "open-sans-bold",
+                        color: constants.colors.superRed,
+                        marginHorizontal: 10,
+                        marginVertical: 2,
+                      }}
+                    >
+                      {item.comments.length} comments
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
                 {item.viewers && item.viewers.length > 0 ? (
                   <TouchableOpacity
                     onPress={() =>
@@ -956,8 +1068,9 @@ class Home extends React.Component {
                     <Text
                       style={{
                         fontFamily: "open-sans-bold",
-                        color: "red",
-                        margin: 10,
+                        color: constants.colors.superRed,
+                        marginHorizontal: 10,
+                        marginVertical: 2,
                       }}
                     >
                       {item.viewers.length} views
@@ -965,7 +1078,20 @@ class Home extends React.Component {
                   </TouchableOpacity>
                 ) : null}
 
-                <View style={[styles.row, { shadowOpacity: 1 }]}>
+                <Text
+                  style={[
+                    styles.white,
+                    styles.medium,
+                    styles.bold,
+                    { margin: 10 },
+                  ]}
+                >
+                  {moment(item.date).format("ll")}
+                </Text>
+              </View>
+
+              <View style={[{ position: "absolute", top: 40 }]}>
+                <View style={[styles.row, {}]}>
                   <TouchableOpacity onPress={() => this.goToUser(item)}>
                     <ProgressiveImage
                       // thumbnailSource={{
@@ -973,19 +1099,20 @@ class Home extends React.Component {
                       // }}
                       transparentBackground="transparent"
                       source={{ uri: item.photo }}
-                      style={styles.roundImage60}
+                      style={styles.roundImage}
                     />
                   </TouchableOpacity>
                   <View
                     style={{
-                      width: "100%",
-                      justifyContent: "center",
+                      width: "75%",
+                      // justifyContent: "center",
                     }}
                   >
                     <View
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
+
                         // borderBottomWidth: 0.5,
                         // borderBottomColor: "rgb(255,255,255)",
                       }}
@@ -994,15 +1121,17 @@ class Home extends React.Component {
                         style={{
                           justifyContent: "center",
                           alignItems: "flex-start",
+                          flex: 1,
                         }}
                         onPress={() => this.goToUser(item)}
                       >
                         {this.state.fontLoaded ? (
                           <Text
                             style={{
-                              fontFamily: "open-sans-bold",
-                              fontSize: 18,
+                              fontWeight: "bold",
+                              fontSize: Scale.moderateScale(14),
                               color: "rgb(255,255,255)",
+                              // ...constants.fonts.FreightSansLight,
                             }}
                           >
                             {item.username}
@@ -1029,46 +1158,53 @@ class Home extends React.Component {
                             </Text>
                           </TouchableOpacity>
                         )}
+                      <TouchableOpacity
+                        style={{
+                          alignItems: "center",
+                          marginLeft: Scale.moderateScale(10),
+                        }}
+                        onPress={() => this.showActionSheet(item)}
+                      >
+                        <Ionicons
+                          style={{
+                            margin: 0,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="ios-more"
+                          size={32}
+                        />
+                      </TouchableOpacity>
                     </View>
 
-                    {/* <TouchableOpacity>
-                    <Text
-                      style={styles.textD}
-                      ellipsizeMode="tail"
-                      numberOfLines={2}
-                    >
-                      {item.postLocation ? item.postLocation.name : null}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <Text style={[styles.white, styles.medium, styles.bold]}>
-                    {moment(item.date).format("ll")}
-                  </Text> */}
+                    <View style={{}}>
+                      <ParsedText
+                        parse={[
+                          {
+                            type: "url",
+                            style: styles.url,
+                            onPress: this.handleUrlPress,
+                          },
+                          { pattern: /42/, style: styles.magicNumber },
+                          { pattern: /#(\w+)/, style: styles.hashTag },
+                          {
+                            pattern: / @(\w+)/,
+                            style: styles.username,
+                            onPress: this.handleNamePress,
+                          },
+                        ]}
+                        style={[
+                          styles.textD,
+                          // styles.bold,
+                          { fontSize: Scale.moderateScale(12) },
+                        ]}
+                      >
+                        {item.postDescription}
+                      </ParsedText>
+                    </View>
                   </View>
                 </View>
-
-                <View style={{ marginLeft: 10 }}>
-                  <ParsedText
-                    parse={[
-                      {
-                        type: "url",
-                        style: styles.url,
-                        onPress: this.handleUrlPress,
-                      },
-                      { pattern: /42/, style: styles.magicNumber },
-                      { pattern: /#(\w+)/, style: styles.hashTag },
-                      {
-                        pattern: / @(\w+)/,
-                        style: styles.username,
-                        onPress: this.handleNamePress,
-                      },
-                    ]}
-                    style={[styles.textD, styles.bold]}
-                  >
-                    {item.postDescription}
-                  </ParsedText>
-                </View>
               </View>
+
               {/* </ImageBackground> */}
               {/* </DoubleTap> */}
             </TouchableOpacity>
@@ -1241,7 +1377,7 @@ class Home extends React.Component {
               // alert("Called");
               this.state.selectedTab == 0
                 ? this.props.getFollowingPosts()
-                : this.props.getPosts();
+                : this.props.getMorePosts();
             }}
             snapToAlignment={"top"}
             // refreshing={false}
@@ -1293,17 +1429,52 @@ class Home extends React.Component {
               /> */}
             </View>
 
-            <View style={{ shadowOpacity: 1 }}>
+            <View
+              style={{
+                shadowOpacity: 0,
+                flexDirection: "row",
+              }}
+            >
+              {/* <TouchableOpacity
+                style={{
+                  alignItems: "center",
+                  marginHorizontal: Scale.moderateScale(24),
+                  marginTop: Scale.moderateScale(10),
+                }}
+                onPress={() => this.showActionSheet(item)}
+              >
+                <Ionicons
+                  style={{
+                    margin: 0,
+                    top: Scale.moderateScale(15),
+                    color: "rgb(255,255,255)",
+                  }}
+                  name="ios-more"
+                  size={32}
+                />
+              </TouchableOpacity> */}
+
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate("Messages")}
               >
                 <SimpleLineIcons
-                  style={{ color: "white", top: 23, right: 10 }}
+                  style={{
+                    color: "white",
+                    top: Scale.moderateScale(23),
+                    right: 10,
+                  }}
                   name={"paper-plane"}
-                  size={40}
+                  size={32}
                 />
                 {this.getUnSeenMessageCount() ? (
-                  <Badge style={{ position: "absolute", right: 5, top: 20 }}>
+                  <Badge
+                    style={{
+                      position: "absolute",
+                      right: 5,
+                      top: 20,
+                      backgroundColor: constants.colors.superRed,
+                    }}
+                  >
                     <Text style={{ color: "white" }}>
                       {this.getUnSeenMessageCount()}
                     </Text>
@@ -1402,8 +1573,10 @@ class Home extends React.Component {
             style={{
               flexDirection: "row",
               position: "absolute",
-              shadowOpacity: 1,
-              top: Scale.moderateScale(45),
+              shadowOpacity: 0,
+              transform: [{ rotate: "90deg" }],
+              right: Scale.moderateScale(-55),
+              bottom: height * 0.3,
             }}
           >
             <TouchableOpacity
@@ -1459,7 +1632,6 @@ class Home extends React.Component {
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
-      getPosts,
       mergeNewPosts,
       newPostsListner,
       getMorePosts,
@@ -1480,6 +1652,7 @@ const mapDispatchToProps = (dispatch) => {
       filterBlockedPosts,
       filterFollowingPosts,
       createAndUpdatePreview,
+      getMoreActivities,
     },
     dispatch
   );
@@ -1490,6 +1663,7 @@ const mapStateToProps = (state) => {
     store: state,
     post: state.post,
     user: state.user,
+    activity: state.activity,
     messages: state.messages,
   };
 };
