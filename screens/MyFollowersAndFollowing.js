@@ -15,13 +15,7 @@ import {
 } from "native-base";
 import MyFollowers from "./Followers";
 import MyFollowings from "./Followers";
-import {
-  View,
-  FlatList,
-  Text,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import { getMessages } from "../actions/message";
 import moment from "moment";
 import { groupBy, values } from "lodash";
@@ -35,35 +29,40 @@ class MyFollowersAndFollowing extends React.Component {
   }
 
   render() {
-    const { data, route } = this.props.navigation.state.params;
+    const { data, route, user } = this.props.navigation.state.params;
 
     const initialTabPosition = data === "Following" ? 1 : 0;
-    let user = {};
+    let userProfile = {};
 
     if (route === "Profile") {
-      user = this.props.otherUser;
+      // userProfile = this.props.otherUser;
+      userProfile = user;
     } else {
-      user = this.props.user;
+      userProfile = this.props.user;
     }
 
     // alert(JSON.stringify(user.myFollowings));
     return (
       <Container>
         <Header hasTabs>
-          <Body>
-            <Title>{user.username}</Title>
+          <Body
+            style={{
+              alignItems: "center",
+            }}
+          >
+            <Title>{userProfile.username}</Title>
           </Body>
         </Header>
         <Tabs initialPage={initialTabPosition}>
-          <Tab heading={`${this.getCount(user.myFollowers)} Followers`}>
+          <Tab heading={`${this.getCount(userProfile.myFollowers)} Followers`}>
             <MyFollowers
-              data={user.myFollowers}
+              data={userProfile.myFollowers}
               navigation={this.props.navigation}
             />
           </Tab>
-          <Tab heading={`${this.getCount(user.myFollowings)} Following`}>
+          <Tab heading={`${this.getCount(userProfile.myFollowings)} Following`}>
             <MyFollowings
-              data={user.myFollowings}
+              data={userProfile.myFollowings}
               navigation={this.props.navigation}
             />
           </Tab>

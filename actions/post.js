@@ -75,6 +75,27 @@ export const mergeNewPosts = () => {
   };
 };
 
+export const addPostToFollowersTimeline = (post) => {
+  return async (dispatch, getState) => {
+    if (getState().user && getState().user.followers) {
+      let followers = getState().user.followers;
+      try {
+        followers.forEach((uid) => {
+          const upload = {
+            postId: post.id,
+            createdAt: post.date,
+            uid: post.uid,
+          };
+
+          db.collection("timeline").doc(uid).collection("posts").add(upload);
+        });
+      } catch (e) {
+        //  alert(e);
+      }
+    }
+  };
+};
+
 export const uploadPost = () => {
   return async (dispatch, getState) => {
     try {
@@ -110,16 +131,27 @@ export const uploadPost = () => {
               date: new Date().getTime(),
             };
 
-            dispatch({ type: "NEW_POST_ADDED", payload: upload });
-
             db.collection("posts").doc(id).set(upload);
+            dispatch({ type: "NEW_POST_ADDED", payload: upload });
+            dispatch(addPostToFollowersTimeline(upload));
+
+            dispatch(updateFileUploadProgress(101));
+            // setInterval(() => {
             dispatch(updateFileUploadProgress(-1));
+            // }, 1500);
             dispatch(updatePhoto());
             dispatch(updateDescription());
             dispatch(updateLocation());
+            // var feeds = getState().post.feed;
+
+            // alert(feeds.length);
+            // var updatedFeeds = [...feeds, upload];
+            // alert(updatedFeeds.length);
+
+            // dispatch({ type: "GET_POSTS", payload: [...updatedFeeds]});
 
             // dispatch(getPosts());
-            dispatch(getUser(user.uid, "LOGIN"));
+            // dispatch(getUser(user.uid, "LOGIN"));
 
             showMessage({
               message: "Post Uploaded",
@@ -206,13 +238,15 @@ export const uploadPostVideo = () => {
           // alert(JSON.stringify(mergedposts.length));
 
           db.collection("posts").doc(id).set(upload);
+          dispatch(addPostToFollowersTimeline(upload));
+
           dispatch(updateFileUploadProgress(-1));
           dispatch(updatePhoto());
           dispatch(updateDescription());
           dispatch(updateLocation());
 
           //  dispatch(getPosts());
-          dispatch({ type: "SHOW_LOADING", payload: true });
+          // dispatch({ type: "SHOW_LOADING", payload: true });
 
           //   dispatch(getUser(user.uid, "LOGIN"));
 
@@ -365,6 +399,15 @@ export const newPostsListner = () => {
 
                       // alert(JSON.stringify(array));
                       dispatch({ type: "NEW_POSTS", payload: uniquePosts });
+                      // if (getState().user && getState().user.uid) {
+                      //   var nyPosts = uniquePosts.filter(
+                      //     (x) => x.uid === getState().user.uid
+                      //   );
+
+                      //   if (nyPosts && nyPosts.length > 0) {
+                      //     dispatch(mergeNewPosts());
+                      //   }
+                      // }
                     }
                   }
                 }
@@ -381,6 +424,183 @@ export const newPostsListner = () => {
         });
     } catch (e) {
       // alert(e);
+    }
+  };
+};
+
+// export const getFollowingPosts = () => {
+//   return async (dispatch, getState) => {
+//     const { followingfeed, feed } = getState().post;
+//     var lastFetchedPostDate;
+
+//     if (followingfeed && followingfeed.length > 0) {
+//       lastFetchedPostDate = followingfeed[followingfeed.length - 1].date;
+//     }
+//     try {
+//       if ((getState().user, getState().user.following)) {
+//         const posts = await db
+//           .collection("posts")
+//           .where("uid", "in", getState().user.following.slice(0, 10))
+//           .limit(50)
+//           .get();
+
+//         var images = [];
+//         let array = [];
+//         var lastVisibleId = null;
+
+//         posts.forEach((post) => {
+//           var item = post.data();
+//           if (!isUserBlocked(getState().user, item.uid)) {
+//             // lastVisibleId = post.id;
+//             array.push(post.data());
+//             if (item.photo && item.photo.length > 15) {
+//               const normalisedSource =
+//                 item.photo &&
+//                 typeof item.photo === "string" &&
+//                 !item.photo.split("https://")[1]
+//                   ? null
+//                   : item.photo;
+//               if (normalisedSource) {
+//                 images.push({
+//                   uri: item.photo,
+//                 });
+//               }
+//             }
+//             if (item.type == "image") {
+//               if (item.postPhoto && item.postPhoto.length > 15) {
+//                 images.push({
+//                   uri: item.postPhoto,
+//                 });
+//               }
+//             }
+//           }
+//         });
+//         if (images.length > 0) {
+//           // alert(JSON.stringify(images));
+//           // dispatch(preloadImages(images));
+//           preloadImages(images);
+//         }
+
+//         dispatch({
+//           type: "FOLLOWING_POSTS",
+//           payload: orderBy(array, "date", "desc"),
+//         });
+//       }
+//     } catch (e) {
+//       //  alert(e);
+//     }
+//   };
+// };
+
+export const getFollowingPosts = (flow = null) => {
+  return async (dispatch, getState) => {
+    const { followingfeed, feed } = getState().post;
+
+    var oldPosts;
+
+    if (followingfeed) {
+      oldPosts = followingfeed;
+    } else {
+      oldPosts = [];
+    }
+    var lastFetchedPostDate;
+
+    // alert(followingfeed);
+    if (followingfeed && followingfeed.length > 0) {
+      lastFetchedPostDate = followingfeed[followingfeed.length - 1].date;
+    }
+    if (flow === "REFRESH") {
+      lastFetchedPostDate = null;
+    }
+    try {
+      if ((getState().user, getState().user.following)) {
+        var timelinePosts;
+        if (lastFetchedPostDate) {
+          // alert(lastFetchedPostDate);
+          timelinePosts = await db
+            .collection("timeline")
+            .doc(getState().user.uid)
+            .collection("posts")
+            .orderBy("createdAt", "desc")
+            .startAfter(lastFetchedPostDate)
+            .limit(10)
+            .get();
+        } else {
+          timelinePosts = await db
+            .collection("timeline")
+            .doc(getState().user.uid)
+            .collection("posts")
+            .orderBy("createdAt", "desc")
+            .limit(10)
+            .get();
+        }
+
+        // alert(timelinePosts.size);
+        let myPosts = [];
+        timelinePosts.forEach((j) => {
+          myPosts.push(j.data().postId);
+        });
+
+        // let myPosts = timelinePosts.reduce((i, j) => {
+        //   i.push(j.data().postId);
+        //   return i;
+        // }, []);
+
+        if (myPosts && myPosts.length > 0) {
+          const posts = await db
+            .collection("posts")
+            .where("id", "in", myPosts)
+            .get();
+          var images = [];
+          let array = [];
+          var lastVisibleId = null;
+
+          posts.forEach((post) => {
+            var item = post.data();
+            if (!isUserBlocked(getState().user, item.uid)) {
+              // lastVisibleId = post.id;
+              array.push(post.data());
+              if (item.photo && item.photo.length > 15) {
+                const normalisedSource =
+                  item.photo &&
+                  typeof item.photo === "string" &&
+                  !item.photo.split("https://")[1]
+                    ? null
+                    : item.photo;
+                if (normalisedSource) {
+                  images.push({
+                    uri: item.photo,
+                  });
+                }
+              }
+              if (item.type == "image") {
+                if (item.postPhoto && item.postPhoto.length > 15) {
+                  images.push({
+                    uri: item.postPhoto,
+                  });
+                }
+              }
+            }
+          });
+          if (images.length > 0) {
+            // alert(JSON.stringify(images));
+            // dispatch(preloadImages(images));
+            preloadImages(images);
+          }
+          if (array.length > 0) {
+            var mergedArray = oldPosts.concat(array);
+            // alert(mergedArray.length);
+            var uniquePosts = _.uniqBy(mergedArray, "id");
+
+            dispatch({
+              type: "FOLLOWING_POSTS",
+              payload: orderBy(uniquePosts, "date", "desc"),
+            });
+          }
+        }
+      }
+    } catch (e) {
+      alert(e);
     }
   };
 };
@@ -496,22 +716,20 @@ export const filterBlockedPosts = () => {
 export const filterFollowingPosts = () => {
   return async (dispatch, getState) => {
     // alert(limit);
-    const { lastVisible, feed } = getState().post;
-
-    // alert(feed.length);
-    try {
-      let array = [];
-      if (feed) {
-        feed.forEach((post) => {
-          var item = post;
-          if (isFollowing(getState().user, item.uid)) {
-            array.push(item);
-          }
-        });
-
-        dispatch({ type: "FOLLOWING_POSTS", payload: [...array] });
-      }
-    } catch (e) {}
+    // const { lastVisible, feed } = getState().post;
+    // // alert(feed.length);
+    // try {
+    //   let array = [];
+    //   if (feed) {
+    //     feed.forEach((post) => {
+    //       var item = post;
+    //       if (isFollowing(getState().user, item.uid)) {
+    //         array.push(item);
+    //       }
+    //     });
+    //     dispatch({ type: "FOLLOWING_POSTS", payload: [...array] });
+    //   }
+    // } catch (e) {}
   };
 };
 
@@ -571,64 +789,88 @@ export const getFilterPosts = () => {
   };
 };
 
-export const getFollowingPosts = () => {
+export const addUserPostToTimeline = (uid) => {
   return async (dispatch, getState) => {
     try {
-      if ((getState().user, getState().user.following)) {
-        const posts = await db
+      const posts = await db.collection("posts").where("uid", "==", uid).get();
+
+      posts.forEach((post) => {
+        var item = post.data();
+
+        const upload = {
+          postId: item.id,
+          createdAt: item.date,
+          uid: item.uid,
+        };
+
+        db.collection("timeline")
+          .doc(getState().user.uid)
           .collection("posts")
-          .where("uid", "in", getState().user.following.slice(0, 10))
-          .limit(50)
-          .get();
-
-        var images = [];
-        let array = [];
-        var lastVisibleId = null;
-
-        posts.forEach((post) => {
-          var item = post.data();
-          if (!isUserBlocked(getState().user, item.uid)) {
-            // lastVisibleId = post.id;
-            array.push(post.data());
-            if (item.photo && item.photo.length > 15) {
-              const normalisedSource =
-                item.photo &&
-                typeof item.photo === "string" &&
-                !item.photo.split("https://")[1]
-                  ? null
-                  : item.photo;
-              if (normalisedSource) {
-                images.push({
-                  uri: item.photo,
-                });
-              }
-            }
-            if (item.type == "image") {
-              if (item.postPhoto && item.postPhoto.length > 15) {
-                images.push({
-                  uri: item.postPhoto,
-                });
-              }
-            }
-          }
-        });
-        if (images.length > 0) {
-          // alert(JSON.stringify(images));
-          // dispatch(preloadImages(images));
-          preloadImages(images);
-        }
-
-        dispatch({
-          type: "FOLLOWING_POSTS",
-          payload: orderBy(array, "date", "desc"),
-        });
-      }
+          .add(upload);
+      });
     } catch (e) {
       //  alert(e);
     }
   };
 };
 
+export const feedTimelineForAllUsers = () => {
+  return async (dispatch, getState) => {
+    try {
+      const users = await db.collection("users").get();
+
+      // alert(users.size);
+      users.forEach((user) => {
+        var data = user.data();
+
+        if (data && data.following && data.following.length > 0) {
+          data.following.forEach(async (uid) => {
+            const posts = await db
+              .collection("posts")
+              .where("uid", "==", uid)
+              .get();
+
+            posts.forEach((post) => {
+              var item = post.data();
+
+              const upload = {
+                postId: item.id,
+                createdAt: item.date,
+                uid: item.uid,
+              };
+
+              db.collection("timeline")
+                .doc(data.uid)
+                .collection("posts")
+                .add(upload);
+            });
+          });
+        }
+      });
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
+export const removeUserPostFromTimeline = (uid) => {
+  return async (dispatch, getState) => {
+    try {
+      db.collection("timeline")
+        .doc(getState().user.uid)
+        .collection("posts")
+        .where("uid", "==", uid)
+        .get()
+        .then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            doc.ref.delete();
+          });
+        });
+    } catch (e) {
+      //  alert(e);
+    }
+  };
+};
 export const deletePost = (item) => {
   return async (dispatch, getState) => {
     const post = item.id;
@@ -642,6 +884,35 @@ export const deletePost = (item) => {
         type: "success",
         duration: 2000,
       });
+      dispatch(deletePostFromUserTimeline(item));
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
+export const deletePostFromUserTimeline = (item) => {
+  return async (dispatch, getState) => {
+    const postId = item.id;
+    const uid = item.uid;
+    try {
+      const userQuery = await db.collection("users").doc(uid).get();
+      let user = userQuery.data();
+
+      if (user && user.followers && user.followers.length > 0) {
+        user.followers.forEach((uid) => {
+          db.collection("timeline")
+            .doc(uid)
+            .collection("posts")
+            .where("postId", "==", postId)
+            .get()
+            .then(function (querySnapshot) {
+              querySnapshot.forEach(function (doc) {
+                doc.ref.delete();
+              });
+            });
+        });
+      }
     } catch (e) {
       alert(e);
     }
@@ -720,12 +991,14 @@ export const likePost = (post) => {
         type: "LIKE",
       });
 
-      var message = "Liked Your Photo";
+      var message = username + " Liked Your Photo";
 
       if (post.type == "video") {
-        message = "Liked Your Video";
+        message = username + " Liked Your Video";
       }
-      dispatch(sendNotification(post.uid, message));
+      // dispatch(sendNotification(post.uid, message));
+
+      dispatch(sendNotification(post.uid, "New Like", message, "LIKE"));
 
       // dispatch(getPosts());
       // dispatch(getUser(response.user.uid));
@@ -922,6 +1195,9 @@ export const getComments = (post) => {
 
 export const addComment = (text, post) => {
   return (dispatch, getState) => {
+    // alert("Called");
+    // dispatch(feedTimelineForAllUsers());
+
     const { uid, photo, username } = getState().user;
     let comments = cloneDeep(getState().post.comments.reverse());
     try {
@@ -948,8 +1224,13 @@ export const addComment = (text, post) => {
       dispatch({ type: "GET_COMMENTS", payload: comments.reverse() });
       dispatch({ type: "UPDATE_POST", payload: post });
 
-      dispatch(sendNotification(post.uid, text));
       db.collection("activity").doc().set(comment);
+
+      var body = `${username} commented on your post`;
+
+      // dispatch(sendNotification(post.uid, text));
+
+      dispatch(sendNotification(post.uid, "New Comment", body, "COMMENT"));
     } catch (e) {
       /* console.error(e) */
     }
@@ -1013,7 +1294,7 @@ export const reportPost = (post, reason) => {
             date: new Date().getTime(),
             type: "REPORT",
           });
-          dispatch(sendNotification(response.data().uid, "Reported Post"));
+          // dispatch(sendNotification(response.data().uid, "Reported Post"));
         }
       });
 

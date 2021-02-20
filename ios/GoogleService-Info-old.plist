@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>963991851670-rlk86p0qg0hgp255vnbrcodhk9i78dec.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.963991851670-rlk86p0qg0hgp255vnbrcodhk9i78dec</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAPkWttAnqJR-qp4zWaWWoDsJey0-N5sj8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>963991851670</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.patrick.super</string>
+	<key>PROJECT_ID</key>
+	<string>super-b71be</string>
+	<key>STORAGE_BUCKET</key>
+	<string>super-b71be.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:963991851670:ios:7f6d553f09899efcffe8b7</string>
+	<key>DATABASE_URL</key>
+	<string>https://super-b71be.firebaseio.com</string>
+</dict>
+</plist>

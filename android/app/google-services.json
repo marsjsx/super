@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "963991851670",
+    "firebase_url": "https://super-b71be.firebaseio.com",
+    "project_id": "super-b71be",
+    "storage_bucket": "super-b71be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963991851670:android:d9575c7ba7d201ecffe8b7",
+        "android_client_info": {
+          "package_name": "com.lllsuperlll"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "963991851670-cult1kvimsgagpi6sflsm2qvdbunele8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxldALbtqHRAR9Afm1XkJ_tl4k0Om9ZPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "963991851670-cult1kvimsgagpi6sflsm2qvdbunele8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "963991851670-rlk86p0qg0hgp255vnbrcodhk9i78dec.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.patrick.super"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

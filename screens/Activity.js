@@ -15,6 +15,7 @@ import moment from "moment";
 import EmptyView from "../component/emptyview";
 import { getUser } from "../actions/user";
 import { getMoreActivities } from "../actions/activity";
+import Scale from "../helpers/Scale";
 
 import { showLoader } from "../util/Loader";
 import {
@@ -110,7 +111,7 @@ class Activity extends React.Component {
         await this.props.getPostById(data.postId);
         this.setState({ showLoading: false });
 
-        if (!this.props.user.posts) {
+        if (this.props.user.posts.length < 1) {
           this.showNoPostMessage();
           return;
         }
@@ -126,13 +127,13 @@ class Activity extends React.Component {
             route: "MyProfile",
           });
         }
-
+        break;
       case "COMMENT":
         this.setState({ showLoading: true });
 
         await this.props.getPostById(data.postId);
         this.setState({ showLoading: false });
-        if (!this.props.user.posts) {
+        if (this.props.user.posts.length < 1) {
           this.showNoPostMessage();
           return;
         }
@@ -147,6 +148,7 @@ class Activity extends React.Component {
             route: "MyProfile",
           });
         }
+        break;
 
       case "REPORT":
         this.setState({ showLoading: true });
@@ -169,6 +171,7 @@ class Activity extends React.Component {
             route: "Search",
           });
         }
+        break;
 
       default:
         null;
@@ -200,7 +203,14 @@ class Activity extends React.Component {
     switch (item.type) {
       case "LIKE":
         return (
-          <View style={[styles.row, styles.space]}>
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.bottomgreyborder,
+              { marginTop: Scale.moderateScale(10) },
+            ]}
+          >
             <TouchableOpacity onPress={() => this.goToUser(item.likerId)}>
               <FastImage
                 style={styles.roundImage}
@@ -208,19 +218,21 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={styles.bold}>{item.likerName}</Text>
-              <Text style={styles.gray}>
+              <Text style={[styles.bold, styles.textMedium]}>
+                {item.likerName}
+              </Text>
+              <Text style={(styles.gray, styles.textMedium)}>
                 {item.postType === "video"
                   ? "Liked Your Video"
                   : "Liked Your Photo"}
               </Text>
-              <Text style={[styles.gray, styles.small]}>
+              <Text style={[styles.gray, styles.medium]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
             <TouchableOpacity onPress={() => this.goToPost(item)}>
               <FastImage
-                style={styles.roundImage}
+                style={styles.squareImage}
                 source={{ uri: item.postPhoto }}
               />
             </TouchableOpacity>
@@ -228,7 +240,14 @@ class Activity extends React.Component {
         );
       case "FOLLOWER":
         return (
-          <View style={[styles.row, styles.space]}>
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.bottomgreyborder,
+              { marginTop: Scale.moderateScale(10) },
+            ]}
+          >
             <TouchableOpacity onPress={() => this.goToUser(item.followerId)}>
               <FastImage
                 style={styles.roundImage}
@@ -236,9 +255,13 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={styles.bold}>{item.followerName}</Text>
-              <Text style={styles.gray}>started following you</Text>
-              <Text style={[styles.gray, styles.small]}>
+              <Text style={(styles.bold, styles.textMedium)}>
+                {item.followerName}
+              </Text>
+              <Text style={(styles.gray, styles.textMedium)}>
+                started following you
+              </Text>
+              <Text style={[styles.gray, styles.medium]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
@@ -279,7 +302,14 @@ class Activity extends React.Component {
         );
       case "COMMENT":
         return (
-          <View style={[styles.row, styles.space]}>
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.bottomgreyborder,
+              { marginTop: Scale.moderateScale(10) },
+            ]}
+          >
             <TouchableOpacity onPress={() => this.goToUser(item.commenterId)}>
               <FastImage
                 style={styles.roundImage}
@@ -287,15 +317,19 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={styles.bold}>{item.commenterName}</Text>
-              <Text style={styles.gray}>{`commented: "${item.comment}"`}</Text>
-              <Text style={[styles.gray, styles.small]}>
+              <Text style={(styles.bold, styles.textMedium)}>
+                {item.commenterName}
+              </Text>
+              <Text
+                style={(styles.gray, styles.textMedium)}
+              >{`commented: "${item.comment}"`}</Text>
+              <Text style={[styles.gray, styles.medium]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
             <TouchableOpacity onPress={() => this.goToPost(item)}>
               <FastImage
-                style={styles.roundImage}
+                style={styles.squareImage}
                 source={{ uri: item.postPhoto }}
               />
             </TouchableOpacity>
@@ -303,7 +337,14 @@ class Activity extends React.Component {
         );
       case "REPORT":
         return (
-          <View style={[styles.row, styles.space, { marginTop: 15 }]}>
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.bottomgreyborder,
+              { marginTop: Scale.moderateScale(10) },
+            ]}
+          >
             <TouchableOpacity onPress={() => this.goToUser(item.reporterId)}>
               <FastImage
                 style={styles.roundImage}
@@ -312,7 +353,9 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <View style={styles.row}>
-                <Text style={styles.bold}>{item.reporterName}</Text>
+                <Text style={(styles.bold, styles.textMedium)}>
+                  {item.reporterName}
+                </Text>
 
                 <Ionicons
                   style={{ marginLeft: 8 }}
@@ -321,15 +364,19 @@ class Activity extends React.Component {
                   size={20}
                 />
               </View>
-              <Text style={styles.red}>Reported This Post </Text>
-              <Text style={styles.gray}>{item.reportReason}</Text>
-              <Text style={[styles.gray, styles.small]}>
+              <Text style={(styles.red, styles.textMedium)}>
+                Reported This Post{" "}
+              </Text>
+              <Text style={(styles.gray, styles.textMedium)}>
+                {item.reportReason}
+              </Text>
+              <Text style={[styles.gray, styles.medium]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
             <TouchableOpacity onPress={() => this.goToPost(item)}>
               <FastImage
-                style={styles.roundImage}
+                style={styles.squareImage}
                 source={{ uri: item.postPhoto }}
               />
             </TouchableOpacity>
@@ -356,19 +403,19 @@ class Activity extends React.Component {
   //   }
   // };
 
-    // Render Footer
-    renderFooter = () => {
-      try {
-        // Check If Loading
-        if (this.state.refreshing) {
-          return <ActivityIndicator />;
-        } else {
-          return null;
-        }
-      } catch (error) {
-        console.log(error);
+  // Render Footer
+  renderFooter = () => {
+    try {
+      // Check If Loading
+      if (this.state.refreshing) {
+        return <ActivityIndicator />;
+      } else {
+        return null;
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     if (this.state.showLoading) return showLoader("Loading, Please wait... ");
@@ -386,7 +433,8 @@ class Activity extends React.Component {
 
     // alert(JSON.stringify(this.props.activity.activities));
     return (
-      <View style={[styles.container, { marginTop: 100 }]}>
+      // <View style={[styles.container, { marginTop: 100 }]}>
+      <View style={[styles.container]}>
         {/* <EmptyView
           desc="All user activities will appear here"
           button="Signup"

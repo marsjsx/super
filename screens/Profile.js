@@ -3,6 +3,9 @@ import styles from "../styles";
 import firebase from "firebase";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import db from "../config/firebase";
+import { orderBy, groupBy, values } from "lodash";
+
 import {
   Text,
   View,
@@ -23,6 +26,7 @@ import { validURL } from "../util/Helper";
 import { showLoader } from "../util/Loader";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { AntDesign } from "react-native-vector-icons";
+import constants from "../constants";
 
 import {
   followUser,
@@ -33,6 +37,7 @@ import {
   logout,
   updateBio,
   updateUser,
+  preloadUserImages,
   updateWebsiteLabel,
 } from "../actions/user";
 import { getMessages } from "../actions/message";
@@ -71,39 +76,18 @@ const viewabilityConfig = {
   itemVisiblePercentThreshold: 90,
 };
 
-var BUTTONS = ["Message", "Report", "Block", "Cancel"];
-var MYPROFILE_BUTTONS = ["My Profile", "Logout"];
+var BUTTONS = ["Profile", "Message", "Report", "Block", "Cancel"];
+var MYPROFILE_BUTTONS = ["My Profile", "Logout", "Cancel"];
 
-var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
+var BUTTONS1 = ["Profile", "Message", "Report", "Unblock", "Cancel"];
 
 var DESTRUCTIVE_INDEX = 1;
-var CANCEL_INDEX = 3;
+var CANCEL_INDEX = 4;
 const { height, width } = Dimensions.get("window");
 import { isUserBlocked } from "../util/Helper";
 
 var self;
 class Profile extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    //Show Header by returning header
-    return {
-      headerRight: (
-        <TouchableOpacity
-          style={{ marginRight: 24, shadowOpacity: 0.5 }}
-          onPress={() => self.openProfileActions()}
-        >
-          <Ionicons
-            style={{
-              color: "white",
-            }}
-            name="ios-more"
-            size={40}
-          />
-        </TouchableOpacity>
-      ),
-      title: navigation.getParam("title", ""),
-    };
-  };
-
   constructor(props) {
     super(props);
     this.page;
@@ -115,6 +99,7 @@ class Profile extends React.Component {
       position: 0,
       visible: false,
       changes: 1,
+      userProfile: [],
       website: "",
       userBlocked: false,
       websiteLabel: "",
@@ -148,12 +133,27 @@ class Profile extends React.Component {
         });
         this.setState({ showLoading: true });
 
-        await this.props.getUser(uid);
-        this.setState({ showLoading: false });
+        // await this.props.getUser(uid);
+        // var result = await this.getUserProfile(uid);
+        // this.setState({ userProfile: result, showLoading: false });
+        // this.props.navigation.setParams({
+        //   title: `@${result.username}`,
+        // });
+        // this.setState({ showLoading: false });
+        this.getUserProfile(uid)
+          .then((result) => {
+            this.setState({ userProfile: result, showLoading: false });
+            this.props.navigation.setParams({
+              title: `@${result.username}`,
+            });
+          })
+          .catch((error) => {
+            this.setState({ showLoading: false });
 
-        this.props.navigation.setParams({
-          title: `@${this.props.profile.username}`,
-        });
+            alert(error);
+          });
+
+        // alert(JSON.stringify(userProfile));
       }
     } else {
       // this.props.navigation.setParams({
@@ -169,6 +169,66 @@ class Profile extends React.Component {
       });
     }
   };
+
+  getUserProfile = (uid) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        if (uid) {
+          var images = [];
+
+          const userQuery = await db.collection("users").doc(uid).get();
+          let user = userQuery.data();
+          if (user.photo && user.photo.length > 15) {
+            images.push({
+              uri: user.photo,
+            });
+          }
+
+          let posts = [];
+          const postsQuery = await db
+            .collection("posts")
+            .where("uid", "==", uid)
+            .get();
+          postsQuery.forEach(function (response) {
+            posts.push(response.data());
+          });
+
+          user.posts = posts;
+
+          if (posts != null && posts.length > 0) {
+            user.posts = orderBy(posts, "date", "desc");
+          }
+
+          if (images.length > 0) {
+            this.props.preloadUserImages(images);
+          }
+
+          const followingQuery = await db
+            .collection("users")
+            .where("followers", "array-contains", uid)
+            .get();
+          var following = [];
+          followingQuery.forEach(function (response) {
+            following.push(response.data());
+          });
+          user = { ...user, myFollowings: following };
+
+          const followersQuery = await db
+            .collection("users")
+            .where("following", "array-contains", uid)
+            .get();
+
+          var followers = [];
+          followersQuery.forEach(function (response) {
+            followers.push(response.data());
+          });
+          user = { ...user, myFollowers: followers };
+          resolve(user);
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
 
   openProfileActions() {
     const { state, navigate } = this.props.navigation;
@@ -187,7 +247,8 @@ class Profile extends React.Component {
   }
 
   goToChat() {
-    var user = this.props.profile;
+    // var user = this.props.profile;
+    var user = this.state.userProfile;
 
     this.props.navigation.navigate("Chat", {
       uid: user.uid,
@@ -247,6 +308,7 @@ class Profile extends React.Component {
     this.props.navigation.navigate("PostListScreen", {
       selectedIndex: index,
       route: state.routeName,
+      userPosts: this.state.userProfile.posts,
     });
 
     // this.visibleSwitch(item);
@@ -353,8 +415,11 @@ class Profile extends React.Component {
   };
 
   showActionSheet = () => {
-    var user = this.props.profile;
+    // var user = this.props.profile;
+    var user = this.state.userProfile;
     var options = BUTTONS;
+    const { state, navigate } = this.props.navigation;
+
     if (isUserBlocked(this.props.user, user.uid)) {
       // if (this.state.userBlocked) {
       // BUTTONS[2] = "UnBlock";
@@ -367,7 +432,7 @@ class Profile extends React.Component {
       {
         options: options,
         cancelButtonIndex: CANCEL_INDEX,
-        destructiveButtonIndex: DESTRUCTIVE_INDEX,
+        // destructiveButtonIndex: DESTRUCTIVE_INDEX,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
@@ -395,6 +460,12 @@ class Profile extends React.Component {
             ],
             { cancelable: false }
           );
+        } else if ("Profile" === options[buttonIndex]) {
+          this.props.navigation.navigate("ViewProfile", {
+            routeName: state.routeName,
+            title: user.username,
+            user: user,
+          });
         } else if ("Message" === options[buttonIndex]) {
           this.props.navigation.navigate("Chat", {
             uid: user.uid,
@@ -454,7 +525,7 @@ class Profile extends React.Component {
     this.actionSheet._root.showActionSheet(
       {
         options: options,
-        // cancelButtonIndex: CANCEL_INDEX,
+        cancelButtonIndex: 2,
         destructiveButtonIndex: 1,
       },
       (buttonIndex) => {
@@ -465,6 +536,7 @@ class Profile extends React.Component {
           this.props.navigation.navigate("ViewProfile", {
             routeName: state.routeName,
             title: user.username,
+            user: user,
           });
         } else {
         }
@@ -580,382 +652,13 @@ class Profile extends React.Component {
     this.setState({ dialogVisible: false });
   };
 
-  getProfileComponent(user) {
-    const { state, navigate } = this.props.navigation;
-    let userblocked = isUserBlocked(this.props.user, user.uid);
-
-    return (
-      <View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <TouchableOpacity
-            style={{
-              padding: Scale.moderateScale(10),
-              marginTop: Scale.moderateScale(32),
-              marginLeft: Scale.moderateScale(18),
-            }}
-            onPress={() => this.RBSheet.close()}
-          >
-            <AntDesign name="left" size={30} color="#000" />
-          </TouchableOpacity>
-          {state.routeName != "MyProfile" && (
-            <TouchableOpacity
-              style={{
-                padding: Scale.moderateScale(10),
-                marginTop: Scale.moderateScale(32),
-                marginRight: Scale.moderateScale(18),
-              }}
-              onPress={() => {
-                this.RBSheet.close();
-                this.goToChat();
-              }}
-            >
-              <SimpleLineIcons name={"paper-plane"} size={30} color="#000" />
-            </TouchableOpacity>
-          )}
-        </View>
-        <View style={[styles.center]}>
-          <TouchableOpacity>
-            <ProgressiveImage
-              transparentBackground="transparent"
-              source={{ uri: user.photo }}
-              style={styles.roundImage100}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              alignItems: "flex-start",
-            }}
-          >
-            <Text
-              style={{
-                fontWeight: "400",
-                fontSize: 18,
-                color: "#000",
-              }}
-            >
-              {user.username}
-            </Text>
-          </TouchableOpacity>
-
-          <View
-            style={[
-              styles.row,
-              styles.space,
-              styles.followBar,
-              styles.bottomgreyborder,
-              {
-                marginTop: Scale.moderateScale(14),
-                marginBottom: Scale.moderateScale(14),
-                paddingBottom: Scale.moderateScale(14),
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.center, {}]}
-              onPress={() => {
-                this.RBSheet.close();
-                this.props.navigation.navigate("MyFollowersAndFollowing", {
-                  data: "Followers",
-                  route: state.routeName,
-                });
-              }}
-            >
-              <Text
-                style={[
-                  styles.bold,
-                  styles.textF,
-                  { color: "#000", fontSize: Scale.moderateScale(18) },
-                ]}
-              >
-                {user.followers && user.followers.length
-                  ? user.followers.length
-                  : "0"}
-              </Text>
-              <Text style={[styles.grey]}> Followers</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.center, {}]}
-              onPress={() => {
-                this.RBSheet.close();
-                this.props.navigation.navigate("MyFollowersAndFollowing", {
-                  data: "Following",
-                  route: state.routeName,
-                });
-              }}
-            >
-              <Text
-                style={[
-                  styles.bold,
-                  { color: "#000", fontSize: Scale.moderateScale(18) },
-                ]}
-              >
-                {user.following && user.following.length
-                  ? user.following.length
-                  : "0"}
-              </Text>
-              <Text style={[styles.grey]}> Following</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.center, {}]} onPress={() => {}}>
-              <Text
-                style={[
-                  styles.bold,
-                  { color: "#000", fontSize: Scale.moderateScale(18) },
-                ]}
-              >
-                {"-"}
-              </Text>
-              <Text style={[styles.grey]}> Likes</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginLeft: Scale.moderateScale(30),
-                marginRight: Scale.moderateScale(40),
-              }}
-            >
-              <Text style={[styles.bold, styles.black, { width: "30%" }]}>
-                Name:
-              </Text>
-              <Text
-                style={[
-                  styles.grey,
-                  styles.margin10,
-                  { width: "70%", textAlign: "right" },
-                ]}
-              >
-                {user.username}
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginLeft: Scale.moderateScale(30),
-                marginRight: Scale.moderateScale(40),
-              }}
-            >
-              <Text style={[styles.bold, styles.black, { width: "30%" }]}>
-                Bio:
-              </Text>
-              <Text
-                style={[
-                  styles.grey,
-                  styles.margin10,
-                  { width: "70%", textAlign: "right" },
-                ]}
-              >
-                {user.userbio || "-"}
-              </Text>
-            </View>
-
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "45%", textAlign: "right" },
-                ]}
-              >
-                Website:
-              </Text>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "55%", textAlign: "left" },
-                ]}
-              >
-                {user.bio}
-              </Text>
-            </View>
-
-            {state.routeName === "MyProfile" && (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "45%", textAlign: "right" },
-                  ]}
-                >
-                  Website Label:
-                </Text>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "55%", textAlign: "left" },
-                  ]}
-                >
-                  {user.websiteLabel}
-                </Text>
-              </View>
-            )}
-
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "45%", textAlign: "right" },
-                ]}
-              >
-                Gender:
-              </Text>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "55%", textAlign: "left" },
-                ]}
-              >
-                {user.gender}
-              </Text>
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "45%", textAlign: "right" },
-                ]}
-              >
-                Birthdate:
-              </Text>
-              <Text
-                style={[
-                  styles.textB,
-                  styles.margin10,
-                  { width: "55%", textAlign: "left" },
-                ]}
-              >
-                {user.dob ? moment(user.dob).format("ll") : "-"}
-              </Text>
-            </View>
-            {state.routeName === "MyProfile" && (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "45%", textAlign: "right" },
-                  ]}
-                >
-                  Account Type:
-                </Text>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "55%", textAlign: "left" },
-                  ]}
-                >
-                  {user.accountType}
-                </Text>
-              </View>
-            )}
-            {state.routeName === "MyProfile" && (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "45%", textAlign: "right" },
-                  ]}
-                >
-                  Email:
-                </Text>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "55%", textAlign: "left" },
-                  ]}
-                >
-                  {user.email}
-                </Text>
-              </View>
-            )}
-
-            {state.routeName === "MyProfile" && (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "45%", textAlign: "right" },
-                  ]}
-                >
-                  Phone:
-                </Text>
-                <Text
-                  style={[
-                    styles.textB,
-                    styles.margin10,
-                    { width: "55%", textAlign: "left" },
-                  ]}
-                >
-                  {user.phone}
-                </Text>
-              </View>
-            )}
-          </View>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 15,
-              marginTop: Scale.moderateScale(10),
-            }}
-            onPress={() => {
-              this.RBSheet.close();
-              this.props.navigation.navigate("BlockedUsers");
-            }}
-          >
-            <Text style={{ flex: 1 }}>Blocked Accounts </Text>
-            <Ionicons name="ios-arrow-forward" size={20} color="black" />
-          </TouchableOpacity>
-          <Button block light style={styles.margin10} onPress={this.logout}>
-            <Text>Logout</Text>
-          </Button>
-          <TouchableOpacity
-            style={{
-              marginTop: Scale.moderateScale(10),
-            }}
-            onPress={() => {
-              if (state.routeName === "MyProfile") {
-                this.RBSheet.close();
-                this.props.navigation.navigate("Edit");
-              }
-            }}
-          >
-            <Image
-              style={[
-                styles.profileLogo1,
-                { transform: [{ rotate: "90deg" }] },
-              ]}
-              source={require("../assets/logo-1.png")}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
   render() {
     let user = {};
 
     const { state, navigate } = this.props.navigation;
     if (state.routeName === "Profile") {
-      user = this.props.profile;
+      // user = this.props.profile;
+      user = this.state.userProfile;
     } else {
       user = this.props.user;
       if (!this.props.user.uid) {
@@ -976,9 +679,16 @@ class Profile extends React.Component {
         );
       }
     }
-    let userblocked = isUserBlocked(this.props.user, user.uid);
+    let userblocked = false;
+
+    if (user && user.uid) {
+      isUserBlocked(this.props.user, user.uid);
+    }
 
     // if (!user.posts) return <ActivityIndicator style={styles.container} />;
+    // if (this.state.showLoading) {
+    //   return showLoader("Loading, Please wait... ");
+    // }
     return (
       <View style={styles.container}>
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
@@ -999,6 +709,16 @@ class Profile extends React.Component {
             style={[styles.profilePhoto]}
             resizeMode="cover"
           />
+
+          {/* <Image
+            source={require("../assets/profilePlaceholder.png")}
+            style={[
+              styles.profilePhoto,
+              { backgroundColor: "red", alignSelf: "stretch", height: "auto" },
+            ]}
+            resizeMode="contain"
+          /> */}
+          {/* <View style={[styles.profilePhoto, { backgroundColor: "red" }]} /> */}
           <ImageBackground
             style={[styles.profilePhoto, { position: "absolute" }]}
           >
@@ -1010,7 +730,13 @@ class Profile extends React.Component {
                   <Button
                     bordered
                     danger
-                    onPress={() => this.props.navigation.navigate("Edit")}
+                    onPress={() => {
+                      this.props.navigation.navigate("ViewProfile", {
+                        routeName: state.routeName,
+                        title: user.username,
+                        user: user,
+                      });
+                    }}
                   >
                     <Text style={{ color: "red" }}>Add Profile Photo</Text>
                   </Button>
@@ -1022,13 +748,262 @@ class Profile extends React.Component {
             <View style={[{ width: "100%", marginTop: -10 }]} />
             <View style={[styles.row, styles.space, { width: "100%" }]}>
               <View style={[styles.container, {}]}>
+                {/* <TouchableOpacity
+                  onPress={() =>
+                    this.props.navigation.navigate("MyFollowersAndFollowing", {
+                      data: "Followers",
+                      route: state.routeName,
+                    })
+                  }
+                  style={{
+                    justify Content: "center",
+                    alignContent: "center",
+                    marginHorizontal: Scale.moderateScale(20),
+                    marginVertical: Scale.moderateScale(10),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "open-sans-bold",
+                      color: constants.colors.superRed,
+                      letterSpacing: 1,
+                    }}
+                  >
+                    {user.followers && user.followers.length
+                      ? user.followers.length
+                      : "0"}{" "}
+                    friends
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() =>
+                    this.props.navigation.navigate("MyFollowersAndFollowing", {
+                      data: "Following",
+                      route: state.routeName,
+                    })
+                  }
+                  style={{
+                    justifyContent: "center",
+                    alignContent: "center",
+                    marginHorizontal: Scale.moderateScale(20),
+                    marginTop: Scale.moderateScale(10),
+                    marginBottom: Scale.moderateScale(40),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "open-sans-bold",
+                      color: constants.colors.superRed,
+                      letterSpacing: 1,
+                    }}
+                  >
+                    {user.following && user.following.length
+                      ? user.following.length
+                      : "0"}{" "}
+                    following
+                  </Text>
+                </TouchableOpacity> */}
+
                 <View
+                  style={[
+                    styles.row,
+                    {
+                      marginBottom: Scale.moderateScale(20),
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      flex: 1,
+                      marginHorizontal: Scale.moderateScale(16),
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.row,
+                        {
+                          alignItems: "center",
+                          justifyContent: "center",
+                        },
+                      ]}
+                    >
+                      <TouchableOpacity
+                        style={{
+                          justifyContent: "center",
+                        }}
+                        onPress={() => {
+                          this.props.navigation.navigate("ViewProfile", {
+                            routeName: state.routeName,
+                            title: user.username,
+                            user: user,
+                          });
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: Scale.moderateScale(24),
+                            color: "rgb(255,255,255)",
+                            shadowOpacity: 0.5,
+                            // ...constants.fonts.FreightSansLight,
+                          }}
+                        >
+                          {user.username}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {this.props.user.uid != user.uid ? (
+                        !userblocked &&
+                        this.props.user.following &&
+                        this.props.user.following.indexOf(user.uid) < 0 ? (
+                          <TouchableOpacity
+                            onPress={() => this.follow(user)}
+                            style={{
+                              marginHorizontal: Scale.moderateScale(5),
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: "#00ff00",
+                                fontWeight: "bold",
+                                padding: Scale.moderateScale(5),
+                                fontSize: Scale.moderateScale(16),
+                              }}
+                            >
+                              +follow
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={() => this.follow(user)}
+                            style={{
+                              marginHorizontal: Scale.moderateScale(10),
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: "rgb(215, 80, 80)",
+                                fontWeight: "bold",
+                                padding: Scale.moderateScale(5),
+                                fontSize: Scale.moderateScale(14),
+                              }}
+                            >
+                              unfollow
+                            </Text>
+                          </TouchableOpacity>
+                        )
+                      ) : null}
+                    </View>
+                    {/* <Text
+                      numberOfLines={2}
+                      style={[
+                        styles.textF,
+                        styles.white,
+                        {
+                          fontWeight: "300",
+                          fontSize: Scale.moderateScale(15),
+                          textAlign: "left",
+                          flex: 1,
+                        },
+                      ]}
+                    >
+                      {user.userbio}
+                    </Text> */}
+                  </View>
+                </View>
+
+                <View style={[styles.row, styles.space, { marginTop: 0 }]}>
+                  <TouchableOpacity
+                    style={[styles.center, { flex: 1 }]}
+                    onPress={() =>
+                      this.props.navigation.navigate(
+                        "MyFollowersAndFollowing",
+                        {
+                          data: "Followers",
+                          route: state.routeName,
+                          user: user,
+                        }
+                      )
+                    }
+                  >
+                    <Text
+                      style={[styles.bold, { fontSize: 22, color: "#fff" }]}
+                    >
+                      {user.followers && user.followers.length
+                        ? user.followers.length
+                        : "0"}
+                    </Text>
+                    <Text style={[{ fontSize: 16, color: "#fff" }]}>
+                      followers
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.center, { flex: 1 }]}
+                    onPress={() =>
+                      this.props.navigation.navigate(
+                        "MyFollowersAndFollowing",
+                        {
+                          data: "Following",
+                          route: state.routeName,
+                          user: user,
+                        }
+                      )
+                    }
+                  >
+                    <Text
+                      style={[styles.bold, { fontSize: 22, color: "#fff" }]}
+                    >
+                      {user.following && user.following.length
+                        ? user.following.length
+                        : "0"}
+                    </Text>
+                    <Text style={[{ fontSize: 16, color: "#fff" }]}>
+                      following
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={[styles.center, { flex: 1 }]}>
+                    <Text
+                      style={[styles.bold, { fontSize: 22, color: "#fff" }]}
+                    >
+                      {user.posts && user.posts.length
+                        ? user.posts.length
+                        : "0"}
+                    </Text>
+                    <Text style={[{ fontSize: 16, color: "#fff" }]}>posts</Text>
+                  </TouchableOpacity>
+
+                  {/* <TouchableOpacity
+                    style={[styles.center, { flex: 1 }]}
+                    onPress={() =>
+                      this.props.navigation.navigate(
+                        "MyFollowersAndFollowing",
+                        {
+                          data: "Following",
+                          route: state.routeName,
+                        }
+                      )
+                    }
+                  >
+                    <Text
+                      style={[styles.bold, { fontSize: 22, color: "#fff" }]}
+                    >
+                      {user.following && user.following.length
+                        ? user.following.length
+                        : "0"}
+                    </Text>
+                    <Text style={[{ fontSize: 16, color: "#fff" }]}>likes</Text>
+                  </TouchableOpacity> */}
+                </View>
+
+                {/* <View
                   style={[
                     styles.row,
                     {
                       width: "100%",
                       marginBottom: Scale.moderateScale(32),
-                      // justifyContent: "center",
                       alignItems: "center",
                     },
                   ]}
@@ -1044,7 +1019,6 @@ class Profile extends React.Component {
                         routeName: state.routeName,
                         title: user.username,
                       });
-                      // this.RBSheet.open()
                     }}
                   >
                     <Image
@@ -1055,15 +1029,7 @@ class Profile extends React.Component {
                       source={require("../assets/logo-3.png")}
                     />
                   </TouchableOpacity>
-                  {/* <Text
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: 18,
-                      color: "rgb(255,255,255)",
-                    }}
-                  >
-                    @ {user.username}
-                  </Text> */}
+             
                   {this.props.user.uid != user.uid ? (
                     !userblocked &&
                     this.props.user.following &&
@@ -1101,7 +1067,7 @@ class Profile extends React.Component {
                       </TouchableOpacity>
                     )
                   ) : null}
-                </View>
+                </View> */}
                 {/* <TouchableOpacity
                   style={{
                     alignSelf: "center",
@@ -1130,7 +1096,7 @@ class Profile extends React.Component {
                 >
                   {user.userbio}
                 </Text> */}
-                <Text
+                {/* <Text
                   style={{
                     fontWeight: "bold",
                     marginBottom: Scale.moderateScale(16),
@@ -1139,103 +1105,151 @@ class Profile extends React.Component {
                   }}
                 >
                   {"swipe up"}
-                </Text>
+                </Text> */}
+              </View>
+            </View>
+
+            <View
+              style={[
+                {
+                  position: "absolute",
+                  top: 40,
+                  width: "100%",
+                },
+              ]}
+            >
+              <View style={[styles.row, {}]}>
+                {state.routeName === "Profile" && (
+                  <TouchableOpacity
+                    style={{
+                      // alignItems: "center",
+                      marginLeft: Scale.moderateScale(16),
+                      shadowOpacity: 0.5,
+                      padding: Scale.moderateScale(5),
+                    }}
+                    onPress={() => {
+                      this.props.navigation.goBack();
+                    }}
+                  >
+                    <Ionicons
+                      style={{
+                        margin: 0,
+                        color: "rgb(255,255,255)",
+                      }}
+                      name="ios-arrow-back"
+                      size={32}
+                    />
+                  </TouchableOpacity>
+                )}
+
+                <View
+                  style={{
+                    flex: 1,
+                    marginHorizontal: Scale.moderateScale(16),
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.row,
+                      {
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                      },
+                    ]}
+                  >
+                    {/* <TouchableOpacity
+                      style={{
+                        justifyContent: "center",
+                        flex: 1,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: Scale.moderateScale(20),
+                          color: "rgb(255,255,255)",
+                          // ...constants.fonts.FreightSansLight,
+                        }}
+                      >
+                        {user.username}
+                      </Text>
+                    </TouchableOpacity> */}
+
+                    {/* {this.props.user.uid != user.uid ? (
+                      !userblocked &&
+                      this.props.user.following &&
+                      this.props.user.following.indexOf(user.uid) < 0 ? (
+                        <TouchableOpacity
+                          onPress={() => this.follow(user)}
+                          style={{ marginHorizontal: Scale.moderateScale(10) }}
+                        >
+                          <Text
+                            style={{
+                              color: "#00ff00",
+                              fontWeight: "bold",
+                              padding: Scale.moderateScale(5),
+                              fontSize: Scale.moderateScale(14),
+                            }}
+                          >
+                            +follow
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => this.follow(user)}
+                          style={{ marginHorizontal: Scale.moderateScale(10) }}
+                        >
+                          <Text
+                            style={{
+                              color: "rgb(215, 80, 80)",
+                              fontWeight: "bold",
+                              padding: Scale.moderateScale(5),
+                              fontSize: Scale.moderateScale(14),
+                            }}
+                          >
+                            unfollow
+                          </Text>
+                        </TouchableOpacity>
+                      )
+                    ) : null} */}
+
+                    <TouchableOpacity
+                      style={{
+                        alignItems: "center",
+                        marginLeft: Scale.moderateScale(20),
+                        padding: Scale.moderateScale(5),
+                      }}
+                      onPress={() => this.openProfileActions(user)}
+                    >
+                      <Ionicons
+                        style={{
+                          margin: 0,
+                          color: "rgb(255,255,255)",
+                        }}
+                        name="ios-more"
+                        size={32}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {/* <Text
+                    numberOfLines={2}
+                    style={[
+                      styles.textF,
+                      styles.white,
+                      {
+                        fontWeight: "300",
+                        fontSize: Scale.moderateScale(15),
+                        textAlign: "left",
+                        flex: 1,
+                      },
+                    ]}
+                  >
+                    {user.userbio}
+                  </Text> */}
+                </View>
               </View>
             </View>
           </ImageBackground>
-          {/* <View
-            style={[
-              styles.row,
-              styles.space,
-              styles.followBar,
-              { marginTop: 0 },
-            ]}
-          >
-            <TouchableOpacity
-              style={[styles.center, { flexDirection: "row" }]}
-              onPress={() =>
-                this.props.navigation.navigate("MyFollowersAndFollowing", {
-                  data: "Followers",
-                  route: state.routeName,
-                })
-              }
-            >
-              <Text style={[styles.bold, styles.textF]}>
-                {user.followers && user.followers.length
-                  ? user.followers.length
-                  : "0"}
-              </Text>
-              <Text style={[styles.bold, styles.textF]}> followers</Text>
-            </TouchableOpacity>
-
-            {state.routeName === "MyProfile" ||
-            this.props.user.uid === user.uid ? (
-              <Button
-                bordered
-                dark
-                onPress={() => this.props.navigation.navigate("Edit")}
-              >
-                <Text
-                  style={[
-                    styles.small,
-                    styles.bold,
-                    { marginRight: 10, marginLeft: 10 },
-                  ]}
-                >
-                  EDIT PROFILE
-                </Text>
-              </Button>
-            ) : (
-              <Button
-                bordered
-                danger={
-                  user.followers &&
-                  user.followers.indexOf(this.props.user.uid) >= 0
-                }
-                info={
-                  !(
-                    user.followers &&
-                    user.followers.indexOf(this.props.user.uid) >= 0
-                  )
-                }
-                onPress={() => {
-                  userblocked ? this.unBlockUser(user) : this.follow(user);
-                }}
-              >
-                <NText
-                  style={[
-                    styles.small,
-                    styles.bold,
-                    { marginRight: 10, marginLeft: 10 },
-                  ]}
-                >
-                  {userblocked
-                    ? "Unblock"
-                    : this.props.user.following &&
-                      this.props.user.following.indexOf(user.uid) >= 0
-                    ? "UNFOLLOW"
-                    : "FOLLOW"}
-                </NText>
-              </Button>
-            )}
-
-            <TouchableOpacity
-              style={[styles.center, { flexDirection: "row" }]}
-              onPress={() =>
-                this.props.navigation.navigate("MyFollowersAndFollowing", {
-                  data: "Following",
-                  route: state.routeName,
-                })
-              }
-            >
-              <Text style={[styles.bold, styles.textF]}>
-                {user.following && user.following.length
-                  ? user.following.length
-                  : "0"}
-              </Text>
-              <Text style={[styles.bold, styles.textF]}> following</Text>
-            </TouchableOpacity>
-          </View> */}
 
           {!userblocked && (
             <FlatList
@@ -1250,7 +1264,7 @@ class Profile extends React.Component {
               extraData={user}
               onViewableItemsChanged={this._onViewableItemsChanged}
               viewabilityConfig={viewabilityConfig}
-              removeClippedSubviews={true}
+              // removeClippedSubviews={true}
               keyExtractor={(item, index) => [item.id, index]}
               onEndReachedThreshold={0.4}
               renderItem={({ item, index }) => {
@@ -1322,21 +1336,6 @@ class Profile extends React.Component {
             <Dialog.Button label="Update" onPress={this.handleOnUpdate} />
           </Dialog.Container>
         </ScrollView>
-        <RBSheet
-          ref={(ref) => {
-            this.RBSheet = ref;
-          }}
-          height={height * 1}
-          openDuration={250}
-          customStyles={{
-            container: {
-              // justifyContent: "center",
-              // alignItems: "center",
-            },
-          }}
-        >
-          {this.getProfileComponent(user)}
-        </RBSheet>
       </View>
     );
   }
@@ -1357,6 +1356,7 @@ const mapDispatchToProps = (dispatch) => {
       logout,
       updateBio,
       updateUser,
+      preloadUserImages,
       updateWebsiteLabel,
     },
     dispatch

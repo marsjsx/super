@@ -8,7 +8,6 @@ import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
 import Swipeout from "react-native-swipeout";
 import Snackbar from "react-native-snackbar";
-
 import {
   View,
   FlatList,
@@ -37,27 +36,28 @@ import {
   Thumbnail,
 } from "native-base";
 import { Ionicons } from "react-native-vector-icons";
+import Scale from "../helpers/Scale";
 
 class Messages extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    //Show Header by returning header
-    return {
-      headerRight: (
-        <TouchableOpacity
-          style={{ marginRight: 24 }}
-          onPress={navigation.getParam("newMessage")}
-        >
-          <Ionicons
-            style={{
-              color: "#000",
-            }}
-            name="ios-create"
-            size={32}
-          />
-        </TouchableOpacity>
-      ),
-    };
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   //Show Header by returning header
+  //   return {
+  //     headerRight: (
+  //       <TouchableOpacity
+  //         style={{ marginRight: 24 }}
+  //         onPress={navigation.getParam("newMessage")}
+  //       >
+  //         <Ionicons
+  //           style={{
+  //             color: "#000",
+  //           }}
+  //           name="md-add"
+  //           size={32}
+  //         />
+  //       </TouchableOpacity>
+  //     ),
+  //   };
+  // };
 
   constructor(props) {
     super(props);
@@ -71,8 +71,25 @@ class Messages extends React.Component {
     if (!this.props.messages) {
       this.props.getMessages();
     }
-    this.props.navigation.setParams({
-      newMessage: this.goToNewMessage,
+    // this.props.navigation.setParams({
+    //   newMessage: this.goToNewMessage,
+    // });
+
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 24 }}
+          onPress={() => this.goToNewMessage()}
+        >
+          <Ionicons
+            style={{
+              color: "#000",
+            }}
+            name="md-add"
+            size={32}
+          />
+        </TouchableOpacity>
+      ),
     });
   };
 
@@ -231,7 +248,10 @@ class Messages extends React.Component {
                     <Left>
                       <ProgressiveImage
                         thumbnailSource={{
-                          uri: item.user.preview,
+                          uri:
+                            item.user.preview && item.user.preview.length > 10
+                              ? item.user.preview
+                              : item.user.photo,
                         }}
                         transparentBackground="transparent"
                         source={{ uri: item.user.photo }}
@@ -298,7 +318,14 @@ const LastMessage = ({
   <View>
     {props.name ? <MaterialIcons size={size} color={color} {...props} /> : null}
 
-    <Text style={styles.gray}>{lastMessage}</Text>
+    <Text
+      style={[
+        styles.gray,
+        { fontSize: 16, marginLeft: Scale.moderateScale(5) },
+      ]}
+    >
+      {lastMessage}
+    </Text>
   </View>
 );
 const mapDispatchToProps = (dispatch) => {

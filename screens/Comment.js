@@ -8,10 +8,13 @@ import {
   TextInput,
   FlatList,
   KeyboardAvoidingView,
+  Dimensions,
   TouchableHighlight,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+const { height, width } = Dimensions.get("window");
+
 import { addComment, getComments, likePost, unlikePost } from "../actions/post";
 import moment from "moment";
 import EmptyView from "../component/emptyview";
@@ -19,6 +22,9 @@ import FastImage from "react-native-fast-image";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { getUser } from "../actions/user";
 import Scale from "../helpers/Scale";
+import ProgressiveImage from "../component/ProgressiveImage";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
 import {
   Ionicons,
   SimpleLineIcons,
@@ -32,13 +38,13 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 
 class Comment extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    const { params } = navigation.state;
+  // static navigationOptions = ({ navigation }) => {
+  //   const { params } = navigation.state;
 
-    return {
-      title: params.username,
-    };
-  };
+  //   return {
+  //     title: params.username,
+  //   };
+  // };
 
   constructor(props) {
     super(props);
@@ -119,109 +125,120 @@ class Comment extends React.Component {
     return (
       <View
         style={{
-          borderBottomColor: "grey",
-          borderBottomWidth: 0.5,
-          marginBottom: Scale.moderateScale(20),
+          // borderBottomColor: "grey",
+          // borderBottomWidth: 0.5,
+          backgroundColor: "#f0f8ff",
+          marginBottom: Scale.moderateScale(10),
         }}
       >
-        <View
-          style={{
-            margin: Scale.moderateScale(20),
-          }}
-        >
+        <View style={{ flexDirection: "row" }}>
+          <ProgressiveImage
+            thumbnailSource={{
+              uri: item.preview,
+            }}
+            source={{ uri: item.postPhoto }}
+            style={{
+              width: width * 0.55,
+              height: width * 0.85,
+              margin: 1,
+              backgroundColor: "#d3d3d3",
+            }}
+            type={item.type}
+            resizeMode="cover"
+          />
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
               alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
             }}
           >
             <TouchableOpacity
               style={{
                 alignItems: "center",
-                flex: 1,
+                marginVertical: Scale.moderateScale(10),
               }}
-              onPress={() => this.likePost(item)}
-            >
-              <Ionicons
-                style={{
-                  margin: 0,
-                }}
-                color={"#db565b"}
-                name={liked ? "ios-heart" : "ios-heart-empty"}
-                size={40}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                alignItems: "center",
-                flex: 1,
-              }}
-              onPress={() => this.props.navigation.navigate("Comment", item)}
-            >
-              <Icon name="message-circle" size={40} color="#7fff00" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                alignItems: "center",
-                flex: 1,
-              }}
-            >
-              <Text
-                style={[
-                  {
-                    fontSize: 16,
-                    textAlign: "center",
-                  },
-                ]}
-              >
-                Views
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: Scale.moderateScale(10),
-            }}
-          >
-            <TouchableOpacity
               onPress={() =>
                 this.props.navigation.navigate("LikersAndViewers", {
                   data: item.likes,
                   title: "Likes",
                 })
               }
-              style={{
-                alignItems: "center",
-                flex: 1,
-              }}
             >
               <Text
                 style={[
                   {
-                    fontSize: 16,
+                    fontSize: Scale.moderateScale(20),
                     textAlign: "center",
+                    fontWeight: "bold",
                   },
                 ]}
               >
                 {item.likes && item.likes.length > 0 ? item.likes.length : "-"}
               </Text>
+              <Text
+                style={[
+                  {
+                    fontSize: Scale.moderateScale(14),
+                    textAlign: "center",
+                    fontWeight: "500",
+                    marginTop: Scale.moderateScale(8),
+                  },
+                ]}
+              >
+                {"likes"}
+              </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={{
                 alignItems: "center",
-                flex: 1,
+                marginVertical: Scale.moderateScale(10),
+              }}
+              onPress={() =>
+                this.props.navigation.navigate("LikersAndViewers", {
+                  views: item.viewers,
+                  data: item.likes,
+                  flow: "Views",
+                  title: "Views and likes",
+                })
+              }
+            >
+              <Text
+                style={[
+                  {
+                    fontSize: Scale.moderateScale(20),
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  },
+                ]}
+              >
+                {item.viewers.length}
+              </Text>
+              <Text
+                style={[
+                  {
+                    fontSize: Scale.moderateScale(14),
+                    textAlign: "center",
+                    fontWeight: "500",
+                    marginTop: Scale.moderateScale(8),
+                  },
+                ]}
+              >
+                {"views"}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignItems: "center",
+                marginVertical: Scale.moderateScale(10),
               }}
             >
               <Text
                 style={[
                   {
-                    fontSize: 16,
+                    fontSize: Scale.moderateScale(20),
                     textAlign: "center",
+                    fontWeight: "bold",
                   },
                 ]}
               >
@@ -229,23 +246,17 @@ class Comment extends React.Component {
                   ? params.comments.length
                   : "-"}
               </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                alignItems: "center",
-                flex: 1,
-              }}
-            >
               <Text
                 style={[
                   {
-                    fontSize: 16,
+                    fontSize: Scale.moderateScale(14),
                     textAlign: "center",
+                    fontWeight: "500",
+                    marginTop: Scale.moderateScale(8),
                   },
                 ]}
               >
-                {item.viewers.length}
+                {"comments"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -259,9 +270,16 @@ class Comment extends React.Component {
     // alert(JSON.stringify(this.state.post));
 
     return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        style={[styles.container, { marginTop: 90 }]}
+      // <KeyboardAvoidingView
+      //   behavior={Platform.OS == "ios" ? "padding" : "height"}
+      //   style={[styles.container, { marginTop: 90 }]}
+      // >
+      // <View style={[styles.container]}>
+      <KeyboardAwareScrollView
+        style={{}}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        contentContainerStyle={styles.container}
+        scrollEnabled={false}
       >
         <View style={{ height: 0 }}>
           <EmptyView
@@ -272,44 +290,100 @@ class Comment extends React.Component {
           />
         </View>
         <View style={[styles.container, { top: 0 }]}>
-          {this.state.post && this.renderTopBar(this.state.post)}
-          {/* {this.renderTopBar(params)} */}
+          {/* {this.state.post && this.renderTopBar(this.state.post)} */}
+          {this.renderTopBar(params)}
 
           {/* <KeyboardAvoidingView
-            enabled
-            behavior="padding"
+            behavior={Platform.OS == "ios" ? "padding" : "height"}
             style={[styles.container]}
           > */}
+          {params &&
+            params.postDescription &&
+            params.postDescription.length > 2 && (
+              <View
+                style={[
+                  styles.row,
+                  styles.space,
+                  {
+                    borderBottomColor: "grey",
+                    borderBottomWidth: 0.3,
+                    marginHorizontal: 8,
+                    marginBottom: 10,
+                  },
+                ]}
+              >
+                <TouchableOpacity>
+                  <FastImage
+                    style={styles.roundImage}
+                    source={{ uri: params.photo }}
+                  />
+                </TouchableOpacity>
+                <View style={[styles.container, styles.left]}>
+                  <Text style={styles.bold}>
+                    {params.username}{" "}
+                    <Text style={[styles.black, { fontWeight: "400" }]}>
+                      {params.postDescription}
+                    </Text>
+                  </Text>
+
+                  <Text style={[styles.black, styles.bold, styles.medium]}>
+                    {moment(params.date).format("ll")}
+                  </Text>
+                </View>
+              </View>
+            )}
+
           <FlatList
             keyExtractor={(item) => JSON.stringify(item.date)}
             data={this.props.post.comments}
             renderItem={({ item }) => (
-              <View style={[styles.row, styles.space]}>
+              <View
+                style={[
+                  styles.row,
+                  styles.space,
+                  {
+                    // borderBottomColor: "grey",
+                    // borderBottomWidth: 0.4,
+                    marginHorizontal: 8,
+                  },
+                ]}
+              >
                 <TouchableOpacity
                   onPress={() => this.goToUser(item.commenterId)}
                 >
                   <FastImage
-                    style={styles.roundImage60s}
+                    style={styles.roundImage}
                     source={{ uri: item.commenterPhoto }}
                   />
                 </TouchableOpacity>
                 <View style={[styles.container, styles.left]}>
-                  <Text style={styles.bold}>{item.commenterName}</Text>
-                  <Text style={styles.grey}>{item.comment}</Text>
-                  <Text style={[styles.grey, styles.medium]}>
+                  <Text style={styles.bold}>
+                    {item.commenterName}{" "}
+                    <Text style={[styles.black, { fontWeight: "400" }]}>
+                      {item.comment}
+                    </Text>
+                  </Text>
+
+                  <Text style={[styles.black, styles.bold, styles.medium]}>
                     {moment(item.date).format("ll")}
                   </Text>
                 </View>
               </View>
             )}
           />
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: 10,
+            }}
+          >
             <TextInput
               style={[styles.input, {}]}
               onChangeText={(comment) => this.setState({ comment })}
               value={this.state.comment}
               returnKeyType="done"
-              multiline
+              // multiline
               scrollEnabled={false}
               maxLength={255}
               placeholder="Add Comment"
@@ -322,10 +396,10 @@ class Comment extends React.Component {
               <Text style={{ color: "blue" }}>Send</Text>
             </TouchableOpacity>
           </View>
-
+          {/* <View style={{ height: 60 }} /> */}
           {/* </KeyboardAvoidingView> */}
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     );
   }
 }

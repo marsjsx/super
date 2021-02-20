@@ -36,11 +36,9 @@ import appleAuth, {
   AppleButton,
 } from "@invertase/react-native-apple-authentication";
 
-import AuthNavigator from "../navigation/SwitchNavigator";
 import { name as appName } from "../app.json";
 // import { TouchableOpacity } from "react-native-gesture-handler";
 
-// import AuthNavigator from './AuthNavigator.js'
 
 const { height, width } = Dimensions.get("window");
 
@@ -285,7 +283,6 @@ Signup
             </Container>
 
             {/* <Splash navigation = {this.props.navigation}/> */}
-            {/* <AuthNavigator /> */}
           </RBSheet>
         </View>
       );

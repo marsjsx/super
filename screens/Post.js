@@ -6,7 +6,6 @@ import { bindActionCreators } from "redux";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as ExpoImagePicker from "expo-image-picker";
-import { NavigationEvents } from "react-navigation";
 import { ProcessingManager } from "react-native-video-processing";
 import Loader from "../component/Loader";
 import EmptyView from "../component/emptyview";
@@ -35,6 +34,7 @@ import {
   SafeAreaView,
   Text,
   View,
+  Platform,
   TextInput,
   Image,
   TouchableOpacity,
@@ -116,33 +116,33 @@ const filters = [
   // "Xpro2",
 ];
 class Post extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    if (
-      navigation.state.params &&
-      navigation.state.params.fullscreen === false
-    ) {
-      //Hide Header by returning null
-      return { header: null };
-    } else {
-      //Show Header by returning header
-      return {
-        headerRight: (
-          <TouchableOpacity onPress={navigation.getParam("onNext")}>
-            <Text
-              style={{
-                color: "dodgerblue",
-                fontWeight: "bold",
-                padding: 5,
-                fontSize: 16,
-              }}
-            >
-              Next{" "}
-            </Text>
-          </TouchableOpacity>
-        ),
-      };
-    }
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   if (
+  //     navigation.state.params &&
+  //     navigation.state.params.fullscreen === false
+  //   ) {
+  //     //Hide Header by returning null
+  //     return { header: null };
+  //   } else {
+  //     //Show Header by returning header
+  //     return {
+  //       headerRight: (
+  //         <TouchableOpacity onPress={navigation.getParam("onNext")}>
+  //           <Text
+  //             style={{
+  //               color: "dodgerblue",
+  //               fontWeight: "bold",
+  //               padding: 5,
+  //               fontSize: 16,
+  //             }}
+  //           >
+  //             Next{" "}
+  //           </Text>
+  //         </TouchableOpacity>
+  //       ),
+  //     };
+  //   }
+  // };
 
   constructor(props) {
     super(props);
@@ -304,7 +304,11 @@ class Post extends React.Component {
       this.openLibrary();
     } else if (this.props.post.photo.type === "image") {
       // alert(JSON.stringify(this.props.post.photo));
-      this.onFullScreen();
+      if (Platform.OS === "android") {
+        this.cropImage();
+      } else {
+        this.onFullScreen();
+      }
     } else if (this.props.post.photo.type === "vr") {
       this.cropImage("vr");
     }
@@ -389,21 +393,25 @@ class Post extends React.Component {
 
   cropImage = async (type) => {
     // alert(JSON.stringify(this.props.post.photo.uri));
+
+    var scalingFactor =
+      this.props.post.photo.height / this.props.post.photo.width;
+
+    var imageWidth = this.props.post.photo.width;
+    var imageHeight = this.props.post.photo.height;
+
+    if (this.props.post.photo.width > 7000) {
+      imageWidth = 7000;
+      imageHeight = imageHeight * scalingFactor;
+    }
+
     await ImagePicker.openCropper({
       path: this.props.post.photo.uri,
       cropping: true,
-      width: this.props.post.photo.width,
-      height: this.props.post.photo.height,
-      // width: type
-      //   ? this.props.post.photo.width < 7000
-      //     ? this.props.post.photo.width
-      //     : 7000
-      //   : 1400,
-      // height: type
-      //   ? this.props.post.photo.height < 4000
-      //     ? this.props.post.photo.height
-      //     : 4000
-      //   : 2600,
+      // width: this.props.post.photo.width,
+      // height: this.props.post.photo.height,
+      width: type ? imageWidth : width * 1.5,
+      height: type ? imageHeight : height * 1.5,
       compressImageQuality: 0.8,
     })
       .then((image) => {
@@ -587,7 +595,9 @@ class Post extends React.Component {
       });
   }
   onEnd = () => {
-    this.videoPlayerRef.seek(this.state.startTime);
+    if (Platform.OS === "ios") {
+      this.videoPlayerRef.seek(this.state.startTime);
+    }
   };
 
   handleOnPress = () => {
@@ -730,6 +740,7 @@ class Post extends React.Component {
                 paused={this.state.paused}
                 onProgress={this.onProgress}
                 resizeMode="cover"
+                repeat={true}
               />
               {this.state.paused ? (
                 <View
@@ -977,7 +988,7 @@ class Post extends React.Component {
     const { width, height, uri, type } = this.props.post.photo;
     const { navigate } = this.props.navigation;
 
-    if (type == "image" && !this.state.isCropped) {
+    if (type == "image" && Platform.OS === "ios" && !this.state.isCropped) {
       return (
         <CropperPage
           photo={this.props.post.photo}

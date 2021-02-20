@@ -6,7 +6,6 @@ import { bindActionCreators } from "redux";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as ExpoImagePicker from "expo-image-picker";
-import { NavigationEvents } from "react-navigation";
 import { ProcessingManager } from "react-native-video-processing";
 import Loader from "../component/Loader";
 import EmptyView from "../component/emptyview";
@@ -119,24 +118,24 @@ const filters = [
   // "Xpro2",
 ];
 class VideoCover extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      headerRight: (
-        <TouchableOpacity onPress={navigation.getParam("onNext")}>
-          <Text
-            style={{
-              color: "dodgerblue",
-              fontWeight: "bold",
-              padding: 5,
-              fontSize: 16,
-            }}
-          >
-            Next{" "}
-          </Text>
-        </TouchableOpacity>
-      ),
-    };
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   return {
+  //     headerRight: (
+  //       <TouchableOpacity onPress={navigation.getParam("onNext")}>
+  //         <Text
+  //           style={{
+  //             color: "dodgerblue",
+  //             fontWeight: "bold",
+  //             padding: 5,
+  //             fontSize: 16,
+  //           }}
+  //         >
+  //           Next{" "}
+  //         </Text>
+  //       </TouchableOpacity>
+  //     ),
+  //   };
+  // };
 
   constructor(props) {
     super(props);

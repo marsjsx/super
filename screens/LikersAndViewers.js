@@ -22,23 +22,17 @@ import {
 } from "@expo/vector-icons";
 import { Badge, Button, Left, Right, Body } from "native-base";
 
-import {
-  View,
-  FlatList,
-  Text,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import moment from "moment";
 import { groupBy, values } from "lodash";
 var self;
 
 class LikersAndViewers extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: navigation.getParam("title", ""),
-    };
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   return {
+  //     title: navigation.getParam("title", ""),
+  //   };
+  // };
 
   constructor(props) {
     super(props);
@@ -127,8 +121,9 @@ class LikersAndViewers extends React.Component {
     }
   };
   goToUser = (user) => {
-    this.props.getUser(user.uid);
-    this.props.navigation.navigate("Profile");
+    // this.props.getUser(user.uid);
+    // this.props.navigation.navigate("Profile");
+    this.props.navigation.navigate("Profile", { uid: user.uid });
   };
   follow = (item) => {
     if (!this.props.user.uid) {

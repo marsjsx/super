@@ -10,6 +10,7 @@ import { validURL } from "../util/Helper";
 import RNFetchBlob from "rn-fetch-blob";
 var base64 = require("base-64");
 import storage from "@react-native-firebase/storage";
+import messaging from "@react-native-firebase/messaging";
 
 import * as FileSystem from "expo-file-system";
 
@@ -200,40 +201,108 @@ export function functionUploadPhoto(image) {
   };
 }
 
-export const allowNotifications = () => {
+export const allowNotifications = (uid = null) => {
   return async (dispatch, getState) => {
-    const { uid } = getState().user;
+    // const { uid } = getState().user;
     try {
-      const permission = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-      if (permission.status === "granted") {
-        const token = await Notifications.getExpoPushTokenAsync();
-        dispatch({ type: "GET_TOKEN", payload: token });
-        db.collection("users").doc(uid).update({ token: token });
+      // const permission = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      // if (permission.status === "granted") {
+      //   const token = await Notifications.getExpoPushTokenAsync();
+      //   dispatch({ type: "GET_TOKEN", payload: token });
+      //   db.collection("users").doc(uid).update({ token: token });
+      // }
+
+      const authStatus = await messaging().requestPermission();
+
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled && uid) {
+        let _deviceToken = "";
+        _deviceToken = await messaging().getToken();
+        // alert(_deviceToken);
+        // this.setState({deviceToken: _deviceToken});
+        dispatch({ type: "GET_TOKEN", payload: _deviceToken });
+        db.collection("users").doc(uid).update({ token: _deviceToken });
       }
     } catch (e) {
-      /* console.error(e) */
+      console.error(e);
     }
   };
 };
 
-export const sendNotification = (uid, text) => {
+// export const sendNotification = (uid, text) => {
+//   return async (dispatch, getState) => {
+//     const { username } = getState().user;
+//     try {
+//       const user = await db.collection("users").doc(uid).get();
+//       if (user.data().token) {
+//         fetch(PUSH_ENDPOINT, {
+//           method: "POST",
+//           headers: {
+//             Accept: "application/json",
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify({
+//             to: user.data().token,
+//             title: username,
+//             body: text,
+//           }),
+//         });
+//       }
+//     } catch (e) {
+//       /* console.error(e) */
+//     }
+//   };
+// };
+
+export const sendNotification = (uid, title, body, type = "") => {
   return async (dispatch, getState) => {
     const { username } = getState().user;
     try {
       const user = await db.collection("users").doc(uid).get();
       if (user.data().token) {
-        fetch(PUSH_ENDPOINT, {
+        fetch("https://fcm.googleapis.com/fcm/send", {
           method: "POST",
+          //Request Type,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
+            Authorization:
+              "key=AAAA4HJkUpY:APA91bEvbKhFHidOYHnsJP2WWGTc87VtNAHAEMaI_KI9kN5g_7RoC3cWlmBzGvxdqwxl_U_T709ZvhqX5sajXBpk4Hz7xH3FPHrGZYfDliWIygBzjVTkuMHN6AgozPe1Il0nno39Wfzb",
+            // Authorization:
+            //   "key=AAAAwtsVY_k:APA91bEFV8JHcReg15ZTg1Tk5T9MX3SVP9aVftfpJQjBaGtaczFeZDl-Hk0oqTDvaiwbdMFIREXwHIY7CcJ-whWSJi1gQRccRoqoReAgaPX84SRTM9aLWWXp-oWY7u3aOnia0nlMtti5",
           },
           body: JSON.stringify({
+            data: {
+              // title: "New Text Message",
+              // image: "https://firebase.google.com/images/social.png",
+              // message: "Hello how are you?",
+              type: type,
+            },
+            notification: {
+              title: title,
+              body: body,
+            },
+            // Required for background/quit data-only messages on iOS
+            contentAvailable: true,
+            // Required for background/quit data-only messages on Android
+            priority: "high",
             to: user.data().token,
-            title: username,
-            body: text,
           }),
-        });
+        })
+          .then((response) => response.json())
+          //If response is in json then in success
+          .then((responseJson) => {
+            //Success
+            console.log(responseJson);
+          })
+          //If response is not in json then in error
+          .catch((error) => {
+            //Error
+            console.error(error);
+          });
       }
     } catch (e) {
       /* console.error(e) */

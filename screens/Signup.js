@@ -333,20 +333,38 @@ class Signup extends React.Component {
       <View style={[styles.container, { width: "100%", height: "100%" }]}>
         {routeName === "Signup" ? (
           <ImageBackground
-            source={require("../temp/white-grey-back.png")}
-            style={[styles.container, styles.center]}
+            style={[
+              styles.container,
+              styles.center,
+              { backgroundColor: "white" },
+            ]}
           >
             <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
               <ScrollView
                 style={[{ width: "100%" }]}
-                contentContainerStyle={[styles.center]}
+                contentContainerStyle={[
+                  { paddingHorizontal: Scale.moderateScale(24) },
+                ]}
               >
-                <Image
-                  style={[styles.logo2]}
-                  source={require("../assets/logo-2.png")}
-                />
+                <Text
+                  style={{
+                    fontSize: Scale.moderateScale(30),
+                    color: "#000",
+                    marginTop: "30%",
+                    fontWeight: "bold",
+                    width: "80%",
+                  }}
+                >
+                  {`Welcome to\nl l l s u p e r l l l !`}
+                </Text>
 
-                <Item floatingLabel style={[styles.textInput]}>
+                <Item
+                  floatingLabel
+                  style={[
+                    styles.textInput,
+                    { marginTop: Scale.moderateScale(40) },
+                  ]}
+                >
                   <Label style={{ fontWeight: "500" }}>Email</Label>
                   <Input
                     value={this.props.user.email}
@@ -357,7 +375,12 @@ class Signup extends React.Component {
                   <Label style={{ fontWeight: "500" }}>Username</Label>
                   <Input
                     value={this.props.user.username}
-                    onChangeText={(input) => this.props.updateUsername(input)}
+                    autoCapitalize="none"
+                    onChangeText={(input) =>
+                      this.props.updateUsername(
+                        input.replace(/\s/g, "").toLowerCase()
+                      )
+                    }
                   />
                 </Item>
                 <Item floatingLabel style={[styles.textInput]}>
@@ -377,11 +400,32 @@ class Signup extends React.Component {
                   />
                 </Item> */}
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={[styles.buttonSignup, { marginTop: 40 }]}
                   onPress={this.onPress}
                 >
                   <Text style={styles.textA}>Signup</Text>
+                </TouchableOpacity> */}
+                <TouchableOpacity
+                  style={[
+                    styles.buttonLogin1,
+                    styles.center,
+                    {
+                      marginTop: 40,
+                    },
+                  ]}
+                  onPress={this.onPress}
+                >
+                  <Text style={styles.textA}> SIGNUP </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[{ marginTop: 40 }]}
+                  onPress={() => this.props.navigation.navigate("Login")}
+                >
+                  <Text style={[styles.textB, { letterSpacing: 0 }]}>
+                    BACK TO LOGIN
+                  </Text>
                 </TouchableOpacity>
                 {/* <TouchableOpacity
                   style={[styles.buttonFacebook]}
@@ -399,7 +443,7 @@ class Signup extends React.Component {
                   />
                 )} */}
 
-                <Subtitle
+                {/* <Subtitle
                   style={{
                     textAlign: "center",
                     margin: 10,
@@ -429,14 +473,14 @@ class Signup extends React.Component {
                     {" "}
                     Privacy policy
                   </Text>{" "}
-                </Subtitle>
+                </Subtitle> */}
               </ScrollView>
             </KeyboardAvoidingView>
             {this.state.showLoading
               ? showLoader("Loading, Please wait... ")
               : null}
 
-            <Image source={require("../assets/logo.png")} resizeMode="center" />
+            {/* <Image source={require("../assets/logo.png")} resizeMode="center" /> */}
           </ImageBackground>
         ) : (
           <ScrollView>
@@ -446,7 +490,7 @@ class Signup extends React.Component {
                   uri: this.props.user.preview,
                 }}
                 source={{ uri: this.props.user.photo }}
-                style={[styles.profilePhoto, styles.bottomLine]}
+                style={[styles.profilePhotoSignup, styles.bottomLine]}
                 resizeMode="cover"
               />
               <ImageBackground
@@ -527,7 +571,12 @@ class Signup extends React.Component {
                     <Label>Username</Label>
                     <Input
                       value={this.props.user.username}
-                      onChangeText={(input) => this.props.updateUsername(input)}
+                      autoCapitalize="none"
+                      onChangeText={(input) =>
+                        this.props.updateUsername(
+                          input.replace(/\s/g, "").toLowerCase()
+                        )
+                      }
                     />
                   </Item>
 

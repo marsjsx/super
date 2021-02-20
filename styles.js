@@ -1,9 +1,12 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
 const { height, width } = Dimensions.get("window");
 const aspectRatio = width / height;
+import constants from "./constants";
 
-import { Header } from "react-navigation";
+// import { useHeaderHeight } from "@react-navigation/stack";
 import Scale from "./helpers/Scale";
+// const headerHeight = useHeaderHeight();
+const headerHeight = 80;
 
 export default styles = StyleSheet.create({
   container: {
@@ -138,6 +141,9 @@ export default styles = StyleSheet.create({
   medium: {
     fontSize: 12,
   },
+  textMedium: {
+    fontSize: 15,
+  },
   url: {
     color: "red",
     textDecorationLine: "underline",
@@ -271,7 +277,7 @@ export default styles = StyleSheet.create({
   },
   videoPlayer: {
     // height: height - (Header.HEIGHT + Scale.moderateScale(20)),
-    height: height - (Header.HEIGHT + Scale.moderateScale(40)),
+    height: height - (headerHeight + Scale.moderateScale(40)),
     width: width,
     // flex: 1,
     marginBottom: 0,
@@ -324,6 +330,14 @@ export default styles = StyleSheet.create({
   squareLarge: {
     width: width * 0.33,
     aspectRatio: aspectRatio,
+    // height: 170,
+    margin: 1,
+    backgroundColor: "#d3d3d3",
+  },
+  profilePosts: {
+    width: width * 0.33,
+    // aspectRatio: aspectRatio,
+    aspectRatio: 2 / 3,
     // height: 170,
     margin: 1,
     backgroundColor: "#d3d3d3",
@@ -406,6 +420,15 @@ export default styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0,
     borderColor: "rgba(200,100,200,0.8)",
+  },
+  buttonLogin1: {
+    marginTop: 15,
+    paddingTop: 11,
+    paddingBottom: 11,
+    flex: 1,
+    backgroundColor: constants.colors.superRed,
+    borderRadius: 5,
+    borderWidth: 0,
   },
   buttonApple: {
     marginTop: 15,
@@ -564,8 +587,9 @@ export default styles = StyleSheet.create({
     height: 20,
   },
   buttonForgot: {
-    marginTop: 60,
-    marginBottom: 60,
+    marginTop: 20,
+    marginBottom: 20,
+    alignSelf: "flex-end",
   },
   logo2: {
     width: 100,
@@ -725,10 +749,10 @@ export default styles = StyleSheet.create({
       },
     }),
   },
-  profilePhoto: {
-    height: height * 1,
-    width: width,
-  },
+  // profilePhoto: {
+  //   height: height * 1,
+  //   width: width,
+  // },
 
   profilePhoto22: {
     height: height * 0.6,
@@ -739,16 +763,35 @@ export default styles = StyleSheet.create({
     width: width,
   },
   profilePhoto: {
-    height: height * 1,
+    // height: height * 1 - width * 0.33 * 1.5,
+    width: width,
+    aspectRatio: 3 / 5,
+    height: "auto",
+  },
+  viewProfilePhoto: {
+    // height: height * 1 - width * 0.33 * 1.5,
+    width: width,
+    aspectRatio: 3 / 4,
+    height: "auto",
+  },
+  profilePhotoSmall: {
+    // width: Scale.moderateScale(50),
+    // aspectRatio: 3 / 5,
+    height: Scale.moderateScale(120),
+    aspectRatio: 3 / 5,
+    // width: 100,
+  },
+  profilePhotoSignup: {
+    height: height * 1 - width * 0.1,
     width: width,
   },
   profileLogo: {
-    ...Platform.select({
-      ios: {},
-      android: {
-        marginLeft: width / 2.5,
-      },
-    }),
+    // ...Platform.select({
+    //   ios: {},
+    //   android: {
+    //     marginLeft: width / 2.5,
+    //   },
+    // }),
     width: 50,
     height: 50,
   },
@@ -855,7 +898,7 @@ export default styles = StyleSheet.create({
   activeLabel: {
     fontWeight: "bold",
     padding: 5,
-    color: "#00ff00",
+    color: "rgb(215, 80, 80)",
     fontSize: Scale.moderateScale(16),
   },
   bottomwhiteborder: {

@@ -6,7 +6,6 @@ import { bindActionCreators } from "redux";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as ExpoImagePicker from "expo-image-picker";
-import { NavigationEvents } from "react-navigation";
 import { ProcessingManager } from "react-native-video-processing";
 import Loader from "../component/Loader";
 import EmptyView from "../component/emptyview";
@@ -15,7 +14,9 @@ import { PanoramaView } from "@lightbase/react-native-panorama-view";
 import Editor, { displayTextWithMentions } from "../component/mentioneditor";
 import db from "../config/firebase";
 import { cleanExtractedImagesCache } from "react-native-image-filter-kit";
-import { StackActions, NavigationActions } from "react-navigation";
+import { StackActions } from "@react-navigation/native";
+
+navigation.dispatch(StackActions.popToTop());
 import { showMessage, hideMessage } from "react-native-flash-message";
 import DropDownPicker from "../component/dropdownpicker";
 import _ from "lodash";
@@ -163,8 +164,6 @@ class PostCaption extends React.Component {
     this.props.navigation.navigate("Home");
   };
 
-  onWillFocus = () => {};
-
   getLocations = async () => {
     const permission = await await Location.requestPermissionsAsync();
     if (permission.status === "granted") {
@@ -306,8 +305,6 @@ class PostCaption extends React.Component {
             style={[{ width: "100%", height: "100%" }]}
             contentContainerStyle={{ alignItems: "center" }}
           >
-            <NavigationEvents onWillFocus={this.onWillFocus} />
-
             {/* <TouchableOpacity
               style={{
                 position: "absolute",
@@ -361,10 +358,13 @@ class PostCaption extends React.Component {
                     aspectRatio: 3 / 5,
                     // width: width * 0.16,
                   }}
+                  // source={{
+                  //   uri: filteredImage
+                  //     ? filteredImage
+                  //     : this.props.post.preview,
+                  // }}
                   source={{
-                    uri: filteredImage
-                      ? filteredImage
-                      : this.props.post.preview,
+                    uri: this.props.post.preview,
                   }}
                   resizeMode={"cover"}
                 />

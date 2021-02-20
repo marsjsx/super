@@ -2,6 +2,8 @@ import React from "react";
 import styles from "../styles";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import cloneDeep from "lodash/cloneDeep";
+
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -92,6 +94,7 @@ class PostListScreen extends React.Component {
       dialogVisible: false,
       reportReason: "",
       selectedPost: {},
+      userPosts: [],
     };
     this.start = this.start.bind(this);
   }
@@ -128,6 +131,10 @@ class PostListScreen extends React.Component {
       "open-sans-bold": require("../assets/fonts/OpenSans-Bold.ttf"),
     });
     this.setState({ fontLoaded: true });
+
+    const { userPosts } = this.props.navigation.state.params;
+
+    this.setState({ userPosts: userPosts });
   }
 
   componentWillUmount() {
@@ -155,20 +162,38 @@ class PostListScreen extends React.Component {
       this.props.unlikePost(post);
     } else {
       this.props.likePost(post);
+      this.likeUserPost();
     }
   };
 
+  likeUserPost(post) {
+    const { uid } = this.props.user;
+
+    if (this.state.userPosts && this.state.userPosts.length > 0) {
+      const feeds = cloneDeep(this.state.userPosts);
+      let updatedPosts = feeds.map((item) => {
+        if (item.id === post.id) {
+          item.likes.push(uid);
+          // alert("Called");
+        }
+
+        return item;
+      });
+
+      this.setState({ userPosts: updatedPosts });
+    }
+  }
   onDoubleTap = (post) => {
     if (!this.props.user.uid) {
       this.sheetRef.openSheet();
       return;
     }
-
     const { uid } = this.props.user;
     if (post.likes.includes(uid)) {
       // this.props.unlikePost(post);
     } else {
       this.props.likePost(post);
+      this.likeUserPost(post);
     }
   };
 
@@ -186,6 +211,13 @@ class PostListScreen extends React.Component {
   };
 
   _onViewableItemsChanged = (props) => {
+    var cells = Object.keys(this.cellRefs);
+    cells.forEach((item) => {
+      const cell = this.cellRefs[item];
+      if (cell) {
+        cell.pauseVideo();
+      }
+    });
     const changed = props.changed;
     changed.forEach((item) => {
       const cell = this.cellRefs[item.key];
@@ -646,7 +678,7 @@ class PostListScreen extends React.Component {
 
               {/* {this.getRightBar(item, liked)} */}
               <View style={[styles.bottom, styles.absolute, {}]}>
-                {(item.type == "video" || item.type == "image") && (
+                {item.type == "video" && (
                   <TouchableOpacity
                     style={{
                       width: Scale.moderateScale(45),
@@ -670,7 +702,7 @@ class PostListScreen extends React.Component {
                       style={{
                         backgroundColor: "transparent",
                         alignSelf: "center",
-                        shadowOpacity: 1,
+                        // shadowOpacity: 1,
                       }}
                     />
                   </TouchableOpacity>
@@ -703,10 +735,15 @@ class PostListScreen extends React.Component {
 
                 {item.likes && item.likes.length > -1 ? (
                   <TouchableOpacity
+                    // onPress={() =>
+                    //   this.props.navigation.navigate("Comment", item)
+                    // }
                     onPress={() =>
                       this.props.navigation.navigate("LikersAndViewers", {
+                        views: item.viewers,
                         data: item.likes,
-                        title: "Likes",
+                        flow: "Views",
+                        title: "Views and likes",
                       })
                     }
                     style={{
@@ -718,7 +755,7 @@ class PostListScreen extends React.Component {
                     <Text
                       style={{
                         fontFamily: "open-sans-bold",
-                        color: constants.colors.superRed,
+                        color: constants.colors.feedsStatsColor,
                         marginHorizontal: 10,
                         marginVertical: 2,
                       }}
@@ -741,7 +778,7 @@ class PostListScreen extends React.Component {
                     <Text
                       style={{
                         fontFamily: "open-sans-bold",
-                        color: constants.colors.superRed,
+                        color: constants.colors.feedsStatsColor,
                         marginHorizontal: 10,
                         marginVertical: 2,
                       }}
@@ -765,7 +802,7 @@ class PostListScreen extends React.Component {
                     <Text
                       style={{
                         fontFamily: "open-sans-bold",
-                        color: constants.colors.superRed,
+                        color: constants.colors.feedsStatsColor,
                         margin: 10,
                         marginVertical: 2,
                       }}
@@ -791,9 +828,9 @@ class PostListScreen extends React.Component {
                 <View style={[styles.row, {}]}>
                   <TouchableOpacity onPress={() => this.goToUser(item)}>
                     <ProgressiveImage
-                      // thumbnailSource={{
-                      //   uri: item.preview,
-                      // }}
+                      thumbnailSource={{
+                        uri: item.preview,
+                      }}
                       transparentBackground="transparent"
                       source={{ uri: item.photo }}
                       style={styles.roundImage}
@@ -801,8 +838,7 @@ class PostListScreen extends React.Component {
                   </TouchableOpacity>
                   <View
                     style={{
-                      width: "85%",
-                      // backgroundColor: "black",
+                      width: "77%",
                       // justifyContent: "center",
                     }}
                   >
@@ -827,7 +863,7 @@ class PostListScreen extends React.Component {
                           <Text
                             style={{
                               fontWeight: "bold",
-                              fontSize: Scale.moderateScale(14),
+                              fontSize: Scale.moderateScale(16),
                               color: "rgb(255,255,255)",
                               // ...constants.fonts.FreightSansLight,
                             }}
@@ -842,7 +878,10 @@ class PostListScreen extends React.Component {
                         this.props.user.following.indexOf(item.uid) < 0 && (
                           <TouchableOpacity
                             onPress={() => this.follow(item)}
-                            style={{ marginLeft: Scale.moderateScale(10) }}
+                            style={{
+                              marginLeft: Scale.moderateScale(6),
+                              padding: 4,
+                            }}
                           >
                             <Text
                               style={{
@@ -859,7 +898,8 @@ class PostListScreen extends React.Component {
                       <TouchableOpacity
                         style={{
                           alignItems: "center",
-                          marginLeft: Scale.moderateScale(10),
+                          marginLeft: Scale.moderateScale(6),
+                          padding: 4,
                         }}
                         onPress={() => this.showActionSheet(item)}
                       >
@@ -872,7 +912,7 @@ class PostListScreen extends React.Component {
                           size={40}
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity
+                      {/* <TouchableOpacity
                         onPress={() => this.props.navigation.goBack()}
                       >
                         <Ionicons
@@ -884,7 +924,7 @@ class PostListScreen extends React.Component {
                           color="#fff"
                           size={40}
                         ></Ionicons>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
 
                     <View style={{}}>
@@ -936,10 +976,15 @@ class PostListScreen extends React.Component {
 
   render() {
     let posts = {};
-    const { route, selectedIndex } = this.props.navigation.state.params;
+    const {
+      route,
+      selectedIndex,
+      userPosts,
+    } = this.props.navigation.state.params;
 
     if (route === "Profile") {
-      posts = this.props.profile.posts;
+      // posts = userPosts;
+      posts = this.state.userPosts;
     } else if (route === "Search") {
       posts = this.props.post.feed;
     } else {
@@ -959,7 +1004,7 @@ class PostListScreen extends React.Component {
     if (this.props.post === null) return null;
     return (
       <View
-        style={[styles.fullScreen, styles.center]}
+        style={[styles.postPhoto, styles.center]}
         // onLayout={() => this.onLayout()}
       >
         {/* {alert(JSON.stringify(posts))} */}
@@ -1020,6 +1065,22 @@ class PostListScreen extends React.Component {
           <Dialog.Button label="Cancel" onPress={this.handleCancel} />
           <Dialog.Button label="Report" onPress={this.handleReport} />
         </Dialog.Container>
+
+        {/* <View style={[{ position: "absolute", top: 40 }]}> */}
+        <TouchableOpacity
+          style={[
+            { position: "absolute", top: 40, right: 0, shadowOpacity: 0.5 },
+          ]}
+          onPress={() => this.props.navigation.goBack()}
+        >
+          <Ionicons
+            style={[styles.icon, { marginHorizontal: Scale.moderateScale(4) }]}
+            name="ios-close"
+            color="#fff"
+            size={45}
+          ></Ionicons>
+        </TouchableOpacity>
+        {/* </View> */}
       </View>
     );
   }

@@ -19,21 +19,36 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { validURL } from "../util/Helper";
 import { showLoader } from "../util/Loader";
 import { AntDesign } from "react-native-vector-icons";
+import { validURL, openSettingsDialog } from "../util/Helper";
 
 import {
   followUser,
   unfollowUser,
   getUser,
   blockUser,
+  deleteAuth,
   unblockUser,
-  logout,
+  updateCompressedPhoto,
+  updateEmail,
+  updatePassword,
+  updateUsername,
   updateBio,
-  updateUser,
+  updateUserBio,
   updateWebsiteLabel,
+  updateUser,
+  deleteUser,
+  updatePhone,
+  updateGender,
+  updateAccountType,
+  updateDOB,
+  updatePhoto,
+  logout,
+  createAndUpdatePreview,
 } from "../actions/user";
+import { uploadPhoto } from "../actions";
+
 import { getMessages } from "../actions/message";
 import { likePost, unlikePost, deletePost } from "../actions/post";
 import {
@@ -42,7 +57,8 @@ import {
   Entypo,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
+import ImagePicker from "react-native-image-crop-picker";
 import * as Permissions from "expo-permissions";
 import Dialog from "react-native-dialog";
 
@@ -63,6 +79,8 @@ import {
   Icon,
   Subtitle,
   ActionSheet,
+  DatePicker,
+  Picker,
   Text as NText,
 } from "native-base";
 
@@ -72,41 +90,42 @@ const viewabilityConfig = {
 
 var BUTTONS = ["Message", "Report", "Block", "Cancel"];
 var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
-
+import { convertDate } from "../util/DateFormater";
 var DESTRUCTIVE_INDEX = 1;
 var CANCEL_INDEX = 3;
 const { height, width } = Dimensions.get("window");
 import { isUserBlocked } from "../util/Helper";
+import { TextInput } from "react-native-gesture-handler";
 
 class ViewProfile extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    const { params } = navigation.state;
+  // static navigationOptions = ({ navigation }) => {
+  //   const { params } = navigation.state;
 
-    if (params && params.routeName != "MyProfile") {
-      //Show Header by returning header
-      return {
-        title: navigation.getParam("title", ""),
-        // title: navigation.getParam("title", ""),
+  //   if (params && params.routeName != "MyProfile") {
+  //     //Show Header by returning header
+  //     return {
+  //       title: navigation.getParam("title", ""),
+  //       // title: navigation.getParam("title", ""),
 
-        headerRight: (
-          <TouchableOpacity
-            style={{ marginRight: 24, shadowOpacity: 1 }}
-            onPress={navigation.getParam("showActionSheet")}
-          >
-            <SimpleLineIcons
-              style={{ color: "white" }}
-              name={"paper-plane"}
-              size={40}
-            />
-          </TouchableOpacity>
-        ),
-      };
-    } else {
-      //Hide Header by returning null
-      // return { headerRight: null };
-      return { title: navigation.getParam("title", ""), headerRight: null };
-    }
-  };
+  //       headerRight: (
+  //         <TouchableOpacity
+  //           style={{ marginRight: 24 }}
+  //           onPress={navigation.getParam("showActionSheet")}
+  //         >
+  //           <SimpleLineIcons
+  //             style={{ color: "#000" }}
+  //             name={"paper-plane"}
+  //             size={30}
+  //           />
+  //         </TouchableOpacity>
+  //       ),
+  //     };
+  //   } else {
+  //     //Hide Header by returning null
+  //     // return { headerRight: null };
+  //     return { title: navigation.getParam("title", ""), headerRight: null };
+  //   }
+  // };
 
   constructor(props) {
     super(props);
@@ -130,6 +149,9 @@ class ViewProfile extends React.Component {
     this.scrollView = null;
   }
 
+  onDobChange(value) {
+    this.props.updateDOB(value.getTime());
+  }
   componentDidMount = async () => {
     const { state, navigate } = this.props.navigation;
     const { uid } = state.params;
@@ -241,17 +263,57 @@ class ViewProfile extends React.Component {
   openLibrary = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      const image = await ImagePicker.launchImageLibraryAsync();
-      if (!image.cancelled) {
-        const url = await this.props.uploadPhoto(image);
-        this.props.updatePhoto(url);
-        /* console.log(url) */
-      }
+      // const image = await ImagePicker.launchImageLibraryAsync({ quality: 0.1 });
+      // if (!image.cancelled) {
+      //   this.props.updatePhoto(image.uri);
+      //   this.props.createAndUpdatePreview(image.uri);
+      // } else {
+      // }
+
+      ImagePicker.openPicker({
+        compressImageQuality: 0.8,
+      }).then((image) => {
+        // alert(JSON.stringify(image));
+        this.cropImage(image);
+      });
+    } else {
+      openSettingsDialog(
+        "Failed to Access Photos, Please go to the Settings to enable access",
+        this.props.navigation
+      );
     }
   };
 
+  cropImage = async (selectedImage) => {
+    // alert(JSON.stringify(this.props.post.photo.uri));
+
+    await ImagePicker.openCropper({
+      path: selectedImage.path,
+      // cropping: true,
+      // width: 1200,
+      width: width * 1.5,
+      height: width * 1.5 * 1.6,
+      // width: selectedImage.width,
+      // height: selectedImage.height,
+      // // height: 1500,
+
+      // compressImageQuality: 0.8,
+    })
+      .then((image) => {
+        console.log(image);
+        this.props.updatePhoto(image.path);
+        this.props.updateCompressedPhoto(image.path);
+
+        this.props.createAndUpdatePreview(image.path);
+      })
+      .catch((err) => {
+        // Here you handle if the user cancels or any other errors
+      });
+  };
+
   showActionSheet = () => {
-    var user = this.props.profile;
+    // var user = this.props.profile;
+    var user = this.user;
     this.props.navigation.navigate("Chat", {
       uid: user.uid,
       title: user.username,
@@ -318,6 +380,14 @@ class ViewProfile extends React.Component {
     this.setState({ dialogVisible: false });
   };
 
+  onGenderChange(value) {
+    this.props.updateGender(value);
+  }
+
+  onAccountTypeChange(value) {
+    this.props.updateAccountType(value);
+  }
+
   handleOnUpdate = async () => {
     if (this.state.website || this.state.websiteLabel) {
       if (!this.state.website) {
@@ -358,6 +428,83 @@ class ViewProfile extends React.Component {
     this.setState({ dialogVisible: false });
   };
 
+  onSave = async () => {
+    // this.props.navigation.navigate("Home");
+    // return;
+
+    if (!this.props.user.photo) {
+      showMessage({
+        message: "STOP",
+        description: "Please select an profile image",
+        type: "danger",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (this.props.user.bio || this.props.user.websiteLabel) {
+      if (!this.props.user.bio) {
+        showMessage({
+          message: "STOP",
+          description: "Please add website link for the website title",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+
+      if (!validURL(this.props.user.bio)) {
+        showMessage({
+          message: "STOP",
+          description: "Please add valid website link",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+
+      if (!this.props.user.websiteLabel) {
+        showMessage({
+          message: "STOP",
+          description: "Please add website title for the website link",
+          type: "danger",
+          duration: 2000,
+        });
+        return;
+      }
+    }
+
+    if (!this.props.user.accountType) {
+      // Default Value
+      this.props.updateAccountType("Personal");
+    }
+
+    this.props.updateUser();
+    this.props.navigation.goBack();
+  };
+
+  onPressDel = () => {
+    Alert.alert(
+      "Delete Account?",
+      "Press OK to Delete. This action is irreversible, it cannot be undone. This will not delete your posts.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => alert("Cancelled"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => this.beginDel() },
+      ],
+      { cancelable: false }
+    );
+  };
+  beginDel = async () => {
+    /* this.props.deleteAllPosts() */
+    await this.props.deleteUser();
+    await this.props.deleteAuth();
+    firebase.auth().signOut();
+    this.props.navigation.navigate("Splash");
+  };
   getProfileComponent(user) {
     const { state, navigate } = this.props.navigation;
     let userblocked = isUserBlocked(this.props.user, user.uid);
@@ -367,12 +514,42 @@ class ViewProfile extends React.Component {
       <View>
         <View style={[styles.center]}>
           <TouchableOpacity>
-            <ProgressiveImage
+            {/* <ProgressiveImage
               transparentBackground="transparent"
               source={{ uri: user.photo }}
               style={styles.roundImage100}
+              thumbnailSource={{
+                uri: user.preview,
+              }}
+            /> */}
+
+            <ProgressiveImage
+              thumbnailSource={{
+                uri: user.preview,
+              }}
+              source={{ uri: user.photo }}
+              style={[styles.viewProfilePhoto]}
+              resizeMode="cover"
             />
           </TouchableOpacity>
+          {params.routeName === "MyProfile" && (
+            <TouchableOpacity
+              style={[styles.center, { marginBottom: 10 }]}
+              onPress={this.openLibrary}
+            >
+              <Text
+                style={[
+                  {
+                    color: "rgb(237,75,75)",
+                    marginVertical: Scale.moderateScale(10),
+                    textDecorationLine: "underline",
+                  },
+                ]}
+              >
+                Change profile photo
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* <TouchableOpacity
             style={{
@@ -398,9 +575,8 @@ class ViewProfile extends React.Component {
               styles.followBar,
               styles.bottomgreyborder,
               {
-                marginTop: Scale.moderateScale(14),
-                marginBottom: Scale.moderateScale(14),
-                paddingBottom: Scale.moderateScale(14),
+                // marginTop: Scale.moderateScale(14),
+                // paddingBottom: Scale.moderateScale(14),
               },
             ]}
           >
@@ -410,6 +586,7 @@ class ViewProfile extends React.Component {
                 this.props.navigation.navigate("MyFollowersAndFollowing", {
                   data: "Followers",
                   route: params.routeName,
+                  user: user,
                 });
               }}
             >
@@ -433,6 +610,7 @@ class ViewProfile extends React.Component {
                 this.props.navigation.navigate("MyFollowersAndFollowing", {
                   data: "Following",
                   route: params.routeName,
+                  user: user,
                 });
               }}
             >
@@ -466,6 +644,7 @@ class ViewProfile extends React.Component {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
+                height: Scale.moderateScale(8),
                 marginLeft: Scale.moderateScale(24),
                 marginRight: Scale.moderateScale(24),
               }}
@@ -492,15 +671,21 @@ class ViewProfile extends React.Component {
               <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                 Name:
               </Text>
-              <Text
+              <TextInput
+                editable={params.routeName === "MyProfile" ? true : false}
                 style={[
                   styles.grey,
                   styles.margin10,
                   { flex: 3, textAlign: "right" },
                 ]}
-              >
-                {user.username}
-              </Text>
+                value={user.username}
+                autoCapitalize="none"
+                onChangeText={(input) =>
+                  this.props.updateUsername(
+                    input.replace(/\s/g, "").toLowerCase()
+                  )
+                }
+              />
             </View>
             <View
               style={{
@@ -513,15 +698,16 @@ class ViewProfile extends React.Component {
               <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                 Bio:
               </Text>
-              <Text
+              <TextInput
                 style={[
                   styles.grey,
                   styles.margin10,
                   { flex: 3, textAlign: "right" },
                 ]}
-              >
-                {user.userbio || "-"}
-              </Text>
+                editable={params.routeName === "MyProfile" ? true : false}
+                value={user.userbio || "-"}
+                onChangeText={(input) => this.props.updateUserBio(input)}
+              />
             </View>
 
             <View
@@ -537,15 +723,16 @@ class ViewProfile extends React.Component {
               <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                 Website:
               </Text>
-              <Text
+              <TextInput
                 style={[
                   styles.grey,
                   styles.margin10,
                   { flex: 3, textAlign: "right" },
                 ]}
-              >
-                {user.bio}
-              </Text>
+                editable={params.routeName === "MyProfile" ? true : false}
+                value={this.props.user.bio}
+                onChangeText={(input) => this.props.updateBio(input)}
+              />
             </View>
 
             {params.routeName === "MyProfile" && (
@@ -562,15 +749,17 @@ class ViewProfile extends React.Component {
                 <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                   Website Label:
                 </Text>
-                <Text
+                <TextInput
                   style={[
                     styles.grey,
                     styles.margin10,
                     { flex: 3, textAlign: "right" },
                   ]}
-                >
-                  {user.websiteLabel}
-                </Text>
+                  editable={params.routeName === "MyProfile" ? true : false}
+                  value={this.props.user.websiteLabel}
+                  maxLength={30}
+                  onChangeText={(input) => this.props.updateWebsiteLabel(input)}
+                />
               </View>
             )}
 
@@ -587,7 +776,7 @@ class ViewProfile extends React.Component {
               <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                 Gender:
               </Text>
-              <Text
+              {/* <Text
                 style={[
                   styles.grey,
                   styles.margin10,
@@ -595,7 +784,24 @@ class ViewProfile extends React.Component {
                 ]}
               >
                 {user.gender}
-              </Text>
+              </Text> */}
+              <Picker
+                mode="dropdown"
+                note={false}
+                style={{ width: undefined }}
+                placeholder="Select your gender"
+                textStyle={[styles.grey]}
+                placeholderStyle={[styles.grey]}
+                enabled={params.routeName === "MyProfile" ? true : false}
+                // placeholderStyle={{ color: "#bfc6ea" }}
+                // placeholderIconColor="#007aff"
+                selectedValue={this.props.user.gender}
+                onValueChange={this.onGenderChange.bind(this)}
+              >
+                <Picker.Item label="Male" value="Male" />
+                <Picker.Item label="Female" value="Female" />
+                <Picker.Item label="Gender Neutral" value="Gender Neutral" />
+              </Picker>
             </View>
             <View
               style={{
@@ -610,7 +816,7 @@ class ViewProfile extends React.Component {
               <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                 Birthdate:
               </Text>
-              <Text
+              {/* <Text
                 style={[
                   styles.grey,
                   styles.margin10,
@@ -618,7 +824,39 @@ class ViewProfile extends React.Component {
                 ]}
               >
                 {user.dob ? moment(user.dob).format("ll") : "-"}
-              </Text>
+              </Text> */}
+
+              <DatePicker
+                style={styles.textInput}
+                // defaultDate={""}
+                defaultDate={
+                  this.props.user.dob == undefined ||
+                  this.props.user.dob == null
+                    ? ""
+                    : new Date(this.props.user.dob)
+                }
+                // defaultDate={new Date(this.props.user.dob) }
+                maximumDate={new Date()}
+                locale={"en"}
+                modalVisible={true}
+                timeZoneOffsetInMinutes={undefined}
+                modalTransparent={false}
+                animationType={"fade"}
+                androidMode={"default"}
+                // placeHolderText={"sajkdjkasdsajdk"}
+                placeHolderText={
+                  this.props.user.dob == undefined ||
+                  this.props.user.dob == null
+                    ? "Select date of birth"
+                    : convertDate(new Date(this.props.user.dob))
+                }
+                textStyle={[styles.grey]}
+                selectedValue={this.props.user.dob}
+                placeHolderTextStyle={[styles.grey]}
+                onDateChange={this.onDobChange.bind(this)}
+                disabled={params.routeName === "MyProfile" ? false : true}
+                ref={(c) => (this.openDatePicker = c)}
+              />
             </View>
             {params.routeName === "MyProfile" && (
               <View
@@ -634,7 +872,7 @@ class ViewProfile extends React.Component {
                 <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                   Account Type:
                 </Text>
-                <Text
+                {/* <Text
                   style={[
                     styles.grey,
                     styles.margin10,
@@ -642,7 +880,35 @@ class ViewProfile extends React.Component {
                   ]}
                 >
                   {user.accountType}
-                </Text>
+                </Text> */}
+                <Picker
+                  mode="dropdown"
+                  note={false}
+                  style={{ width: undefined }}
+                  placeholder="Select account type"
+                  textStyle={[styles.grey]}
+                  placeholderStyle={[styles.grey]}
+                  enabled={params.routeName === "MyProfile" ? true : false}
+                  // placeholderStyle={{ color: "#bfc6ea" }}
+                  // placeholderIconColor="#007aff"
+                  selectedValue={this.props.user.accountType}
+                  onValueChange={this.onAccountTypeChange.bind(this)}
+                >
+                  <Picker.Item label="Personal" value="Personal" />
+                  <Picker.Item label="Business" value="Business" />
+                </Picker>
+                {/* <Picker
+                  mode="dropdown"
+                  placeholder="Select One"
+                  placeholderStyle={{ color: "#2874F0" }}
+                  note={false}
+                >
+                  <Picker.Item label="Wallet" value="key0" />
+                  <Picker.Item label="ATM Card" value="key1" />
+                  <Picker.Item label="Debit Card" value="key2" />
+                  <Picker.Item label="Credit Card" value="key3" />
+                  <Picker.Item label="Net Banking" value="key4" />
+                </Picker> */}
               </View>
             )}
             {params.routeName === "MyProfile" && (
@@ -685,15 +951,16 @@ class ViewProfile extends React.Component {
                 <Text style={[styles.bold, styles.black, { flex: 1.5 }]}>
                   Phone:
                 </Text>
-                <Text
+                <TextInput
                   style={[
                     styles.grey,
                     styles.margin10,
                     { flex: 3, textAlign: "right" },
                   ]}
-                >
-                  {user.phone}
-                </Text>
+                  onChangeText={(input) => this.props.updatePhone(input)}
+                  value={this.props.user.phone}
+                  editable={params.routeName === "MyProfile" ? true : false}
+                />
               </View>
             )}
           </View>
@@ -716,26 +983,50 @@ class ViewProfile extends React.Component {
           )}
 
           {params.routeName === "MyProfile" && (
-            <Button block light style={styles.margin10} onPress={this.logout}>
-              <Text>Logout</Text>
-            </Button>
-          )}
-
-          {params.routeName === "MyProfile" && (
             <Button
               color="rgba(209,84,84,0.85)"
               block
               style={[
                 styles.margin10,
-                { backgroundColor: "rgba(209,84,84,0.85)", marginBottom: 30 },
+                { backgroundColor: "rgba(209,84,84,0.85)" },
               ]}
-              onPress={() => {
-                if (params.routeName === "MyProfile") {
-                  this.props.navigation.navigate("Edit");
-                }
-              }}
+              // onPress={() => {
+              //   if (params.routeName === "MyProfile") {
+              //     this.props.navigation.navigate("Edit");
+              //   }
+              // }}
+              onPress={this.onSave}
             >
-              <Text style={{ color: "white" }}>Edit Profile</Text>
+              <Text style={{ color: "white" }}>Save</Text>
+            </Button>
+          )}
+          {params.routeName === "MyProfile" && (
+            <Button
+              block
+              light
+              style={[styles.margin10, {}]}
+              onPress={() => this.props.navigation.navigate("Reset")}
+            >
+              <Text>Reset Password</Text>
+            </Button>
+          )}
+          {params.routeName === "MyProfile" && (
+            <Button
+              block
+              light
+              style={[styles.margin10, {}]}
+              onPress={this.logout}
+            >
+              <Text>Logout</Text>
+            </Button>
+          )}
+          {params.routeName === "MyProfile" && (
+            <Button
+              transparent
+              style={[styles.margin10, { marginBottom: 30 }]}
+              onPress={this.onPressDel}
+            >
+              <Text style={styles.textB}>! Delete User !</Text>
             </Button>
           )}
         </View>
@@ -744,17 +1035,18 @@ class ViewProfile extends React.Component {
   }
 
   render() {
-    let user = {};
+    let userProfile = {};
 
     const { state, navigate } = this.props.navigation;
-    const { params } = this.props.navigation.state;
-
-    if (params.routeName === "Profile") {
-      user = this.props.profile;
-      this.user = this.props.profile;
+    // const { params } = this.props.navigation.state.params;
+    const { routeName, user } = this.props.navigation.state.params;
+    // alert(routeName);
+    if (routeName === "Profile") {
+      userProfile = user;
+      this.user = user;
     } else {
-      user = this.props.user;
-      this.user = this.props.profile;
+      userProfile = this.props.user;
+      this.user = this.props.user;
 
       if (!this.props.user.uid) {
         return (
@@ -774,15 +1066,15 @@ class ViewProfile extends React.Component {
         );
       }
     }
-    let userblocked = isUserBlocked(this.props.user, user.uid);
+    let userblocked = isUserBlocked(this.props.user, userProfile.uid);
 
     // if (!user.posts) return <ActivityIndicator style={styles.container} />;
     return (
-      <View style={[styles.container, { marginTop: Scale.moderateScale(100) }]}>
+      <View style={[styles.container, { marginTop: Scale.moderateScale(0) }]}>
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
 
         <ScrollView style={{ marginBottom: 0 }} ref={(c) => (this.scroll = c)}>
-          {this.getProfileComponent(user)}
+          {this.getProfileComponent(userProfile)}
         </ScrollView>
       </View>
     );
@@ -792,8 +1084,26 @@ class ViewProfile extends React.Component {
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
+      updatePhoto,
+      updateCompressedPhoto,
+      uploadPhoto,
+      updateUser,
+      updateEmail,
+      updatePassword,
+      updateUsername,
+      updateBio,
+      updateUserBio,
+      updateWebsiteLabel,
+      updatePhone,
+      updateGender,
+      updateAccountType,
+      updateDOB,
+      logout,
+      createAndUpdatePreview,
       followUser,
       unfollowUser,
+      deleteUser,
+      deleteAuth,
       getMessages,
       deletePost,
       likePost,
@@ -801,10 +1111,6 @@ const mapDispatchToProps = (dispatch) => {
       unblockUser,
       unlikePost,
       getUser,
-      logout,
-      updateBio,
-      updateUser,
-      updateWebsiteLabel,
     },
     dispatch
   );

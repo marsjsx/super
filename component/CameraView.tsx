@@ -13,9 +13,12 @@ import {
 } from "react-native";
 // import {RNCamera} from 'react-native-camera';
 import { Camera as RNCamera } from "expo-camera";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import { openSettingsDialog } from "../util/Helper";
+import * as ExpoImagePicker from "expo-image-picker";
+const { height, width } = Dimensions.get("window");
+import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
 
 import { updatePhoto, createAndUpdatePreview } from "../actions/post";
 import * as Permissions from "expo-permissions";
@@ -35,12 +38,13 @@ class CameraView extends Component {
         // orientation: RNCamera.Constants.Orientation.auto,
         flashMode: RNCamera.Constants.FlashMode.auto,
       },
-      permissionsGranted: true,
+      permissionsGranted: false,
 
       galleryImagePath: false,
       cameraImagePath: false,
       isRecording: false,
       duration: 0,
+      imageSourceType: 0,
       isCameraButton: false,
       timer: null,
       animated: new Animated.Value(0),
@@ -223,30 +227,73 @@ class CameraView extends Component {
     //   this.setState({galleryImagePath:`data:image/jpg;base64,${data}`});
     // });
   }
-  async hasAndroidPermission() {
-    const permission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
-
-    const hasPermission = await PermissionsAndroid.check(permission);
-    if (hasPermission) {
-      return true;
-    }
+  async hasAndroidPermission() {}
+  async hasiOSMicroPhonePermission() {
     try {
-      const status = await PermissionsAndroid.request(permission);
+      const { status } = await Permissions.askAsync(
+        Permissions.AUDIO_RECORDING
+      );
+      // const status = await check(PERMISSIONS.IOS.MICROPHONE);
+      // alert(JSON.stringify(status));
       return status === "granted";
     } catch (error) {
-      // return false;
       alert("Permission Denied, Can't record video ");
+      return false;
     }
   }
   startRecording = async () => {
-    if (this.camera) {
-      if (Platform.OS === "android" && !(await this.hasAndroidPermission())) {
+    if (Platform.OS === "android") {
+      const permission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
+
+      const hasPermission = await PermissionsAndroid.check(permission);
+      if (hasPermission) {
+        this.startVideoRecording();
+      } else {
+        try {
+          const status = await PermissionsAndroid.request(permission);
+          if (status === "granted") {
+            this.startVideoRecording();
+          } else {
+            openSettingsDialog(
+              "Failed to record audio, Please go to the Settings to enable recording audio",
+              this.props.navigation
+            );
+          }
+        } catch (error) {
+          // return false;
+          openSettingsDialog(
+            "Failed to record audio, Please go to the Settings to enable recording audio",
+            this.props.navigation
+          );
+        }
+      }
+    }
+    if (Platform.OS === "ios") {
+      try {
+        const { status } = await Permissions.askAsync(
+          Permissions.AUDIO_RECORDING
+        );
+
+        if (status === "granted") {
+          this.startVideoRecording();
+        } else {
+          openSettingsDialog(
+            "Failed to record audio, Please go to the Settings to enable recording audio",
+            this.props.navigation
+          );
+        }
+      } catch (error) {
         openSettingsDialog(
           "Failed to record audio, Please go to the Settings to enable recording audio",
           this.props.navigation
         );
-        return;
       }
+    }
+    // alert("Reached");
+  };
+
+  startVideoRecording() {
+    if (this.camera) {
       this.startTimer();
       this.camera
         .recordAsync({ maxDuration: 59, quality: "4:3" })
@@ -265,7 +312,7 @@ class CameraView extends Component {
         isRecording: true,
       });
     }
-  };
+  }
 
   stopRecording = () => {
     if (this.camera) {
@@ -328,6 +375,36 @@ class CameraView extends Component {
       duration: "00",
     });
   }
+  openLibrary = async (type = "image") => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      var selectedFile;
+
+      selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
+        mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
+        // allowsEditing: true,
+        duration: 60000,
+      });
+
+      if (!selectedFile.cancelled) {
+        if (type === "vr") {
+          selectedFile.type = "vr";
+        }
+
+        this.props.dispatch(updatePhoto(selectedFile));
+        this.props.navigation.navigate("PostDetail");
+
+        // if ((selectedFile.type = "video")) {
+        //   this.props.dispatch(updatePhoto(selectedFile));
+        //   this.props.navigation.navigate("PostDetail");
+        // } else {
+        //   this.props.dispatch(updatePhoto(selectedFile));
+
+        //   this.props.navigation.navigate("PostDetail");
+        // }
+      }
+    }
+  };
 
   renderCamera(permissionsGranted) {
     // const { permissionsGranted } = this.state;
@@ -341,53 +418,190 @@ class CameraView extends Component {
     } else if (!this.state.cameraImagePath) {
       // alert(permissionsGranted);
 
-      if ((state && state.routeName === "Camera") || this.props.focused) {
-        return (
-          <RNCamera
-            ref={(cam) => {
-              this.camera = cam;
+      // if ((state && state.routeName === "Camera") || this.props.focused) {
+      return (
+        <RNCamera
+          ref={(cam) => {
+            this.camera = cam;
+          }}
+          style={styles.preview}
+          aspect={this.state.camera.aspect}
+          type={this.state.camera.type}
+          flashMode={this.state.camera.flashMode}
+          onFocusChanged={() => {}}
+          onZoomChanged={() => {}}
+          defaultTouchToFocus
+          mirrorImage={false}
+        >
+          <TouchableOpacity
+            style={{ position: "absolute", top: 15, left: 0 }}
+            onPress={() => {
+              this.clearTimer();
+
+              this.props.navigation.navigate("Home");
+              // this.props.navigation.goBack();
             }}
-            style={styles.preview}
-            aspect={this.state.camera.aspect}
-            type={this.state.camera.type}
-            flashMode={this.state.camera.flashMode}
-            onFocusChanged={() => {}}
-            onZoomChanged={() => {}}
-            defaultTouchToFocus
-            mirrorImage={false}
           >
-            {state && state.routeName === "Camera" && (
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20 }]}
+              name={"ios-arrow-back"}
+              color="white"
+              size={32}
+            />
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.frontCameraOverlay,
+              {
+                position: "absolute",
+                right: 0,
+                left: 0,
+                top: "50%",
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.typeButton}
+              onPress={this.switchType}
+            >
+              <Image source={this.typeIcon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.flashButton}
+              onPress={this.switchFlash}
+            >
+              <Image source={this.flashIcon} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.bottomOverlay]}>
+            {/* {this.props.activeIndex == 3 ? ( */}
+            {/* <View style={styles.buttonOverlay}>
               <TouchableOpacity
-                style={{ position: "absolute", top: 15, left: 0 }}
-                onPress={() => this.props.navigation.goBack()}
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => {
+                  this.toggleRecording();
+                }}
               >
                 <Ionicons
-                  style={[styles.icon, { marginLeft: 20 }]}
-                  name={"ios-arrow-back"}
-                  color="white"
-                  size={42}
+                  name={
+                    this.state.isRecording
+                      ? "ios-square"
+                      : "ios-radio-button-on"
+                  }
+                  size={94}
+                  color="red"
                 />
+                <Text
+                  style={{
+                    color: "white",
+                    position: "absolute",
+                  }}
+                >
+                  {this.printChronometer(this.state.duration)}
+                </Text>
               </TouchableOpacity>
-            )}
-            <View style={[styles.bottomOverlay]}>
-              <View style={styles.frontCameraOverlay}>
+            </View> 
+            {/* ) : ( */}
+            <View style={styles.buttonOverlay}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginVertical: 8,
+                }}
+              >
                 <TouchableOpacity
-                  style={styles.typeButton}
-                  onPress={this.switchType}
+                  onPress={() => this.setState({ imageSourceType: 0 })}
                 >
-                  <Image source={this.typeIcon} />
+                  <Text
+                    style={{
+                      color:
+                        this.state.imageSourceType == 0 ? "orange" : "white",
+                      marginHorizontal: 10,
+                      padding: 5,
+                    }}
+                  >
+                    PHOTO
+                  </Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
-                  style={styles.flashButton}
-                  onPress={this.switchFlash}
+                  onPress={async () => {
+                    if (await this.hasiOSMicroPhonePermission()) {
+                      this.setState({ imageSourceType: 1 });
+                    } else {
+                      openSettingsDialog(
+                        "Failed to record audio, Please go to the Settings to enable recording audio",
+                        this.props.navigation
+                      );
+                    }
+                  }}
                 >
-                  <Image source={this.flashIcon} />
+                  <Text
+                    style={{
+                      color:
+                        this.state.imageSourceType == 1 ? "orange" : "white",
+                      marginHorizontal: 10,
+                      padding: 5,
+                    }}
+                  >
+                    VIDEO
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  // onPress={() => this.setState({ imageSourceType: 2 })}
+                  onPress={() => this.openLibrary("vr")}
+                >
+                  <Text
+                    style={{
+                      color:
+                        this.state.imageSourceType == 2 ? "orange" : "white",
+                      marginHorizontal: 10,
+                      padding: 5,
+                    }}
+                  >
+                    360
+                  </Text>
                 </TouchableOpacity>
               </View>
-
-              {this.props.activeIndex == 3 ? (
-                <View style={styles.buttonOverlay}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "90%",
+                  alignItems: "center",
+                  alignContent: "center",
+                  marginBottom: 30,
+                  // backgroundColor: "red",
+                  marginTop: 10,
+                  justifyContent: "space-between",
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    alignItems: "center",
+                  }}
+                  onPress={() => this.openLibrary()}
+                >
+                  <Ionicons
+                    name="ios-photos"
+                    style={{ color: "#fff", fontSize: 40 }}
+                  />
+                </TouchableOpacity>
+                {this.state.imageSourceType == 0 ? (
+                  <TouchableOpacity
+                    style={styles.captureButton}
+                    onPress={this.takePicture}
+                  >
+                    <View style={styles.outerCircle}>
+                      <View style={styles.innerCircle}></View>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  // <View style={styles.buttonOverlay}>
                   <TouchableOpacity
                     style={{
                       justifyContent: "center",
@@ -397,8 +611,8 @@ class CameraView extends Component {
                       this.toggleRecording();
                     }}
                   >
-                    {/* <View> */}
                     <Ionicons
+                      style={{}}
                       name={
                         this.state.isRecording
                           ? "ios-square"
@@ -415,27 +629,32 @@ class CameraView extends Component {
                     >
                       {this.printChronometer(this.state.duration)}
                     </Text>
-                    {/* </View> */}
                   </TouchableOpacity>
-                </View>
-              ) : (
-                <View style={styles.buttonOverlay}>
-                  <TouchableOpacity
-                    style={styles.captureButton}
-                    onPress={this.takePicture}
-                  >
-                    <View style={styles.outerCircle}>
-                      <View style={styles.innerCircle}></View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
+                  // </View>
+                )}
+
+                <TouchableOpacity
+                  style={{
+                    alignItems: "center",
+                    backgroundColor: "transparent",
+                  }}
+                  onPress={this.switchType}
+                  // onPress={() => this.handleCameraType()}
+                >
+                  <MaterialIcons
+                    name="switch-camera"
+                    style={{ color: "#fff", fontSize: 40 }}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-          </RNCamera>
-        );
-      } else {
-        return <View style={{ flex: 1, backgroundColor: "black" }} />;
-      }
+            {/* )} */}
+          </View>
+        </RNCamera>
+      );
+      // } else {
+      //   return <View style={{ flex: 1, backgroundColor: "black" }} />;
+      // }
     }
     if (this.state.cameraImagePath) {
       return (
@@ -462,7 +681,7 @@ class CameraView extends Component {
           <View style={styles.previewImage}>
             <Image
               source={{ uri: this.state.cameraImagePath.uri }}
-              style={{ height: Dimensions.get("window").height }}
+              style={{ height: height }}
             />
           </View>
         </View>
@@ -541,9 +760,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     left: 0,
+    bottom: 0,
     alignItems: "center",
-    backgroundColor: colors.transparent,
-    top: Dimensions.get("window").height * 0.6,
+    backgroundColor: "rgba(52, 52, 52, 0.6)",
+    // opacity: 0.5,
+    // top: Dimensions.get("window").height * 0.6,
     flexDirection: "column",
     alignItems: "stretch",
   },
@@ -554,7 +775,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   buttonOverlay: {
-    height: 130,
+    // height: 130,
     alignItems: "center",
     backgroundColor: colors.transparent,
     justifyContent: "center",
@@ -562,7 +783,7 @@ const styles = StyleSheet.create({
   captureButton: {
     paddingLeft: 15,
     paddingRight: 15,
-    marginTop: 20,
+    marginVertical: 11,
   },
   typeButton: {
     padding: 5,

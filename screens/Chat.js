@@ -62,11 +62,11 @@ const otherUser = {
 var self;
 
 class Chat extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: navigation.getParam("title", ""),
-    };
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   return {
+  //     title: navigation.getParam("title", ""),
+  //   };
+  // };
 
   state = {
     inverted: false,
@@ -318,7 +318,7 @@ class Chat extends React.Component {
       // alert(chatlist.length);
 
       if (chatlist.length > 0) {
-        this.props.updateSeenBy(params);
+        this.props.updateSeenBy(params.uid);
 
         const orderedChat = orderBy(chatlist[0].chats, "createdAt", "desc");
         // alert(JSON.stringify(orderedChat));
@@ -443,6 +443,10 @@ class Chat extends React.Component {
       }
     );
   }
+  goToUser = (user) => {
+    // this.props.getUser(user.uid);
+    this.props.navigation.navigate("Profile", { uid: user.uid });
+  };
   // }
   render() {
     if (!this.state.appIsReady) {
@@ -481,7 +485,9 @@ class Chat extends React.Component {
           // onLongPressAvatar={(user) => alert(JSON.stringify(user))}
           renderInputToolbar={this.renderInputToolbar}
           renderComposer={this.renderComposer}
-          // onPressAvatar={() => alert("short press")}
+          onPressAvatar={() =>
+            this.goToUser(this.props.navigation.state.params)
+          }
           keyboardShouldPersistTaps="never"
           renderAccessory={Platform.OS === "web" ? null : this.renderAccessory}
           renderBubble={this.renderBubble}
@@ -554,7 +560,7 @@ class Chat extends React.Component {
             </View>
           </View>
         </Modal> */}
-        {Platform.OS === "android" ? <KeyboardSpacer /> : null}
+        {/* {Platform.OS === "android" ? <KeyboardSpacer /> : null} */}
       </View>
     );
   }

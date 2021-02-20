@@ -144,7 +144,7 @@ class CropperPage extends React.Component {
       width: CROP_AREA_WIDTH,
       height: CROP_AREA_HEIGHT,
     };
-
+    // alert(JSON.stringify(cropperParams));
     try {
       const result = await ImageCropper.crop({
         ...cropperParams,
@@ -153,6 +153,22 @@ class CropperPage extends React.Component {
         cropAreaSize,
       });
 
+      // var cropData = {
+      //   offset: { x: cropperParams.positionX, y: cropperParams.positionY },
+      //   size: { width: 500, height: 400 },
+      //   displaySize: { width: 400, height: 800 },
+      // };
+      // ImageEditor.cropImage(this.state.uri, cropData)
+      //   .then((url) => {
+      //     // console.log("Cropped image uri", url);
+      //     this.setState((prevState) => ({
+      //       ...prevState,
+      //       croppedImage: url,
+      //     }));
+      //   })
+      //   .catch((error) => {
+      //     alert(error);
+      //   });
       this.setState((prevState) => ({
         ...prevState,
         croppedImage: result,
@@ -300,6 +316,7 @@ class CropperPage extends React.Component {
     // const { width, height, uri, type } = photo;
     return (
       <View style={{ height: "100%" }}>
+        {/* {!croppedImage && ( */}
         <ImageCropper
           imageUri={this.state.uri}
           cropAreaWidth={CROP_AREA_WIDTH}
@@ -308,8 +325,12 @@ class CropperPage extends React.Component {
           areaColor="black"
           setCropperParams={this.setCropperParams}
         />
+        {/* )} */}
+
         {/* <Button onPress={this.handlePress} title="Crop Image" color="blue" /> */}
-        {croppedImage ? <Image source={src} /> : null}
+        {croppedImage ? (
+          <Image style={{ height: 200, width: 200 }} source={src} />
+        ) : null}
 
         {/* {this.renderGrids()} */}
         {this.renderButtons()}

@@ -4,6 +4,7 @@ import { uploadPhoto } from "../actions/index";
 import _ from "lodash";
 import Snackbar from "react-native-snackbar";
 import constants from "../constants";
+import { allowNotifications, sendNotification } from "./";
 
 export const saveMessage = (message, chatID, members, updatedAt) => {
   // db.collection("messages")
@@ -121,6 +122,9 @@ export const addMessage = (id, messages) => {
       } else {
         saveMessage(message, chatId, members, updatedAt);
       }
+
+      var body = `${message.user.name} sent new message`;
+      dispatch(sendNotification(id, "New Message", body, "MESSAGE"));
     } catch (e) {
       alert(e);
       // console.error(e);

@@ -29,6 +29,8 @@ import { isNotEmpty, isEmailValid } from "../validations/Validation";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { Item, Icon, Input, Label, DatePicker, Subtitle } from "native-base";
 import { name as appName } from "../app.json";
+import Scale from "../helpers/Scale";
+import constants from "../constants";
 
 import appleAuth, {
   AppleButton,
@@ -97,27 +99,48 @@ class Login extends React.Component {
   render() {
     return (
       <ImageBackground
-        source={require("../temp/black-gray-back.png")}
-        style={[styles.container, styles.center]}
+        // source={require("../temp/black-gray-back.png")}
+        style={[
+          styles.container,
+          styles.center,
+          { backgroundColor: "#202020" },
+        ]}
       >
         <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
           <ScrollView
             style={[{ width: "100%" }]}
-            contentContainerStyle={[styles.center]}
+            contentContainerStyle={[
+              { paddingHorizontal: Scale.moderateScale(24) },
+            ]}
           >
-            <Image
+            {/* <Image
               style={styles.logo3}
               source={require("../assets/logo-2.png")}
-            />
+            /> */}
+            <Text
+              style={{
+                fontSize: Scale.moderateScale(30),
+                color: "#fff",
+                marginTop: "30%",
+                fontWeight: "bold",
+                width: "80%",
+              }}
+            >
+              {`Hello.\nWelcome Back`}
+            </Text>
 
-            <Item floatingLabel style={[styles.textInput]}>
+            <Item
+              floatingLabel
+              style={[styles.textInput, { marginTop: Scale.moderateScale(40) }]}
+            >
               <Icon name="ios-person" style={{ color: "#ffffff" }} />
               <Label style={{ color: "#ffffff", fontWeight: "500" }}>
-                Email or Username
+                Email
               </Label>
               <Input
                 style={{ color: "#ffffff" }}
                 value={this.props.user.email}
+                autoCapitalize="none"
                 onChangeText={(input) => this.props.updateEmail(input)}
               />
             </Item>
@@ -141,29 +164,7 @@ class Login extends React.Component {
             >
               <Text style={styles.textA}>Forgot Password?</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.buttonLogin, styles.center]}
-              onPress={() => this.onClickLogin()}
-            >
-              <Text style={styles.textA}> Login </Text>
-            </TouchableOpacity>
-            {/* <TouchableOpacity
-              style={styles.buttonFacebook}
-              onPress={() => this.onFaceBookLogin()}
-            >
-              <Text style={styles.textA}>Login with Facebook</Text>
-            </TouchableOpacity>
-            {appleAuth.isSupported && (
-              <AppleButton
-                cornerRadius={5}
-                style={styles.buttonApple}
-                buttonStyle={AppleButton.Style.WHITE}
-                buttonType={AppleButton.Type.SIGN_IN}
-                onPress={() => this.appleLoginLogin()}
-              />
-            )} */}
-
-            <Subtitle
+            {/* <Subtitle
               style={{
                 textAlign: "center",
                 margin: 10,
@@ -189,13 +190,45 @@ class Login extends React.Component {
                 {" "}
                 Privacy policy
               </Text>{" "}
-            </Subtitle>
+            </Subtitle> */}
+            <TouchableOpacity
+              style={[
+                styles.buttonLogin1,
+                styles.center,
+                { shadowOpacity: 0.5 },
+              ]}
+              onPress={() => this.onClickLogin()}
+            >
+              <Text style={styles.textA}> LOGIN </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[{ marginTop: 40 }]}
+              onPress={() => this.props.navigation.navigate("Signup")}
+            >
+              <Text style={styles.textA}>Create Account</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity
+              style={styles.buttonFacebook}
+              onPress={() => this.onFaceBookLogin()}
+            >
+              <Text style={styles.textA}>Login with Facebook</Text>
+            </TouchableOpacity>
+            {appleAuth.isSupported && (
+              <AppleButton
+                cornerRadius={5}
+                style={styles.buttonApple}
+                buttonStyle={AppleButton.Style.WHITE}
+                buttonType={AppleButton.Type.SIGN_IN}
+                onPress={() => this.appleLoginLogin()}
+              />
+            )} */}
           </ScrollView>
         </KeyboardAvoidingView>
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
 
-        <Image source={require("../assets/logoW.png")} resizeMode="center" />
+        {/* <Image source={require("../assets/logoW.png")} resizeMode="center" /> */}
       </ImageBackground>
     );
   }

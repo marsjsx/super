@@ -19,7 +19,6 @@ import {
 } from "native-base";
 import { colors } from "../../util/theme";
 import Modal from "react-native-modalbox";
-import { NavigationEvents } from "react-navigation";
 import Swiper from "react-native-swiper";
 import GalleryView from "../../component/GalleryView";
 import CameraView from "../../component/CameraView";
@@ -146,189 +145,18 @@ class Add extends React.Component {
     return (
       <Container>
         {Platform.OS === "ios" && <StatusBar hidden />}
-        <NavigationEvents
-          onDidFocus={(payload) => {
-            this.setState({ isModalOpen: true });
-          }}
-        />
-        <Modal
-          style={styles.modal}
-          isOpen={isModalOpen}
-          onClosed={this.closeModal}
-          position="center"
-          swipeToClose
-          swipeArea={250}
-          backButtonClose
-        >
-          {/* <Content> */}
-          <Swiper
-            ref={(component) => (this.swiper = component)}
-            removeClippedSubviews={false}
-            onMomentumScrollEnd={this.onMomentumScrollEnd.bind(this)}
-            loop={false}
-            style={styles.wrapper}
-            showsButtons={false}
-            showsPagination={false}
-            index={0}
-            onIndexChanged={(index: number) => {
-              this.setState({ activeIndex: index });
-              if (index == 0) {
-                this.setState({ isPaused: false });
-              } else {
-                this.setState({ isPaused: true });
-              }
 
-              if (index == 2) {
-                this.setState({
-                  cameraViewFocused: true,
-                  cameraViewFocused2: false,
-                });
-              }
-
-              if (index == 3) {
-                this.setState({
-                  cameraViewFocused: false,
-                  cameraViewFocused2: true,
-                });
-              }
+        <View style={[styles.slide2, { backgroundColor: "pink" }]}>
+          <CameraView
+            ref={(ref) => {
+              this.cameraRef = ref;
             }}
-          >
-            <View style={styles.slide1}>
-              <GalleryView
-                activeIndex={this.state.activeIndex}
-                isPaused={this.state.isPaused}
-                closeModel={this.closeModal}
-                onNext={this.onNext}
-                footerHeight={this.state.footerHeight}
-                navigation={this.props.navigation}
-              />
-            </View>
-            <View style={styles.slide4}>
-              {this.state.activeIndex === 1 && (
-                <GalleryView
-                  activeIndex={this.state.activeIndex}
-                  type="vr"
-                  footerHeight={this.state.footerHeight}
-                  closeModel={this.closeModal}
-                  onNext={this.onNext}
-                  isPaused={this.state.isPaused}
-                  navigation={this.props.navigation}
-                />
-              )}
-              {/* <GalleryView
-                  activeIndex={this.state.activeIndex}
-                  type="vr"
-                  isPaused={this.state.isPaused}
-                /> */}
-            </View>
-            <View style={styles.slide2}>
-              <CameraView
-                ref={(ref) => {
-                  this.cameraRef = ref;
-                }}
-                type="camera"
-                activeIndex={this.state.activeIndex}
-                navigation={this.props.navigation}
-                focused={this.state.cameraViewFocused}
-              />
-            </View>
-            <View style={styles.slide2}>
-              <CameraView
-                ref={(ref) => {
-                  this.cameraRef2 = ref;
-                }}
-                type="video"
-                activeIndex={this.state.activeIndex}
-                navigation={this.props.navigation}
-                focused={this.state.cameraViewFocused2}
-              />
-            </View>
-          </Swiper>
-          {/* </Content> */}
-          <Footer
-            style={{
-              backgroundColor: "#f5f5f5",
-              borderTopWidth: 0,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-around",
-                flex: 1,
-              }}
-              onLayout={(event) => {
-                var { x, y, width, height } = event.nativeEvent.layout;
-                this.setState({ footerHeight: height });
-              }}
-            >
-              <Button
-                transparent
-                onPress={() => this.segmentClicked(0)}
-                active={this.state.activeIndex === 0}
-              >
-                <Text
-                  style={Object.assign({}, styles.btnActions, {
-                    color:
-                      this.state.activeIndex === 0
-                        ? colors.black
-                        : colors.dark_gray,
-                  })}
-                >
-                  Gallery
-                </Text>
-              </Button>
-              <Button
-                transparent
-                onPress={() => this.segmentClicked(1)}
-                active={this.state.activeIndex === 1}
-              >
-                <Text
-                  style={Object.assign({}, styles.btnActions, {
-                    color:
-                      this.state.activeIndex === 1
-                        ? colors.black
-                        : colors.dark_gray,
-                  })}
-                >
-                  360
-                </Text>
-              </Button>
-              <Button
-                transparent
-                onPress={() => this.segmentClicked(2)}
-                active={this.state.activeIndex === 2}
-              >
-                <Text
-                  style={Object.assign({}, styles.btnActions, {
-                    color:
-                      this.state.activeIndex === 2
-                        ? colors.black
-                        : colors.dark_gray,
-                  })}
-                >
-                  Photo
-                </Text>
-              </Button>
-              <Button
-                transparent
-                onPress={() => this.segmentClicked(3)}
-                active={this.state.activeIndex === 3}
-              >
-                <Text
-                  style={Object.assign({}, styles.btnActions, {
-                    color:
-                      this.state.activeIndex === 3
-                        ? colors.black
-                        : colors.dark_gray,
-                  })}
-                >
-                  Video
-                </Text>
-              </Button>
-            </View>
-          </Footer>
-        </Modal>
+            type="camera"
+            activeIndex={this.state.activeIndex}
+            navigation={this.props.navigation}
+            focused={this.state.cameraViewFocused}
+          />
+        </View>
       </Container>
     );
   }

@@ -1,8 +1,9 @@
 import { combineReducers } from "redux";
 import _ from "lodash";
 import orderBy from "lodash/orderBy";
+import { INTERNET_CONNECTED, INTERNET_DISCONNECTED } from "../actions/types";
 
-const user = (state = {}, action) => {
+const user = (state = { posts: [] }, action) => {
   switch (action.type) {
     case "LOGIN":
       return action.payload;
@@ -42,6 +43,15 @@ const user = (state = {}, action) => {
       return { ...state, lastVisible: action.payload };
     case "UPDATE_BLOCKED_USERS_IDS":
       return { ...state, blocked: action.payload };
+    case "NEW_POST_ADDED":
+      return {
+        ...state,
+        posts: orderBy(
+          _.uniqBy([...state.posts, action.payload], "id"),
+          "date",
+          "desc"
+        ),
+      };
 
     case "DELETE_POST": {
       if (!state.posts) {
@@ -106,7 +116,26 @@ const messages = (state = {}, action) => {
   }
 };
 
-const post = (state = { newPosts: [], followingfeed: [] }, action) => {
+const checkconnection = (
+  state = {
+    isConnected: true,
+  },
+  action
+) => {
+  switch (action.type) {
+    case INTERNET_CONNECTED:
+      return { isConnected: true };
+    case INTERNET_DISCONNECTED:
+      return { isConnected: false };
+    default:
+      return state;
+  }
+};
+
+const post = (
+  state = { newPosts: [], followingfeed: [], feed: [] },
+  action
+) => {
   switch (action.type) {
     case "UPDATE_POST_PHOTO":
       return { ...state, photo: action.payload };
@@ -116,13 +145,18 @@ const post = (state = { newPosts: [], followingfeed: [] }, action) => {
       return { ...state, preview: action.payload };
     case "UPDATE_VIDEO_COVER":
       return { ...state, videocover: action.payload };
+    // case "NEW_POST_ADDED":
+    //   return { ...state, feed: action.payload };
+
     case "NEW_POST_ADDED":
       return {
         ...state,
-        feed: orderBy([...state.feed, action.payload], "date", "desc"),
+        feed: orderBy(
+          _.uniqBy([...state.feed, action.payload], "id"),
+          "date",
+          "desc"
+        ),
       };
-    // case "NEW_POST_ADDED":
-    //   return { ...state, feed: action.payload };
     case "FOLLOWING_POSTS":
       return { ...state, followingfeed: action.payload };
     case "UPDATE_DESCRIPTION":
@@ -206,6 +240,7 @@ const appReducer = combineReducers({
   modal,
   profile,
   messages,
+  checkconnection,
 });
 
 // const rootReducer = combineReducers({

@@ -11,6 +11,7 @@ export default {
   greyPurple: "#757482",
   lavender: "#eec0ea",
   superRed: "#db565b",
+  feedsStatsColor: "#ffffff",
   pinkPurple: "#ec38da",
   red: "#ff0000",
   warmGrey: "#8f8f8f",

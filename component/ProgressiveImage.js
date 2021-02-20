@@ -155,6 +155,7 @@ class ProgressiveImage extends React.Component {
                 // transform: [{ scale: this.scale }],
               },
             ]}
+            resizeMode="contain"
           />
         )}
         {/* {type !== "vr" && normalisedSource && ( */}

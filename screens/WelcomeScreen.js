@@ -14,7 +14,7 @@ const WINDOW_HEIGHT = Dimensions.get("window").height;
 const BASE_PADDING = 10;
 import constants from "../constants";
 import Scale from "../helpers/Scale";
-import { Button } from "native-base";
+import { Ionicons } from "@expo/vector-icons";
 
 class WelcomeScreen extends React.Component {
   constructor(props) {
@@ -50,14 +50,78 @@ class WelcomeScreen extends React.Component {
           },
         ]}
       >
-        <Text style={styles.label}>Welcome to super</Text>
+        <Image
+          style={{
+            marginTop: Scale.moderateScale(60),
+            resizeMode: "contain",
+            width: Scale.moderateScale(200),
+            height: Scale.moderateScale(80),
+          }}
+          source={require("../assets/logoW.png")}
+        />
+        <Text style={styles.label}>
+          Welcome to our lllsuperlll social platform
+        </Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: Scale.moderateScale(30),
+            marginHorizontal: Scale.moderateScale(20),
+            alignItems: "center",
+          }}
+        >
+          <Ionicons name="md-checkmark" size={24} color="white" />
+          <Text style={styles.text}>
+            Scroll our lllsuperllll feed of awesome people.
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: Scale.moderateScale(10),
+            alignItems: "center",
+            marginHorizontal: Scale.moderateScale(20),
+          }}
+        >
+          <Ionicons name="md-checkmark" size={24} color="white" />
+          <Text style={styles.text}>
+            Post your favorite , photos , videos and panorama shots.
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: Scale.moderateScale(10),
+            alignItems: "center",
+            marginHorizontal: Scale.moderateScale(20),
+          }}
+        >
+          <Ionicons name="md-checkmark" size={24} color="white" />
+          <Text style={styles.text}>
+            Meet new friends from around the world.
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            marginTop: Scale.moderateScale(10),
+            alignItems: "center",
+            marginHorizontal: Scale.moderateScale(20),
+          }}
+        >
+          <Ionicons name="md-checkmark" size={24} color="white" />
+          <Text style={styles.text}>
+            Enjoy a fresh new start to social media!
+          </Text>
+        </View>
 
         {/* <Button block light>
           <Text>Light</Text>
         </Button> */}
         <TouchableOpacity
           style={{
-            backgroundColor: constants.colors.warmGrey,
+            backgroundColor: constants.colors.white,
             width: WINDOW_WIDTH * 0.8,
             padding: Scale.moderateScale(10),
             alignItems: "center",
@@ -69,7 +133,7 @@ class WelcomeScreen extends React.Component {
         >
           <Text
             style={{
-              color: constants.colors.white,
+              color: constants.colors.black,
               fontSize: Scale.moderateScale(14),
               fontWeight: "bold",
             }}
@@ -89,9 +153,18 @@ const styles = StyleSheet.create({
   },
   label: {
     color: constants.colors.white,
-    fontSize: Scale.moderateScale(32),
-    fontWeight: "bold",
+    fontSize: Scale.moderateScale(20),
+    fontWeight: "500",
+    textAlign: "center",
+    marginTop: Scale.moderateScale(30),
     marginHorizontal: Scale.moderateScale(8),
-    marginTop: WINDOW_HEIGHT * 0.3,
+    // marginTop: WINDOW_HEIGHT * 0.3,
+  },
+  text: {
+    color: constants.colors.white,
+    fontSize: Scale.moderateScale(14),
+    flex: 1,
+    marginHorizontal: Scale.moderateScale(8),
+    // marginTop: WINDOW_HEIGHT * 0.3,
   },
 });

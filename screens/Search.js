@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import db from "../config/firebase";
 import { getUser } from "../actions/user";
-import {  getMorePosts } from "../actions/post";
+import { getMorePosts } from "../actions/post";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import ProgressiveImage from "../component/ProgressiveImage";
 import _ from "lodash";
@@ -36,8 +36,7 @@ class Search extends React.Component {
     timer: null,
   };
 
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
   searchUser = async () => {
     let search = [];
@@ -328,7 +327,7 @@ class Search extends React.Component {
             data={this.props.post.feed}
             keyExtractor={(item) => item.id}
             renderItem={this.renderPostItem}
-            removeClippedSubviews={true}
+            // removeClippedSubviews={true}
             onEndReachedThreshold={0}
             ListFooterComponent={this.renderFooter}
             // On End Reached (Takes a function)

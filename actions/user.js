@@ -7,6 +7,10 @@ import { allowNotifications, sendNotification } from "./";
 import * as Facebook from "expo-facebook";
 import { uploadPhoto } from "../actions/index";
 import { getActivities } from "../actions/activity";
+import {
+  addUserPostToTimeline,
+  removeUserPostFromTimeline,
+} from "../actions/post";
 
 import appleAuth, {
   AppleButton,
@@ -91,7 +95,7 @@ export const login = () => {
         .signInWithEmailAndPassword(email, password);
       dispatch(getUser(response.user.uid));
       dispatch(filterBlockedPosts());
-      dispatch(allowNotifications());
+      dispatch(allowNotifications(response.user.uid));
       dispatch(getActivities());
     } catch (e) {
       alert(e);
@@ -437,9 +441,16 @@ export const updateUser = () => {
       dispatch(checkUserNameAvailable(username, uid)).then(
         (usernameAvailable) => {
           if (usernameAvailable) {
+            showMessage({
+              message: "",
+              description: "Updating Profile, Please wait...",
+              type: "info",
+              duration: 2000,
+            });
             dispatch(uploadPhoto(imageUri)).then((imageurl) => {
               var user_name = username.toLowerCase().replace(/\s+/g, "_");
 
+              dispatch(updatePhoto(imageurl));
               db.collection("users")
                 .doc(uid)
                 .update({
@@ -675,9 +686,9 @@ export const signup = () => {
           db.collection("users").doc(response.user.uid).set(user);
 
           // dispatch(getUser(response.user.uid));
-          // dispatch(allowNotifications());
           dispatch({ type: "LOGIN", payload: user });
           dispatch(filterBlockedPosts());
+          dispatch(allowNotifications(response.user.uid));
         }
       } else {
         alert("Username already exists, Please choose another username");
@@ -742,9 +753,14 @@ export const followUser = (user) => {
       // dispatch({ type: "FOLLOW_USER", payload: user.uid });
 
       //    dispatch(getUser(user.uid));
-      dispatch(sendNotification(user.uid, "Started Following You"));
+      // dispatch(sendNotification(user.uid, "Started Following You"));
+      dispatch(addUserPostToTimeline(user.uid));
+
+      var body = `${user.username} started following you`;
+      dispatch(sendNotification(user.uid, "New Follower", body, "FOLLOWER"));
     } catch (e) {
-      /* console.error(e) */
+      console.error(e);
+      // alert(e)
     }
   };
 };
@@ -765,6 +781,8 @@ export const unfollowUser = (user) => {
         });
       var filteredAry = following.filter((e) => e !== user.uid);
       dispatch({ type: "UPDATE_FOLLOWING", payload: [...filteredAry] });
+
+      dispatch(removeUserPostFromTimeline(user.uid));
 
       //   dispatch(getUser(user.uid));
     } catch (e) {

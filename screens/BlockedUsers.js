@@ -35,11 +35,11 @@ import { groupBy, values } from "lodash";
 var self;
 
 class BlockedUsers extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: navigation.getParam("title", ""),
-    };
-  };
+  // static navigationOptions = ({ navigation }) => {
+  //   return {
+  //     title: navigation.getParam("title", ""),
+  //   };
+  // };
 
   constructor(props) {
     super(props);

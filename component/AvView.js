@@ -89,6 +89,9 @@ class AvView extends React.Component {
   onProgress(data) {
     this.setState({ currentTime: data.currentTime });
   }
+  videoError(error) {
+    alert("Error while loading video");
+  }
 
   onBuffer({ isBuffering }: { isBuffering: boolean }) {
     this.setState({ isBuffering });
@@ -363,10 +366,11 @@ class AvView extends React.Component {
             onLoad={this.onLoad}
             onBuffer={this.onBuffer}
             onProgress={this.onProgress}
+            onError={this.videoError}
             onEnd={() => null}
             repeat={true}
           />
-{/* 
+          {/* 
           <TouchableOpacity
             style={{
               position: "absolute",
