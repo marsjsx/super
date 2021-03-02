@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../styles";
-import firebase from "firebase";
+import auth from '@react-native-firebase/auth';
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import {
@@ -46,12 +46,13 @@ class Login extends React.Component {
   }
 
   componentDidMount = () => {
-    firebase.auth().onAuthStateChanged((user) => {
+    auth().onAuthStateChanged((user) => {
       if (user) {
         this.props.getUser(user.uid, "LOGIN");
         if (this.props.user != null) {
           this.props.navigation.goBack();
-          this.props.navigation.navigate("Home");
+          // this.props.navigation.navigate("Home");
+          this.props.navigation.replace("HomeScreen");
           this.props.navigation.navigate("WelcomeScreen");
         }
       }

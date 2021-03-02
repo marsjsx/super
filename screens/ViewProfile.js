@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../styles";
-import firebase from "firebase";
+import auth from "@react-native-firebase/auth";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
@@ -8,7 +8,6 @@ import {
   View,
   Image,
   TouchableOpacity,
-  FlatList,
   ImageBackground,
   Alert,
   Platform,
@@ -98,34 +97,41 @@ import { isUserBlocked } from "../util/Helper";
 import { TextInput } from "react-native-gesture-handler";
 
 class ViewProfile extends React.Component {
-  // static navigationOptions = ({ navigation }) => {
-  //   const { params } = navigation.state;
+  static navigationOptions = ({ navigation, route }) => {
+    const { params } = route;
 
-  //   if (params && params.routeName != "MyProfile") {
-  //     //Show Header by returning header
-  //     return {
-  //       title: navigation.getParam("title", ""),
-  //       // title: navigation.getParam("title", ""),
-
-  //       headerRight: (
-  //         <TouchableOpacity
-  //           style={{ marginRight: 24 }}
-  //           onPress={navigation.getParam("showActionSheet")}
-  //         >
-  //           <SimpleLineIcons
-  //             style={{ color: "#000" }}
-  //             name={"paper-plane"}
-  //             size={30}
-  //           />
-  //         </TouchableOpacity>
-  //       ),
-  //     };
-  //   } else {
-  //     //Hide Header by returning null
-  //     // return { headerRight: null };
-  //     return { title: navigation.getParam("title", ""), headerRight: null };
-  //   }
-  // };
+    if (params && params.routeName != "MyProfile") {
+      //Show Header by returning header
+      return {
+        title: route.params?.title ?? "",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      };
+    } else {
+      //Hide Header by returning null
+      // return { headerRight: null };
+      return {
+        title: route.params?.title ?? "",
+        headerRight: null,
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+              name={"ios-arrow-back"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      };
+    }
+  };
 
   constructor(props) {
     super(props);
@@ -133,7 +139,6 @@ class ViewProfile extends React.Component {
     this.cellRefs = {};
     this.user = {};
     this.state = {
-      flatListSmall: true,
       showHide: "hide",
       position: 0,
       visible: false,
@@ -153,12 +158,30 @@ class ViewProfile extends React.Component {
     this.props.updateDOB(value.getTime());
   }
   componentDidMount = async () => {
-    const { state, navigate } = this.props.navigation;
-    const { uid } = state.params;
+    // const { state, navigate } = this.props.navigation;
+    // const { uid } = state.params;
 
-    this.props.navigation.setParams({
-      showActionSheet: this.showActionSheet,
-    });
+    const { params } = this.props.route;
+    // alert(params.name);
+    if (params && params.routeName != "MyProfile") {
+      this.props.navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity
+            style={{ marginRight: 24 }}
+            onPress={this.showActionSheet}
+          >
+            <SimpleLineIcons
+              style={{ color: "#000" }}
+              name={"paper-plane"}
+              size={30}
+            />
+          </TouchableOpacity>
+        ),
+      });
+    }
+    // this.props.navigation.setParams({
+    //   showActionSheet: this.showActionSheet,
+    // });
 
     this.props.navigation.setParams({
       goToChat: this.goToChat,
@@ -198,28 +221,17 @@ class ViewProfile extends React.Component {
     // }
   }
 
-  goIndex = (index) => {
-    this.flatListRef.scrollToIndex({ animated: true, index: index });
-  };
+
 
   logout = () => {
-    firebase.auth().signOut();
+    auth().signOut();
     this.props.logout();
     showMessage({
       message: "User Logged Out Successfully",
       type: "success",
       duration: 2000,
     });
-    this.props.navigation.navigate("login");
-  };
-
-  onButtonPress = (item) => {
-    this.setState({
-      flatListSmall: !this.state.flatListSmall,
-    });
-    Platform.OS === "android"
-      ? this.scroll.scrollTo({ y: 12000, animated: true })
-      : this.scroll.scrollTo({ y: 120, animated: true });
+    this.props.navigation.replace("Auth");
   };
 
   refreshScript = () => {
@@ -227,10 +239,11 @@ class ViewProfile extends React.Component {
   };
 
   onSelect = (item, index) => {
-    const { state, navigate } = this.props.navigation;
+    // const { state, navigate } = this.props.navigation;
+    const routeName = this.props.route.name;
     this.props.navigation.navigate("PostListScreen", {
       selectedIndex: index,
-      route: state.routeName,
+      route: routeName,
     });
 
     // this.visibleSwitch(item);
@@ -502,14 +515,13 @@ class ViewProfile extends React.Component {
     /* this.props.deleteAllPosts() */
     await this.props.deleteUser();
     await this.props.deleteAuth();
-    firebase.auth().signOut();
+    auth().signOut();
     this.props.navigation.navigate("Splash");
   };
   getProfileComponent(user) {
-    const { state, navigate } = this.props.navigation;
     let userblocked = isUserBlocked(this.props.user, user.uid);
-    const { params } = this.props.navigation.state;
-
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
     return (
       <View>
         <View style={[styles.center]}>
@@ -1037,9 +1049,8 @@ class ViewProfile extends React.Component {
   render() {
     let userProfile = {};
 
-    const { state, navigate } = this.props.navigation;
     // const { params } = this.props.navigation.state.params;
-    const { routeName, user } = this.props.navigation.state.params;
+    const { routeName, user } = this.props.route.params;
     // alert(routeName);
     if (routeName === "Profile") {
       userProfile = user;

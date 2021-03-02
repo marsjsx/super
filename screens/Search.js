@@ -22,6 +22,7 @@ import _ from "lodash";
 const { height, width } = Dimensions.get("window");
 
 import { isUserBlocked } from "../util/Helper";
+import Scale from "../helpers/Scale";
 
 const aspectRatio = width / height;
 class Search extends React.Component {
@@ -118,11 +119,11 @@ class Search extends React.Component {
   };
 
   onSelect = (item, index) => {
-    const { state, navigate } = this.props.navigation;
-
+    // const { state, navigate } = this.props.navigation;
+    const routeName = this.props.route.name;
     this.props.navigation.navigate("PostListScreen", {
       selectedIndex: index,
-      route: state.routeName,
+      route: routeName,
     });
   };
   resetTimer() {
@@ -189,7 +190,11 @@ class Search extends React.Component {
   );
   renderPostItem = ({ item, index }) => (
     <TouchableOpacity
-      style={[styles.center, { marginRight: 3, marginBottom: 3 }]}
+      style={[
+        styles.center,
+        styles.squareLarge,
+        { marginRight: 3, marginBottom: 3 },
+      ]}
       onPress={() => [this.onSelect(item, index)]}
     >
       <ProgressiveImage
@@ -215,6 +220,18 @@ class Search extends React.Component {
       ) : null}
     </TouchableOpacity>
   );
+
+  getUserItemLayout = (data, index) => ({
+    length: Scale.moderateScale(60),
+    offset: Scale.moderateScale(60) * index,
+    index,
+  });
+
+  getPostItemLayout = (data, index) => ({
+    length: width * 0.33 * (height / width),
+    offset: width * 0.33 * (height / width) * index,
+    index,
+  });
   listHeaderComponent() {
     return (
       <View>
@@ -243,13 +260,14 @@ class Search extends React.Component {
         </View>
         {this.state.focused && (
           <FlatList
-            initialNumToRender="20"
-            maxToRenderPerBatch="20"
-            windowSize={20}
+            initialNumToRender="10"
+            maxToRenderPerBatch="6"
+            windowSize={10}
             ListHeaderComponent={this.searchUserHeaderComponent()}
             data={this.state.query}
             keyExtractor={(item) => item.uid}
             renderItem={this.renderUserItem}
+            getItemLayout={this.getUserItemLayout}
           />
         )}
         {this.state.focused &&
@@ -283,7 +301,6 @@ class Search extends React.Component {
   };
   // Retrieve More
   retrieveMore = async () => {
-    // alert("Retrieve More Called");
     if (!this.state.refreshing) {
       this.setState({
         refreshing: true,
@@ -317,9 +334,9 @@ class Search extends React.Component {
       <SafeAreaView style={styles.container}>
         <View>
           <FlatList
-            // initialNumToRender="12"
-            // maxToRenderPerBatch="12"
-            // windowSize={12}
+            initialNumToRender={12}
+            maxToRenderPerBatch={12}
+            windowSize={12}
             contentContainerStyle={{ paddingBottom: 100 }}
             horizontal={false}
             numColumns={3}
@@ -328,12 +345,13 @@ class Search extends React.Component {
             keyExtractor={(item) => item.id}
             renderItem={this.renderPostItem}
             // removeClippedSubviews={true}
-            onEndReachedThreshold={0}
+            onEndReachedThreshold={1}
             ListFooterComponent={this.renderFooter}
             // On End Reached (Takes a function)
             onEndReached={this.retrieveMore}
             // Refreshing (Set To True When End Reached)
             refreshing={this.state.refreshing}
+            getItemLayout={this.getPostItemLayout}
           />
         </View>
       </SafeAreaView>

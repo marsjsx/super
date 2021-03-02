@@ -21,6 +21,26 @@ export default styles = StyleSheet.create({
     height: null,
   },
 
+  androidshadow: {
+    shadowOffset: { width: 10, height: 10 },
+    shadowColor: "black",
+    shadowOpacity: 1,
+    elevation: 3,
+    // background color must be set
+    backgroundColor: "#0000", // invisible color
+  },
+
+  iconshadowandroid: {
+    ...Platform.select({
+      ios: {},
+      android: {
+        shadowOpacity: 2,
+        textShadowRadius: 4,
+        textShadowOffset: { width: 2, height: 2 },
+      },
+    }),
+  },
+
   center: {
     alignItems: "center",
     justifyContent: "center",
@@ -329,8 +349,8 @@ export default styles = StyleSheet.create({
   },
   squareLarge: {
     width: width * 0.33,
-    aspectRatio: aspectRatio,
-    // height: 170,
+    // aspectRatio: aspectRatio,
+    height: width * 0.33 * (height / width),
     margin: 1,
     backgroundColor: "#d3d3d3",
   },

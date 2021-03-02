@@ -1,10 +1,12 @@
-import React from 'react';
-import styles from '../styles'
-import { MapView } from 'expo';
+import React from "react";
+import styles from "../styles";
+import { MapView } from "expo";
 
 class Map extends React.Component {
   render() {
-    const { location } = this.props.navigation.state.params
+    // const { location } = this.props.navigation.state.params
+    const { location } = this.props.route.params;
+
     return (
       <MapView
         style={styles.container}
@@ -13,16 +15,17 @@ class Map extends React.Component {
           longitude: location.coords.lng,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
-        }}>
+        }}
+      >
         <MapView.Marker
           coordinate={{
             latitude: location.coords.lat,
-            longitude: location.coords.lng
+            longitude: location.coords.lng,
           }}
           title={location.name}
         />
       </MapView>
-    )
+    );
   }
 }
 

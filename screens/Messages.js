@@ -263,7 +263,9 @@ class Messages extends React.Component {
                         style={[styles.container, styles.center, styles.left]}
                       >
                         {/* <Text style={styles.bold}>{item.user.username}</Text> */}
-                        <Title>{item.user.username}</Title>
+                        <Title style={{ color: "#000" }}>
+                          {item.user.username}
+                        </Title>
                         {this.getLastMessage(item)}
                         {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
                         {/* <Text style={[styles.gray, styles.small]}>
@@ -279,7 +281,7 @@ class Messages extends React.Component {
                           alignItems: "center",
                         }}
                       >
-                        <Text style={[styles.gray, { marginRight: 10 }]}>
+                        <Text style={[styles.black, { marginRight: 10 }]}>
                           {moment(item.updatedAt).format("ll")}
                         </Text>
                         <Icon name="arrow-forward" />
@@ -320,7 +322,7 @@ const LastMessage = ({
 
     <Text
       style={[
-        styles.gray,
+        styles.black,
         { fontSize: 16, marginLeft: Scale.moderateScale(5) },
       ]}
     >

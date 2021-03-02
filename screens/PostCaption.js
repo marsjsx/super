@@ -16,7 +16,6 @@ import db from "../config/firebase";
 import { cleanExtractedImagesCache } from "react-native-image-filter-kit";
 import { StackActions } from "@react-navigation/native";
 
-navigation.dispatch(StackActions.popToTop());
 import { showMessage, hideMessage } from "react-native-flash-message";
 import DropDownPicker from "../component/dropdownpicker";
 import _ from "lodash";
@@ -142,7 +141,9 @@ class PostCaption extends React.Component {
     }
 
     if (this.props.post.photo.type === "image") {
-      const { filteredImage } = this.props.navigation.state.params;
+      // const { filteredImage } = this.props.navigation.state.params;
+      const { filteredImage } = this.props.route.params;
+
       if (filteredImage) {
         // alert(this.state.filteredImage);
 
@@ -283,7 +284,6 @@ class PostCaption extends React.Component {
 
   render() {
     // const filter = this.filters[this.state.index];
-    const { filteredImage } = this.props.navigation.state.params;
     var locations = [];
 
     if (this.state.customLocation) {
@@ -293,19 +293,23 @@ class PostCaption extends React.Component {
     }
 
     return (
-      <View style={{ flex: 1, width: "100%", height: "100%" }}>
-        <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
-          <EmptyView
-            ref={(ref) => {
-              this.sheetRef = ref;
-            }}
-            navigation={this.props.navigation}
-          />
-          <ScrollView
-            style={[{ width: "100%", height: "100%" }]}
-            contentContainerStyle={{ alignItems: "center" }}
-          >
-            {/* <TouchableOpacity
+      <View style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{
+            flex: 1,
+            alignItems: "center",
+          }}
+        >
+          <View style={{ height: 0 }}>
+            <EmptyView
+              ref={(ref) => {
+                this.sheetRef = ref;
+              }}
+              navigation={this.props.navigation}
+            />
+          </View>
+
+          {/* <TouchableOpacity
               style={{
                 position: "absolute",
                 right: 16,
@@ -330,10 +334,10 @@ class PostCaption extends React.Component {
               </Text>
             </TouchableOpacity> */}
 
-            <View style={{ marginTop: 20 }}>
-              {/* <Item floatingLabel> */}
-              {/* <Label>Write a caption..</Label> */}
-              {/* <Textarea
+          <View style={{}}>
+            {/* <Item floatingLabel> */}
+            {/* <Label>Write a caption..</Label> */}
+            {/* <Textarea
                   rowSpan={5}
                   placeholder="Write a caption....."
                   bordered
@@ -341,81 +345,80 @@ class PostCaption extends React.Component {
                   onChangeText={(text) => this.props.updateDescription(text)}
                 /> */}
 
-              <View
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                width: "100%",
+                borderBottomWidth: 0.5,
+                paddingBottom: Scale.moderateScale(20),
+                borderBottomColor: "#dcdcdc",
+              }}
+            >
+              {/* this.props.post.photo */}
+              <Image
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  width: "100%",
-                  borderBottomWidth: 0.5,
-                  paddingBottom: Scale.moderateScale(20),
-                  borderBottomColor: "#dcdcdc",
+                  height: width * 0.3,
+                  aspectRatio: 3 / 5,
+                  // width: width * 0.16,
                 }}
-              >
-                {/* this.props.post.photo */}
-                <Image
-                  style={{
-                    height: width * 0.3,
-                    aspectRatio: 3 / 5,
-                    // width: width * 0.16,
-                  }}
-                  // source={{
-                  //   uri: filteredImage
-                  //     ? filteredImage
-                  //     : this.props.post.preview,
-                  // }}
-                  source={{
-                    uri: this.props.post.preview,
-                  }}
-                  resizeMode={"cover"}
+                // source={{
+                //   uri: filteredImage
+                //     ? filteredImage
+                //     : this.props.post.preview,
+                // }}
+                source={{
+                  uri: this.props.post.preview,
+                }}
+                resizeMode={"cover"}
+              />
+              <View style={{ width: width * 0.8 }}>
+                <Editor
+                  list={this.state.users}
+                  initialValue={this.state.initialValue}
+                  clearInput={this.state.clearInput}
+                  onChange={this.onChangeHandler}
+                  showEditor={this.state.showEditor}
+                  toggleEditor={this.toggleEditor}
+                  showMentions={this.state.showMentions}
+                  onHideMentions={this.onHideMentions}
+                  placeholder="Write a caption....."
                 />
-                <View style={{ width: width * 0.8 }}>
-                  <Editor
-                    list={this.state.users}
-                    initialValue={this.state.initialValue}
-                    clearInput={this.state.clearInput}
-                    onChange={this.onChangeHandler}
-                    showEditor={this.state.showEditor}
-                    toggleEditor={this.toggleEditor}
-                    showMentions={this.state.showMentions}
-                    onHideMentions={this.onHideMentions}
-                    placeholder="Write a caption....."
-                  />
-                </View>
               </View>
-              {/* </Item> */}
-              {this.state.locations.length > 0 ? (
-                <DropDownPicker
-                  items={locations}
-                  defaultValue={this.state.country}
-                  containerStyle={{ height: 40, marginTop: 20 }}
-                  searchable={true}
-                  placeholder={"Add a Location"}
-                  searchableError={(searchableText) => {
-                    this.setState({
-                      customLocation: {
-                        label: searchableText,
-                        value: searchableText,
-                      },
-                    });
-                    return null;
-
-                    // return <Text>Not {searchableText}</Text>;
-                  }}
-                  searchablePlaceholder="Search a Location"
-                  searchablePlaceholderTextColor="gray"
-                  style={{ backgroundColor: "#fafafa" }}
-                  itemStyle={{
-                    justifyContent: "flex-start",
-                  }}
-                  dropDownStyle={{ backgroundColor: "#fafafa" }}
-                  onChangeItem={this.setLocation.bind(this)}
-                />
-              ) : null}
-              <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
-                <Text>Post</Text>
-              </TouchableOpacity>
             </View>
-          </ScrollView>
+            {/* </Item> */}
+            {this.state.locations.length > 0 ? (
+              <DropDownPicker
+                items={locations}
+                defaultValue={this.state.country}
+                containerStyle={{ height: 40, marginTop: 20 }}
+                searchable={true}
+                placeholder={"Add a Location"}
+                searchableError={(searchableText) => {
+                  this.setState({
+                    customLocation: {
+                      label: searchableText,
+                      value: searchableText,
+                    },
+                  });
+                  return null;
+
+                  // return <Text>Not {searchableText}</Text>;
+                }}
+                searchablePlaceholder="Search a Location"
+                searchablePlaceholderTextColor="gray"
+                style={{ backgroundColor: "#fafafa" }}
+                itemStyle={{
+                  justifyContent: "flex-start",
+                }}
+                dropDownStyle={{ backgroundColor: "#fafafa" }}
+                onChangeItem={this.setLocation.bind(this)}
+              />
+            ) : null}
+            <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
+              <Text>Post</Text>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
         {this.state.showLoading ? (
           <Loader message="Posting, Please wait... " bgColor="white" />

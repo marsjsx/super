@@ -29,7 +29,9 @@ class MyFollowersAndFollowing extends React.Component {
   }
 
   render() {
-    const { data, route, user } = this.props.navigation.state.params;
+
+    // const { data, route, user } = this.props.navigation.state.params;
+    const { data, route, user } = this.props.route.params;
 
     const initialTabPosition = data === "Following" ? 1 : 0;
     let userProfile = {};

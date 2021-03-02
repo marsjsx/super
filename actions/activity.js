@@ -1,4 +1,3 @@
-import firebase from "firebase";
 import db from "../config/firebase";
 import uuid from "uuid";
 import cloneDeep from "lodash/cloneDeep";

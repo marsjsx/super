@@ -82,6 +82,12 @@ class AvView extends React.Component {
     // }
   };
 
+  // componentWillUnmount() {
+  //   if (this.video) {
+  //     this.setState({ paused: true });
+  //   }
+  // }
+
   onLoad(data) {
     this.setState({ duration: data.duration });
   }
@@ -355,19 +361,18 @@ class AvView extends React.Component {
             }}
             source={{ uri: this.props.source }}
             style={this.props.style}
-            rate={this.state.rate}
+            // rate={this.state.rate}
             paused={this.state.paused}
-            volume={this.state.volume}
+            // volume={this.state.volume}
             poster={this.props.preview}
             posterResizeMode="cover"
-            muted={this.state.muted}
-            ignoreSilentSwitch={"ignore"}
+            // muted={this.state.muted}
+            // ignoreSilentSwitch={"ignore"}
             resizeMode={"cover"}
-            onLoad={this.onLoad}
-            onBuffer={this.onBuffer}
-            onProgress={this.onProgress}
+            // onLoad={this.onLoad}
+            // onBuffer={this.onBuffer}
+            // onProgress={this.onProgress}
             onError={this.videoError}
-            onEnd={() => null}
             repeat={true}
           />
           {/* 

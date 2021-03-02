@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Text,
   ScrollView,
-  Image
+  Image,
 } from "react-native";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
@@ -18,7 +18,6 @@ import { isEmpty, isEmailValid } from "../validations/Validation";
 import { Item, Icon, Input, Label, DatePicker } from "native-base";
 
 class Reset extends React.Component {
-
   onResetPress = () => {
     if (isEmailValid(this.props.user.email)) {
       this.props.passwordResetEmail();
@@ -44,16 +43,16 @@ class Reset extends React.Component {
               style={[styles.logo3]}
               source={require("../assets/logo-2.png")}
             />
-             <Item floatingLabel style={[styles.textInput,{marginTop:30}]}>
+            <Item floatingLabel style={[styles.textInput, { marginTop: 30 }]}>
               <Icon name="ios-person" style={{ color: "#ffffff" }} />
               <Label style={{ color: "#ffffff" }}>Email</Label>
               <Input
                 style={{ color: "#ffffff" }}
                 value={this.props.user.email}
-                onChangeText={input => this.props.updateEmail(input)}
+                onChangeText={(input) => this.props.updateEmail(input)}
               />
             </Item>
- 
+
             <TouchableOpacity
               style={[styles.buttonReset, { marginTop: 60 }]}
               onPress={this.onResetPress}
@@ -67,13 +66,13 @@ class Reset extends React.Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({ passwordResetEmail, updateEmail }, dispatch);
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
   };
 };
 

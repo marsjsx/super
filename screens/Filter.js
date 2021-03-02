@@ -1,6 +1,5 @@
 import React from 'react'
 import styles from '../styles'
-import firebase from 'firebase'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 // import Slider from '@react-native-community/slider';

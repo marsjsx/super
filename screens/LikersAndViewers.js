@@ -65,7 +65,8 @@ class LikersAndViewers extends React.Component {
   static async getDerivedStateFromProps(props, state) {}
 
   async getUsersList() {
-    const { data } = this.props.navigation.state.params;
+    // const { data } = this.props.navigation.state.params;
+    const { data } = this.props.route.params;
     if (data && data.length > 0) {
       const unique = (value, index, self) => {
         return self.indexOf(value) === index;
@@ -219,8 +220,8 @@ class LikersAndViewers extends React.Component {
 
   render() {
     const { users, isRefreshing } = this.state;
-    const { flow, views } = this.props.navigation.state.params;
-
+    // const { flow, views } = this.props.navigation.state.params;
+    const { flow, views } = this.props.route.params;
     return (
       <View style={{ flex: 1 }}>
         {flow && (

@@ -36,7 +36,7 @@ class FullScreenImage extends React.Component {
   componentDidMount() {
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
-      "willBlur",
+      "blur",
       this.willBlurAction
     );
     // ScreenOrientation.unlockAsync();
@@ -61,7 +61,7 @@ class FullScreenImage extends React.Component {
   }
 
   render() {
-    const { data } = this.props.navigation.state.params;
+    const { data } = this.props.route.params;
 
     return (
       <View

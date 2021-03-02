@@ -128,11 +128,12 @@ class NewMessage extends React.Component {
   };
 
   onSelect = (item, index) => {
-    const { state, navigate } = this.props.navigation;
+    // const { state, navigate } = this.props.navigation;
+    const routeName = this.props.route.name;
 
     this.props.navigation.navigate("PostListScreen", {
       selectedIndex: index,
-      route: state.routeName,
+      route: routeName,
     });
   };
   resetTimer() {

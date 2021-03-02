@@ -147,7 +147,8 @@ class Chat extends React.Component {
       received: false,
     };
 
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
 
     // alert(JSON.stringify(sentMessages));
 
@@ -307,7 +308,8 @@ class Chat extends React.Component {
 
   getUserChat() {
     // const { id } = this.props.navigation.state;
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
 
     if (this.props.messages.length) {
       var chatlist = this.props.messages.filter(
@@ -421,7 +423,9 @@ class Chat extends React.Component {
     //   }
     // );
 
-    const { params } = self.props.navigation.state;
+    // const { params } = self.props.navigation.state;
+    const { params } = this.props.route;
+
     const options = ["Delete Message", "Copy Text", "Cancel"];
     const cancelButtonIndex = options.length - 1;
     context.actionSheet().showActionSheetWithOptions(
@@ -486,7 +490,7 @@ class Chat extends React.Component {
           renderInputToolbar={this.renderInputToolbar}
           renderComposer={this.renderComposer}
           onPressAvatar={() =>
-            this.goToUser(this.props.navigation.state.params)
+            this.goToUser(this.props.route.params)
           }
           keyboardShouldPersistTaps="never"
           renderAccessory={Platform.OS === "web" ? null : this.renderAccessory}

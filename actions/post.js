@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import firestore from "@react-native-firebase/firestore";
 import db from "../config/firebase";
 import uuid from "uuid";
 import cloneDeep from "lodash/cloneDeep";
@@ -177,18 +177,24 @@ export const getPostById = (postId) => {
   return async (dispatch, getState) => {
     try {
       let posts = [];
-      const query = await db
-        .collection("posts")
+
+      db.collection("posts")
         .where("id", "==", postId)
-        .get();
-      query.forEach((response) => {
-        posts.push(response.data());
-      });
-      if (posts.length > 0) {
-        dispatch({ type: "NEW_POST_ADDED", payload: posts[0] });
-      }
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((documentSnapshot) => {
+            // console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+            posts.push(documentSnapshot.data());
+          });
+          if (posts.length > 0) {
+            dispatch({ type: "NEW_POST_ADDED", payload: posts[0] });
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
     } catch (e) {
-      alert("Upload Error: " + e);
+      alert(e);
 
       /* console.error(e) */
     }
@@ -277,57 +283,62 @@ export const getPosts = () => {
     // alert(limit);
     try {
       dispatch({ type: "SHOW_LOADING", payload: true });
-      const posts = await db
-        .collection("posts")
+
+      db.collection("posts")
         .orderBy("date", "desc")
         .limit(18)
-        .get();
-      var images = [];
+        .get()
+        .then((querySnapshot) => {
+          var images = [];
 
-      let array = [];
-      // let lastVisible = null;
-      // var lastVisible = posts.docs[posts.docs.length - 1];
-      var lastVisible = null;
-      // Get the last visible document
-      if (posts && posts.size > 0) {
-        lastVisible = posts.docs[posts.docs.length - 1];
-      }
-      posts.forEach((post) => {
-        var item = post.data();
-        if (!isUserBlocked(getState().user, item.uid)) {
-          // lastVisible = post.id;
-          array.push(post.data());
-          if (item.photo && item.photo.length > 15) {
-            const normalisedSource =
-              item.photo &&
-              typeof item.photo === "string" &&
-              !item.photo.split("https://")[1]
-                ? null
-                : item.photo;
-            if (normalisedSource) {
-              images.push({
-                uri: item.photo,
-              });
-            }
+          let array = [];
+          // let lastVisible = null;
+          // var lastVisible = posts.docs[posts.docs.length - 1];
+          var lastVisible = null;
+          // Get the last visible document
+          if (querySnapshot && querySnapshot.size > 0) {
+            lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
           }
-          if (item.type == "image") {
-            if (item.postPhoto && item.postPhoto.length > 15) {
-              images.push({
-                uri: item.postPhoto,
-              });
-            }
-          }
-        }
-      });
 
-      if (images.length > 0) {
-        // alert(JSON.stringify(images));
-        // dispatch(preloadImages(images));
-        preloadImages(images);
-      }
-      //  dispatch({ type: "GET_POSTS", payload: orderBy(array, "date", "desc") });
-      dispatch({ type: "GET_POSTS", payload: array });
-      dispatch({ type: "LAST_VISIBLE", payload: lastVisible });
+          querySnapshot.forEach((post) => {
+            var item = post.data();
+            if (!isUserBlocked(getState().user, item.uid)) {
+              // lastVisible = post.id;
+              array.push(post.data());
+              if (item.photo && item.photo.length > 15) {
+                const normalisedSource =
+                  item.photo &&
+                  typeof item.photo === "string" &&
+                  !item.photo.split("https://")[1]
+                    ? null
+                    : item.photo;
+                if (normalisedSource) {
+                  images.push({
+                    uri: item.photo,
+                  });
+                }
+              }
+              if (item.type == "image") {
+                if (item.postPhoto && item.postPhoto.length > 15) {
+                  images.push({
+                    uri: item.postPhoto,
+                  });
+                }
+              }
+            }
+          });
+
+          if (images.length > 0) {
+            preloadImages(images);
+          }
+          //  dispatch({ type: "GET_POSTS", payload: orderBy(array, "date", "desc") });
+          dispatch({ type: "GET_POSTS", payload: array });
+          dispatch({ type: "LAST_VISIBLE", payload: lastVisible });
+        })
+        .catch((error) => {
+          let array = [];
+          dispatch({ type: "GET_POSTS", payload: array });
+        });
     } catch (e) {
       let array = [];
       dispatch({ type: "GET_POSTS", payload: array });
@@ -934,7 +945,7 @@ export const likePost = (post) => {
       db.collection("posts")
         .doc(post.id)
         .update({
-          likes: firebase.firestore.FieldValue.arrayUnion(uid),
+          likes: firestore.FieldValue.arrayUnion(uid),
         });
       dispatch({ type: "GET_POSTS", payload: newFeed });
 
@@ -1121,7 +1132,7 @@ export const unlikePost = (post) => {
       db.collection("posts")
         .doc(post.id)
         .update({
-          likes: firebase.firestore.FieldValue.arrayRemove(uid),
+          likes: firestore.FieldValue.arrayRemove(uid),
         });
       dispatch({ type: "GET_POSTS", payload: newFeed });
 
@@ -1211,7 +1222,7 @@ export const addComment = (text, post) => {
       db.collection("posts")
         .doc(post.id)
         .update({
-          comments: firebase.firestore.FieldValue.arrayUnion(comment),
+          comments: firestore.FieldValue.arrayUnion(comment),
         });
       comment.postId = post.id;
       comment.postPhoto = post.preview;
@@ -1252,12 +1263,12 @@ export const reportPost = (post, reason) => {
       db.collection("posts")
         .doc(post.id)
         .update({
-          reports: firebase.firestore.FieldValue.arrayUnion(uid),
+          reports: firestore.FieldValue.arrayUnion(uid),
         });
       db.collection("users")
         .doc(post.uid)
         .update({
-          reports: firebase.firestore.FieldValue.arrayUnion(uid),
+          reports: firestore.FieldValue.arrayUnion(uid),
         });
       db.collection("reports").doc().set({
         postId: post.id,

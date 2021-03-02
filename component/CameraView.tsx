@@ -19,6 +19,7 @@ import { openSettingsDialog } from "../util/Helper";
 import * as ExpoImagePicker from "expo-image-picker";
 const { height, width } = Dimensions.get("window");
 import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
+import { showLoader } from "../util/Loader";
 
 import { updatePhoto, createAndUpdatePreview } from "../actions/post";
 import * as Permissions from "expo-permissions";
@@ -47,6 +48,7 @@ class CameraView extends Component {
       imageSourceType: 0,
       isCameraButton: false,
       timer: null,
+      showLoading: false,
       animated: new Animated.Value(0),
       opacityA: new Animated.Value(1),
     };
@@ -70,7 +72,7 @@ class CameraView extends Component {
     //   );
     // }
     this.didFocusSubscription = this.props.navigation.addListener(
-      "didFocus",
+      "focus",
       this.didFocusAction
     );
   }
@@ -380,11 +382,13 @@ class CameraView extends Component {
     if (status === "granted") {
       var selectedFile;
 
+      this.setState({ showLoading: true });
       selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
         mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
         // allowsEditing: true,
         duration: 60000,
       });
+      this.setState({ showLoading: false });
 
       if (!selectedFile.cancelled) {
         if (type === "vr") {
@@ -408,7 +412,6 @@ class CameraView extends Component {
 
   renderCamera(permissionsGranted) {
     // const { permissionsGranted } = this.state;
-    const { state, navigate } = this.props.navigation;
 
     // alert(!this.state.cameraImagePath);
     if (permissionsGranted === false) {
@@ -690,9 +693,9 @@ class CameraView extends Component {
   }
 
   render() {
-    const { state, navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
+        {this.state.showLoading ? showLoader("Please wait... ") : null}
         {this.renderCamera(this.state.permissionsGranted)}
       </View>
     );

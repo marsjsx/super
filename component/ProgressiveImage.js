@@ -64,15 +64,18 @@ class ProgressiveImage extends React.Component {
     }
   };
 
-  thumbnailAnimated = new Animated.Value(0);
+  // thumbnailAnimated = new Animated.Value(0);
+  thumbnailAnimated = 1;
 
   // imageAnimated = new Animated.Value(0);
 
   handleThumbnailLoad = () => {
-    Animated.timing(this.thumbnailAnimated, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
+    // Animated.timing(this.thumbnailAnimated, {
+    //   toValue: 1,
+    //   useNativeDriver: true,
+    // }).start();
+
+    thumbnailAnimated = 1;
   };
 
   onImageLoad = () => {
@@ -131,7 +134,7 @@ class ProgressiveImage extends React.Component {
         {thumbnailSource &&
         thumbnailSource.uri &&
         thumbnailSource.uri.length > 10 ? (
-          <Animated.Image
+          <FastImage
             {...props}
             source={thumbnailSource}
             style={[

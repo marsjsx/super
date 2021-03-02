@@ -104,7 +104,7 @@ class ReportedPostList extends React.Component {
   async componentDidMount() {
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
-      "willBlur",
+      "blur",
       this.willBlurAction
     );
     await Font.loadAsync({

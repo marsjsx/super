@@ -9,7 +9,6 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
-  ScrollView,
 } from "react-native";
 import { addComment, getComments, getPostReports } from "../actions/post";
 import FastImage from "react-native-fast-image";
@@ -34,15 +33,19 @@ class PostReport extends React.Component {
   }
 
   componentDidMount = () => {
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
+
     this.props.getPostReports(params);
   };
 
   render() {
+    var reportsLength =
+      this.props.post.postReports && this.props.post.postReports.length > 0
+        ? this.props.post.postReports.length
+        : 0;
 
-    var reportsLength = this.props.post.postReports&&this.props.post.postReports.length>0 ? this.props.post.postReports.length:0
-
-    if (!this.props.user.uid || reportsLength<1) {
+    if (!this.props.user.uid || reportsLength < 1) {
       return (
         <EmptyView
           ref={(ref) => {
@@ -86,7 +89,7 @@ class PostReport extends React.Component {
               </View>
             )}
           />
-            </View>
+        </View>
       </KeyboardAvoidingView>
     );
   }

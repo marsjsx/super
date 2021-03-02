@@ -16,6 +16,7 @@ import Editor, { displayTextWithMentions } from "../component/mentioneditor";
 import db from "../config/firebase";
 import Scale from "../helpers/Scale";
 import CropperPage from "../screens/CropperPage";
+import { showLoader } from "../util/Loader";
 
 import _ from "lodash";
 
@@ -116,34 +117,6 @@ const filters = [
   // "Xpro2",
 ];
 class Post extends React.Component {
-  // static navigationOptions = ({ navigation }) => {
-  //   if (
-  //     navigation.state.params &&
-  //     navigation.state.params.fullscreen === false
-  //   ) {
-  //     //Hide Header by returning null
-  //     return { header: null };
-  //   } else {
-  //     //Show Header by returning header
-  //     return {
-  //       headerRight: (
-  //         <TouchableOpacity onPress={navigation.getParam("onNext")}>
-  //           <Text
-  //             style={{
-  //               color: "dodgerblue",
-  //               fontWeight: "bold",
-  //               padding: 5,
-  //               fontSize: 16,
-  //             }}
-  //           >
-  //             Next{" "}
-  //           </Text>
-  //         </TouchableOpacity>
-  //       ),
-  //     };
-  //   }
-  // };
-
   constructor(props) {
     super(props);
     this.sheetRef = {};
@@ -172,6 +145,7 @@ class Post extends React.Component {
       message: null,
       messages: [],
       index: 0,
+      videoUri: "",
       paused: false,
       isCropped: false,
       clearInput: false,
@@ -183,7 +157,6 @@ class Post extends React.Component {
   async componentDidMount() {
     self = this;
     // alert("didMount Called");
-    this.props.navigation.setParams({ onNext: this._onNext });
 
     const selectedFile = this.props.post.photo;
     // alert(JSON.stringify(selectedFile));
@@ -194,29 +167,6 @@ class Post extends React.Component {
     this.onWillFocus();
 
     let search = this.state.users;
-
-    // alert(searchQuery);
-
-    const query = await db.collection("users").get();
-
-    // alert(query.size);
-
-    query.forEach((response) => {
-      let user = response.data();
-      if (user.user_name) {
-        var data = {
-          id: user.uid,
-          name: user.username,
-          username: user.user_name,
-          gender: "",
-          photo: user.photo,
-        };
-
-        search.push(data);
-      }
-    });
-    // alert(search.length);
-    this.setState({ users: search });
   }
 
   onFullScreen() {
@@ -225,6 +175,40 @@ class Post extends React.Component {
       fullscreen: !this.isVisible,
     });
     this.isVisible = !this.isVisible;
+
+    if (this.isVisible) {
+      this.showHeader();
+    } else {
+      this.props.navigation.setOptions({
+        headerShown: false,
+        title: "",
+        gestureEnabled: false,
+        headerRight: null,
+      });
+    }
+  }
+
+  showHeader() {
+    this.props.navigation.setOptions({
+      headerShown: true,
+      headerTransparent: true,
+      gestureEnabled: false,
+      title: "",
+      headerRight: () => (
+        <TouchableOpacity onPress={this._onNext}>
+          <Text
+            style={{
+              color: "dodgerblue",
+              fontWeight: "bold",
+              padding: 5,
+              fontSize: 16,
+            }}
+          >
+            Next{" "}
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
   }
 
   loadImage(index) {
@@ -302,15 +286,20 @@ class Post extends React.Component {
   onWillFocus = () => {
     if (!this.props.post.photo) {
       this.openLibrary();
+      this.showHeader();
     } else if (this.props.post.photo.type === "image") {
       // alert(JSON.stringify(this.props.post.photo));
       if (Platform.OS === "android") {
         this.cropImage();
+        this.showHeader();
       } else {
         this.onFullScreen();
       }
     } else if (this.props.post.photo.type === "vr") {
       this.cropImage("vr");
+      this.showHeader();
+    } else {
+      this.showHeader();
     }
   };
 
@@ -408,6 +397,7 @@ class Post extends React.Component {
     await ImagePicker.openCropper({
       path: this.props.post.photo.uri,
       cropping: true,
+      hideBottomControls: true, //android only
       // width: this.props.post.photo.width,
       // height: this.props.post.photo.height,
       width: type ? imageWidth : width * 1.5,
@@ -557,42 +547,45 @@ class Post extends React.Component {
   }
 
   trimVideo() {
-    // alert(this.state.startTime + " " + this.state.endTime);
-    this.setState({ showLoading: true });
+    try {
+      // alert(this.state.startTime + " " + this.state.endTime);
+      this.setState({ showLoading: true, paused: true });
 
-    const options = {
-      startTime: this.state.startTime,
-      endTime: this.state.endTime,
-      quality: "640*360", // iOS only
-      // quality: "1280x720", // iOS only
-      // saveToCameraRoll: true, // default is false // iOS only
-      // saveWithCurrentDate: true, // default is false // iOS only
-    };
+      const options = {
+        startTime: this.state.startTime,
+        endTime: this.state.endTime,
+        // quality: "640*360", // iOS only
+        // quality: "1280x720", // iOS only
+        // saveToCameraRoll: true, // default is false // iOS only
+        // saveWithCurrentDate: true, // default is false // iOS only
+      };
+      ProcessingManager.trim(this.props.post.photo.uri, options) // like VideoPlayer trim options
+        .then(async (newSource) => {
+          const duration = this.state.endTime - this.state.startTime;
+          const origin = await ProcessingManager.getVideoInfo(newSource);
+          const result = await ProcessingManager.compress(newSource, {
+            // width: origin.size && origin.size.width / 2,
+            // height: origin.size && origin.size.height / 2,
+            width: 480,
+            height: 720,
+            bitrateMultiplier: 3,
+            minimumBitrate: 300000,
+          });
 
-    // const selectedFile = this.props.post.photo;
+          this.props.updatePhoto({
+            ...this.props.post.photo,
+            duration: duration,
+            uri: result.source,
+          });
+          this.setState({ showLoading: false, paused: true });
 
-    // this.props.updatePhoto(selectedFile);
-
-    ProcessingManager.trim(this.props.post.photo.uri, options) // like VideoPlayer trim options
-      .then((newSource) => {
-        const duration = this.state.endTime - this.state.startTime;
-
-        this.props.updatePhoto({
-          ...this.props.post.photo,
-          duration: duration,
-          uri: newSource,
+          this.props.navigation.navigate("VideoCover", {
+            filteredImage: "",
+          });
         });
-        this.setState({ showLoading: false, paused: true });
-        // _this.setState({ paused: true });
-
-        // this.props.navigation.navigate("PostCaption", {
-        //   filteredImage: "",
-        // });
-
-        this.props.navigation.navigate("VideoCover", {
-          filteredImage: "",
-        });
-      });
+    } catch (error) {
+      alert(error);
+    }
   }
   onEnd = () => {
     if (Platform.OS === "ios") {
@@ -618,7 +611,7 @@ class Post extends React.Component {
               key={""}
               name={""}
               index={this.state.index}
-              resizeMode={"contain"}
+              resizeMode={"cover"}
               onExtractImage={({ nativeEvent }) => {
                 this.setState({ filteredImage: nativeEvent.uri });
                 // alert(nativeEvent.uri)
@@ -732,6 +725,7 @@ class Post extends React.Component {
             >
               <Video
                 source={{ uri: this.props.post.photo.uri }} // Can be a URL or a local file.
+                // source={{ uri: this.state.videoUri }}
                 ref={(ref) => {
                   this.videoPlayerRef = ref;
                 }} // Store reference
@@ -986,7 +980,6 @@ class Post extends React.Component {
     // const filter = this.filters[this.state.index];
     const selectedFile = this.props.post.photo;
     const { width, height, uri, type } = this.props.post.photo;
-    const { navigate } = this.props.navigation;
 
     if (type == "image" && Platform.OS === "ios" && !this.state.isCropped) {
       return (
@@ -1005,6 +998,9 @@ class Post extends React.Component {
           height: "100%",
         }}
       >
+        {this.state.showLoading
+          ? showLoader("Processing video, Please wait... ")
+          : null}
         <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
           <EmptyView
             ref={(ref) => {
@@ -1018,49 +1014,6 @@ class Post extends React.Component {
           >
             {/* <NavigationEvents onWillFocus={this.onWillFocus} /> */}
             {this.getSelectedComponent()}
-            {/* {selectedFile &&
-              selectedFile.type !== "video" &&
-              this.renderTopBar()} */}
-            {/* 
-            <TouchableOpacity
-              style={{
-                position: "absolute",
-                right: 16,
-                top: 100,
-                zIndex: 100,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              onPress={() => {
-                this.onNext();
-              }}
-            >
-              <Text
-                style={{
-                  color: "blue",
-                  padding: 10,
-                  fontWeight: "bold",
-                  fontSize: 16,
-                }}
-              >
-                Next{" "}
-              </Text>
-            </TouchableOpacity> */}
-
-            {/* <Dropdown label='Tag People' data={data} containerStyle={styles.dropDown}/>
-      <Dropdown label='Add Location' data={dataLoc} containerStyle={styles.dropDown} />
-      <View style={[styles.postShare, styles.row, styles.space,]}>
-        <Text style={[styles.left,{ color: 'rgba(150,150,150,0.9)' }]}>Facebook</Text>
-        <TouchableOpacity style={[styles.buttonShare, styles.right]}>
-          <Text style={[{ color: 'rgba(244,66,66,0.9)' }]}>SHARE</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={[styles.postShare, styles.row, styles.space,]}>
-        <Text style={[styles.left, { color: 'rgba(150,150,150,0.9)' }]}>Twitter</Text>
-        <TouchableOpacity style={[styles.buttonShare, styles.right]}>
-          <Text style={[{ color: 'rgba(244,66,66,0.9)' }]}>SHARE</Text>
-        </TouchableOpacity>
-      </View> */}
           </ScrollView>
         </KeyboardAvoidingView>
         {this.state.loading ? (

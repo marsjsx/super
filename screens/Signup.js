@@ -47,7 +47,7 @@ import {
   createAndUpdatePreview,
 } from "../actions/user";
 import { uploadPhoto } from "../actions";
-import firebase from "firebase";
+import auth from "@react-native-firebase/auth";
 import {
   isNotEmpty,
   isEmailValid,
@@ -105,14 +105,21 @@ class Signup extends React.Component {
     this.props.updateDOB(value.getTime());
   }
   componentDidMount = () => {
-    const { routeName } = this.props.navigation.state;
+    // const { routeName } = this.props.navigation.state;
+    const routeName = this.props.route.name;
+
     if (routeName === "Signup") {
-      firebase.auth().onAuthStateChanged((user) => {
+      auth().onAuthStateChanged((user) => {
         if (user) {
           // this.props.getUser(user.uid, "LOGIN");
           if (this.props.user != null) {
             this.props.navigation.goBack();
-            this.props.navigation.navigate("Home");
+            // this.props.navigation.navigate("Home");
+            // this.props.navigation.replace("Home");
+            this.props.navigation.replace("HomeScreen");
+
+            // this.props.navigation.replace("HomeScreen");
+
             this.props.navigation.navigate("WelcomeScreen");
           }
         }
@@ -124,7 +131,7 @@ class Signup extends React.Component {
     /* this.props.deleteAllPosts() */
     await this.props.deleteUser();
     await this.props.deleteAuth();
-    firebase.auth().signOut();
+    auth().signOut();
     this.props.navigation.navigate("Splash");
   };
 
@@ -174,7 +181,9 @@ class Signup extends React.Component {
     // this.props.navigation.navigate("Home");
     // return;
 
-    const { routeName } = this.props.navigation.state;
+    // const { routeName } = this.props.navigation.state;
+    const routeName = this.props.route.name;
+
     if (routeName === "Signup") {
       if (
         isEmailValid(this.props.user.email) &&
@@ -317,18 +326,22 @@ class Signup extends React.Component {
   };
 
   logout = () => {
-    firebase.auth().signOut();
+    auth().signOut();
     this.props.logout();
     showMessage({
       message: "User Logged Out Successfully",
       type: "success",
       duration: 2000,
     });
-    this.props.navigation.navigate("login");
+    // this.props.navigation.navigate("login");
+    // this.props.navigation.navigate("Auth");
+    this.props.navigation.replace("Auth");
   };
 
   render() {
-    const { routeName } = this.props.navigation.state;
+    // const { routeName } = this.props.navigation.state;
+    const routeName = this.props.route.name;
+
     return (
       <View style={[styles.container, { width: "100%", height: "100%" }]}>
         {routeName === "Signup" ? (

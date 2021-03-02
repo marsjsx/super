@@ -27,7 +27,7 @@ class WelcomeScreen extends React.Component {
   componentDidMount() {
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
-      "willBlur",
+      "blur",
       this.willBlurAction
     );
   }

@@ -177,9 +177,34 @@ class VideoCover extends React.Component {
     // alert("didMount Called");
     this.props.navigation.setParams({ onNext: this._onNext });
 
-    Icon.getImageSource("circle", 15, "red").then((source) =>
-      this.setState({ thumbIcon: source })
-    );
+    this.props.navigation.setOptions({
+      title: "Choose Video Cover",
+      gestureEnabled: false,
+      headerRight: () => (
+        <TouchableOpacity onPress={this._onNext}>
+          <Text
+            style={{
+              color: "dodgerblue",
+              fontWeight: "bold",
+              padding: 5,
+              fontSize: 16,
+            }}
+          >
+            Next{" "}
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+
+    // Icon.getImageSource("circle", 15, "red").then((source) =>
+    //   this.setState({ thumbIcon: source })
+    // );
+
+    setTimeout(() => {
+      if (this.videoPlayerRef != null) {
+        this.videoPlayerRef.seek(this.state.startTime);
+      }
+    }, 1500);
   }
 
   loadImage(index) {

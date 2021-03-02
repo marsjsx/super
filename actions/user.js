@@ -1,6 +1,5 @@
-import firebase from "firebase";
 import auth from "@react-native-firebase/auth";
-import { firebase as firebaseAuth } from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import db from "../config/firebase";
 import { orderBy, groupBy, values } from "lodash";
 import { allowNotifications, sendNotification } from "./";
@@ -90,9 +89,9 @@ export const login = () => {
   return async (dispatch, getState) => {
     try {
       const { email, password } = getState().user;
-      const response = await firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password);
+
+      const response = await auth().signInWithEmailAndPassword(email, password);
+
       dispatch(getUser(response.user.uid));
       dispatch(filterBlockedPosts());
       dispatch(allowNotifications(response.user.uid));
@@ -105,141 +104,132 @@ export const login = () => {
 
 export const facebookLogin = () => {
   return async (dispatch) => {
-    await Facebook.initializeAsync("239016010571551");
-    const {
-      type,
-      token,
-      expires,
-      permissions,
-      declinedPermissions,
-    } = await Facebook.logInWithReadPermissionsAsync({
-      permissions: ["public_profile", "email"],
-    });
-    if (type === "success") {
-      // Build Firebase credential with the Facebook access token.
-      const credential = await firebase.auth.FacebookAuthProvider.credential(
-        token
-      );
-      // Sign in with credential from the Facebook user.
-      const firebaseResponse = await firebase
-        .auth()
-        .signInWithCredential(credential);
-
-      var response = firebaseResponse.user;
-      const user = await db.collection("users").doc(response.uid).get();
-      if (!user.exists) {
-        var email =
-          response.email == null || response.email == undefined
-            ? response.providerData[0].email
-            : response.email;
-
-        if (email == null || email == undefined) {
-          email = response.providerData[0].uid + "@facebook.com";
-        }
-
-        var username = response.displayName.toLowerCase().replace(/\s+/g, "_");
-        const user = {
-          uid: response.uid,
-          email: email,
-          username: response.displayName,
-          user_name: username,
-          bio: "",
-          userbio: "",
-          photo: response.photoURL + "?width=9999&height=9999",
-          token: null,
-          followers: [],
-          following: [],
-          blocked: [],
-          blockedBy: [],
-        };
-        db.collection("users").doc(response.uid).set(user);
-        dispatch({ type: "LOGIN", payload: user });
-      } else {
-        dispatch(getUser(response.uid));
-      }
-    } else {
-      // type === 'cancel'
-    }
+    // await Facebook.initializeAsync("239016010571551");
+    // const {
+    //   type,
+    //   token,
+    //   expires,
+    //   permissions,
+    //   declinedPermissions,
+    // } = await Facebook.logInWithReadPermissionsAsync({
+    //   permissions: ["public_profile", "email"],
+    // });
+    // if (type === "success") {
+    //   // Build Firebase credential with the Facebook access token.
+    //   const credential = await firebase.auth.FacebookAuthProvider.credential(
+    //     token
+    //   );
+    //   // Sign in with credential from the Facebook user.
+    //   const firebaseResponse = await firebase
+    //     .auth()
+    //     .signInWithCredential(credential);
+    //   var response = firebaseResponse.user;
+    //   const user = await db.collection("users").doc(response.uid).get();
+    //   if (!user.exists) {
+    //     var email =
+    //       response.email == null || response.email == undefined
+    //         ? response.providerData[0].email
+    //         : response.email;
+    //     if (email == null || email == undefined) {
+    //       email = response.providerData[0].uid + "@facebook.com";
+    //     }
+    //     var username = response.displayName.toLowerCase().replace(/\s+/g, "_");
+    //     const user = {
+    //       uid: response.uid,
+    //       email: email,
+    //       username: response.displayName,
+    //       user_name: username,
+    //       bio: "",
+    //       userbio: "",
+    //       photo: response.photoURL + "?width=9999&height=9999",
+    //       token: null,
+    //       followers: [],
+    //       following: [],
+    //       blocked: [],
+    //       blockedBy: [],
+    //     };
+    //     db.collection("users").doc(response.uid).set(user);
+    //     dispatch({ type: "LOGIN", payload: user });
+    //   } else {
+    //     dispatch(getUser(response.uid));
+    //   }
+    // } else {
+    //   // type === 'cancel'
+    // }
   };
 };
 
 export const appleLogin = () => {
   return async (dispatch) => {
     // 1). start a apple sign-in request
-    const appleAuthRequestResponse = await appleAuth.performRequest({
-      requestedOperation: AppleAuthRequestOperation.LOGIN,
-      requestedScopes: [
-        AppleAuthRequestScope.EMAIL,
-        AppleAuthRequestScope.FULL_NAME,
-      ],
-    });
-
-    // 2). if the request was successful, extract the token and nonce
-    const { identityToken, nonce, user } = appleAuthRequestResponse;
-
-    var userIdToken = user;
-    // alert(JSON.stringify(appleAuthRequestResponse));
-    if (identityToken) {
-      var data = {};
-      data.email = appleAuthRequestResponse.email;
-      data.username =
-        appleAuthRequestResponse.fullName.givenName +
-        " " +
-        appleAuthRequestResponse.fullName.familyName;
-      // user.password = new Date().getTime().toString();
-      data.password = appleAuthRequestResponse.email;
-      const { email, password, username } = data;
-
-      var userData = null;
-      const userQuery = await db
-        .collection("users")
-        .where("identityToken", "==", userIdToken)
-        .get();
-      // const user = await db.collection("users").doc(response.uid).get();
-
-      userQuery.forEach(function (response) {
-        userData = response.data();
-        return;
-      });
-
-      // alert(JSON.stringify(userData));
-      if (!userData) {
-        const response = await firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password);
-        if (response.user.uid) {
-          var user_name = username.toLowerCase().replace(/\s+/g, "_");
-
-          const user = {
-            uid: response.user.uid,
-            email: email,
-            username: username,
-            user_name: user_name,
-            photo: "",
-            bio: "",
-            userbio: "",
-            identityToken: userIdToken,
-            token: null,
-            followers: [],
-            blocked: [],
-            blockedBy: [],
-            following: [],
-            reports: [],
-          };
-          db.collection("users").doc(response.user.uid).set(user);
-          dispatch({ type: "LOGIN", payload: user });
-        }
-      } else {
-        // alert(userData.uid);
-        const response = await firebase
-          .auth()
-          .signInWithEmailAndPassword(userData.email, userData.email);
-        dispatch(getUser(response.user.uid));
-      }
-    } else {
-      alert("Apple Login Failed");
-      // handle this - retry?
-    }
+    // const appleAuthRequestResponse = await appleAuth.performRequest({
+    //   requestedOperation: AppleAuthRequestOperation.LOGIN,
+    //   requestedScopes: [
+    //     AppleAuthRequestScope.EMAIL,
+    //     AppleAuthRequestScope.FULL_NAME,
+    //   ],
+    // });
+    // // 2). if the request was successful, extract the token and nonce
+    // const { identityToken, nonce, user } = appleAuthRequestResponse;
+    // var userIdToken = user;
+    // // alert(JSON.stringify(appleAuthRequestResponse));
+    // if (identityToken) {
+    //   var data = {};
+    //   data.email = appleAuthRequestResponse.email;
+    //   data.username =
+    //     appleAuthRequestResponse.fullName.givenName +
+    //     " " +
+    //     appleAuthRequestResponse.fullName.familyName;
+    //   // user.password = new Date().getTime().toString();
+    //   data.password = appleAuthRequestResponse.email;
+    //   const { email, password, username } = data;
+    //   var userData = null;
+    //   const userQuery = await db
+    //     .collection("users")
+    //     .where("identityToken", "==", userIdToken)
+    //     .get();
+    //   // const user = await db.collection("users").doc(response.uid).get();
+    //   userQuery.forEach(function (response) {
+    //     userData = response.data();
+    //     return;
+    //   });
+    //   // alert(JSON.stringify(userData));
+    //   if (!userData) {
+    //     const response = await firebase
+    //       .auth()
+    //       .createUserWithEmailAndPassword(email, password);
+    //     if (response.user.uid) {
+    //       var user_name = username.toLowerCase().replace(/\s+/g, "_");
+    //       const user = {
+    //         uid: response.user.uid,
+    //         email: email,
+    //         username: username,
+    //         user_name: user_name,
+    //         photo: "",
+    //         bio: "",
+    //         userbio: "",
+    //         identityToken: userIdToken,
+    //         token: null,
+    //         followers: [],
+    //         blocked: [],
+    //         blockedBy: [],
+    //         following: [],
+    //         reports: [],
+    //       };
+    //       db.collection("users").doc(response.user.uid).set(user);
+    //       dispatch({ type: "LOGIN", payload: user });
+    //     }
+    //   } else {
+    //     // alert(userData.uid);
+    //     const response = await firebase
+    //       .auth()
+    //       .signInWithEmailAndPassword(userData.email, userData.email);
+    //     dispatch(getUser(response.user.uid));
+    //   }
+    // } else {
+    //   alert("Apple Login Failed");
+    //   // handle this - retry?
+    // }
   };
 };
 
@@ -515,13 +505,13 @@ export const blockUser = (blockedUser) => {
       db.collection("users")
         .doc(uid)
         .update({
-          blocked: firebase.firestore.FieldValue.arrayUnion(blockedUser.uid),
+          blocked: firestore.FieldValue.arrayUnion(blockedUser.uid),
         });
 
       db.collection("users")
         .doc(blockedUser.uid)
         .update({
-          blockedBy: firebase.firestore.FieldValue.arrayUnion(uid),
+          blockedBy: firestore.FieldValue.arrayUnion(uid),
         });
 
       blockedUsersList.push(blockedUser);
@@ -573,13 +563,13 @@ export const unblockUser = (blockedUid) => {
       db.collection("users")
         .doc(uid)
         .update({
-          blocked: firebase.firestore.FieldValue.arrayRemove(blockedUid),
+          blocked: firestore.FieldValue.arrayUnion(blockedUid),
         });
 
       db.collection("users")
         .doc(blockedUid)
         .update({
-          blockedBy: firebase.firestore.FieldValue.arrayRemove(uid),
+          blockedBy: firestore.FieldValue.arrayUnion(uid),
         });
 
       blockedUsersList = blockedUsersList.filter(
@@ -612,7 +602,8 @@ export const unblockUser = (blockedUid) => {
 
 export const deleteAuth = () => {
   return async (dispatch, getState) => {
-    var user = firebase.auth().currentUser;
+    var user = auth().currentUser;
+
     try {
       user.delete();
     } catch (e) {
@@ -663,9 +654,11 @@ export const signup = () => {
         checkUserNameAvailable(username, null)
       );
       if (usernameAvailable) {
-        const response = await firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password);
+        const response = await auth().createUserWithEmailAndPassword(
+          email,
+          password
+        );
+
         if (response.user.uid) {
           var user_name = username.toLowerCase().replace(/\s+/g, "_");
 
@@ -707,12 +700,12 @@ export const followUser = (user) => {
       db.collection("users")
         .doc(user.uid)
         .update({
-          followers: firebase.firestore.FieldValue.arrayUnion(uid),
+          followers: firestore.FieldValue.arrayUnion(uid),
         });
       db.collection("users")
         .doc(uid)
         .update({
-          following: firebase.firestore.FieldValue.arrayUnion(user.uid),
+          following: firestore.FieldValue.arrayUnion(user.uid),
         });
       following.push(user.uid);
 
@@ -772,12 +765,12 @@ export const unfollowUser = (user) => {
       db.collection("users")
         .doc(user.uid)
         .update({
-          followers: firebase.firestore.FieldValue.arrayRemove(uid),
+          followers: firestore.FieldValue.arrayUnion(uid),
         });
       db.collection("users")
         .doc(uid)
         .update({
-          following: firebase.firestore.FieldValue.arrayRemove(user.uid),
+          following: firestore.FieldValue.arrayUnion(user.uid),
         });
       var filteredAry = following.filter((e) => e !== user.uid);
       dispatch({ type: "UPDATE_FOLLOWING", payload: [...filteredAry] });
@@ -794,11 +787,13 @@ export const unfollowUser = (user) => {
 export const passwordResetEmail = () => {
   return async (dispatch, getState) => {
     const { uid, email } = getState().user;
-    var auth = firebase.auth();
+
     try {
-      await auth.sendPasswordResetEmail(email).then(() => {
-        alert("Reset request sent to email."); // Email sent.
-      });
+      await auth()
+        .sendPasswordResetEmail(email)
+        .then(() => {
+          alert("Reset request sent to email."); // Email sent.
+        });
     } catch (e) {
       alert(e);
     }

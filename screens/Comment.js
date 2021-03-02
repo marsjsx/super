@@ -38,13 +38,7 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 
 class Comment extends React.Component {
-  // static navigationOptions = ({ navigation }) => {
-  //   const { params } = navigation.state;
 
-  //   return {
-  //     title: params.username,
-  //   };
-  // };
 
   constructor(props) {
     super(props);
@@ -56,7 +50,8 @@ class Comment extends React.Component {
   }
 
   componentDidMount = () => {
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
 
     this.setState({ post: params });
     // alert(JSON.stringify(this.state.post));
@@ -81,7 +76,8 @@ class Comment extends React.Component {
       return;
     }
 
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
     this.props.addComment(this.state.comment, params);
     this.setState({ comment: "" });
   };
@@ -118,8 +114,8 @@ class Comment extends React.Component {
   };
 
   renderTopBar(item) {
-    const { params } = this.props.navigation.state;
-
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
     const liked = item.likes && item.likes.includes(this.props.user.uid);
     // alert(JSON.stringify(item.views));
     return (
@@ -266,7 +262,8 @@ class Comment extends React.Component {
   }
 
   render() {
-    const { params } = this.props.navigation.state;
+    // const { params } = this.props.navigation.state;
+    const { params } = this.props.route;
     // alert(JSON.stringify(this.state.post));
 
     return (

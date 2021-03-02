@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../styles";
-import firebase from "firebase";
+import auth from "@react-native-firebase/auth";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { getPosts } from "../actions/post";
@@ -24,7 +24,7 @@ import SplashScreen from "react-native-splash-screen";
 
 class Splash extends React.Component {
   componentDidMount = async () => {
-    firebase.auth().onAuthStateChanged((user) => {
+    auth().onAuthStateChanged((user) => {
       if (user) {
         this.props.getUser(user.uid, "LOGIN");
         // if (this.props.user != null) {
@@ -32,7 +32,13 @@ class Splash extends React.Component {
         // }
       }
     });
-    this.props.navigation.navigate("Home");
+    this.props.navigation.replace("Home");
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Profile" }],
+    });
+    // this.props.navigation.replace("HomeScreen");
   };
 
   render() {
