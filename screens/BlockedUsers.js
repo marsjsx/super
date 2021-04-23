@@ -87,8 +87,7 @@ class BlockedUsers extends React.Component {
   }
 
   goToUser = (user) => {
-    this.props.getUser(user.uid);
-    this.props.navigation.navigate("Profile");
+    this.props.navigation.navigate("Profile", { uid: user.uid });
   };
 
   renderItem = ({ item }) => {

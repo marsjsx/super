@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>super.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,6 +28,14 @@
 				<string>fb239016010571551</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.963991851670-rlk86p0qg0hgp255vnbrcodhk9i78dec</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -35,7 +43,8 @@
 	<string>239016010571551</string>
 	<key>FacebookDisplayName</key>
 	<string>lllsuperlll</string>
-
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -112,6 +121,11 @@
 		<string>rubicon-icon-font.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>OpenSans-Bold.ttf</string>
+		<string>FreightSansProLight-Regular.ttf</string>
+		<string>HelveticaNeueThin.ttf</string>
+		<string>NimbusSansDOT-Ligh.ttf</string>
+		<string>Freight-SansMediumSC.otf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

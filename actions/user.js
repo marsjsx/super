@@ -16,7 +16,7 @@ import appleAuth, {
   AppleAuthRequestScope,
   AppleAuthRequestOperation,
 } from "@invertase/react-native-apple-authentication";
-import { filterBlockedPosts } from "./post";
+import { filterBlockedPosts, getUserPosts } from "./post";
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
@@ -264,7 +264,115 @@ export const checkUserNameAvailable = (username, uid) => {
   };
 };
 
-export const getUser = (uid, type) => {
+// export const getUser = (uid, type) => {
+//   return async (dispatch, getState) => {
+//     try {
+//       if (uid) {
+//         var images = [];
+
+//         const userQuery = await db.collection("users").doc(uid).get();
+//         let user = userQuery.data();
+//         if (user.photo && user.photo.length > 15) {
+//           images.push({
+//             uri: user.photo,
+//           });
+//         }
+
+//         let posts = [];
+//         const postsQuery = await db
+//           .collection("posts")
+//           .where("uid", "==", uid)
+//           .get();
+//         postsQuery.forEach(function (response) {
+//           posts.push(response.data());
+//         });
+
+//         user.posts = posts;
+
+//         if (posts != null && posts.length > 0) {
+//           user.posts = orderBy(posts, "date", "desc");
+//         }
+
+//         if (type === "LOGIN") {
+//           //get my followers list
+
+//           dispatch({ type: "LOGIN", payload: user });
+//         } else {
+//           dispatch({ type: "GET_PROFILE", payload: user });
+//         }
+
+//         if (images.length > 0) {
+//           // alert(JSON.stringify(images));
+//           dispatch(preloadUserImages(images));
+//         }
+
+//         const followingQuery = db
+//           .collection("users")
+//           .where("followers", "array-contains", uid)
+//           .get();
+
+//         followingQuery.then((snapshot) => {
+//           if (snapshot.size > 0) {
+//             var following = snapshot.docs.map((doc) => doc.data());
+
+//             if (type === "LOGIN") {
+//               //get my followers list
+//               const user = getState().user;
+
+//               dispatch({
+//                 type: "LOGIN",
+//                 payload: { ...user, myFollowings: following },
+//               });
+//             } else {
+//               const user = getState().profile;
+
+//               dispatch({
+//                 type: "GET_PROFILE",
+//                 payload: { ...user, myFollowings: following },
+//               });
+//             }
+
+//             // alert("Following: " + JSON.stringify(following));
+//           }
+//         });
+
+//         const followersQuery = db
+//           .collection("users")
+//           .where("following", "array-contains", uid)
+//           .get();
+
+//         followersQuery.then((snapshot) => {
+//           if (snapshot.size > 0) {
+//             var followers = snapshot.docs.map((doc) => doc.data());
+
+//             if (type === "LOGIN") {
+//               const user = getState().user;
+
+//               //get my followers list
+//               dispatch({
+//                 type: "LOGIN",
+//                 payload: { ...user, myFollowers: followers },
+//               });
+//             } else {
+//               const user = getState().profile;
+
+//               dispatch({
+//                 type: "GET_PROFILE",
+//                 payload: { ...user, myFollowers: followers },
+//               });
+//             }
+
+//             // alert("Following: " + JSON.stringify(following));
+//           }
+//         });
+//       }
+//     } catch (e) {
+//       alert("Error: User Not Found ");
+//     }
+//   };
+// };
+
+export const getUser = (uid, type = "", cb = (result, error) => {}) => {
   return async (dispatch, getState) => {
     try {
       if (uid) {
@@ -278,95 +386,25 @@ export const getUser = (uid, type) => {
           });
         }
 
-        let posts = [];
-        const postsQuery = await db
-          .collection("posts")
-          .where("uid", "==", uid)
-          .get();
-        postsQuery.forEach(function (response) {
-          posts.push(response.data());
-        });
-
-        user.posts = posts;
-
-        if (posts != null && posts.length > 0) {
-          user.posts = orderBy(posts, "date", "desc");
-        }
-
         if (type === "LOGIN") {
           //get my followers list
 
           dispatch({ type: "LOGIN", payload: user });
+          dispatch(getUserPosts(user.uid, (result, error) => {}, null));
         } else {
           dispatch({ type: "GET_PROFILE", payload: user });
         }
+        cb(user, null);
+        // cb();
 
         if (images.length > 0) {
           // alert(JSON.stringify(images));
           dispatch(preloadUserImages(images));
         }
-
-        const followingQuery = db
-          .collection("users")
-          .where("followers", "array-contains", uid)
-          .get();
-
-        followingQuery.then((snapshot) => {
-          if (snapshot.size > 0) {
-            var following = snapshot.docs.map((doc) => doc.data());
-
-            if (type === "LOGIN") {
-              //get my followers list
-              const user = getState().user;
-
-              dispatch({
-                type: "LOGIN",
-                payload: { ...user, myFollowings: following },
-              });
-            } else {
-              const user = getState().profile;
-
-              dispatch({
-                type: "GET_PROFILE",
-                payload: { ...user, myFollowings: following },
-              });
-            }
-
-            // alert("Following: " + JSON.stringify(following));
-          }
-        });
-
-        const followersQuery = db
-          .collection("users")
-          .where("following", "array-contains", uid)
-          .get();
-
-        followersQuery.then((snapshot) => {
-          if (snapshot.size > 0) {
-            var followers = snapshot.docs.map((doc) => doc.data());
-
-            if (type === "LOGIN") {
-              const user = getState().user;
-
-              //get my followers list
-              dispatch({
-                type: "LOGIN",
-                payload: { ...user, myFollowers: followers },
-              });
-            } else {
-              const user = getState().profile;
-
-              dispatch({
-                type: "GET_PROFILE",
-                payload: { ...user, myFollowers: followers },
-              });
-            }
-
-            // alert("Following: " + JSON.stringify(following));
-          }
-        });
       }
     } catch (e) {
+      cb(null, e);
+      // cb();
       alert("Error: User Not Found ");
     }
   };
@@ -416,7 +454,6 @@ export const updateUser = () => {
       compressedPhoto,
       preview,
     } = getState().user;
-
     var imageUri = "";
     // imageUri = photo;
 

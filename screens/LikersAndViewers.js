@@ -22,7 +22,14 @@ import {
 } from "@expo/vector-icons";
 import { Badge, Button, Left, Right, Body } from "native-base";
 
-import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  FlatList,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import moment from "moment";
 import { groupBy, values } from "lodash";
 var self;
@@ -39,6 +46,7 @@ class LikersAndViewers extends React.Component {
 
     this.state = {
       showLoading: false,
+      refreshing: false,
       users: [],
       page: 1,
       uniqueIds: [],
@@ -102,28 +110,54 @@ class LikersAndViewers extends React.Component {
 
   handleLoadMore = async () => {
     // alert("Load More Called");
+    if (!this.state.refreshing) {
+      try {
+        if (this.state.users.length < this.state.uniqueIds.length) {
+          var start = this.state.users.length - 1;
+          var end = start + 10;
 
-    if (this.state.users.length < this.state.uniqueIds.length) {
-      var ids = this.state.uniqueIds.slice(this.state.users.length - 1, 10);
+          if (end > this.state.uniqueIds.length) {
+            end = this.state.uniqueIds.length - 1;
+          }
 
-      const userQuery = await db
-        .collection("users")
-        .where("uid", "in", ids)
-        .get();
+          var ids = this.state.uniqueIds.slice(start, end);
+          // alert(
+          //   ids.length +
+          //     "---" +
+          //     this.state.users.length +
+          //     "----" +
+          //     this.state.uniqueIds.length
+          // );
 
-      let user = [];
-      userQuery.forEach(function (response) {
-        user.push(response.data());
-      });
-      // alert(user.length);
+          this.setState({
+            refreshing: true,
+          });
+          const userQuery = await db
+            .collection("users")
+            .where("uid", "in", ids)
+            .get();
 
-      this.setState({ showLoading: false });
-      this.setState({ users: this.state.users.concat(user) });
+          let user = [];
+          userQuery.forEach(function (response) {
+            user.push(response.data());
+          });
+          // alert(user.length);
+
+          this.setState({
+            showLoading: false,
+            refreshing: false,
+            users: this.state.users.concat(user),
+          });
+        }
+      } catch (error) {
+        this.setState({
+          refreshing: false,
+        });
+        // alert(error);
+      }
     }
   };
   goToUser = (user) => {
-    // this.props.getUser(user.uid);
-    // this.props.navigation.navigate("Profile");
     this.props.navigation.navigate("Profile", { uid: user.uid });
   };
   follow = (item) => {
@@ -148,6 +182,8 @@ class LikersAndViewers extends React.Component {
     });
   };
   renderItem = ({ item }) => {
+    const { flow, views } = this.props.route.params;
+
     return (
       <TouchableOpacity
         onPress={() => this.goToUser(item)}
@@ -201,21 +237,35 @@ class LikersAndViewers extends React.Component {
             <Text style={{ padding: 6, textAlign: "center" }}>Following</Text>
           </TouchableOpacity>
         )}
-        {/* {flow && (
-      <Badge
-        style={{
-          right: 10,
-          alignSelf: "center",
-          backgroundColor: "blue",
-        }}
-      >
-        <Text style={{ color: "white" }}>
-          {this.getViewCount(item.uid)}
-        </Text>
-      </Badge>
-    )} */}
+        {/* {flow && flow === "Views" && (
+          <Badge
+            style={{
+              right: 10,
+              marginLeft: 20,
+              alignSelf: "center",
+              backgroundColor: "blue",
+            }}
+          >
+            <Text style={{ color: "white" }}>
+              {this.getViewCount(item.uid)}
+            </Text>
+          </Badge>
+        )} */}
       </TouchableOpacity>
     );
+  };
+  // Render Footer
+  renderFooter = () => {
+    try {
+      // Check If Loading
+      if (this.state.refreshing) {
+        return <ActivityIndicator />;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   render() {
@@ -224,7 +274,7 @@ class LikersAndViewers extends React.Component {
     const { flow, views } = this.props.route.params;
     return (
       <View style={{ flex: 1 }}>
-        {flow && (
+        {flow && flow === "Likes" && (
           <View style={{ marginBottom: 20 }}>
             <View
               style={{
@@ -259,6 +309,7 @@ class LikersAndViewers extends React.Component {
           onEndReached={this.handleLoadMore}
           onEndThreshold={0}
           data={this.state.users}
+          ListFooterComponent={this.renderFooter}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
           keyExtractor={(item) => JSON.stringify(item.uid)}
           renderItem={this.renderItem}

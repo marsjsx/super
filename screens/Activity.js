@@ -16,6 +16,7 @@ import EmptyView from "../component/emptyview";
 import { getUser } from "../actions/user";
 import { getMoreActivities } from "../actions/activity";
 import Scale from "../helpers/Scale";
+import constants from "../constants";
 
 import { showLoader } from "../util/Loader";
 import {
@@ -87,7 +88,6 @@ class Activity extends React.Component {
   };
 
   goToUser = async (uid) => {
-    // await this.props.getUser(uid);
     // this.props.navigation.navigate("Profile");
     this.props.navigation.navigate("Profile", { uid: uid });
   };
@@ -207,7 +207,7 @@ class Activity extends React.Component {
             style={[
               styles.row,
               styles.space,
-              styles.bottomgreyborder,
+
               { marginTop: Scale.moderateScale(10) },
             ]}
           >
@@ -218,15 +218,21 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={[styles.bold, styles.textMedium]}>
+              <Text
+                style={[
+                  styles.bold,
+                  styles.textMedium,
+                  { ...constants.fonts.FreightSansLight },
+                ]}
+              >
                 {item.likerName}
               </Text>
-              <Text style={(styles.gray, styles.textMedium)}>
+              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
                 {item.postType === "video"
                   ? "Liked Your Video"
                   : "Liked Your Photo"}
               </Text>
-              <Text style={[styles.gray, styles.medium]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
@@ -244,7 +250,6 @@ class Activity extends React.Component {
             style={[
               styles.row,
               styles.space,
-              styles.bottomgreyborder,
               { marginTop: Scale.moderateScale(10) },
             ]}
           >
@@ -255,13 +260,19 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={(styles.bold, styles.textMedium)}>
+              <Text
+                style={[
+                  styles.bold,
+                  styles.textMedium,
+                  { ...constants.fonts.FreightSansLight },
+                ]}
+              >
                 {item.followerName}
               </Text>
-              <Text style={(styles.gray, styles.textMedium)}>
+              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
                 started following you
               </Text>
-              <Text style={[styles.gray, styles.medium]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
@@ -278,7 +289,14 @@ class Activity extends React.Component {
                 onPress={() => this.follow(item)}
               >
                 <Text
-                  style={{ color: "white", padding: 6, textAlign: "center" }}
+                  style={[
+                    styles.textHelveticaNeueNormal,
+                    {
+                      color: "white",
+                      padding: 6,
+                      textAlign: "center",
+                    },
+                  ]}
                 >
                   Follow
                 </Text>
@@ -293,7 +311,15 @@ class Activity extends React.Component {
                   borderColor: "black",
                 }}
               >
-                <Text style={{ padding: 6, textAlign: "center" }}>
+                <Text
+                  style={[
+                    styles.textHelveticaNeueNormal,
+                    {
+                      padding: 6,
+                      textAlign: "center",
+                    },
+                  ]}
+                >
                   Following
                 </Text>
               </TouchableOpacity>
@@ -306,7 +332,6 @@ class Activity extends React.Component {
             style={[
               styles.row,
               styles.space,
-              styles.bottomgreyborder,
               { marginTop: Scale.moderateScale(10) },
             ]}
           >
@@ -317,13 +342,19 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={(styles.bold, styles.textMedium)}>
+              <Text
+                style={[
+                  styles.bold,
+                  styles.textMedium,
+                  { ...constants.fonts.FreightSansLight },
+                ]}
+              >
                 {item.commenterName}
               </Text>
               <Text
-                style={(styles.gray, styles.textMedium)}
+                style={[styles.black, styles.textHelveticaNeueNormal]}
               >{`commented: "${item.comment}"`}</Text>
-              <Text style={[styles.gray, styles.medium]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
@@ -341,7 +372,6 @@ class Activity extends React.Component {
             style={[
               styles.row,
               styles.space,
-              styles.bottomgreyborder,
               { marginTop: Scale.moderateScale(10) },
             ]}
           >
@@ -353,7 +383,13 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <View style={styles.row}>
-                <Text style={(styles.bold, styles.textMedium)}>
+                <Text
+                  style={[
+                    styles.bold,
+                    styles.textMedium,
+                    { ...constants.fonts.FreightSansLight },
+                  ]}
+                >
                   {item.reporterName}
                 </Text>
 
@@ -364,13 +400,13 @@ class Activity extends React.Component {
                   size={20}
                 />
               </View>
-              <Text style={(styles.red, styles.textMedium)}>
+              <Text style={[styles.red, styles.textHelveticaNeueNormal]}>
                 Reported This Post{" "}
               </Text>
-              <Text style={(styles.gray, styles.textMedium)}>
+              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
                 {item.reportReason}
               </Text>
-              <Text style={[styles.gray, styles.medium]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {moment(item.date).format("ll")}
               </Text>
             </View>
@@ -416,7 +452,21 @@ class Activity extends React.Component {
       console.log(error);
     }
   };
-
+  FlatListItemSeparator = () => {
+    return (
+      <View
+        style={[
+          {
+            marginVertical: Scale.moderateScale(10),
+            width: "100%",
+            backgroundColor: "#dcdcdc",
+            height: 0.5,
+            // backgroundColor: "#000",
+          },
+        ]}
+      />
+    );
+  };
   render() {
     if (this.state.showLoading) return showLoader("Loading, Please wait... ");
     if (!this.props.user.uid) {
@@ -450,6 +500,7 @@ class Activity extends React.Component {
           ListFooterComponent={this.renderFooter}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
           onEndReachedThreshold={0}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => this.renderList(item)}
         />

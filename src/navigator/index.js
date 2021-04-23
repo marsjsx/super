@@ -12,8 +12,8 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Splash from "../../screens/Splash";
-import Login from "../../screens/Login";
-import SignupScreen from "../../screens/Signup";
+import Login from "../../screens/login";
+import SignupScreen from "../../screens/signup";
 import HomeScreen from "../../screens/Home";
 import PostReportScreen from "../../screens/PostReports";
 
@@ -21,11 +21,15 @@ import SearchScreen from "../../screens/Search";
 import FilterScreen from "../../screens/Filter";
 import PostScreen from "../../screens/Post";
 import VideoCover from "../../screens/videocover";
+import ChannelsScreen from "../../screens/Channels";
+
 // import CropperPage from "../../screens/CropperPage";
 
 import PostCaptions from "../../screens/PostCaption";
 
 import ActivityScreen from "../../screens/Activity";
+import ActivitiesTab from "../../screens/activitiestab";
+
 import ProfileScreen from "../../screens/Profile";
 import ViewProfileScreen from "../../screens/ViewProfile";
 
@@ -40,7 +44,7 @@ import {
   FontAwesome,
 } from "@expo/vector-icons";
 import MapScreen from "../../screens/Map";
-import EditScreen from "../../screens/Signup";
+import EditScreen from "../../screens/signup";
 import DashScreen from "../../screens/Dash";
 import CommentScreen from "../../screens/Comment";
 import NewMessage from "../../screens/NewMessage";
@@ -57,6 +61,7 @@ import styles from "../../styles";
 import Scale from "../../helpers/Scale";
 
 import Add from "../../screens/Add";
+import constants from "../../constants";
 
 const AuthStack = createStackNavigator();
 const MyTheme = {
@@ -474,13 +479,54 @@ function SearchNavigator({ navigation, route }) {
             props // App Logo
           ) => (
             <Image
-              style={[styles.logoHeader, { width: 150, height: 55 }]}
-              source={require("../../assets/logo.png")}
+              style={[
+                styles.logoHeader,
+                {
+                  width: 150,
+                  height: 55,
+                  transform: [{ rotate: "90deg" }],
+                },
+              ]}
+              source={require("../../assets/logo-2.png")}
               resizeMode="contain"
             />
           ),
           // Center the header title on Android
           headerTitleAlign: "center",
+          // headerTransparent: true,
+        })}
+      />
+      <SearchStack.Screen
+        name="Channels"
+        component={ChannelsScreen}
+        options={({ navigation, route }) => ({
+          headerTitle: (
+            props // App Logo
+          ) => (
+            <Image
+              style={[
+                styles.logoHeader,
+                {
+                  width: 150,
+                  height: 55,
+                  transform: [{ rotate: "90deg" }],
+                },
+              ]}
+              source={require("../../assets/logo-2.png")}
+              resizeMode="contain"
+            />
+          ),
+          // Center the header title on Android
+          headerTitleAlign: "center",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
           // headerTransparent: true,
         })}
       />
@@ -650,6 +696,7 @@ function PostNavigator() {
         component={PostCaptions}
         options={({ navigation, route }) => ({
           title: "Post Caption",
+          headerTintColor: constants.colors.superRed,
         })}
       />
 
@@ -733,12 +780,20 @@ function ActivityNavigator({ navigation, route }) {
   return (
     <ActivityStack.Navigator>
       <ActivityStack.Screen
+        name="ActivitiesTab"
+        component={ActivitiesTab}
+        options={({ navigation, route }) => ({
+          title: "Activities",
+          headerShown: false,
+        })}
+      />
+      {/* <ActivityStack.Screen
         name="Activity"
         component={ActivityScreen}
         options={({ navigation, route }) => ({
           title: "Activities",
         })}
-      />
+      /> */}
       <AuthStack.Screen
         name="Reset"
         component={Reset}
@@ -1161,11 +1216,8 @@ function TabNavigator({ navigation, route }) {
           } else if (route.name === "Post") {
             return (
               <Image
-                style={[
-                  styles.profileLogo,
-                  { transform: [{ rotate: "90deg" }, { scale: 1.2 }] },
-                ]}
-                source={require("../../assets/logo-3.png")}
+                style={[styles.profileLogo, { transform: [{ scale: 1.2 }] }]}
+                source={constants.images.appLogo}
               />
             );
           } else if (route.name === "Activity") {

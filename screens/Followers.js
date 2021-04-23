@@ -7,7 +7,14 @@ import { orderBy } from "lodash";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
 
-import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  FlatList,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { getUser } from "../actions/user";
 
 import moment from "moment";
@@ -23,7 +30,19 @@ class Followers extends React.Component {
     // this.props.navigation.navigate("Profile");
     this.props.navigation.push("Profile", { uid: user.uid });
   };
+  renderFooter = () => {
+    // Check If Loading
+    if (this.props.loadingUsers) {
+      return <ActivityIndicator />;
+    } else {
+      return null;
+    }
+  };
 
+  // Retrieve More
+  retrieveMore = async () => {
+    this.props.onLoadMore();
+  };
   render() {
     // alert(JSON.stringify(this.props.data));
     return (
@@ -33,6 +52,10 @@ class Followers extends React.Component {
           maxToRenderPerBatch="10"
           windowSize={10}
           data={this.props.data}
+          // onEndReached={this.props.onLoadMore()}
+          onEndReached={this.retrieveMore}
+          onEndReachedThreshold={1}
+          ListFooterComponent={this.renderFooter}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
           keyExtractor={(item) => JSON.stringify(item.uid)}
           renderItem={({ item }) => (

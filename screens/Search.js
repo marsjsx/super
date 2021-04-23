@@ -113,8 +113,6 @@ class Search extends React.Component {
   };
 
   goToUser = (user) => {
-    // this.props.getUser(user.uid);
-    // this.props.navigation.navigate("Profile");
     this.props.navigation.navigate("Profile", { uid: user.uid });
   };
 
@@ -283,6 +281,72 @@ class Search extends React.Component {
               <Text>No User Found</Text>
             </View>
           )}
+        {/* 
+        <TouchableOpacity
+          style={{ backgroundColor: "#000", alignItems: "center" }}
+          onPress={() => this.props.navigation.navigate("Channels")}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: Scale.moderateScale(20),
+              letterSpacing: Scale.moderateScale(6),
+              margin: Scale.moderateScale(24),
+            }}
+          >
+            {"CHANNELS"}
+          </Text>
+        </TouchableOpacity> */}
+
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate("Channels")}
+        >
+          <ProgressiveImage
+            // thumbnailSource={{
+            //   uri: item.preview,
+            // }}
+            source={{
+              uri:
+                "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/channels%2Fskate.jpeg?alt=media&token=73c51ea0-9634-43f0-beef-bc7c2ce93cc4",
+            }}
+            style={{ height: Scale.moderateScale(160) }}
+            resizeMode="cover"
+          />
+          <View
+            style={{
+              position: "absolute",
+              height: Scale.moderateScale(1450),
+              alignItems: "center",
+              width: "100%",
+              opacity: 0.5,
+              // flex: 1,
+              backgroundColor: "#000",
+            }}
+          />
+          <View
+            style={{
+              position: "absolute",
+              height: Scale.moderateScale(145),
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              // flex: 1,
+              // backgroundColor: "#000",
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontWeight: "300",
+                fontSize: Scale.moderateScale(28),
+                letterSpacing: Scale.moderateScale(6),
+              }}
+            >
+              {"CHANNELS"}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }

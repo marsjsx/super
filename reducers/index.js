@@ -2,7 +2,14 @@ import { combineReducers } from "redux";
 import _ from "lodash";
 import orderBy from "lodash/orderBy";
 import { INTERNET_CONNECTED, INTERNET_DISCONNECTED } from "../actions/types";
-
+import {
+  CHANNELS_REQUEST,
+  CHANNELS_SUCCESS,
+  CHANNELS_FAIL,
+  CHANNELPOSTS_REQUEST,
+  CHANNELPOSTS_SUCCESS,
+  CHANNELPOSTS_FAIL,
+} from "../actions/actiontype";
 const user = (state = { posts: [] }, action) => {
   switch (action.type) {
     case "LOGIN":
@@ -206,6 +213,27 @@ const post = (
   }
 };
 
+const channels = (state = { channelsList: [], feed: [] }, action) => {
+  switch (action.type) {
+    case CHANNELS_REQUEST:
+      return { ...state, loading: true };
+
+    case CHANNELS_SUCCESS:
+      return { ...state, channelsList: action.payload, loading: false };
+    case CHANNELS_FAIL:
+      return { ...state, loading: false };
+    case CHANNELPOSTS_REQUEST:
+      return { ...state, feedLoading: true };
+    case CHANNELPOSTS_SUCCESS:
+      return { ...state, feed: action.payload, feedLoading: false };
+
+    case CHANNELPOSTS_FAIL:
+      return { ...state, feedLoading: false };
+    default:
+      return state;
+  }
+};
+
 const activity = (state = { activities: [] }, action) => {
   switch (action.type) {
     case "SHOW_ACTIVITIES_LOADING":
@@ -236,6 +264,7 @@ const modal = (state = null, action) => {
 const appReducer = combineReducers({
   user,
   post,
+  channels,
   activity,
   modal,
   profile,

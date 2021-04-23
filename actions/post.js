@@ -633,13 +633,13 @@ export const getMorePosts = () => {
           .collection("posts")
           .orderBy("date", "desc")
           .startAfter(lastFetchedPostDate)
-          .limit(18)
+          .limit(15)
           .get();
       } else {
         posts = await db
           .collection("posts")
           .orderBy("date", "desc")
-          .limit(18)
+          .limit(15)
           .get();
       }
       var images = [];
@@ -698,6 +698,73 @@ export const getMorePosts = () => {
       let array = [];
       //  dispatch({ type: "GET_POSTS", payload: array });
       // alert(e);
+    }
+  };
+};
+
+export const getUserPosts = (
+  uid,
+  cb = (result, error) => {},
+  lastFetchedPostDate = null
+) => {
+  return async (dispatch, getState) => {
+    try {
+      var postQuery;
+      if (lastFetchedPostDate) {
+        // alert(lastFetchedPostDate);
+        postQuery = await db
+          .collection("posts")
+          .where("uid", "==", uid)
+          .orderBy("date", "desc")
+          .startAfter(lastFetchedPostDate)
+          .limit(10)
+          .get();
+      } else {
+        postQuery = await db
+          .collection("posts")
+          .where("uid", "==", uid)
+          .orderBy("date", "desc")
+          .limit(10)
+          .get();
+      }
+      var images = [];
+      var posts = [];
+
+      postQuery.forEach(function (response) {
+        posts.push(response.data());
+      });
+      if (images.length > 0) {
+        preloadImages(images);
+      }
+      if (posts) {
+        if (
+          getState().user &&
+          getState().user.uid &&
+          getState().user.uid === uid
+        ) {
+          if (getState().user) {
+            const user = cloneDeep(getState().user);
+
+            let oldPosts = [];
+            if (user.posts) {
+              oldPosts = user.posts;
+            }
+            var mergedArray = oldPosts.concat(posts);
+            var uniquePosts = _.uniqBy(mergedArray, "id");
+            user.posts = uniquePosts;
+            dispatch({ type: "LOGIN", payload: user });
+          }
+        } else {
+        }
+      }
+
+      // resolve(posts);
+      cb(posts, null);
+    } catch (e) {
+      // alert(e);
+      // reject(e);
+      cb(null, e);
+      let array = [];
     }
   };
 };

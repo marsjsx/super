@@ -189,15 +189,6 @@ class Home extends React.Component {
     // this.props.getBlockedUser();
     // this.setState({ showLoading: true });
 
-    // firebase.auth().onAuthStateChanged((user) => {
-    //   if (user) {
-    //     this.props.getUser(user.uid, "LOGIN");
-    //     // if (this.props.user != null) {
-    //     //   this.props.navigation.navigate('Home')
-    //     // }
-    //   }
-    // });
-
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
       "blur",
@@ -366,7 +357,6 @@ class Home extends React.Component {
   };
 
   goToUser = (user) => {
-    // this.props.getUser(user.uid);
     this.props.navigation.navigate("Profile", { uid: user.uid });
   };
 
@@ -961,7 +951,7 @@ class Home extends React.Component {
           this.props.navigation.navigate("LikersAndViewers", {
             views: item.viewers,
             data: item.likes,
-            flow: "Views",
+            flow: "Likes",
             title: "Views and likes",
           });
         }}
@@ -971,9 +961,9 @@ class Home extends React.Component {
         onViewsPress={() => {
           this.props.navigation.navigate("LikersAndViewers", {
             views: item.viewers,
-            data: item.likes,
+            data: item.viewers,
             flow: "Views",
-            title: "Views and likes",
+            title: "Views",
           });
         }}
         onUserPress={() => {
@@ -1214,6 +1204,7 @@ class Home extends React.Component {
               width: "57%",
               right: 0,
               top: 10,
+              display: "none",
             }}
           >
             <View style={{}}>
@@ -1382,10 +1373,12 @@ class Home extends React.Component {
             style={{
               flexDirection: "row",
               position: "absolute",
-              shadowOpacity: 0.5,
-              transform: [{ rotate: "90deg" }],
-              right: Scale.moderateScale(-55),
-              bottom: height * 0.3,
+              shadowOpacity: 0.4,
+              // transform: [{ rotate: "90deg" }],
+              top: Scale.moderateScale(44),
+              left: Scale.moderateScale(10),
+              // right: Scale.moderateScale(-55),
+              // bottom: height * 0.3,
             }}
           >
             <TouchableOpacity
@@ -1400,11 +1393,6 @@ class Home extends React.Component {
                   this.state.selectedTab == 0
                     ? styles.activeLabel
                     : styles.inactiveLabel,
-                  {
-                    textShadowColor: "rgba(0, 0, 0, 0.75)",
-                    textShadowOffset: { width: -1, height: 1 },
-                    textShadowRadius: 10,
-                  },
                 ]}
               >
                 friends
@@ -1429,11 +1417,6 @@ class Home extends React.Component {
                   this.state.selectedTab == 1
                     ? styles.activeLabel
                     : styles.inactiveLabel,
-                  {
-                    textShadowColor: "rgba(0, 0, 0, 0.75)",
-                    textShadowOffset: { width: -1, height: 1 },
-                    textShadowRadius: 10,
-                  },
                 ]}
               >
                 explore

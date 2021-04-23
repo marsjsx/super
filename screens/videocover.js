@@ -69,6 +69,7 @@ import { Dropdown } from "react-native-material-dropdown";
 import { Trimmer, VideoPlayer } from "react-native-video-processing";
 // import { Audio, Video } from "expo-av";
 import Video from "react-native-video";
+import constants from "../constants";
 import ImageFilters from "../component/ImageFilters";
 
 import {
@@ -179,12 +180,13 @@ class VideoCover extends React.Component {
 
     this.props.navigation.setOptions({
       title: "Choose Video Cover",
+      headerTintColor: constants.colors.superRed,
       gestureEnabled: false,
       headerRight: () => (
         <TouchableOpacity onPress={this._onNext}>
           <Text
             style={{
-              color: "dodgerblue",
+              color: constants.colors.superRed,
               fontWeight: "bold",
               padding: 5,
               fontSize: 16,

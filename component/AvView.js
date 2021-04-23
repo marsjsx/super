@@ -367,7 +367,7 @@ class AvView extends React.Component {
             poster={this.props.preview}
             posterResizeMode="cover"
             // muted={this.state.muted}
-            // ignoreSilentSwitch={"ignore"}
+            ignoreSilentSwitch={"ignore"}
             resizeMode={"cover"}
             // onLoad={this.onLoad}
             // onBuffer={this.onBuffer}

@@ -154,7 +154,7 @@ class ProgressiveImage extends React.Component {
             style={[
               style,
               {
-                opacity: 1,
+                opacity: props.placeHolder ? 0 : 1,
                 // transform: [{ scale: this.scale }],
               },
             ]}

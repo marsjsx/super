@@ -19,6 +19,7 @@ import {
   UIManager,
   findNodeHandle,
   Dimensions,
+  ActivityIndicator,
   StatusBar,
 } from "react-native";
 import { validURL } from "../util/Helper";
@@ -40,7 +41,12 @@ import {
   updateWebsiteLabel,
 } from "../actions/user";
 import { getMessages } from "../actions/message";
-import { likePost, unlikePost, deletePost } from "../actions/post";
+import {
+  likePost,
+  unlikePost,
+  deletePost,
+  getUserPosts,
+} from "../actions/post";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -94,11 +100,15 @@ class Profile extends React.Component {
 
     this.state = {
       flatListSmall: true,
+      refreshing: false,
       showHide: "hide",
       position: 0,
       visible: false,
       changes: 1,
-      userProfile: [],
+      userProfile: {},
+      userPosts: [],
+      routeName: "",
+      uid: null,
       website: "",
       userBlocked: false,
       websiteLabel: "",
@@ -111,50 +121,63 @@ class Profile extends React.Component {
 
   componentDidMount = async () => {
     self = this;
-    // const { state, navigate } = this.props.navigation;
     const routeName = this.props.route.name;
-    // const { uid } = state.params;
     const { uid } = this.props.route.params;
     this.props.navigation.setParams({
       goToChat: this.goToChat,
     });
-    // this.props.navigation.setParams({
-    //   showActionSheet: this.showActionSheet,
-    // });
-    // alert("Called");
+    this.setState({ routeName: routeName, uid: uid });
 
     if (routeName === "Profile") {
       if (uid) {
-        // this.props.navigation.setParams({
-        //   userProfile: "show",
-        // });
-
         this.props.navigation.setParams({
           showActionSheet: this.showActionSheet,
         });
-        this.setState({ showLoading: true });
+        this.setState({ showLoading: true, refreshing: true });
 
-        // await this.props.getUser(uid);
-        // var result = await this.getUserProfile(uid);
-        // this.setState({ userProfile: result, showLoading: false });
-        // this.props.navigation.setParams({
-        //   title: `@${result.username}`,
-        // });
-        // this.setState({ showLoading: false });
-        this.getUserProfile(uid)
-          .then((result) => {
-            this.setState({ userProfile: result, showLoading: false });
+        this.props.getUser(uid, null, (result, error) => {
+          this.setState({ showLoading: false, refreshing: false });
+          if (result) {
+            this.setState({
+              userProfile: result,
+            });
             this.props.navigation.setParams({
               title: `@${result.username}`,
             });
-          })
-          .catch((error) => {
-            this.setState({ showLoading: false });
 
+            this.props.getUserPosts(
+              uid,
+              (result, error) => {
+                if (result) {
+                  this.mergeUserPosts(result);
+                } else {
+                }
+              },
+              null
+            );
+          } else {
             alert(error);
-          });
+          }
+        });
 
-        // alert(JSON.stringify(userProfile));
+        // this.props
+        //   .getUser(uid)
+        //   .then((result) => {
+        //     alert(JSON.stringify(result));
+        //     // this.setState({
+        //     //   userProfile: result,
+        //     //   showLoading: false,
+        //     //   refreshing: false,
+        //     // });
+        //     // this.props.navigation.setParams({
+        //     //   title: `@${result.username}`,
+        //     // });
+        //   })
+        //   .catch((error) => {
+        //     this.setState({ showLoading: false, refreshing: false });
+
+        //     alert(error);
+        //   });
       }
     } else {
       // this.props.navigation.setParams({
@@ -185,24 +208,24 @@ class Profile extends React.Component {
             });
           }
 
-          let posts = [];
-          const postsQuery = await db
-            .collection("posts")
-            .where("uid", "==", uid)
-            .get();
-          postsQuery.forEach(function (response) {
-            posts.push(response.data());
-          });
+          // let posts = [];
+          // const postsQuery = await db
+          //   .collection("posts")
+          //   .where("uid", "==", uid)
+          //   .get();
+          // postsQuery.forEach(function (response) {
+          //   posts.push(response.data());
+          // });
 
-          user.posts = posts;
+          // user.posts = posts;
 
-          if (posts != null && posts.length > 0) {
-            user.posts = orderBy(posts, "date", "desc");
-          }
+          // if (posts != null && posts.length > 0) {
+          //   user.posts = orderBy(posts, "date", "desc");
+          // }
 
-          if (images.length > 0) {
-            this.props.preloadUserImages(images);
-          }
+          // if (images.length > 0) {
+          //   this.props.preloadUserImages(images);
+          // }
 
           const followingQuery = await db
             .collection("users")
@@ -224,10 +247,117 @@ class Profile extends React.Component {
             followers.push(response.data());
           });
           user = { ...user, myFollowers: followers };
+          this.getUserPosts(uid);
           resolve(user);
         }
       } catch (e) {
         reject(e);
+      }
+    });
+  // Retrieve More
+  retrieveMore = async () => {
+    if (!this.state.refreshing) {
+      this.setState({
+        refreshing: true,
+      });
+      try {
+        if (
+          this.state.userProfile &&
+          this.state.userProfile.posts &&
+          this.state.userProfile.posts.length > 0
+        ) {
+          let lastFetchedPostDate = this.state.userProfile.posts[
+            this.state.userProfile.posts.length - 1
+          ].date;
+
+          this.props.getUserPosts(
+            this.state.uid,
+            (result, error) => {
+              if (result) {
+                this.mergeUserPosts(result);
+              } else {
+              }
+
+              this.setState({
+                refreshing: false,
+              });
+            },
+            lastFetchedPostDate
+          );
+        }
+      } catch (error) {
+        console.log(error);
+        this.setState({
+          refreshing: false,
+        });
+      }
+    }
+  };
+
+  mergeUserPosts = (posts) => {
+    if (this.state.routeName === "Profile") {
+      if (posts) {
+        let userProfile = this.state.userProfile;
+        let oldPosts = [];
+        if (userProfile.posts) {
+          oldPosts = userProfile.posts;
+        }
+        var mergedArray = oldPosts.concat(posts);
+        userProfile.posts = mergedArray;
+        this.setState({ userProfile: userProfile });
+      }
+    }
+  };
+
+  getUserPosts = async (uid, lastFetchedPostDate = null) =>
+    new Promise(async (resolve, reject) => {
+      try {
+        // dispatch({ type: "SHOW_LOADING", payload: true });
+
+        var postQuery;
+        if (lastFetchedPostDate) {
+          // alert(lastFetchedPostDate);
+          postQuery = await db
+            .collection("posts")
+            .where("uid", "==", uid)
+            .orderBy("date", "desc")
+            .startAfter(lastFetchedPostDate)
+            .limit(10)
+            .get();
+        } else {
+          postQuery = await db
+            .collection("posts")
+            .where("uid", "==", uid)
+            .orderBy("date", "desc")
+            .limit(10)
+            .get();
+        }
+        var images = [];
+        var posts = [];
+
+        postQuery.forEach(function (response) {
+          posts.push(response.data());
+        });
+        if (images.length > 0) {
+          this.props.preloadUserImages(images);
+        }
+        if (this.state.routeName === "Profile") {
+          if (posts) {
+            let userProfile = this.state.userProfile;
+            let oldPosts = [];
+            if (userProfile.posts) {
+              oldPosts = userProfile.posts;
+            }
+            var mergedArray = oldPosts.concat(posts);
+            userProfile.posts = mergedArray;
+            this.setState({ userProfile: userProfile });
+          }
+        }
+        resolve(posts);
+      } catch (e) {
+        // alert(e);
+        reject(e);
+        let array = [];
       }
     });
 
@@ -297,7 +427,6 @@ class Profile extends React.Component {
     //         /* this.flatListRef.scrollToIndex({ animated: true, index: index }) */
     //       ];
     // }
-
     this.props.navigation.navigate("PostListScreen", {
       selectedIndex: index,
       route: routeName,
@@ -727,13 +856,14 @@ class Profile extends React.Component {
                       styles.row,
                       {
                         alignItems: "center",
-                        justifyContent: "center",
+                        // justifyContent: "center",
                       },
                     ]}
                   >
                     <TouchableOpacity
                       style={{
                         justifyContent: "center",
+                        flex: 1,
                       }}
                       onPress={() => {
                         this.props.navigation.navigate("ViewProfile", {
@@ -745,8 +875,8 @@ class Profile extends React.Component {
                     >
                       <Text
                         style={{
-                          fontWeight: "bold",
-                          fontSize: Scale.moderateScale(24),
+                          fontWeight: "500",
+                          fontSize: Scale.moderateScale(38),
                           color: "rgb(255,255,255)",
                           shadowOpacity: 0.5,
                           // ...constants.fonts.FreightSansLight,
@@ -786,7 +916,7 @@ class Profile extends React.Component {
                         >
                           <Text
                             style={{
-                              color: "rgb(215, 80, 80)",
+                              color: "#db565b",
                               fontWeight: "bold",
                               padding: Scale.moderateScale(5),
                               fontSize: Scale.moderateScale(14),
@@ -816,7 +946,13 @@ class Profile extends React.Component {
                 </View>
               </View>
 
-              <View style={[styles.row, styles.space, { marginTop: 0 }]}>
+              <View
+                style={[
+                  styles.row,
+                  styles.space,
+                  { marginTop: 0, display: "none" },
+                ]}
+              >
                 <TouchableOpacity
                   style={[styles.center, { flex: 1 }]}
                   onPress={() =>
@@ -940,6 +1076,19 @@ class Profile extends React.Component {
       </View>
     );
   }
+  // Render Footer
+  renderFooter = () => {
+    try {
+      // Check If Loading
+      if (this.state.refreshing) {
+        return <ActivityIndicator />;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   render() {
     let user = {};
@@ -1004,6 +1153,9 @@ class Profile extends React.Component {
             routeName,
             userblocked
           )}
+          onEndReachedThreshold={1}
+          onEndReached={this.retrieveMore}
+          ListFooterComponent={this.renderFooter}
           // extraData={user}
           // onViewableItemsChanged={this._onViewableItemsChanged}
           // viewabilityConfig={viewabilityConfig}
@@ -1025,7 +1177,7 @@ class Profile extends React.Component {
                   id={item.id}
                   onPress={() => [this.onSelect(item, index)]}
                   activeOpacity={0.6}
-                  onLongPress={() => this.activateLongPress(item)}
+                  // onLongPress={() => this.activateLongPress(item)}
                 >
                   <View style={[styles.center]}>
                     <ProgressiveImage
@@ -1096,6 +1248,7 @@ const mapDispatchToProps = (dispatch) => {
       getMessages,
       deletePost,
       likePost,
+      getUserPosts,
       blockUser,
       unblockUser,
       unlikePost,

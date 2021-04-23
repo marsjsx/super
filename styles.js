@@ -162,7 +162,18 @@ export default styles = StyleSheet.create({
     fontSize: 12,
   },
   textMedium: {
-    fontSize: 15,
+    fontSize: 20,
+  },
+  textNormal: {
+    fontSize: 16,
+  },
+  textHelveticaNeueNormal: {
+    fontSize: 16,
+    ...constants.fonts.HelveticaNeueThin,
+  },
+  textFreightSansMedium: {
+    fontSize: 20,
+    ...constants.fonts.FreightSansLight,
   },
   url: {
     color: "red",
@@ -309,7 +320,13 @@ export default styles = StyleSheet.create({
     margin: 10,
     backgroundColor: "#adadad",
   },
-
+  roundImage50: {
+    width: Scale.moderateScale(50),
+    height: Scale.moderateScale(50),
+    borderRadius: Scale.moderateScale(25),
+    margin: 10,
+    backgroundColor: "#adadad",
+  },
   roundImage60s: {
     width: 60,
     height: 60,
@@ -918,8 +935,16 @@ export default styles = StyleSheet.create({
   activeLabel: {
     fontWeight: "bold",
     padding: 5,
-    color: "rgb(215, 80, 80)",
+    color: "#db565b",
     fontSize: Scale.moderateScale(16),
+    ...Platform.select({
+      ios: {},
+      android: {
+        textShadowColor: "rgba(0, 0, 0, 0.75)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 5,
+      },
+    }),
   },
   bottomwhiteborder: {
     // borderBottomWidth: 2,
@@ -936,5 +961,13 @@ export default styles = StyleSheet.create({
     padding: 5,
     color: "white",
     fontSize: Scale.moderateScale(16),
+    ...Platform.select({
+      ios: {},
+      android: {
+        textShadowColor: "rgba(0, 0, 0, 0.75)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 5,
+      },
+    }),
   },
 });

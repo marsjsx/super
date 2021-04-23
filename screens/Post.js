@@ -77,6 +77,7 @@ import {
   MaterialCommunityIcons,
   Octicons,
 } from "@expo/vector-icons";
+import constants from "../constants";
 const { height, width } = Dimensions.get("window");
 var self;
 const filters = [
@@ -136,7 +137,7 @@ class Post extends React.Component {
       language: "",
       filteredImage: "",
       startTime: 0,
-      endTime: 59,
+      endTime: 300,
       showSignUpSheet: false,
       selectedLocation: "",
       currentTime: 0,
@@ -194,11 +195,12 @@ class Post extends React.Component {
       headerTransparent: true,
       gestureEnabled: false,
       title: "",
+      headerTintColor: constants.colors.superRed,
       headerRight: () => (
         <TouchableOpacity onPress={this._onNext}>
           <Text
             style={{
-              color: "dodgerblue",
+              color: constants.colors.superRed,
               fontWeight: "bold",
               padding: 5,
               fontSize: 16,
@@ -359,10 +361,10 @@ class Post extends React.Component {
     } else if (selectedFile.type === "video") {
       this.setState({
         startTime: 0,
-        endTime: 59,
+        endTime: 300,
       });
 
-      if (selectedFile.duration < 60000) {
+      if (selectedFile.duration < 300000) {
         this.setState({
           endTime: Math.round(selectedFile.duration / 1000),
         });
@@ -463,12 +465,12 @@ class Post extends React.Component {
         } else if (selectedFile.type === "video") {
           this.setState({
             startTime: 0,
-            endTime: 59,
+            endTime: 300,
           });
 
           // alert(JSON.stringify(selectedFile));
 
-          if (selectedFile.duration < 60000) {
+          if (selectedFile.duration < 300000) {
             this.setState({
               endTime: Math.round(selectedFile.duration / 1000),
             });
@@ -554,7 +556,7 @@ class Post extends React.Component {
       const options = {
         startTime: this.state.startTime,
         endTime: this.state.endTime,
-        // quality: "640*360", // iOS only
+        quality: "720*480", // iOS only
         // quality: "1280x720", // iOS only
         // saveToCameraRoll: true, // default is false // iOS only
         // saveWithCurrentDate: true, // default is false // iOS only
@@ -562,20 +564,32 @@ class Post extends React.Component {
       ProcessingManager.trim(this.props.post.photo.uri, options) // like VideoPlayer trim options
         .then(async (newSource) => {
           const duration = this.state.endTime - this.state.startTime;
-          const origin = await ProcessingManager.getVideoInfo(newSource);
-          const result = await ProcessingManager.compress(newSource, {
-            // width: origin.size && origin.size.width / 2,
-            // height: origin.size && origin.size.height / 2,
-            width: 480,
-            height: 720,
-            bitrateMultiplier: 3,
-            minimumBitrate: 300000,
-          });
 
+          var videoSource = newSource;
+
+          if (Platform.OS === "android") {
+            // const origin = await ProcessingManager.getVideoInfo(newSource);
+            const result = await ProcessingManager.compress(newSource, {
+              // width: origin.size && origin.size.width / 2,
+              // height: origin.size && origin.size.height / 2,
+              width: 480,
+              height: 720,
+              bitrateMultiplier: 3,
+              minimumBitrate: 300000,
+            });
+
+            if (Platform.OS === "android") {
+              videoSource = result.source;
+            } else {
+              videoSource = result;
+            }
+          }
+
+          // alert(JSON.stringify(result));
           this.props.updatePhoto({
             ...this.props.post.photo,
             duration: duration,
-            uri: result.source,
+            uri: videoSource,
           });
           this.setState({ showLoading: false, paused: true });
 
@@ -769,20 +783,20 @@ class Post extends React.Component {
             >
               <View
                 style={{
-                  marginHorizontal: 20,
+                  marginHorizontal: 10,
                 }}
               >
                 <Trimmer
                   source={this.props.post.photo.uri}
                   height={50}
-                  width={Dimensions.get("screen").width - 40}
+                  width={Dimensions.get("screen").width - 20}
                   onTrackerMove={(e) => alert(e.currentTime)} // iOS only
                   currentTime={this.state.currentTime} // use this prop to set tracker position iOS only
                   themeColor={"blue"} // iOS only
                   thumbWidth={30} // iOS only
                   trackerColor={"green"} // iOS only
                   minLength={3}
-                  maxLength={60}
+                  maxLength={300}
                   // showTrackerHandle={true}
                   resizeMode={VideoPlayer.Constants.resizeMode.CONTAIN}
                   onChange={(e) => {

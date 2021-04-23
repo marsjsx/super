@@ -3,8 +3,6 @@ import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 // import HomeScreen from "./screens/Home";
-import Login from "./screens/Login";
-import SignupScreen from "./screens/Signup";
 import HomeScreen from "./screens/Home";
 
 import FlashMessage from "react-native-flash-message";

@@ -1,8 +1,15 @@
 export default {
-  FreightSansLight: {
-    fontFamily: "FreightSansProLight-Regular",
-  },
+  // FreightSansLight: {
+  //   fontFamily: "FreightSansProLight-Regular",
+  // },
+
+  // HelveticaNeueThin: {
+  //   fontFamily: "HelveticaNeueThin",
+  // },
   HelveticaNeueThin: {
-    fontFamily: "HelveticaNeueThin",
+    fontFamily: "NimbusSansDOT-Ligh",
+  },
+  FreightSansLight: {
+    fontFamily: "Freight-SansMediumSC",
   },
 };

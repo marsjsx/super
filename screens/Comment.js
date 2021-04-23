@@ -83,8 +83,7 @@ class Comment extends React.Component {
   };
 
   goToUser = async (uid) => {
-    // await this.props.getUser(uid);
-    // this.props.navigation.navigate("Profile");
+
     this.props.navigation.navigate("Profile", { uid: uid });
   };
   likePost = (post) => {

@@ -71,26 +71,27 @@ class Messages extends React.Component {
     if (!this.props.messages) {
       this.props.getMessages();
     }
+    this.props.refs(this);
     // this.props.navigation.setParams({
     //   newMessage: this.goToNewMessage,
     // });
 
-    this.props.navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 24 }}
-          onPress={() => this.goToNewMessage()}
-        >
-          <Ionicons
-            style={{
-              color: "#000",
-            }}
-            name="md-add"
-            size={32}
-          />
-        </TouchableOpacity>
-      ),
-    });
+    // this.props.navigation.setOptions({
+    //   headerRight: () => (
+    //     <TouchableOpacity
+    //       style={{ marginRight: 24 }}
+    //       onPress={() => this.goToNewMessage()}
+    //     >
+    //       <Ionicons
+    //         style={{
+    //           color: "#000",
+    //         }}
+    //         name="md-add"
+    //         size={32}
+    //       />
+    //     </TouchableOpacity>
+    //   ),
+    // });
   };
 
   goToNewMessage = () => {
@@ -190,7 +191,18 @@ class Messages extends React.Component {
       console.log(error);
     }
   };
-
+  FlatListItemSeparator = () => {
+    return (
+      <View
+        style={[
+          {
+            marginVertical: Scale.moderateScale(6),
+            width: "100%",
+          },
+        ]}
+      />
+    );
+  };
   render() {
     if (!this.props.user.uid || !this.props.messages.length) {
       return (
@@ -221,6 +233,7 @@ class Messages extends React.Component {
             this.onEndReachedCalledDuringMomentum = false;
           }}
           ListFooterComponent={this.renderFooter}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
           renderItem={({ item, index }) => {
             let swipeBtns = [
               {
@@ -263,9 +276,28 @@ class Messages extends React.Component {
                         style={[styles.container, styles.center, styles.left]}
                       >
                         {/* <Text style={styles.bold}>{item.user.username}</Text> */}
-                        <Title style={{ color: "#000" }}>
-                          {item.user.username}
-                        </Title>
+                        <View style={{ flexDirection: "row" }}>
+                          <Text style={[styles.textFreightSansMedium, {}]}>
+                            {item.user.username}
+                          </Text>
+
+                          {this.getUnSeenMessageCount(item) ? (
+                            <View style={{ flex: 1 }}>
+                              <View
+                                style={[
+                                  styles.textHelveticaNeueNormal,
+                                  {
+                                    marginLeft: 12,
+                                    backgroundColor: "red",
+                                    height: 8,
+                                    width: 8,
+                                    borderRadius: 4,
+                                  },
+                                ]}
+                              />
+                            </View>
+                          ) : null}
+                        </View>
                         {this.getLastMessage(item)}
                         {/* <Text style={styles.gray}>{this.getLastMessage(item)}</Text> */}
                         {/* <Text style={[styles.gray, styles.small]}>
@@ -273,7 +305,7 @@ class Messages extends React.Component {
                   </Text> */}
                       </View>
                     </Body>
-                    <Right>
+                    {/* <Right>
                       <View
                         style={{
                           flexDirection: "row",
@@ -300,7 +332,7 @@ class Messages extends React.Component {
                           </Text>
                         </Badge>
                       ) : null}
-                    </Right>
+                    </Right> */}
                   </ListItem>
                 </TouchableHighlight>
               </Swipeout>
@@ -312,7 +344,7 @@ class Messages extends React.Component {
   }
 }
 const LastMessage = ({
-  size = 18,
+  size = 14,
   lastMessage = "",
   color = "rgba(0,0,0,0.5)",
   ...props
@@ -320,12 +352,7 @@ const LastMessage = ({
   <View>
     {props.name ? <MaterialIcons size={size} color={color} {...props} /> : null}
 
-    <Text
-      style={[
-        styles.black,
-        { fontSize: 16, marginLeft: Scale.moderateScale(5) },
-      ]}
-    >
+    <Text style={[styles.black, styles.textHelveticaNeueNormal, {}]}>
       {lastMessage}
     </Text>
   </View>

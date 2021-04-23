@@ -34,6 +34,7 @@ import {
   deletePost,
 } from "../actions/post";
 import { getUser } from "../actions/user";
+import { getChannelsPosts } from "../actions/channels";
 import moment from "moment";
 import * as Font from "expo-font";
 import DoubleTap from "../component/DoubleTap";
@@ -80,7 +81,8 @@ var BUTTONS = ["Report", "Mute", "Share Post Link", "Cancel"];
 var DESTRUCTIVE_INDEX = 3;
 var CANCEL_INDEX = 4;
 import RenderFullScreenPostItem from "../component/RenderFullScreenPostItem";
-
+var routeName,
+  selectedChannelId = "";
 class PostListScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -96,6 +98,7 @@ class PostListScreen extends React.Component {
       reportReason: "",
       selectedPost: {},
       userPosts: [],
+      refreshing: false,
     };
     this.start = this.start.bind(this);
   }
@@ -133,10 +136,18 @@ class PostListScreen extends React.Component {
     });
     this.setState({ fontLoaded: true });
 
-    // const { userPosts } = this.props.navigation.state.params;
+    const { userPosts, route, channelId } = this.props.route.params;
 
-    const { userPosts } = this.props.route.params;
+    routeName = route;
     this.setState({ userPosts: userPosts });
+
+    if (routeName === "Channels") {
+      selectedChannelId = channelId;
+
+      this.setState({ showLoading: true });
+      await this.props.getChannelsPosts(channelId);
+      this.setState({ showLoading: false });
+    }
   }
 
   componentWillUmount() {
@@ -206,9 +217,6 @@ class PostListScreen extends React.Component {
   };
 
   goToUser = (user) => {
-    // this.props.getUser(user.uid);
-    // this.props.navigation.navigate("Profile");
-
     this.props.navigation.navigate("Profile", { uid: user.uid });
   };
 
@@ -638,11 +646,14 @@ class PostListScreen extends React.Component {
   }
 
   renderItem = ({ item, index }) => {
+    const { route, selectedIndex, userPosts } = this.props.route.params;
+
     return (
       <RenderFullScreenPostItem
         {...item}
         key={index}
         user={this.props.user}
+        isChannel={route === "Channels"}
         onPostPress={() => this.cellRefs[item.id].handleOnPress()}
         onDoubleTap={() => this.onDoubleTap(item)}
         navigation={this.props.navigation}
@@ -657,37 +668,53 @@ class PostListScreen extends React.Component {
           }
         }}
         onLikePress={() => {
+          if (route === "Channels") return;
+
           this.props.navigation.navigate("LikersAndViewers", {
             views: item.viewers,
             data: item.likes,
-            flow: "Views",
+            flow: "Likes",
             title: "Views and likes",
           });
         }}
         onCommentPress={() => {
+          if (route === "Channels") return;
+
           this.props.navigation.navigate("Comment", item);
         }}
         onViewsPress={() => {
+          if (route === "Channels") return;
+
           this.props.navigation.navigate("LikersAndViewers", {
             views: item.viewers,
-            data: item.likes,
+            data: item.viewers,
             flow: "Views",
-            title: "Views and likes",
+            title: "Views",
           });
         }}
         onUserPress={() => {
+          if (route === "Channels") return;
+
           this.goToUser(item);
         }}
         onFollowPress={() => {
+          if (route === "Channels") return;
+
           this.follow(item);
         }}
         showActionSheet={() => {
+          if (route === "Channels") return;
+
           this.showActionSheet(item);
         }}
         onMentionNamePress={(name, matchIndex /*: number*/) => {
+          if (route === "Channels") return;
+
           this.handleNamePress(name, matchIndex);
         }}
         onUrlPress={(url, matchIndex /*: number*/) => {
+          if (route === "Channels") return;
+
           this.handleUrlPress(url, matchIndex);
         }}
         onPostRef={(ref) => {
@@ -704,6 +731,28 @@ class PostListScreen extends React.Component {
     index,
   });
 
+  // Retrieve More
+  retrieveMore = async (type = null) => {
+    if (!this.state.refreshing) {
+      try {
+        if (routeName === "Channels") {
+          this.setState({
+            refreshing: true,
+          });
+          await this.props.getChannelsPosts(selectedChannelId);
+          this.setState({
+            refreshing: false,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        this.setState({
+          refreshing: false,
+        });
+      }
+    }
+  };
+
   render() {
     let posts = {};
     // const {
@@ -719,27 +768,23 @@ class PostListScreen extends React.Component {
       posts = this.state.userPosts;
     } else if (route === "Search") {
       posts = this.props.post.feed;
+    } else if (route === "Channels") {
+      posts = this.props.channels.feed;
     } else {
       posts = this.props.user.posts;
     }
 
     posts = [...posts];
-    // if (posts && posts.length > 0 && selectedIndex >= 0) {
-    //   var obj = { ...posts[selectedIndex] };
 
-    //   posts.splice(selectedIndex, 1);
-
-    //   posts.splice(0, 0, obj);
-    // }
-
-    // alert(JSON.stringify(this.props.post.feed.length));
     if (this.props.post === null) return null;
     return (
       <View
         style={[styles.postPhoto, styles.center]}
         // onLayout={() => this.onLayout()}
       >
-        {/* {alert(JSON.stringify(posts))} */}
+        {/* {this.props.channels.feedLoading
+          ? showLoader("Loading, Please wait... ")
+          : null} */}
         <EmptyView
           ref={(ref) => {
             this.sheetRef = ref;
@@ -750,12 +795,13 @@ class PostListScreen extends React.Component {
           ref={(ref) => {
             this.flatListRef = ref;
           }}
-          initialNumToRender={3}
-          maxToRenderPerBatch={2}
-          windowSize={3}
+          // initialNumToRender={3}
+          // maxToRenderPerBatch={2}
+          // windowSize={3}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
           snapToAlignment={"top"}
-          refreshing={false}
+          // Refreshing (Set To True When End Reached)
+          refreshing={this.state.refreshing}
           pagingEnabled={true}
           onViewableItemsChanged={this._onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
@@ -774,6 +820,8 @@ class PostListScreen extends React.Component {
           keyExtractor={(item) => item.id}
           renderItem={this.renderItem}
           getItemLayout={this.getItemLayout}
+          onEndReachedThreshold={2}
+          onEndReached={this.retrieveMore}
         />
 
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
@@ -801,16 +849,20 @@ class PostListScreen extends React.Component {
         {/* <View style={[{ position: "absolute", top: 40 }]}> */}
         <TouchableOpacity
           style={[
-            { position: "absolute", top: 40, right: 0, shadowOpacity: 0.5 },
+            {
+              position: "absolute",
+              top: Scale.moderateScale(45),
+              left: 0,
+              shadowOpacity: 0.5,
+            },
           ]}
           onPress={() => this.props.navigation.goBack()}
         >
           <Ionicons
-            style={[styles.icon, { marginHorizontal: Scale.moderateScale(4) }]}
-            name="ios-close"
-            color="#fff"
-            size={45}
-          ></Ionicons>
+            style={[styles.icon, { marginLeft: 20, color: "rgb(255,255,255)" }]}
+            name={"ios-arrow-back"}
+            size={30}
+          />
         </TouchableOpacity>
         {/* </View> */}
       </View>
@@ -830,6 +882,7 @@ const mapDispatchToProps = (dispatch) => {
       getFilterPosts,
       getMessages,
       deletePost,
+      getChannelsPosts,
     },
     dispatch
   );
@@ -839,6 +892,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     post: state.post,
+    channels: state.channels,
     profile: state.profile,
   };
 };
