@@ -12,4 +12,10 @@ export default {
   FreightSansLight: {
     fontFamily: "Freight-SansMediumSC",
   },
+  OswaldMedium: {
+    fontFamily: "Oswald-Medium",
+  },
+  OswaldSemiBold: {
+    fontFamily: "Oswald-SemiBold",
+  },
 };

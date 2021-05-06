@@ -19,7 +19,6 @@ import Scale from "../helpers/Scale";
 // import Slider from "../component/slider";
 var Slider = require("../component/Slider");
 import MultiSlider from "../component/MultiSlider";
-
 import _ from "lodash";
 // import sliderThumb from "https://w7.pngwing.com/pngs/874/257/png-transparent-whatsapp-computer-icons-computer-software-whatsapp-text-logo-whatsapp-icon-thumbnail.png";
 
@@ -179,14 +178,16 @@ class VideoCover extends React.Component {
     this.props.navigation.setParams({ onNext: this._onNext });
 
     this.props.navigation.setOptions({
-      title: "Choose Video Cover",
-      headerTintColor: constants.colors.superRed,
+      title: "Choose  Cover",
       gestureEnabled: false,
+      headerShown: true,
+      headerTransparent: true,
+      headerTintColor: "#fff",
       headerRight: () => (
         <TouchableOpacity onPress={this._onNext}>
           <Text
             style={{
-              color: constants.colors.superRed,
+              color: constants.colors.white,
               fontWeight: "bold",
               padding: 5,
               fontSize: 16,
@@ -194,6 +195,15 @@ class VideoCover extends React.Component {
           >
             Next{" "}
           </Text>
+        </TouchableOpacity>
+      ),
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <Ionicons
+            style={[{ marginLeft: 20, color: "#fff" }]}
+            name={"ios-arrow-back"}
+            size={30}
+          />
         </TouchableOpacity>
       ),
     });

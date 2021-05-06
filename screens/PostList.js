@@ -113,7 +113,7 @@ class PostListScreen extends React.Component {
     // if (post.type === "video") {
     let timer = setInterval(() => {
       // log video view
-      this.props.logVideoView(post);
+      this.props.logVideoView(post, routeName);
 
       this.resetTimer();
     }, 1500);
@@ -683,7 +683,7 @@ class PostListScreen extends React.Component {
           this.props.navigation.navigate("Comment", item);
         }}
         onViewsPress={() => {
-          if (route === "Channels") return;
+          // if (route === "Channels") return;
 
           this.props.navigation.navigate("LikersAndViewers", {
             views: item.viewers,

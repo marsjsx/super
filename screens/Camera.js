@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { uploadPhoto } from "../actions/index";
 import { updatePhoto, createAndUpdatePreview } from "../actions/post";
-import { Camera } from "expo-camera";
 import * as Permissions from "expo-permissions";
 import * as ImageManipulator from "expo-image-manipulator";
 import {
@@ -89,7 +88,7 @@ class CameraUpload extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          <Camera
+          {/* <Camera
             style={{ flex: 1,justifyContent:'flex-end' }}
             ref={ref => {
               this.camera = ref;
@@ -97,7 +96,7 @@ class CameraUpload extends React.Component {
             type={this.state.cameraType}
           >
             {this.renderBottomBar()}
-          </Camera>
+          </Camera> */}
         </View>
       );
     }

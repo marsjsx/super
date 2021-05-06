@@ -6,6 +6,8 @@ import { allowNotifications, sendNotification } from "./";
 import * as Facebook from "expo-facebook";
 import { uploadPhoto } from "../actions/index";
 import { getActivities } from "../actions/activity";
+import MixpanelManager from "../Analytics";
+
 import {
   addUserPostToTimeline,
   removeUserPostFromTimeline,
@@ -84,7 +86,19 @@ export const createAndUpdatePreview = (input) => {
     });
   };
 };
-
+export const identifyUser = (uid) => {
+  // alert(uid);
+  try {
+    MixpanelManager.sharedInstance.mixpanel.identify(uid);
+    // MixpanelManager.sharedInstance.mixpanel.track("Track Event!");
+    // MixpanelManager.sharedInstance.mixpanel.flush();
+    // MixpanelManager.sharedInstance.mixpanel.getPeople().identify(uid);
+    // alert(uid);
+  } catch (error) {
+    // alert(error);
+    console.error(error);
+  }
+};
 export const login = () => {
   return async (dispatch, getState) => {
     try {
@@ -101,7 +115,18 @@ export const login = () => {
     }
   };
 };
-
+export const getLoggedInUserData = (uid) => {
+  return async (dispatch, getState) => {
+    try {
+      dispatch(getUser(uid));
+      dispatch(filterBlockedPosts());
+      dispatch(allowNotifications(uid));
+      dispatch(getActivities());
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
 export const facebookLogin = () => {
   return async (dispatch) => {
     // await Facebook.initializeAsync("239016010571551");
@@ -391,6 +416,8 @@ export const getUser = (uid, type = "", cb = (result, error) => {}) => {
 
           dispatch({ type: "LOGIN", payload: user });
           dispatch(getUserPosts(user.uid, (result, error) => {}, null));
+
+          identifyUser(user.uid);
         } else {
           dispatch({ type: "GET_PROFILE", payload: user });
         }
@@ -405,7 +432,7 @@ export const getUser = (uid, type = "", cb = (result, error) => {}) => {
     } catch (e) {
       cb(null, e);
       // cb();
-      alert("Error: User Not Found ");
+      // alert("Error: User Not Found ");
     }
   };
 };
@@ -729,7 +756,57 @@ export const signup = () => {
     }
   };
 };
-
+export const signupWithPhoneNumber = (
+  uid,
+  navigation,
+  phoneNumber,
+  countryCode
+) => {
+  return async (dispatch, getState) => {
+    try {
+      const { email, username, accountType } = getState().user;
+      var usernameAvailable = await dispatch(
+        checkUserNameAvailable(username, null)
+      );
+      if (usernameAvailable) {
+        var user_name = username.toLowerCase().replace(/\s+/g, "_");
+        const user = {
+          uid: uid,
+          email: email,
+          username: username,
+          user_name: user_name,
+          photo: "",
+          phone: phoneNumber,
+          countryCode,
+          accountType: accountType || null,
+          createdAt: new Date().getTime(),
+          token: null,
+          followers: [],
+          following: [],
+          reports: [],
+          blocked: [],
+          blockedBy: [],
+        };
+        db.collection("users").doc(uid).set(user);
+        // dispatch(getUser(response.user.uid));
+        dispatch({ type: "LOGIN", payload: user });
+        dispatch(filterBlockedPosts());
+        dispatch(allowNotifications(uid));
+        navigation.popToTop();
+        navigation.replace("HomeScreen");
+        navigation.navigate("WelcomeScreen");
+      } else {
+        alert("Username already exists, Please choose another username");
+        return "Username already exists";
+      }
+      // navigation.popToTop();
+      // navigation.replace("HomeScreen");
+      // navigation.navigate("WelcomeScreen");
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
 export const followUser = (user) => {
   return async (dispatch, getState) => {
     const { uid, photo, username, following } = getState().user;

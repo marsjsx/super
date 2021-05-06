@@ -39,7 +39,6 @@ import appleAuth, {
 import { name as appName } from "../app.json";
 // import { TouchableOpacity } from "react-native-gesture-handler";
 
-
 const { height, width } = Dimensions.get("window");
 
 // var createReactClass = require('create-react-class');
@@ -304,9 +303,7 @@ Signup
 
         case "title":
           return (
-            <Text
-              style={[styles.global, styles.title, this.props.stylesheet.title]}
-            >
+            <Text style={[styles.global, styles.title, this.props.titleStyle]}>
               {this.props.title}
             </Text>
           );
@@ -316,7 +313,9 @@ Signup
 
         case "desc":
           return (
-            <Text style={[styles.global, styles.desc]}>{this.props.desc}</Text>
+            <Text style={[styles.global, styles.desc, this.props.descStyle]}>
+              {this.props.desc}
+            </Text>
           );
 
         case "button":

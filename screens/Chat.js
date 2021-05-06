@@ -488,9 +488,7 @@ class Chat extends React.Component {
           // onLongPressAvatar={(user) => alert(JSON.stringify(user))}
           renderInputToolbar={this.renderInputToolbar}
           renderComposer={this.renderComposer}
-          onPressAvatar={() =>
-            this.goToUser(this.props.route.params)
-          }
+          onPressAvatar={() => this.goToUser(this.props.route.params)}
           keyboardShouldPersistTaps="never"
           renderAccessory={Platform.OS === "web" ? null : this.renderAccessory}
           renderBubble={this.renderBubble}

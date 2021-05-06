@@ -16,7 +16,6 @@
 		1D40E81124448C92009FA92C /* libGPUImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DA769182438CD1F00040B0F /* libGPUImage.a */; };
 		1D4B5289262F478600A8DC83 /* FreightSansProLight-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D4B9818253DF9C500D21AD1 /* FreightSansProLight-Regular.ttf */; };
 		1D4B528C262F479500A8DC83 /* HelveticaNeueThin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D4B9812253DF63900D21AD1 /* HelveticaNeueThin.ttf */; };
-		1D4B5293262F507600A8DC83 /* NimbusSansDOT-Ligh.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D4B5291262F4FC400A8DC83 /* NimbusSansDOT-Ligh.ttf */; };
 		1D4CEBB1251FB80D00843F8F /* GoogleService-Info-2.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1D4CEBAE251FB80D00843F8F /* GoogleService-Info-2.plist */; };
 		1D4CEBB3251FBCFC00843F8F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1D4CEBB2251FBCFC00843F8F /* GoogleService-Info.plist */; };
 		1D5C18E525D747A500FC0D1F /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 1D5C18E125D747A400FC0D1F /* main.jsbundle */; };
@@ -38,7 +37,10 @@
 		1DC53F9C2571891E0099E4DA /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DA7691A2438CD1F00040B0F /* GPUImage.framework */; };
 		2035746E271E41C6B038C557 /* Freight-SansMediumSC.otf in Resources */ = {isa = PBXBuildFile; fileRef = E1FF695003B24AA29075853E /* Freight-SansMediumSC.otf */; };
 		3DE4DAD41476765101945408 /* libPods-BareSuper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D43FF9D506E70904424FA7E9 /* libPods-BareSuper.a */; };
+		5B3DF02A33354F7FA43237A7 /* Oswald-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EE719D1165894F8089C298EB /* Oswald-Medium.ttf */; };
 		A1F8375FC2E942D280C8E318 /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 15EC9C6175984574B33B19EC /* OpenSans-Bold.ttf */; };
+		A54F17514088403EA22DA5CB /* NimbusSansDOT-Ligh.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 265C45BA967146DF878C5C55 /* NimbusSansDOT-Ligh.ttf */; };
+		CA33439DF13C4D66B7B6CFA6 /* Oswald-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8D0E0D2CF5DD4BED964C6517 /* Oswald-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,8 +99,6 @@
 		1B066610C9634553B5B3B506 /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/native-base/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
 		1C4484A898D040738048E6C7 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/native-base/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		1D40E81024448AF3009FA92C /* SuperDatingDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SuperDatingDebug.entitlements; path = BareSuper/SuperDatingDebug.entitlements; sourceTree = "<group>"; };
-		1D4B528E262F4CFB00A8DC83 /* Freight-SansMediumSC.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Freight-SansMediumSC.otf"; path = "../assets/fonts/Freight-SansMediumSC.otf"; sourceTree = "<group>"; };
-		1D4B5291262F4FC400A8DC83 /* NimbusSansDOT-Ligh.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NimbusSansDOT-Ligh.ttf"; path = "../assets/fonts/NimbusSansDOT-Ligh.ttf"; sourceTree = "<group>"; };
 		1D4B9812253DF63900D21AD1 /* HelveticaNeueThin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = HelveticaNeueThin.ttf; path = ../assets/fonts/HelveticaNeueThin.ttf; sourceTree = "<group>"; };
 		1D4B9818253DF9C500D21AD1 /* FreightSansProLight-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FreightSansProLight-Regular.ttf"; path = "../assets/fonts/FreightSansProLight-Regular.ttf"; sourceTree = "<group>"; };
 		1D4CEBAE251FB80D00843F8F /* GoogleService-Info-2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-2.plist"; path = "../../../../Downloads/GoogleService-Info-2.plist"; sourceTree = "<group>"; };
@@ -172,7 +172,10 @@
 		EC67BBD269E0415C85881465 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		EE719D1165894F8089C298EB /* Oswald-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Oswald-Medium.ttf"; path = "../assets/fonts/Oswald-Medium.ttf"; sourceTree = "<group>"; };
 		FDC4B976B1F2416EB066C733 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/native-base/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		265C45BA967146DF878C5C55 /* NimbusSansDOT-Ligh.ttf */ = {isa = PBXFileReference; name = "NimbusSansDOT-Ligh.ttf"; path = "../assets/fonts/NimbusSansDOT-Ligh.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8D0E0D2CF5DD4BED964C6517 /* Oswald-SemiBold.ttf */ = {isa = PBXFileReference; name = "Oswald-SemiBold.ttf"; path = "../assets/fonts/Oswald-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -338,6 +341,9 @@
 				B297718F987D4A6B8A4D0F95 /* Zocial.ttf */,
 				15EC9C6175984574B33B19EC /* OpenSans-Bold.ttf */,
 				E1FF695003B24AA29075853E /* Freight-SansMediumSC.otf */,
+				EE719D1165894F8089C298EB /* Oswald-Medium.ttf */,
+				265C45BA967146DF878C5C55 /* NimbusSansDOT-Ligh.ttf */,
+				8D0E0D2CF5DD4BED964C6517 /* Oswald-SemiBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -352,8 +358,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1D4B5291262F4FC400A8DC83 /* NimbusSansDOT-Ligh.ttf */,
-				1D4B528E262F4CFB00A8DC83 /* Freight-SansMediumSC.otf */,
 				1D5C18E425D747A500FC0D1F /* assets */,
 				1D5C18E125D747A400FC0D1F /* main.jsbundle */,
 				1D4B9818253DF9C500D21AD1 /* FreightSansProLight-Regular.ttf */,
@@ -471,7 +475,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D4B5293262F507600A8DC83 /* NimbusSansDOT-Ligh.ttf in Resources */,
 				1D4B528C262F479500A8DC83 /* HelveticaNeueThin.ttf in Resources */,
 				1D4B5289262F478600A8DC83 /* FreightSansProLight-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
@@ -482,6 +485,9 @@
 				1D4CEBB3251FBCFC00843F8F /* GoogleService-Info.plist in Resources */,
 				A1F8375FC2E942D280C8E318 /* OpenSans-Bold.ttf in Resources */,
 				2035746E271E41C6B038C557 /* Freight-SansMediumSC.otf in Resources */,
+				5B3DF02A33354F7FA43237A7 /* Oswald-Medium.ttf in Resources */,
+				A54F17514088403EA22DA5CB /* NimbusSansDOT-Ligh.ttf in Resources */,
+				CA33439DF13C4D66B7B6CFA6 /* Oswald-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +516,11 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BareSuper/Pods-BareSuper-resources.sh",
 				"${PODS_ROOT}/FBSDKCoreKit/FacebookSDKStrings.bundle",
+				"${PODS_ROOT}/Mixpanel-swift/Sources/MiniNotificationViewController.xib",
+				"${PODS_ROOT}/Mixpanel-swift/Sources/placeholder-image.png",
+				"${PODS_ROOT}/Mixpanel-swift/Sources/TakeoverNotificationViewController~ipad.xib",
+				"${PODS_ROOT}/Mixpanel-swift/Sources/TakeoverNotificationViewController~iphonelandscape.xib",
+				"${PODS_ROOT}/Mixpanel-swift/Sources/TakeoverNotificationViewController~iphoneportrait.xib",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNImageCropPicker/QBImagePicker.bundle",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
@@ -534,6 +545,11 @@
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/FacebookSDKStrings.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MiniNotificationViewController.nib",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/placeholder-image.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TakeoverNotificationViewController~ipad.nib",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TakeoverNotificationViewController~iphonelandscape.nib",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/TakeoverNotificationViewController~iphoneportrait.nib",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/QBImagePicker.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AntDesign.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Entypo.ttf",
@@ -667,7 +683,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingDebug.entitlements;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -700,7 +716,7 @@
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";

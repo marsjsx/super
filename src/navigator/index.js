@@ -16,8 +16,9 @@ import Login from "../../screens/login";
 import SignupScreen from "../../screens/signup";
 import HomeScreen from "../../screens/Home";
 import PostReportScreen from "../../screens/PostReports";
-
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import SearchScreen from "../../screens/Search";
+import SearchUsersScreen from "../../screens/SearchUsers";
 import FilterScreen from "../../screens/Filter";
 import PostScreen from "../../screens/Post";
 import VideoCover from "../../screens/videocover";
@@ -42,6 +43,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
   FontAwesome,
+  Feather,
 } from "@expo/vector-icons";
 import MapScreen from "../../screens/Map";
 import EditScreen from "../../screens/signup";
@@ -152,8 +154,12 @@ const HomeStack = createStackNavigator();
 
 function HomeNavigator({ navigation, route }) {
   // alert(JSON.stringify(route));
+  var tabBarVisible = false;
+
+  tabBarVisible = route.state ? (route.state.index > 0 ? false : true) : null;
+
   navigation.setOptions({
-    tabBarVisible: route.state ? (route.state.index > 0 ? false : true) : null,
+    tabBarVisible: tabBarVisible,
   });
   return (
     <HomeStack.Navigator>
@@ -192,10 +198,13 @@ function HomeNavigator({ navigation, route }) {
         component={CommentScreen}
         options={({ navigation, route }) => ({
           title: route.params.username,
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: "#fff",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20 }]}
+                style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -466,12 +475,25 @@ function HomeNavigator({ navigation, route }) {
 const SearchStack = createStackNavigator();
 
 function SearchNavigator({ navigation, route }) {
+  // navigation.setOptions({
+  //   tabBarVisible: route.state ? (route.state.index > 0 ? false : true) : null,
+  // });
+  const routeName = getFocusedRouteNameFromRoute(route);
+  var tabBarVisible = false;
+
+  tabBarVisible = route.state ? (route.state.index > 0 ? false : true) : null;
+
+  // alert(routeName);
+  if (routeName === "ChannelPostScreen") {
+    tabBarVisible = true;
+  }
+
   navigation.setOptions({
-    tabBarVisible: route.state ? (route.state.index > 0 ? false : true) : null,
+    tabBarVisible: tabBarVisible,
   });
   return (
     <SearchStack.Navigator>
-      <SearchStack.Screen
+      {/* <SearchStack.Screen
         name="Search"
         component={SearchScreen}
         options={({ navigation, route }) => ({
@@ -487,13 +509,45 @@ function SearchNavigator({ navigation, route }) {
                   transform: [{ rotate: "90deg" }],
                 },
               ]}
-              source={require("../../assets/logo-2.png")}
+              source={require("../../assets/logo-1.png")}
               resizeMode="contain"
             />
           ),
           // Center the header title on Android
           headerTitleAlign: "center",
           // headerTransparent: true,
+        })}
+      /> */}
+      <SearchStack.Screen
+        name="Search"
+        component={ChannelsScreen}
+        options={({ navigation, route }) => ({
+          headerTitle: (
+            props // App Logo
+          ) => (
+            <Image
+              style={[
+                styles.logoHeader,
+                {
+                  width: 150,
+                  height: 55,
+                  // transform: [{ rotate: "90deg" }],
+                },
+              ]}
+              source={require("../../assets/logo.png")}
+              resizeMode="contain"
+            />
+          ),
+          // Center the header title on Android
+          headerTitleAlign: "center",
+          // headerTransparent: true,
+        })}
+      />
+      <SearchStack.Screen
+        name="SearchUsers"
+        component={SearchUsersScreen}
+        options={({ navigation, route }) => ({
+          headerShown: false,
         })}
       />
       <SearchStack.Screen
@@ -534,12 +588,14 @@ function SearchNavigator({ navigation, route }) {
         name="Comment"
         component={CommentScreen}
         options={({ navigation, route }) => ({
-          headerTransparent: true,
           title: route.params.username,
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: "#fff",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20 }]}
+                style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -593,6 +649,13 @@ function SearchNavigator({ navigation, route }) {
       />
       <SearchStack.Screen
         name="PostListScreen"
+        component={PostListScreen}
+        options={({ navigation, route }) => ({
+          headerShown: false,
+        })}
+      />
+      <SearchStack.Screen
+        name="ChannelPostScreen"
         component={PostListScreen}
         options={({ navigation, route }) => ({
           headerShown: false,
@@ -669,13 +732,15 @@ function PostNavigator() {
         component={CommentScreen}
         options={({ navigation, route }) => ({
           title: route.params.username,
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: "#fff",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20 }]}
-                name={"ios-close"}
-                size={40}
-                color="white"
+                style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
+                name={"ios-arrow-back"}
+                size={30}
               />
             </TouchableOpacity>
           ),
@@ -859,13 +924,15 @@ function ActivityNavigator({ navigation, route }) {
         component={CommentScreen}
         options={({ navigation, route }) => ({
           title: route.params.username,
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: "#fff",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20 }]}
-                name={"ios-close"}
-                size={40}
-                color="white"
+                style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
+                name={"ios-arrow-back"}
+                size={30}
               />
             </TouchableOpacity>
           ),
@@ -991,13 +1058,15 @@ function ProfileNavigator({ navigation, route }) {
         component={CommentScreen}
         options={({ navigation, route }) => ({
           title: route.params.username,
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: "#fff",
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20 }]}
-                name={"ios-close"}
-                size={40}
-                color="white"
+                style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
+                name={"ios-arrow-back"}
+                size={30}
               />
             </TouchableOpacity>
           ),
@@ -1199,17 +1268,17 @@ function TabNavigator({ navigation, route }) {
             return (
               <MaterialCommunityIcons
                 style={styles.iconshadowandroid}
-                color={"white"}
+                color={focused ? "#db565b" : "#fff"}
                 name={focused ? "home" : "home-outline"}
                 size={32}
               />
             );
           } else if (route.name === "Search") {
             return (
-              <Ionicons
+              <Feather
                 style={styles.iconshadowandroid}
-                color={"white"}
-                name={focused ? "md-search" : "ios-search"}
+                color={focused ? "#db565b" : "#fff"}
+                name={focused ? "tv" : "tv"}
                 size={32}
               />
             );
@@ -1224,7 +1293,7 @@ function TabNavigator({ navigation, route }) {
             return (
               <Ionicons
                 style={styles.iconshadowandroid}
-                color={"white"}
+                color={focused ? "#db565b" : "#fff"}
                 name={focused ? "ios-heart" : "ios-heart-empty"}
                 size={32}
               />
@@ -1233,7 +1302,7 @@ function TabNavigator({ navigation, route }) {
             return (
               <FontAwesome
                 style={styles.iconshadowandroid}
-                color={"white"}
+                color={focused ? "#db565b" : "#fff"}
                 name={focused ? "user" : "user-o"}
                 size={32}
               />
@@ -1249,6 +1318,8 @@ function TabNavigator({ navigation, route }) {
           backgroundColor: "transparent",
           // opacity: 0.4,
           position: "absolute",
+          activeTintColor: "#db565b",
+          inactiveTintColor: "#fff",
           borderTopWidth: 0,
           shadowOpacity: 0.5,
           elevation: 0,

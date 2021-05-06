@@ -162,18 +162,23 @@ export default styles = StyleSheet.create({
     fontSize: 12,
   },
   textMedium: {
-    fontSize: 20,
+    fontSize: 16,
   },
   textNormal: {
-    fontSize: 16,
+    fontSize: 14,
   },
   textHelveticaNeueNormal: {
-    fontSize: 16,
-    ...constants.fonts.HelveticaNeueThin,
+    fontSize: 14,
+    // ...constants.fonts.HelveticaNeueThin,
   },
   textFreightSansMedium: {
-    fontSize: 20,
-    ...constants.fonts.FreightSansLight,
+    fontSize: 16,
+    // ...constants.fonts.FreightSansLight,
+  },
+  textNormalBold: {
+    fontSize: 16,
+    fontWeight: "bold",
+    // ...constants.fonts.FreightSansLight,
   },
   url: {
     color: "red",
@@ -215,8 +220,9 @@ export default styles = StyleSheet.create({
     width: width * 0.8,
     margin: 10,
     padding: 10,
+    color: "#fff",
     alignSelf: "center",
-    borderColor: "#d3d3d3",
+    borderColor: "rgba(255, 255, 255, 0.7)",
     borderWidth: 1,
     borderRadius: 15,
     fontSize: 16,
@@ -308,7 +314,7 @@ export default styles = StyleSheet.create({
   },
   videoPlayer: {
     // height: height - (Header.HEIGHT + Scale.moderateScale(20)),
-    height: height - (headerHeight + Scale.moderateScale(40)),
+    height: height - Scale.moderateScale(40),
     width: width,
     // flex: 1,
     marginBottom: 0,

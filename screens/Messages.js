@@ -277,7 +277,7 @@ class Messages extends React.Component {
                       >
                         {/* <Text style={styles.bold}>{item.user.username}</Text> */}
                         <View style={{ flexDirection: "row" }}>
-                          <Text style={[styles.textFreightSansMedium, {}]}>
+                          <Text style={[styles.textNormalBold, {}]}>
                             {item.user.username}
                           </Text>
 
@@ -285,7 +285,7 @@ class Messages extends React.Component {
                             <View style={{ flex: 1 }}>
                               <View
                                 style={[
-                                  styles.textHelveticaNeueNormal,
+                                  styles.textNormal,
                                   {
                                     marginLeft: 12,
                                     backgroundColor: "red",
@@ -352,9 +352,7 @@ const LastMessage = ({
   <View>
     {props.name ? <MaterialIcons size={size} color={color} {...props} /> : null}
 
-    <Text style={[styles.black, styles.textHelveticaNeueNormal, {}]}>
-      {lastMessage}
-    </Text>
+    <Text style={[styles.black, styles.textNormal, {}]}>{lastMessage}</Text>
   </View>
 );
 const mapDispatchToProps = (dispatch) => {

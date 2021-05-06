@@ -51,17 +51,6 @@ const GOOGLE_API =
 import { uploadPhoto } from "../actions/index";
 import { showMessage, hideMessage } from "react-native-flash-message";
 
-import {
-  Item,
-  Input,
-  Label,
-  Picker,
-  Icon,
-  Button,
-  Textarea,
-  Form,
-  Content,
-} from "native-base";
 import Constants from "expo-constants";
 
 import { Dropdown } from "react-native-material-dropdown";
@@ -99,23 +88,6 @@ const filters = [
   "duotone",
   "colortone",
   "browni",
-
-  // "Willow",
-  // "Lofi",
-  // "Gingham",
-  // "Nashville",
-  // "Reyes",
-  // "Moon",
-  // "Lark",
-  // "Clarendon",
-  // "Slumber",
-  // "Aden",
-  // "Perpetua",
-  // "Mayfair",
-  // "Rise",
-  // "Hudson",
-  // "Valencia",
-  // "Xpro2",
 ];
 class Post extends React.Component {
   constructor(props) {
@@ -160,14 +132,11 @@ class Post extends React.Component {
     // alert("didMount Called");
 
     const selectedFile = this.props.post.photo;
-    // alert(JSON.stringify(selectedFile));
     if (selectedFile) {
       this.processSelectedImage(selectedFile);
     }
 
     this.onWillFocus();
-
-    let search = this.state.users;
   }
 
   onFullScreen() {
@@ -214,15 +183,6 @@ class Post extends React.Component {
   }
 
   loadImage(index) {
-    // if (index < 7) {
-    //   this.setState({ loading: true });
-    // } else {
-    //   this.setState({ loading: false });
-    // }
-    // this.setState({ loading: true });
-    // // alert(index);
-    // // if (index < filters.length) {
-
     if (index < 18) {
       if (index === 0) {
         var stateFilters = this.state.filters;
@@ -638,15 +598,7 @@ class Post extends React.Component {
                 // this.setState({ index: index });
               }}
             />
-            {/* <Gingham
-              image={
-                <Image
-                  style={styles.postPhotoPreview}
-                  source={{ uri: this.props.post.photo.uri }}
-                  resizeMode={"cover"}
-                />
-              }
-            /> */}
+
             <FlatList
               horizontal={true}
               keyExtractor={(item) => JSON.stringify(item.name)}
@@ -717,21 +669,6 @@ class Post extends React.Component {
       } else if (selectedFile.type === "video") {
         return (
           <View style={styles.videoPlayer}>
-            {/* <Video
-              ref={(ref) => (this.videoPlayerRef = ref)}
-              play={true} // default false
-              replay={true} // should player play video again if it's ended
-              rotate={false} // use this prop to rotate video if it captured in landscape mode iOS only
-              source={{ uri: this.props.post.photo.uri }}
-              playerWidth={Dimensions.get("screen").width} // iOS only
-              playerHeight={300} // iOS only
-              resizeMode={VideoPlayer.Constants.resizeMode.CONTAIN}
-              style={{ backgroundColor: "black" }}
-              onProgress={this.onProgress}
-              startTime={10} // seconds
-              endTime={14} // seconds
-              onChange={({ nativeEvent }) => console.log({ nativeEvent })} // get Current time on every second
-            /> */}
             <TouchableOpacity
               style={{ justifyContent: "center", alignItems: "center" }}
               onPress={this.handleOnPress}
@@ -932,42 +869,6 @@ class Post extends React.Component {
   };
 
   onSave = (uri) => {
-    // alert(JSON.stringify(info.image));
-    // const { width, height, uri, type } = this.props.post.photo;
-    // var cropData = {
-    //   offset: { x: info.image.x, y: 0 },
-    //   size: { width: width, height: height },
-    //   displaySize: { width: 600, height: 1000 },
-    //   resizeMode: "cover",
-    //   // offset: { x: info.image.x, y: info.image.y },
-    //   // size: { width: info.area.width, height: info.area.height },
-    //   // displaySize: { width: info.area.width, height: info.area.height },
-    //   // displaySize: {width: number, height: number},
-    //   // resizeMode: 'contain' | 'cover' | 'stretch',
-    // };
-
-    // // alert(info.image.width + "---------" + info.image.height);
-
-    // ImageEditor.cropImage(uri, cropData).then((uri) => {
-    //   console.log("Cropped image uri", uri);
-    //   // alert(JSON.stringify(uri));
-    //   this.props.createAndUpdatePreview(uri);
-    //   // this.cleanTempImages();
-
-    //   var selectedFile = {};
-    //   selectedFile.height = info.image.height;
-    //   selectedFile.width = info.image.width;
-    //   // selectedFile.size = image.size;
-    //   selectedFile.uri = uri;
-    //   selectedFile.type = "image";
-
-    //   this.props.updatePhoto(selectedFile);
-    //   this.setState({ isCropped: true });
-    //   this.setState({ filters: [] });
-    //   this.loadImage(0);
-
-    //   this.onFullScreen();
-    // });
     this.props.createAndUpdatePreview(uri);
     // this.cleanTempImages();
 
@@ -981,9 +882,11 @@ class Post extends React.Component {
     this.props.updatePhoto(selectedFile);
     this.setState({ isCropped: true });
     this.setState({ filters: [] });
-    this.loadImage(0);
+    // this.loadImage(0);
 
-    this.onFullScreen();
+    // this.onFullScreen();
+
+    this._onNext();
   };
 
   onCancel = () => {
@@ -995,7 +898,8 @@ class Post extends React.Component {
     const selectedFile = this.props.post.photo;
     const { width, height, uri, type } = this.props.post.photo;
 
-    if (type == "image" && Platform.OS === "ios" && !this.state.isCropped) {
+    if (type == "image" && Platform.OS === "ios") {
+      // if (type == "image" && Platform.OS === "ios" && !this.state.isCropped) {
       return (
         <CropperPage
           photo={this.props.post.photo}

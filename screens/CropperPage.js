@@ -11,6 +11,7 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  FlatList,
   Button,
 } from "react-native";
 import ImageEditor from "@react-native-community/image-editor";
@@ -27,58 +28,13 @@ const { height, width } = Dimensions.get("window");
 import ImageCropper from "react-native-simple-image-cropper";
 import ImageRotate from "react-native-image-rotate";
 import { MaterialIcons } from "@expo/vector-icons";
-
-// class CropperPage extends Component {
-//   onDone = (croppedImageUri) => {
-//     console.log("croppedImageUri = ", croppedImageUri);
-//     // send image to server for example
-//   };
-
-//   onError = (err) => {
-//     console.log(err);
-//   };
-
-//   onCancel = () => {
-//     console.log("Cancel button was pressed");
-//     // navigate back
-//   };
-
-//   render() {
-//     const { photo, ...props } = this.props;
-//     const { width, height, uri, type } = photo;
-//     // alert(JSON.stringify(this.props.post.photo));
-//     return (
-//       <ImageEdit
-//         width={Dimensions.get("window").width * 2} //Crop area width
-//         editing={true}
-//         // scaled={true}
-//         height={Dimensions.get("window").height} //Crop area height
-//         image={{
-//           uri: uri,
-//           width: width,
-//           height: height,
-//           // x: -200, //initial x
-//           // y: 0, //initial y
-//           // width: type === "vr" ? (width < 7000 ? width : 7000) : width,
-//           // height: type === "vr" ? (height < 4000 ? height : 4000) : height,
-//         }}
-//         saveButtonText="Choose"
-//         onSave={(info) => {
-//           this.props.onSave(info);
-//           //   alert(JSON.stringify(info.image));
-//           // console.log(info);
-//         }}
-//         onCancel={(info) => {
-//           this.props.onCancel();
-//         }}
-//       />
-//     );
-//   }
-// }
-
-// // export default connect(mapStateToProps, mapDispatchToProps)(CropperPage);
-// export default CropperPage;
-
+import ImageFilters from "../component/ImageFilters";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  FontAwesome,
+  Feather,
+} from "@expo/vector-icons";
 const window = Dimensions.get("window");
 const w = window.width;
 const h = window.height;
@@ -87,14 +43,36 @@ const IMAGE = "https://picsum.photos/id/48/900/500";
 
 const CROP_AREA_WIDTH = w;
 const CROP_AREA_HEIGHT = h;
-
+const filters = [
+  "normal",
+  "nightvision",
+  "technicolor",
+  "invert",
+  "inkwell",
+  "kodachrome",
+  "luminance",
+  "polaroid",
+  "rgba",
+  "greyscale",
+  "lsd",
+  "vintage",
+  "sepia",
+  "warm",
+  "night",
+  "duotone",
+  "colortone",
+  "browni",
+];
 class CropperPage extends React.Component {
   state = {
     cropperParams: {},
     croppedImage: "",
     uri: "",
+    filters: [],
+    index: 0,
     editing: true,
     currentAngle: 0,
+    filteredImage: "",
   };
   defaultColor = "#C1272D";
 
@@ -106,7 +84,8 @@ class CropperPage extends React.Component {
       nextAngle,
       (uri) => {
         this.setState({
-          uri: uri,
+          // uri: uri,
+          filteredImage: uri,
           currentAngle: nextAngle,
         });
       },
@@ -121,7 +100,10 @@ class CropperPage extends React.Component {
 
     const { width, height, uri, type } = photo;
 
-    this.setState({ uri: uri });
+    this.setState({ uri: uri, filteredImage: uri });
+    // this.setState({ uri: uri });
+
+    this.loadImage(0);
   }
   setCropperParams = (cropperParams) => {
     this.setState((prevState) => ({
@@ -129,7 +111,34 @@ class CropperPage extends React.Component {
       cropperParams,
     }));
   };
+  loadImage(index) {
+    if (index < 18) {
+      if (index === 0) {
+        var stateFilters = this.state.filters;
+        stateFilters.push(filters[index]);
+        stateFilters.push(filters[index + 1]);
+        stateFilters.push(filters[index + 2]);
+        this.setState({ filters: stateFilters });
+        index = index + 3;
+        // this.loadImage(number);
+      }
 
+      // else{
+
+      // }
+      setTimeout(() => {
+        // this.setState({ loading: false });
+        var stateFilters = this.state.filters;
+        stateFilters.push(filters[index]);
+        stateFilters.push(filters[index + 1]);
+        stateFilters.push(filters[index + 2]);
+        this.setState({ filters: stateFilters });
+        var number = index + 3;
+        this.loadImage(number);
+        // this.setState({ loading: false });
+      }, 700);
+    }
+  }
   handlePress = async () => {
     const { photo, ...props } = this.props;
     // const { width, height, uri, type } = photo;
@@ -148,7 +157,7 @@ class CropperPage extends React.Component {
     try {
       const result = await ImageCropper.crop({
         ...cropperParams,
-        imageUri: this.state.uri,
+        imageUri: this.state.filteredImage,
         cropSize,
         cropAreaSize,
       });
@@ -253,8 +262,6 @@ class CropperPage extends React.Component {
     ];
   }
 
-  onSave() {}
-
   onCancel() {
     this.props.onCancel();
   }
@@ -264,16 +271,25 @@ class CropperPage extends React.Component {
     if (this.state.editing) {
       buttons.push(
         <View key="buttonbtns" style={styles.buttonsWrap}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.cancelButton]}
             onPress={this.onCancel.bind(this)}
           >
             <Text style={styles.buttonText}>{"Cancel"}</Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity onPress={this.onCancel.bind(this)}>
+            <Ionicons
+              style={[{ marginLeft: 20, shadowOpacity: 0.5 }]}
+              name={"ios-arrow-back"}
+              size={32}
+              color="white"
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={{
               backgroundColor: "rgba(0,0,0,0.5)",
               justifyContent: "center",
+              display: "none",
               borderRadius: Scale.moderateScale(5),
               padding: Scale.moderateScale(5),
             }}
@@ -293,14 +309,15 @@ class CropperPage extends React.Component {
             style={[
               styles.saveButton,
               {
-                backgroundColor: this.props.buttonsColor
-                  ? this.props.buttonsColor
-                  : this.defaultColor,
+                shadowOpacity: 0.5,
+                // backgroundColor: this.props.buttonsColor
+                //   ? this.props.buttonsColor
+                //   : this.defaultColor,
               },
             ]}
             onPress={this.handlePress}
           >
-            <Text style={styles.buttonText}>{"Save"}</Text>
+            <Text style={styles.buttonText}>{"Next"}</Text>
           </TouchableOpacity>
         </View>
       );
@@ -310,30 +327,87 @@ class CropperPage extends React.Component {
   }
 
   render() {
-    const { croppedImage } = this.state;
-    const src = { uri: croppedImage };
-    const { photo, ...props } = this.props;
+    // const { croppedImage } = this.state;
+    // const src = { uri: croppedImage };
+    // const { photo, ...props } = this.props;
+
     // const { width, height, uri, type } = photo;
     return (
       <View style={{ height: "100%" }}>
         {/* {!croppedImage && ( */}
         <ImageCropper
-          imageUri={this.state.uri}
+          imageUri={this.state.filteredImage}
           cropAreaWidth={CROP_AREA_WIDTH}
           cropAreaHeight={CROP_AREA_HEIGHT}
           containerColor="black"
           areaColor="black"
           setCropperParams={this.setCropperParams}
         />
-        {/* )} */}
-
-        {/* <Button onPress={this.handlePress} title="Crop Image" color="blue" /> */}
-        {croppedImage ? (
-          <Image style={{ height: 200, width: 200 }} source={src} />
-        ) : null}
 
         {/* {this.renderGrids()} */}
         {this.renderButtons()}
+
+        <FlatList
+          style={{ position: "absolute", bottom: 0 }}
+          horizontal={true}
+          keyExtractor={(item) => JSON.stringify(item.name)}
+          data={this.state.filters}
+          renderItem={({ index, item }) => (
+            <ImageFilters
+              key={item}
+              name={item}
+              index={index}
+              extractImageEnabled={false}
+              selectedIndex={this.state.index}
+              resizeMode={"cover"}
+              style={{
+                width: Scale.moderateScale(85),
+                height: Scale.moderateScale(85),
+                marginRight: 5,
+              }}
+              url={this.state.uri}
+              onChange={(value) => {
+                // alert(index);
+                this.setState({ index: index });
+
+                if (index === 0) {
+                  this.setState({ filteredImage: this.state.uri });
+                  // this.setState({ filteredImage: "" });
+                }
+              }}
+            />
+          )}
+        />
+
+        <ImageFilters
+          key={""}
+          name={""}
+          index={this.state.index}
+          resizeMode={"cover"}
+          onExtractImage={({ nativeEvent }) => {
+            this.setState({ filteredImage: nativeEvent.uri });
+          }}
+          extractImageEnabled={true}
+          style={[
+            {
+              height: height,
+              width: width,
+              // marginTop: 200,
+              // position: "absolute",
+              display: "none",
+              backgroundColor: "#000000",
+            },
+          ]}
+          // style={[styles.fullWidth, { aspectRatio: 1200 / 1700 }]}
+          url={this.state.uri}
+          onChange={(index) => {
+            // this.setState({ index: index });
+          }}
+        />
+        {/* <Image
+          style={{ height: 200, width: 200, position: "absolute", top: 100 }}
+          source={{ uri: this.state.filteredImage }}
+        /> */}
       </View>
     );
   }
@@ -394,7 +468,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "transparent",
     position: "absolute",
-    bottom: Scale.moderateScale(60),
+    top: Scale.moderateScale(30),
     justifyContent: "space-between",
   },
   editButton: {
@@ -403,7 +477,7 @@ const styles = StyleSheet.create({
     right: 10,
   },
   saveButton: {
-    backgroundColor: "rgba(0,0,0,1)",
+    // backgroundColor: "rgba(0,0,0,1)",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -416,6 +490,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 16,
   },
 });

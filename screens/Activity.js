@@ -218,13 +218,7 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text
-                style={[
-                  styles.bold,
-                  styles.textMedium,
-                  { ...constants.fonts.FreightSansLight },
-                ]}
-              >
+              <Text style={[styles.bold, styles.textMedium, {}]}>
                 {item.likerName}
               </Text>
               <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
@@ -260,13 +254,7 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text
-                style={[
-                  styles.bold,
-                  styles.textMedium,
-                  { ...constants.fonts.FreightSansLight },
-                ]}
-              >
+              <Text style={[styles.bold, styles.textMedium, {}]}>
                 {item.followerName}
               </Text>
               <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
@@ -342,13 +330,7 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text
-                style={[
-                  styles.bold,
-                  styles.textMedium,
-                  { ...constants.fonts.FreightSansLight },
-                ]}
-              >
+              <Text style={[styles.bold, styles.textMedium, {}]}>
                 {item.commenterName}
               </Text>
               <Text
@@ -383,13 +365,7 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <View style={styles.row}>
-                <Text
-                  style={[
-                    styles.bold,
-                    styles.textMedium,
-                    { ...constants.fonts.FreightSansLight },
-                  ]}
-                >
+                <Text style={[styles.bold, styles.textMedium, {}]}>
                   {item.reporterName}
                 </Text>
 

@@ -9,7 +9,14 @@ import { getUser } from "./user";
 import FastImage from "react-native-fast-image";
 import { cleanExtractedImagesCache } from "react-native-image-filter-kit";
 import _ from "lodash";
-
+import {
+  CHANNELS_REQUEST,
+  CHANNELS_SUCCESS,
+  CHANNELS_FAIL,
+  CHANNELPOSTS_REQUEST,
+  CHANNELPOSTS_SUCCESS,
+  CHANNELPOSTS_FAIL,
+} from "./actiontype";
 // import Toast from 'react-native-tiny-toast'
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { isUserBlocked, isFollowing } from "../util/Helper";
@@ -1086,7 +1093,7 @@ export const likePost = (post) => {
   };
 };
 
-export const logVideoView = (post) => {
+export const logVideoView = (post, routeName = "") => {
   return (dispatch, getState) => {
     var { uid, username, photo } = getState().user;
     if (uid === undefined) {
@@ -1094,6 +1101,28 @@ export const logVideoView = (post) => {
     }
     try {
       if (uid !== "NA") {
+        if (routeName === "Channels") {
+          const channelPosts = cloneDeep(getState().channels.feed);
+
+          var viewers = [];
+          let updatedPosts = channelPosts.map((item) => {
+            if (item.id === post.id) {
+              if (item.viewers == null) {
+                item.viewers = [];
+              }
+              item.viewers.push(uid);
+              viewers = item.viewers;
+            }
+            return item;
+          });
+
+          db.collection("channelposts").doc(post.id).update({
+            viewers: viewers,
+          });
+
+          dispatch({ type: CHANNELPOSTS_SUCCESS, payload: updatedPosts });
+        }
+
         const home = cloneDeep(getState().post.feed);
 
         var viewers = [];

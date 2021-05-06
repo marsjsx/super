@@ -126,6 +126,8 @@
 		<string>HelveticaNeueThin.ttf</string>
 		<string>NimbusSansDOT-Ligh.ttf</string>
 		<string>Freight-SansMediumSC.otf</string>
+		<string>Oswald-Medium.ttf</string>
+		<string>Oswald-SemiBold.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

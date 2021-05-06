@@ -65,6 +65,7 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import AvView from "../component/AvView";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import EmptyView from "../component/emptyview";
+import EmptyView1 from "../component/emptyviewLayout1";
 import Scale from "../helpers/Scale";
 
 import {
@@ -875,8 +876,8 @@ class Profile extends React.Component {
                     >
                       <Text
                         style={{
-                          fontWeight: "500",
-                          fontSize: Scale.moderateScale(38),
+                          fontWeight: "bold",
+                          fontSize: Scale.moderateScale(32),
                           color: "rgb(255,255,255)",
                           shadowOpacity: 0.5,
                           // ...constants.fonts.FreightSansLight,
@@ -1102,18 +1103,26 @@ class Profile extends React.Component {
       user = this.props.user;
       if (!this.props.user.uid) {
         return (
-          <EmptyView
-            desc="Your Profile will appear here"
+          <EmptyView1
+            title={`No ads.\nNo bs.\nJust real people\nsharing rad posts!`}
             button="Signup"
+            textButton="Create account"
+            image={require("../assets/logoH.png")}
             userId={this.props.user.uid}
+            imageStyle={{
+              width: Scale.moderateScale(150),
+              height: Scale.moderateScale(150),
+              marginLeft: Scale.moderateScale(-35),
+              marginBottom: Scale.moderateScale(-15),
+            }}
             navigation={this.props.navigation}
-            icon={
-              <MaterialCommunityIcons
-                style={{ margin: 5 }}
-                name="face-profile"
-                size={64}
-              />
-            }
+            // icon={
+            //   <MaterialCommunityIcons
+            //     style={{ margin: 5 }}
+            //     name="face-profile"
+            //     size={64}
+            //   />
+            // }
           />
         );
       }

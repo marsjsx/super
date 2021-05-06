@@ -75,10 +75,14 @@ target 'BareSuper' do
 
   pod 'RNImageRotate', :path => '../node_modules/react-native-image-rotate'
 
+  pod 'react-native-camera', path: '../node_modules/react-native-camera'
+
   # pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
 
   # pod 'RNFBStorage', :path => '../node_modules/@react-native-firebase/storage'
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
 
 end

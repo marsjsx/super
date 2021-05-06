@@ -22,8 +22,7 @@ import Modal from "react-native-modalbox";
 import Swiper from "react-native-swiper";
 import GalleryView from "../../component/GalleryView";
 import CameraView from "../../component/CameraView";
-import CameraView1 from "../../component/CameraView";
-import CameraScreen from "../Camera";
+
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { connect } from "react-redux";
 import { openSettingsDialog } from "../../util/Helper";

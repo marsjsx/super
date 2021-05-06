@@ -10,7 +10,7 @@ import RNFetchBlob from "rn-fetch-blob";
 var base64 = require("base-64");
 import storage from "@react-native-firebase/storage";
 import messaging from "@react-native-firebase/messaging";
-
+import MixpanelManager from "../Analytics";
 import * as FileSystem from "expo-file-system";
 
 async function isDataURL(s) {
@@ -147,6 +147,10 @@ export const uploadPhoto = (selectedFile) => {
       alert(e);
     }
   };
+};
+
+identifyUser = (uid) => {
+  MixpanelManager.sharedInstance.mixpanel.identify(uid);
 };
 
 function urlToBlob(url) {

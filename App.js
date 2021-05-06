@@ -20,7 +20,7 @@ import reducer from "./reducers";
 import thunkMiddleware from "redux-thunk";
 import thunk from "redux-thunk";
 const middlewares = [thunk];
-
+import { MixpanelManager } from "./Analytics";
 // compose(applyMiddleware(thunk))(createStore)(reducer)
 // const store = createStore(reducer, middleware);
 

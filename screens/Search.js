@@ -37,7 +37,20 @@ class Search extends React.Component {
     timer: null,
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 16 }}
+          onPress={() => {
+            this.props.navigation.navigate("SearchUsers");
+          }}
+        >
+          <Ionicons name="ios-search" size={32} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }
 
   searchUser = async () => {
     let search = [];
@@ -233,7 +246,14 @@ class Search extends React.Component {
   listHeaderComponent() {
     return (
       <View>
-        <View style={[styles.container, styles.row, styles.center, {}]}>
+        <View
+          style={[
+            styles.container,
+            styles.row,
+            styles.center,
+            { display: "none" },
+          ]}
+        >
           <TextInput
             ref="input"
             style={[styles.inputSearch]}
@@ -340,7 +360,7 @@ class Search extends React.Component {
                 color: "#fff",
                 fontWeight: "300",
                 fontSize: Scale.moderateScale(28),
-                letterSpacing: Scale.moderateScale(6),
+                letterSpacing: Scale.moderateScale(8),
               }}
             >
               {"CHANNELS"}
@@ -401,7 +421,7 @@ class Search extends React.Component {
             initialNumToRender={12}
             maxToRenderPerBatch={12}
             windowSize={12}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 100, marginTop: 16 }}
             horizontal={false}
             numColumns={3}
             ListHeaderComponent={this.listHeaderComponent()}
