@@ -167,6 +167,15 @@ export default styles = StyleSheet.create({
   textNormal: {
     fontSize: 14,
   },
+  title1: {
+    fontSize: Scale.moderateScale(20),
+    ...constants.fonts.OswaldSemiBold,
+  },
+  textLabel: {
+    fontSize: Scale.moderateScale(16),
+    ...constants.fonts.OswaldSemiBold,
+  },
+
   textHelveticaNeueNormal: {
     fontSize: 14,
     // ...constants.fonts.HelveticaNeueThin,
@@ -961,6 +970,10 @@ export default styles = StyleSheet.create({
   bottomgreyborder: {
     borderBottomWidth: 0.5,
     borderBottomColor: "#dcdcdc",
+  },
+  topgreyborder: {
+    borderTopWidth: 0.5,
+    borderTopColor: "#dcdcdc",
   },
   inactiveLabel: {
     fontWeight: "bold",

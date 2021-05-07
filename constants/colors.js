@@ -20,6 +20,7 @@ export default {
   kellyGreen: "#00b70c",
   pink: "#FF007F",
   info: "#1e90ff",
+  titleColor: "#000000",
 
   black: "#000000",
   border: "rgb(101,101,102)",

@@ -10,7 +10,7 @@ import {
   CHANNELPOSTS_SUCCESS,
   CHANNELPOSTS_FAIL,
 } from "../actions/actiontype";
-const user = (state = { posts: [] }, action) => {
+const user = (state = { posts: [], accountType: "Personal" }, action) => {
   switch (action.type) {
     case "LOGIN":
       return action.payload;

@@ -1104,7 +1104,7 @@ class Profile extends React.Component {
       if (!this.props.user.uid) {
         return (
           <EmptyView1
-            title={`No ads.\nNo bs.\nJust real people\nsharing rad posts!`}
+            title={`No ads.\nNo bs.\nJust real people\nsharing rad posts! \n⚡⚡⚡`}
             button="Signup"
             textButton="Create account"
             image={require("../assets/logoH.png")}

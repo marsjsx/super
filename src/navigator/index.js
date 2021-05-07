@@ -13,6 +13,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Splash from "../../screens/Splash";
 import Login from "../../screens/login";
+import EditProfile from "../../screens/editprofile";
 import SignupScreen from "../../screens/signup";
 import HomeScreen from "../../screens/Home";
 import PostReportScreen from "../../screens/PostReports";
@@ -32,7 +33,8 @@ import ActivityScreen from "../../screens/Activity";
 import ActivitiesTab from "../../screens/activitiestab";
 
 import ProfileScreen from "../../screens/Profile";
-import ViewProfileScreen from "../../screens/ViewProfile";
+// import ViewProfileScreen from "../../screens/ViewProfile";
+import ViewProfileScreen from "../../screens/NewProfile";
 
 import BlockedUsers from "../../screens/BlockedUsers";
 
@@ -91,10 +93,7 @@ function AuthNavigator() {
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[
-                  styles.icon,
-                  { marginLeft: 20, color: "rgb(255,255,255)" },
-                ]}
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -409,10 +408,7 @@ function HomeNavigator({ navigation, route }) {
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[
-                  styles.icon,
-                  { marginLeft: 20, color: "rgb(255,255,255)" },
-                ]}
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -774,10 +770,7 @@ function PostNavigator() {
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[
-                  styles.icon,
-                  { marginLeft: 20, color: "rgb(255,255,255)" },
-                ]}
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -889,10 +882,7 @@ function ActivityNavigator({ navigation, route }) {
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[
-                  styles.icon,
-                  { marginLeft: 20, color: "rgb(255,255,255)" },
-                ]}
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
@@ -1159,6 +1149,23 @@ function ProfileNavigator({ navigation, route }) {
         })}
       />
       <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={({ navigation, route }) => ({
+          headerTransparent: true,
+          title: "Edit Profile",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <ProfileStack.Screen
         name="Dash"
         component={DashScreen}
         options={({ navigation, route }) => ({
@@ -1213,10 +1220,7 @@ function ProfileNavigator({ navigation, route }) {
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[
-                  styles.icon,
-                  { marginLeft: 20, color: "rgb(255,255,255)" },
-                ]}
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
