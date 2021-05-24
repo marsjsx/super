@@ -15,7 +15,7 @@ import Editor, { displayTextWithMentions } from "../component/mentioneditor";
 import db from "../config/firebase";
 import { cleanExtractedImagesCache } from "react-native-image-filter-kit";
 import { StackActions } from "@react-navigation/native";
-
+import MultiSelect from "../component/MultiSelect";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import DropDownPicker from "../component/dropdownpicker";
 import _ from "lodash";
@@ -89,6 +89,7 @@ class PostCaption extends React.Component {
       showEditor: true,
       message: null,
       messages: [],
+      selectedChannels: [],
       index: 0,
       clearInput: false,
       showMentions: false /**use this parameter to programmatically trigger the mentionsList */,
@@ -135,6 +136,31 @@ class PostCaption extends React.Component {
         description: "Please select an image/video",
         type: "danger",
         duration: 3000,
+      });
+
+      return;
+    }
+
+    if (
+      this.props.user.accountType == "Brand" &&
+      this.props.user.accountStatus !== "approved"
+    ) {
+      showMessage({
+        message: "Profile not approved",
+        description: "Please check your account status in your profile",
+        type: "danger",
+        duration: 4000,
+      });
+
+      return;
+    }
+
+    if (this.props.user.accountType == "Brand") {
+      showMessage({
+        message: "Post feed not allowed",
+        description: "Currently brands feed not allowed",
+        type: "danger",
+        duration: 4000,
       });
 
       return;
@@ -415,6 +441,23 @@ class PostCaption extends React.Component {
                 onChangeItem={this.setLocation.bind(this)}
               />
             ) : null}
+            {this.props.user.accountType === "Brand" && (
+              <>
+                <View style={{ height: 24 }} />
+                <MultiSelect
+                  value={this.state.selectedChannels}
+                  onSelectionsChange={(selectedChannels) => {
+                    this.setState({
+                      selectedChannels,
+                    });
+                  }}
+                  data={this.props.channels.multiSelectChannelsList}
+                  title={"Choose Channels"}
+                  heading={"Choose Channels in which you want to post"}
+                />
+              </>
+            )}
+
             <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
               <Text>Post</Text>
             </TouchableOpacity>
@@ -446,6 +489,7 @@ const mapDispatchToProps = (dispatch) => {
 
 const mapStateToProps = (state) => {
   return {
+    channels: state.channels,
     post: state.post,
     user: state.user,
   };

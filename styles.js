@@ -820,6 +820,11 @@ export default styles = StyleSheet.create({
     aspectRatio: 3 / 5,
     height: "auto",
   },
+  profileBrandLogo: {
+    // height: height * 1 - width * 0.33 * 1.5,
+    width: Scale.moderateScale(300),
+    height: Scale.moderateScale(150),
+  },
   viewProfilePhoto: {
     // height: height * 1 - width * 0.33 * 1.5,
     width: width,

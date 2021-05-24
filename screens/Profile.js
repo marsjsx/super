@@ -27,6 +27,7 @@ import { showLoader } from "../util/Loader";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { AntDesign } from "react-native-vector-icons";
 import constants from "../constants";
+import ButtonComponent from "../component/ButtonComponent";
 
 import {
   followUser,
@@ -36,7 +37,6 @@ import {
   unblockUser,
   logout,
   updateBio,
-  updateUser,
   preloadUserImages,
   updateWebsiteLabel,
 } from "../actions/user";
@@ -91,13 +91,16 @@ var DESTRUCTIVE_INDEX = 1;
 var CANCEL_INDEX = 4;
 const { height, width } = Dimensions.get("window");
 import { isUserBlocked } from "../util/Helper";
+import FastImage from "react-native-fast-image";
 
 var self;
+var uid;
 class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.page;
     this.cellRefs = {};
+    this.uid = null;
 
     this.state = {
       flatListSmall: true,
@@ -109,12 +112,10 @@ class Profile extends React.Component {
       userProfile: {},
       userPosts: [],
       routeName: "",
-      uid: null,
       website: "",
       userBlocked: false,
       websiteLabel: "",
       showLoading: false,
-      dialogVisible: false,
     };
     this.scroll = null;
     this.scrollView = null;
@@ -131,6 +132,7 @@ class Profile extends React.Component {
 
     if (routeName === "Profile") {
       if (uid) {
+        this.uid = uid;
         this.props.navigation.setParams({
           showActionSheet: this.showActionSheet,
         });
@@ -187,6 +189,7 @@ class Profile extends React.Component {
       this.props.navigation.setParams({
         showActionSheet: this.showMyProfileActionSheet,
       });
+      this.uid = this.props.user.uid;
       this.props.getUser(this.props.user.uid, "LOGIN");
 
       this.props.navigation.setParams({
@@ -195,66 +198,6 @@ class Profile extends React.Component {
     }
   };
 
-  getUserProfile = (uid) =>
-    new Promise(async (resolve, reject) => {
-      try {
-        if (uid) {
-          var images = [];
-
-          const userQuery = await db.collection("users").doc(uid).get();
-          let user = userQuery.data();
-          if (user.photo && user.photo.length > 15) {
-            images.push({
-              uri: user.photo,
-            });
-          }
-
-          // let posts = [];
-          // const postsQuery = await db
-          //   .collection("posts")
-          //   .where("uid", "==", uid)
-          //   .get();
-          // postsQuery.forEach(function (response) {
-          //   posts.push(response.data());
-          // });
-
-          // user.posts = posts;
-
-          // if (posts != null && posts.length > 0) {
-          //   user.posts = orderBy(posts, "date", "desc");
-          // }
-
-          // if (images.length > 0) {
-          //   this.props.preloadUserImages(images);
-          // }
-
-          const followingQuery = await db
-            .collection("users")
-            .where("followers", "array-contains", uid)
-            .get();
-          var following = [];
-          followingQuery.forEach(function (response) {
-            following.push(response.data());
-          });
-          user = { ...user, myFollowings: following };
-
-          const followersQuery = await db
-            .collection("users")
-            .where("following", "array-contains", uid)
-            .get();
-
-          var followers = [];
-          followersQuery.forEach(function (response) {
-            followers.push(response.data());
-          });
-          user = { ...user, myFollowers: followers };
-          this.getUserPosts(uid);
-          resolve(user);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    });
   // Retrieve More
   retrieveMore = async () => {
     if (!this.state.refreshing) {
@@ -262,29 +205,53 @@ class Profile extends React.Component {
         refreshing: true,
       });
       try {
-        if (
-          this.state.userProfile &&
-          this.state.userProfile.posts &&
-          this.state.userProfile.posts.length > 0
-        ) {
-          let lastFetchedPostDate = this.state.userProfile.posts[
-            this.state.userProfile.posts.length - 1
-          ].date;
+        if (this.state.routeName === "Profile") {
+          if (
+            this.state.userProfile &&
+            this.state.userProfile.posts &&
+            this.state.userProfile.posts.length > 0
+          ) {
+            let lastFetchedPostDate = this.state.userProfile.posts[
+              this.state.userProfile.posts.length - 1
+            ].date;
 
-          this.props.getUserPosts(
-            this.state.uid,
-            (result, error) => {
-              if (result) {
-                this.mergeUserPosts(result);
-              } else {
-              }
+            this.props.getUserPosts(
+              this.uid,
+              (result, error) => {
+                if (result) {
+                  this.mergeUserPosts(result);
+                } else {
+                }
 
-              this.setState({
-                refreshing: false,
-              });
-            },
-            lastFetchedPostDate
-          );
+                this.setState({
+                  refreshing: false,
+                });
+              },
+              lastFetchedPostDate
+            );
+          }
+        } else {
+          if (
+            this.props.user &&
+            this.props.user.posts &&
+            this.props.user.posts.length > 0
+          ) {
+            let lastFetchedPostDate = this.props.user.posts[
+              this.props.user.posts.length - 1
+            ].date;
+
+            // alert(this.uid);
+
+            this.props.getUserPosts(
+              this.props.user.uid,
+              (result, error) => {
+                this.setState({
+                  refreshing: false,
+                });
+              },
+              lastFetchedPostDate
+            );
+          }
         }
       } catch (error) {
         console.log(error);
@@ -309,58 +276,6 @@ class Profile extends React.Component {
       }
     }
   };
-
-  getUserPosts = async (uid, lastFetchedPostDate = null) =>
-    new Promise(async (resolve, reject) => {
-      try {
-        // dispatch({ type: "SHOW_LOADING", payload: true });
-
-        var postQuery;
-        if (lastFetchedPostDate) {
-          // alert(lastFetchedPostDate);
-          postQuery = await db
-            .collection("posts")
-            .where("uid", "==", uid)
-            .orderBy("date", "desc")
-            .startAfter(lastFetchedPostDate)
-            .limit(10)
-            .get();
-        } else {
-          postQuery = await db
-            .collection("posts")
-            .where("uid", "==", uid)
-            .orderBy("date", "desc")
-            .limit(10)
-            .get();
-        }
-        var images = [];
-        var posts = [];
-
-        postQuery.forEach(function (response) {
-          posts.push(response.data());
-        });
-        if (images.length > 0) {
-          this.props.preloadUserImages(images);
-        }
-        if (this.state.routeName === "Profile") {
-          if (posts) {
-            let userProfile = this.state.userProfile;
-            let oldPosts = [];
-            if (userProfile.posts) {
-              oldPosts = userProfile.posts;
-            }
-            var mergedArray = oldPosts.concat(posts);
-            userProfile.posts = mergedArray;
-            this.setState({ userProfile: userProfile });
-          }
-        }
-        resolve(posts);
-      } catch (e) {
-        // alert(e);
-        reject(e);
-        let array = [];
-      }
-    });
 
   openProfileActions() {
     const routeName = this.props.route.name;
@@ -698,84 +613,6 @@ class Profile extends React.Component {
       { cancelable: false }
     );
   }
-  openUrl = async (user) => {
-    var url = user.bio;
-
-    if (!url) {
-      if (this.props.user.uid === user.uid) {
-        this.setState({ dialogVisible: true });
-      } else {
-        showMessage({
-          message: "STOP",
-          description: `No Link Attached`,
-          type: "danger",
-          duration: 2000,
-        });
-      }
-    } else {
-      if (!url.startsWith("http")) {
-        url = `http://${url}`;
-      }
-
-      const supported = await Linking.canOpenURL(url);
-
-      if (supported) {
-        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-        // by some browser in the mobile
-        Linking.openURL(url);
-      } else {
-        showMessage({
-          message: "STOP",
-          description: `Don't know how to open this URL: ${url}`,
-          type: "danger",
-          duration: 2000,
-        });
-      }
-    }
-  };
-  handleCancel = () => {
-    this.setState({ dialogVisible: false });
-  };
-
-  handleOnUpdate = async () => {
-    if (this.state.website || this.state.websiteLabel) {
-      if (!this.state.website) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website link for the website title",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-
-      if (!validURL(this.state.website)) {
-        showMessage({
-          message: "STOP",
-          description: "Please add valid website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-
-      if (!this.state.websiteLabel) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website title for the website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-    }
-    this.props.updateBio(this.state.website);
-    this.props.updateWebsiteLabel(this.state.websiteLabel);
-
-    this.props.updateUser();
-
-    this.setState({ dialogVisible: false });
-  };
 
   getPostItemLayout = (data, index) => ({
     length: width * 0.33 * (height / width),
@@ -800,14 +637,22 @@ class Profile extends React.Component {
   searchUserHeaderComponent(user, routeName, userblocked) {
     return (
       <View>
-        <ProgressiveImage
-          thumbnailSource={{
-            uri: user.preview,
-          }}
-          source={{ uri: user.photo }}
-          style={[styles.profilePhoto]}
-          resizeMode="cover"
-        />
+        {user.accountType == "Brand" ? (
+          <ProgressiveImage
+            source={{ uri: user.bgImage }}
+            style={[styles.profilePhoto]}
+            resizeMode="cover"
+          />
+        ) : (
+          <ProgressiveImage
+            thumbnailSource={{
+              uri: user.preview,
+            }}
+            source={{ uri: user.photo }}
+            style={[styles.profilePhoto]}
+            resizeMode="cover"
+          />
+        )}
 
         <ImageBackground
           style={[styles.profilePhoto, { position: "absolute" }]}
@@ -821,18 +666,134 @@ class Profile extends React.Component {
                   bordered
                   danger
                   onPress={() => {
-                    this.props.navigation.navigate("ViewProfile", {
-                      routeName: routeName,
-                      title: user.username,
-                      user: user,
+                    // this.props.navigation.navigate("ViewProfile", {
+                    //   routeName: routeName,
+                    //   title: user.username,
+                    //   user: user,
+                    // });
+                    this.props.navigation.navigate("EditProfile", {
+                      title: this.props.user.username,
                     });
                   }}
                 >
-                  <Text style={{ color: "red" }}>Add Profile Photo</Text>
+                  <Text style={{ color: "red" }}>
+                    {this.props.user.accountType == "Brand"
+                      ? "Add Brand Logo"
+                      : "Add Profile Photo"}{" "}
+                  </Text>
                 </Button>
               </View>
             ) : (
               <View />
+            )}
+
+            {routeName === "MyProfile" && (
+              <View
+                style={[styles.center, styles.container, { width: "100%" }]}
+              >
+                {user.accountType == "Brand" && (
+                  <View>
+                    <FastImage
+                      style={{
+                        height: Scale.moderateScale(130),
+                        width: Scale.moderateScale(260),
+                        // marginLeft: Scale.moderateScale(50),
+                      }}
+                      source={{ uri: user.photo }}
+                      resizeMode="contain"
+                    />
+
+                    {!user.accountStatus && (
+                      <ButtonComponent
+                        title={`Account Status: Not Approved !!! \n Request For Approval`}
+                        containerStyle={{
+                          width: Scale.moderateScale(260),
+                          alignSelf: "center",
+                        }}
+                        color={constants.colors.red}
+                        colors={[
+                          constants.colors.transparent,
+                          constants.colors.transparent,
+                        ]}
+                        textStyle={{ fontSize: 16, textAlign: "center" }}
+                        onPress={() => {
+                          this.props.navigation.navigate("ViewProfile", {
+                            routeName: routeName,
+                            title: user.username,
+                            user: user,
+                          });
+                        }}
+                        linearGradientStyle={{
+                          paddingHorizontal: Scale.moderateScale(0),
+                          // marginHorizontal: Scale.moderateScale(0),
+                        }}
+                      />
+                    )}
+
+                    {user.accountStatus === "inreview" && (
+                      <ButtonComponent
+                        title={`Account Status: In Review`}
+                        containerStyle={{
+                          width: Scale.moderateScale(260),
+                          alignSelf: "center",
+                        }}
+                        color={constants.colors.blue800}
+                        colors={[
+                          constants.colors.transparent,
+                          constants.colors.transparent,
+                        ]}
+                        textStyle={{ fontSize: 16, textAlign: "center" }}
+                        onPress={() => {}}
+                        linearGradientStyle={{
+                          paddingHorizontal: Scale.moderateScale(0),
+                          // marginHorizontal: Scale.moderateScale(0),
+                        }}
+                      />
+                    )}
+                    {user.accountStatus === "rejected" && (
+                      <ButtonComponent
+                        title={`Account Status: Rejected`}
+                        containerStyle={{
+                          width: Scale.moderateScale(260),
+                          alignSelf: "center",
+                        }}
+                        color={constants.colors.red}
+                        colors={[
+                          constants.colors.transparent,
+                          constants.colors.transparent,
+                        ]}
+                        textStyle={{ fontSize: 16, textAlign: "center" }}
+                        onPress={() => {}}
+                        linearGradientStyle={{
+                          paddingHorizontal: Scale.moderateScale(0),
+                          // marginHorizontal: Scale.moderateScale(0),
+                        }}
+                      />
+                    )}
+
+                    {user.accountStatus === "approved" && (
+                      <ButtonComponent
+                        title={`Account Status: Approved`}
+                        containerStyle={{
+                          width: Scale.moderateScale(260),
+                          alignSelf: "center",
+                        }}
+                        color={constants.colors.green}
+                        colors={[
+                          constants.colors.transparent,
+                          constants.colors.transparent,
+                        ]}
+                        textStyle={{ fontSize: 16, textAlign: "center" }}
+                        onPress={() => {}}
+                        linearGradientStyle={{
+                          paddingHorizontal: Scale.moderateScale(0),
+                          // marginHorizontal: Scale.moderateScale(0),
+                        }}
+                      />
+                    )}
+                  </View>
+                )}
+              </View>
             )}
           </View>
           <View style={[{ width: "100%", marginTop: -10 }]} />
@@ -1157,6 +1118,7 @@ class Profile extends React.Component {
           horizontal={false}
           numColumns={3}
           data={userblocked ? [] : user.posts}
+          ListEmptyComponent={<EmptyView title="No Posts Found" />}
           ListHeaderComponent={this.searchUserHeaderComponent(
             user,
             routeName,
@@ -1223,27 +1185,6 @@ class Profile extends React.Component {
             this.actionSheet = c;
           }}
         />
-
-        <Dialog.Container visible={this.state.dialogVisible}>
-          <Dialog.Title>Add your link</Dialog.Title>
-          <Dialog.Description>
-            Add your website label(Title) and website link
-          </Dialog.Description>
-          <Dialog.Input
-            value={this.state.websiteLabel}
-            underlineColorAndroid="#000"
-            onChangeText={(input) => this.setState({ websiteLabel: input })}
-            placeholder="Website Label"
-          />
-          <Dialog.Input
-            value={this.state.website}
-            underlineColorAndroid="#000"
-            onChangeText={(input) => this.setState({ website: input })}
-            placeholder="Website Link"
-          />
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
-          <Dialog.Button label="Update" onPress={this.handleOnUpdate} />
-        </Dialog.Container>
       </View>
     );
   }
@@ -1264,7 +1205,6 @@ const mapDispatchToProps = (dispatch) => {
       getUser,
       logout,
       updateBio,
-      updateUser,
       preloadUserImages,
       updateWebsiteLabel,
     },

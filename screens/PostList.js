@@ -57,7 +57,6 @@ import {
   updatePhoto,
   followUser,
   updateCompressedPhoto,
-  updateUser,
   createAndUpdatePreview,
 } from "../actions/user";
 import { ShareDialog } from "react-native-fbsdk";

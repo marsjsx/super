@@ -7,15 +7,17 @@ const W = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  flex: 1,
+  backgroundColor: "#FFFFFF"
   },
 
   loginText: {
     color: "#000000",
     fontWeight: "500",
     fontSize: 16,
+  },
+  textInputBackground: {
+    backgroundColor: "#F5F5F5"
   },
   inputContainer: {
     height: H * 0.062,

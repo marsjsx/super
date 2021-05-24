@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { RNCamera } from "react-native-camera";
 import { Ionicons, MaterialIcons, Entypo } from "@expo/vector-icons";
+import ImagePicker from "react-native-image-crop-picker";
 import { connect } from "react-redux";
 import { openSettingsDialog } from "../util/Helper";
 import * as ExpoImagePicker from "expo-image-picker";
@@ -328,6 +329,18 @@ class CameraView extends Component {
     }
   };
 
+  openVRImages = async () => {
+    ImagePicker.openPicker({
+      smartAlbums: ["Panoramas"],
+    }).then((image) => {
+      var selectedFile = { ...image };
+      selectedFile.type = "vr";
+      selectedFile.uri = image.path;
+      this.props.dispatch(updatePhoto(selectedFile));
+      this.props.navigation.navigate("PostDetail");
+    });
+  };
+
   async onHold() {
     if (await this.hasiOSMicroPhonePermission()) {
       this.setState({ isLongHold: true });
@@ -546,7 +559,7 @@ class CameraView extends Component {
                   alignItems: "center",
                   backgroundColor: "transparent",
                 }}
-                onPress={() => this.openLibrary("vr")}
+                onPress={() => this.openVRImages()}
               >
                 <Image
                   style={{ width: 70, height: 70, tintColor: "#fff" }}

@@ -64,7 +64,7 @@ class ProgressiveImage extends React.Component {
     }
   };
 
-  // thumbnailAnimated = new Animated.Value(0);
+  placeholderAnimated = new Animated.Value(0);
   thumbnailAnimated = 1;
 
   // imageAnimated = new Animated.Value(0);
@@ -83,6 +83,9 @@ class ProgressiveImage extends React.Component {
     //   toValue: 1,
     // }).start();
     this.setState({ opacity: 1 });
+    Animated.timing(this.placeholderAnimated, {
+      toValue: 0,
+    }).start();
   };
 
   render() {
@@ -103,10 +106,12 @@ class ProgressiveImage extends React.Component {
     //     ? null
     //     : source;
 
-    const normalisedSource =
-      source && typeof source.uri === "string" && source.uri.length > 20
-        ? source
-        : null;
+    const normalisedSource = source ? source : null;
+
+    // const normalisedSource =
+    //   source && typeof source.uri === "string" && source.uri.length > 20
+    //     ? source
+    //     : null;
 
     return (
       // <PinchGestureHandler
@@ -154,7 +159,7 @@ class ProgressiveImage extends React.Component {
             style={[
               style,
               {
-                opacity: props.placeHolder ? 0 : 1,
+                opacity: this.placeholderAnimated,
                 // transform: [{ scale: this.scale }],
               },
             ]}

@@ -59,7 +59,10 @@ import MessagesScreen from "../../screens/Messages";
 import PostListScreen from "../../screens/PostList";
 import MyFollowersAndFollowing from "../../screens/MyFollowersAndFollowing";
 import LikersAndViewers from "../../screens/LikersAndViewers";
-import WelcomeScreen from "../../screens/WelcomeScreen";
+import BrandRequests from "../../screens/brandsapprovalrequests";
+// import WelcomeScreen from "../../screens/WelcomeScreen";
+import WelcomeScreen from "../../screens/welcomescreen";
+
 // import { createAppContainer, createStackNavigator } from "react-navigation";
 import styles from "../../styles";
 import Scale from "../../helpers/Scale";
@@ -191,7 +194,46 @@ function HomeNavigator({ navigation, route }) {
           ),
         })}
       />
-
+      <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={({ navigation, route }) => ({
+          headerTransparent: true,
+          title: "Complete your profile",
+          headerTitleStyle: {
+            shadowOpacity: 0.6,
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[
+                  styles.icon,
+                  { marginLeft: 20, color: "#fff", shadowOpacity: 0.6 },
+                ]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+          headerTintColor: constants.colors.white,
+        })}
+      />
+      <ProfileStack.Screen
+        name="BrandRequests"
+        component={BrandRequests}
+        options={({ navigation, route }) => ({
+          title: "Brand Requests",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
       <HomeStack.Screen
         name="Comment"
         component={CommentScreen}
@@ -757,7 +799,7 @@ function PostNavigator() {
         component={PostCaptions}
         options={({ navigation, route }) => ({
           title: "Post Caption",
-          headerTintColor: constants.colors.superRed,
+          headerTintColor: constants.colors.black,
         })}
       />
 
@@ -1154,15 +1196,22 @@ function ProfileNavigator({ navigation, route }) {
         options={({ navigation, route }) => ({
           headerTransparent: true,
           title: "Edit Profile",
+          headerTitleStyle: {
+            shadowOpacity: 0.6,
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
-                style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+                style={[
+                  styles.icon,
+                  { marginLeft: 20, color: "#fff", shadowOpacity: 0.6 },
+                ]}
                 name={"ios-arrow-back"}
                 size={30}
               />
             </TouchableOpacity>
           ),
+          headerTintColor: constants.colors.white,
         })}
       />
       <ProfileStack.Screen

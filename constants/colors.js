@@ -21,6 +21,7 @@ export default {
   pink: "#FF007F",
   info: "#1e90ff",
   titleColor: "#000000",
+  blue800: "#3d5afe",
 
   black: "#000000",
   border: "rgb(101,101,102)",

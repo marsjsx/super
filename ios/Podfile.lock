@@ -611,6 +611,8 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
   - React-jsinspector (0.61.5)
+  - react-native-blur (0.8.0):
+    - React
   - react-native-camera (3.43.6):
     - React-Core
     - react-native-camera/RCT (= 3.43.6)
@@ -728,12 +730,12 @@ PODS:
     - RNFBApp
   - RNGestureHandler (1.10.1):
     - React-Core
-  - RNImageCropPicker (0.31.1):
+  - RNImageCropPicker (0.36.2):
     - React-Core
     - React-RCTImage
-    - RNImageCropPicker/QBImagePickerController (= 0.31.1)
+    - RNImageCropPicker/QBImagePickerController (= 0.36.2)
     - TOCropViewController
-  - RNImageCropPicker/QBImagePickerController (0.31.1):
+  - RNImageCropPicker/QBImagePickerController (0.36.2):
     - React-Core
     - React-RCTImage
     - TOCropViewController
@@ -815,6 +817,7 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
   - react-native-fbsdk (from `../node_modules/react-native-fbsdk`)
@@ -980,6 +983,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
   react-native-cameraroll:
@@ -1156,6 +1161,7 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
+  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 68bc0c37d11df806570bfe53e8d7561bd984cb76
   react-native-cameraroll: 3e8adeb9ebf054c75054bf2b9cbbd53cd188c05d
   react-native-fbsdk: c35d42169e64aaf66f01713c1e18d0674f7f6519
@@ -1190,7 +1196,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 1823217d31e942531cc3f51fb5367dcbc69c1e10
   RNFBStorage: fb33c149ca21187b86f4e32dc35693525b5f2ac0
   RNGestureHandler: 5e58135436aacc1c5d29b75547d3d2b9430d052c
-  RNImageCropPicker: 38865ab4af1b0b2146ad66061196bc0184946855
+  RNImageCropPicker: 35a3ceb837446fa11547704709bb22b5fac6d584
   RNImageRotate: 61c62c5a907405821e28dc8c0e04e4fdc909b1fa
   RNPermissions: 1888705aebcc81714efa5dbff94351e4388ae012
   RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad

@@ -9,17 +9,34 @@ import {
   CHANNELPOSTS_REQUEST,
   CHANNELPOSTS_SUCCESS,
   CHANNELPOSTS_FAIL,
+  MULTISELECT_CHANNEL_LIST,
 } from "../actions/actiontype";
-const user = (state = { posts: [], accountType: "Personal" }, action) => {
+const user = (
+  state = { posts: [], brandRequests: [], accountType: "Personal" },
+  action
+) => {
   switch (action.type) {
     case "LOGIN":
-      return action.payload;
+      return { ...state, ...action.payload };
     case "UPDATE_EMAIL":
       return { ...state, email: action.payload };
     case "UPDATE_PASSWORD":
       return { ...state, password: action.payload };
     case "UPDATE_USERNAME":
       return { ...state, username: action.payload };
+    case "UPDATE_REPRESENTATIVE_NAME":
+      return { ...state, representativeName: action.payload };
+    case "GET_BRANDS_APPROVAL_REQUESTS":
+      return { ...state, brandRequestsLoading: true };
+
+    case "GET_BRANDS_APPROVAL_REQUESTS_SUCCESS":
+      return {
+        ...state,
+        brandRequests: action.payload,
+        brandRequestsLoading: false,
+      };
+    case "GET_BRANDS_APPROVAL_REQUESTS_FAIL":
+      return { ...state, brandRequestsLoading: false };
     case "UPDATE_BIO":
       return { ...state, bio: action.payload };
     case "UPDATE_USER_BIO":
@@ -36,6 +53,8 @@ const user = (state = { posts: [], accountType: "Personal" }, action) => {
       return { ...state, dob: action.payload };
     case "UPDATE_USER_PHOTO":
       return { ...state, photo: action.payload };
+    case "UPDATE_BG_PHOTO":
+      return { ...state, bgImage: action.payload };
     case "UPDATE_COMPRESSED_USER_PHOTO":
       return { ...state, compressedPhoto: action.payload };
     case "UPDATE_USER_PHOTO_PREVIEW":
@@ -226,6 +245,12 @@ const channels = (state = { channelsList: [], feed: [] }, action) => {
       return { ...state, feedLoading: true };
     case CHANNELPOSTS_SUCCESS:
       return { ...state, feed: action.payload, feedLoading: false };
+    case MULTISELECT_CHANNEL_LIST:
+      return {
+        ...state,
+        multiSelectChannelsList: action.payload,
+        feedLoading: false,
+      };
 
     case CHANNELPOSTS_FAIL:
       return { ...state, feedLoading: false };

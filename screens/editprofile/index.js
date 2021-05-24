@@ -18,6 +18,9 @@ import RadioForm, {
   RadioButtonInput,
   RadioButtonLabel,
 } from "../../component/radiobutton";
+import { buildPreview } from "../../component/BuildingPreview";
+import FastImage from "react-native-fast-image";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   Text,
   View,
@@ -34,6 +37,7 @@ import {
 } from "react-native";
 import {
   updatePhoto,
+  updateBgImage,
   updateCompressedPhoto,
   updateEmail,
   updatePassword,
@@ -116,23 +120,29 @@ class Signup extends React.Component {
       value: 0,
       verificationCode: "",
       loaderText: "",
+      user: {},
       confirmationResult: null,
       userAccounts: ["Personal", "Brand"],
     };
   }
 
-  onGenderChange(value) {
-    this.props.updateGender(value);
-  }
-
   onAccountTypeChange(value) {
-    this.props.updateAccountType(value);
+    // this.props.updateAccountType(value);
+
+    user.accountType = value;
+    this.setState({ user: user });
   }
 
   onDobChange(value) {
-    this.props.updateDOB(value.getTime());
+    // this.props.updateDOB(value.getTime());
+
+    user.dob = value.getTime();
+    this.setState({ user: user });
   }
-  componentDidMount = () => {};
+  componentDidMount = () => {
+    // alert("Called");
+    this.setState({ user: { ...this.props.user } });
+  };
 
   beginDel = async () => {
     /* this.props.deleteAllPosts() */
@@ -159,18 +169,23 @@ class Signup extends React.Component {
   };
 
   onPress = async (type = "") => {
-    if (!this.props.user.photo) {
+    const user = this.state.user;
+
+    if (!user.photo) {
       showMessage({
         message: "STOP",
-        description: "Please select an profile image",
+        description:
+          user.accountType == "Brand"
+            ? "Please upload brand logo"
+            : "Please select an profile image",
         type: "danger",
         duration: 3000,
       });
       return;
     }
 
-    if (this.props.user.bio || this.props.user.websiteLabel) {
-      if (!this.props.user.bio) {
+    if (user.bio || user.websiteLabel) {
+      if (!user.bio) {
         showMessage({
           message: "STOP",
           description: "Please add website link for the website title",
@@ -180,7 +195,7 @@ class Signup extends React.Component {
         return;
       }
 
-      if (!validURL(this.props.user.bio)) {
+      if (!validURL(user.bio)) {
         showMessage({
           message: "STOP",
           description: "Please add valid website link",
@@ -190,7 +205,7 @@ class Signup extends React.Component {
         return;
       }
 
-      if (!this.props.user.websiteLabel) {
+      if (!user.websiteLabel) {
         showMessage({
           message: "STOP",
           description: "Please add website title for the website link",
@@ -201,42 +216,71 @@ class Signup extends React.Component {
       }
     }
 
-    if (!this.props.user.accountType) {
-      // Default Value
-      this.props.updateAccountType("Personal");
-    }
+    // if (!user.accountType) {
+    //   // Default Value
+    //   this.props.updateAccountType("Personal");
+    // }
 
-    this.props.updateUser();
+    this.props.updateUser(user);
     this.props.navigation.goBack();
   };
 
-  cropImage = async (selectedImage) => {
+  cropImage = async (selectedImage, type) => {
     await ImagePicker.openCropper({
       path: selectedImage.path,
 
       width: width * 1.5,
-      height: height * 1.5,
+      height: width * 1.5 * 1.6,
     })
-      .then((image) => {
+      .then(async (image) => {
         console.log(image);
+        var user = this.state.user;
+        if (type === "bgImage") {
+          // this.props.updateBgImage(image.path);
+          user.bgImage = image.path;
+          var imagePreview = await buildPreview(image.path, 50, 50);
+          var imageData = "data:image/jpeg;base64," + imagePreview.base64;
+          user.backgroundPreview = imageData;
+          this.setState({ user: user });
+        } else {
+          // this.props.updatePhoto(image.path);
+          // this.props.updateCompressedPhoto(image.path);
 
-        this.props.updatePhoto(image.path);
-        this.props.updateCompressedPhoto(image.path);
+          var imagePreview = await buildPreview(image.path, 50, 50);
+          var imageData = "data:image/jpeg;base64," + imagePreview.base64;
+          user.photo = image.path;
+          user.preview = imageData;
+          this.setState({ user: user });
 
-        this.props.createAndUpdatePreview(image.path);
+          // this.props.createAndUpdatePreview(image.path);
+        }
       })
       .catch((err) => {
         // Here you handle if the user cancels or any other errors
       });
   };
 
-  openLibrary = async () => {
+  openLibrary = async (type = null) => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
       ImagePicker.openPicker({
         compressImageQuality: 0.8,
+        mediaType: "photo",
       }).then((image) => {
-        this.cropImage(image);
+        var user = this.state.user;
+
+        if (this.props.user.accountType == "Brand" && type !== "bgImage") {
+          // this.props.updatePhoto(image.path);
+          // this.props.updateCompressedPhoto(image.path);
+
+          // alert(JSON.stringify(image));
+
+          user.photo = image.sourceURL;
+          user.preview = "";
+          this.setState({ user: user });
+        } else {
+          this.cropImage(image, type);
+        }
       });
     } else {
       openSettingsDialog(
@@ -260,422 +304,547 @@ class Signup extends React.Component {
   };
 
   render() {
-    // const { routeName } = this.props.navigation.state;
-    const routeName = this.props.route.name;
-    var user = this.props.user;
+    var user = this.state.user;
     const { params } = this.props.route;
 
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: "#ECEFF1" }]}>
-        <ScrollView style={[{ marginTop: Scale.moderateScale(60) }]}>
-          <View style={[styles.container, styles.space]}>
+      // <SafeAreaView style={[style.container, { backgroundColor: "red" }]}>
+      <KeyboardAwareScrollView
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.container, styles.space]}>
+          <View>
             <ProgressiveImage
+              source={{
+                uri:
+                  this.props.user.accountType == "Brand"
+                    ? user.bgImage
+                    : user.photo,
+              }}
+              // style={{ width: width, height: Scale.moderateScale(500) }}
+              style={[styles.profilePhoto]}
+              resizeMode="cover"
               thumbnailSource={{
-                uri: user.preview,
+                uri:
+                  this.props.user.accountType == "Brand"
+                    ? user.backgroundPreview
+                    : user.preview,
               }}
-              source={{ uri: user.photo }}
-              resizeMode="contain"
               transparentBackground="transparent"
-              style={[
-                ,
-                {
-                  height: Scale.moderateScale(150),
-                  width: Scale.moderateScale(150),
-                  borderRadius: Scale.moderateScale(75),
-                },
-              ]}
-            />
-            <Text
-              style={[
-                styles.title1,
-                {
-                  color: constants.colors.black,
-                  alignSelf: "center",
-                  marginVertical: Scale.moderateScale(16),
-                },
-              ]}
-            >
-              {user.username}
-            </Text>
-
-            <Text
-              style={[
-                styles.textNormal,
-                {
-                  color: constants.colors.greyText,
-                  alignSelf: "center",
-                },
-              ]}
-            >
-              {user.userbio}
-            </Text>
-
-            <ButtonComponent
-              title={"Change profile picture"}
-              color={constants.colors.superRed}
-              colors={["#FFEBEE", "#FFEBEE"]}
-              onPress={this.openLibrary}
-              textStyle={{ fontSize: 16 }}
-              containerStyle={{
-                width: Scale.moderateScale(200),
-                marginTop: Scale.moderateScale(16),
-              }}
-              linearGradientStyle={{ height: Scale.moderateScale(50) }}
             />
 
             <View
               style={[
-                styles.row,
-                styles.space,
-                styles.followBar,
-                styles.bottomgreyborder,
-                styles.topgreyborder,
                 {
-                  paddingVertical: 16,
-                  justifyContent: "space-between",
-                  backgroundColor: "#ECEFF1",
-                  marginVertical: Scale.moderateScale(16),
-                  // paddingBottom: Scale.moderateScale(14),
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  alignItems: "center",
+                  justifyContent: "center",
                 },
               ]}
             >
-              <TouchableOpacity
-                style={[styles.center, {}]}
-                onPress={() => {
-                  this.props.navigation.navigate("MyFollowersAndFollowing", {
-                    data: "Followers",
-                    route: params.routeName,
-                    user: user,
-                  });
+              <ProgressiveImage
+                source={{
+                  uri: this.props.user.accountType == "Brand" ? user.photo : "",
+                }}
+                resizeMode={
+                  this.props.user.accountType == "Brand" ? "contain" : "cover"
+                }
+                transparentBackground="transparent"
+                style={[
+                  ,
+                  {
+                    height: Scale.moderateScale(150),
+                    width: Scale.moderateScale(150),
+                    borderRadius: Scale.moderateScale(75),
+                  },
+                ]}
+              />
+              <Text
+                style={[
+                  styles.title1,
+                  {
+                    color: "#fff",
+                    alignSelf: "center",
+                    marginVertical: Scale.moderateScale(8),
+                    shadowOpacity: 0.4,
+                  },
+                ]}
+              >
+                {user.username}
+              </Text>
+
+              <Text
+                style={[
+                  styles.textNormal,
+                  {
+                    color: "#fff",
+                    alignSelf: "center",
+                    shadowOpacity: 0.4,
+                    fontWeight: "600",
+                  },
+                ]}
+              >
+                {user.userbio}
+              </Text>
+
+              <ButtonComponent
+                title={
+                  this.props.user.accountType == "Brand"
+                    ? user.photo
+                      ? "Change brand Logo"
+                      : "Add Brand Logo"
+                    : user.photo
+                    ? "Change profile picture"
+                    : "Add profile picture"
+                }
+                color={constants.colors.superRed}
+                colors={["#FFEBEE", "#FFEBEE"]}
+                onPress={this.openLibrary}
+                textStyle={{ fontSize: 16 }}
+                containerStyle={{
+                  width: Scale.moderateScale(200),
+                  marginTop: Scale.moderateScale(8),
+                }}
+                linearGradientStyle={{ height: Scale.moderateScale(50) }}
+              />
+              {this.props.user.accountType == "Brand" && (
+                <ButtonComponent
+                  title={
+                    user.bgImage
+                      ? "Change background image"
+                      : "Add background image"
+                  }
+                  color={constants.colors.superRed}
+                  colors={["#FFEBEE", "#FFEBEE"]}
+                  onPress={() => this.openLibrary("bgImage")}
+                  textStyle={{ fontSize: 16 }}
+                  containerStyle={{
+                    width: Scale.moderateScale(200),
+                    marginTop: Scale.moderateScale(16),
+                  }}
+                  linearGradientStyle={{ height: Scale.moderateScale(50) }}
+                />
+              )}
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.row,
+              styles.space,
+              styles.followBar,
+              styles.bottomgreyborder,
+              styles.topgreyborder,
+              {
+                paddingVertical: 16,
+                justifyContent: "space-between",
+                backgroundColor: "transparent",
+                marginVertical: Scale.moderateScale(16),
+                // paddingBottom: Scale.moderateScale(14),
+              },
+            ]}
+          >
+            <TouchableOpacity
+              style={[styles.center, {}]}
+              onPress={() => {
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Followers",
+                  route: params.routeName,
+                  user: user,
+                });
+              }}
+            >
+              <Text
+                style={[
+                  styles.bold,
+                  styles.textF,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {user.followers && user.followers.length
+                  ? user.followers.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.grey]}> Followers</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.center, {}]}
+              onPress={() => {
+                this.props.navigation.navigate("MyFollowersAndFollowing", {
+                  data: "Following",
+                  route: params.routeName,
+                  user: user,
+                });
+              }}
+            >
+              <Text
+                style={[
+                  styles.bold,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {user.following && user.following.length
+                  ? user.following.length
+                  : "0"}
+              </Text>
+              <Text style={[styles.grey]}> Following</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.center, {}]}>
+              <Text
+                style={[
+                  styles.bold,
+                  { color: "#000", fontSize: Scale.moderateScale(18) },
+                ]}
+              >
+                {"-"}
+              </Text>
+              <Text style={[styles.grey]}> Posts</Text>
+            </TouchableOpacity>
+          </View>
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={
+              this.props.user.accountType == "Brand" ? "Brand Name" : "Name"
+            }
+            title={
+              this.props.user.accountType == "Brand" ? "Brand Name" : "Name"
+            }
+            textContainer={style.textInputBackground}
+            value={user.username}
+            onChangeText={(input) => {
+              // this.props.updateUsername(
+              //   input.replace(/\s/g, "").toLowerCase()
+              // )
+              user.username = input.replace(/\s/g, "").toLowerCase();
+              this.setState({ user: user });
+            }}
+            autoCapitalize={false}
+            returnKeyType="next"
+          />
+
+          {this.props.user.accountType == "Brand" && (
+            <TextInputComponent
+              container={{ marginTop: Scale.moderateScale(0) }}
+              placeholder={"Representative Name"}
+              title={"Representative Name"}
+              textContainer={style.textInputBackground}
+              value={user.representativeName}
+              onChangeText={(input) => {
+                // this.props.updateRepresentativeName(input);
+                user.representativeName = input;
+                this.setState({ user: user });
+              }}
+            />
+          )}
+
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Bio"}
+            title={"Bio"}
+            value={user.userbio}
+            onChangeText={(input) => {
+              // this.props.updateUserBio(input);
+              user.userbio = input;
+              this.setState({ user: user });
+            }}
+            autoCapitalize={false}
+            returnKeyType="next"
+            textContainer={style.textInputBackground}
+            multiline={true}
+            numberOfLines={7}
+            textAlignVertical={"top"}
+          />
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Website Label"}
+            title={"Website Label"}
+            value={user.websiteLabel}
+            textContainer={style.textInputBackground}
+            maxLength={30}
+            onChangeText={(input) => {
+              // this.props.updateWebsiteLabel(input);
+              user.websiteLabel = input;
+              this.setState({ user: user });
+            }}
+            autoCapitalize={false}
+            returnKeyType="next"
+          />
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Website"}
+            title={"Website"}
+            value={user.bio}
+            maxLength={30}
+            textContainer={style.textInputBackground}
+            onChangeText={(input) => {
+              // this.props.updateBio(input);
+              user.bio = input;
+              this.setState({ user: user });
+            }}
+            autoCapitalize={false}
+            returnKeyType="next"
+          />
+
+          {this.props.user.accountType == "Personal" && (
+            <View>
+              <Text
+                style={{
+                  fontSize: Scale.moderateScale(12),
+                  color: constants.colors.primary,
+                  alignSelf: "flex-start",
+                  padding: Scale.moderateScale(20),
                 }}
               >
-                <Text
-                  style={[
-                    styles.bold,
-                    styles.textF,
-                    { color: "#000", fontSize: Scale.moderateScale(18) },
-                  ]}
-                >
-                  {user.followers && user.followers.length
-                    ? user.followers.length
-                    : "0"}
-                </Text>
-                <Text style={[styles.grey]}> Followers</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.center, {}]}
-                onPress={() => {
-                  this.props.navigation.navigate("MyFollowersAndFollowing", {
-                    data: "Following",
-                    route: params.routeName,
-                    user: user,
-                  });
+                {"Gender"}
+              </Text>
+              <View
+                style={{
+                  alignSelf: "flex-start",
+                  paddingHorizontal: Scale.moderateScale(20),
                 }}
               >
-                <Text
-                  style={[
-                    styles.bold,
-                    { color: "#000", fontSize: Scale.moderateScale(18) },
-                  ]}
-                >
-                  {user.following && user.following.length
-                    ? user.following.length
-                    : "0"}
-                </Text>
-                <Text style={[styles.grey]}> Following</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.center, {}]}>
-                <Text
-                  style={[
-                    styles.bold,
-                    { color: "#000", fontSize: Scale.moderateScale(18) },
-                  ]}
-                >
-                  {"-"}
-                </Text>
-                <Text style={[styles.grey]}> Posts</Text>
-              </TouchableOpacity>
-            </View>
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Name"}
-              title={"Name"}
-              value={this.props.user.username}
-              onChangeText={(input) =>
-                this.props.updateUsername(
-                  input.replace(/\s/g, "").toLowerCase()
-                )
-              }
-              autoCapitalize={false}
-              returnKeyType="next"
-            />
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Bio"}
-              title={"Bio"}
-              value={this.props.user.userbio}
-              onChangeText={(input) => this.props.updateUserBio(input)}
-              autoCapitalize={false}
-              returnKeyType="next"
-              multiline={true}
-              numberOfLines={7}
-              textAlignVertical={"top"}
-            />
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Website Label"}
-              title={"Website Label"}
-              value={this.props.user.websiteLabel}
-              maxLength={30}
-              onChangeText={(input) => this.props.updateWebsiteLabel(input)}
-              autoCapitalize={false}
-              returnKeyType="next"
-            />
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Website"}
-              title={"Website"}
-              value={this.props.user.bio}
-              maxLength={30}
-              onChangeText={(input) => this.props.updateBio(input)}
-              autoCapitalize={false}
-              returnKeyType="next"
-            />
-            <Text
-              style={{
-                fontSize: Scale.moderateScale(12),
-                color: constants.colors.primary,
-                alignSelf: "flex-start",
-                padding: Scale.moderateScale(20),
-              }}
-            >
-              {"Gender"}
-            </Text>
-            <View
-              style={{
-                alignSelf: "flex-start",
-                paddingHorizontal: Scale.moderateScale(20),
-              }}
-            >
-              <RadioForm
-                radio_props={radio_props}
-                initial={0}
-                initial={this.props.user.gender === "Male" ? 0 : 1}
-                formHorizontal={true}
-                labelHorizontal={true}
-                animation={true}
-                // style={{ paddingHorizontal: 10 }}
-                labelStyle={{ paddingHorizontal: 20 }}
-                onPress={(value) => {
-                  this.props.updateGender(value === 0 ? "Male" : "Female");
-                  // this.setState({ value: value });
+                <RadioForm
+                  radio_props={radio_props}
+                  initial={0}
+                  initial={user.gender === "Male" ? 0 : 1}
+                  formHorizontal={true}
+                  labelHorizontal={true}
+                  animation={true}
+                  // style={{ paddingHorizontal: 10 }}
+                  labelStyle={{ paddingHorizontal: 20 }}
+                  onPress={(value) => {
+                    // this.props.updateGender(value === 0 ? "Male" : "Female");
+                    user.gender = value === 0 ? "Male" : "Female";
+                    this.setState({ user: user });
+                  }}
+                />
+              </View>
+              <Text
+                style={{
+                  fontSize: Scale.moderateScale(12),
+                  color: constants.colors.primary,
+                  alignSelf: "flex-start",
+                  paddingHorizontal: Scale.moderateScale(20),
+                  paddingVertical: Scale.moderateScale(6),
+                  marginTop: Scale.moderateScale(8),
                 }}
-              />
-            </View>
-            <Text
-              style={{
-                fontSize: Scale.moderateScale(12),
-                color: constants.colors.primary,
-                alignSelf: "flex-start",
-                paddingHorizontal: Scale.moderateScale(20),
-                paddingVertical: Scale.moderateScale(6),
-                marginTop: Scale.moderateScale(8),
-              }}
-            >
-              {"Birth Date"}
-            </Text>
+              >
+                {"Birth Date"}
+              </Text>
 
-            <View
-              style={{
-                marginBottom: Scale.moderateScale(10),
-                borderRadius: Scale.moderateScale(5),
-                backgroundColor: "#fff",
-                height: Scale.moderateScale(40),
-                width: width - Scale.moderateScale(30),
-              }}
-            >
-              <DatePicker
-                style={styles.textInput}
-                // defaultDate={""}
-                defaultDate={
-                  this.props.user.dob == undefined ||
-                  this.props.user.dob == null
-                    ? ""
-                    : new Date(this.props.user.dob)
-                }
-                // defaultDate={new Date(this.props.user.dob) }
-                maximumDate={new Date()}
-                locale={"en"}
-                modalVisible={true}
-                timeZoneOffsetInMinutes={undefined}
-                modalTransparent={false}
-                animationType={"fade"}
-                androidMode={"default"}
-                // placeHolderText={"sajkdjkasdsajdk"}
-                placeHolderText={
-                  this.props.user.dob == undefined ||
-                  this.props.user.dob == null
-                    ? "Select date of birth"
-                    : convertDate(new Date(this.props.user.dob))
-                }
-                textStyle={{
-                  color: "black",
-                  fontSize: Scale.moderateScale(14),
-                }}
-                selectedValue={this.props.user.dob}
-                placeHolderTextStyle={{
-                  color: "black",
-                  fontSize: Scale.moderateScale(14),
-                }}
-                onDateChange={this.onDobChange.bind(this)}
-                disabled={false}
-                ref={(c) => (this.openDatePicker = c)}
-              />
+              <View
+                style={[
+                  style.textInputBackground,
+                  {
+                    marginBottom: Scale.moderateScale(10),
+                    borderRadius: Scale.moderateScale(5),
+                    height: Scale.moderateScale(40),
+                    width: width - Scale.moderateScale(30),
+                  },
+                ]}
+              >
+                <DatePicker
+                  style={styles.textInput}
+                  // defaultDate={""}
+                  defaultDate={
+                    user.dob == undefined || user.dob == null
+                      ? ""
+                      : new Date(user.dob)
+                  }
+                  // defaultDate={new Date(this.props.user.dob) }
+                  maximumDate={new Date()}
+                  locale={"en"}
+                  modalVisible={true}
+                  timeZoneOffsetInMinutes={undefined}
+                  modalTransparent={false}
+                  animationType={"fade"}
+                  androidMode={"default"}
+                  // placeHolderText={"sajkdjkasdsajdk"}
+                  placeHolderText={
+                    user.dob == undefined || user.dob == null
+                      ? "Select date of birth"
+                      : convertDate(new Date(user.dob))
+                  }
+                  textStyle={{
+                    color: "black",
+                    fontSize: Scale.moderateScale(14),
+                  }}
+                  selectedValue={user.dob}
+                  placeHolderTextStyle={{
+                    color: "black",
+                    fontSize: Scale.moderateScale(14),
+                  }}
+                  onDateChange={this.onDobChange.bind(this)}
+                  disabled={false}
+                  ref={(c) => (this.openDatePicker = c)}
+                />
+              </View>
             </View>
+          )}
 
-            <Text
-              style={{
-                fontSize: Scale.moderateScale(12),
-                color: constants.colors.primary,
-                alignSelf: "flex-start",
-                paddingHorizontal: Scale.moderateScale(20),
-                paddingVertical: Scale.moderateScale(6),
-                marginTop: Scale.moderateScale(8),
-              }}
-            >
-              {"Account Type"}
-            </Text>
-            <View
-              style={{
+          <Text
+            style={{
+              fontSize: Scale.moderateScale(12),
+              color: constants.colors.primary,
+              alignSelf: "flex-start",
+              paddingHorizontal: Scale.moderateScale(20),
+              paddingVertical: Scale.moderateScale(6),
+              marginTop: Scale.moderateScale(8),
+            }}
+          >
+            {"Account Type"}
+          </Text>
+          <View
+            style={[
+              style.textInputBackground,
+              {
                 justifyContent: "center",
                 // alignItems: "center",
                 marginBottom: 10,
                 borderRadius: 5,
-                backgroundColor: "#fff",
                 height: Scale.moderateScale(40),
                 width: width - Scale.moderateScale(30),
+              },
+            ]}
+          >
+            <Picker
+              mode="dropdown"
+              style={{ width: 200 }}
+              placeholder="Select account type"
+              iosHeader="Account Type"
+              enabled={false}
+              placeholderStyle={{ fontSize: Scale.moderateScale(14) }}
+              // placeholderIconColor="#007aff"
+              textStyle={{
+                fontSize: Scale.moderateScale(14),
               }}
+              selectedValue={user.accountType}
+              onValueChange={this.onAccountTypeChange.bind(this)}
             >
-              <Picker
-                mode="dropdown"
-                style={{ width: 200 }}
-                placeholder="Select account type"
-                iosHeader="Account Type"
-                placeholderStyle={{ fontSize: Scale.moderateScale(14) }}
-                // placeholderIconColor="#007aff"
-                textStyle={{
-                  fontSize: Scale.moderateScale(14),
-                }}
-                selectedValue={this.props.user.accountType}
-                onValueChange={this.onAccountTypeChange.bind(this)}
-              >
-                <Picker.Item label="Personal" value="Personal" />
-                <Picker.Item label="Brand" value="Brand" />
-              </Picker>
-            </View>
+              <Picker.Item label="Personal" value="Personal" />
+              <Picker.Item label="Brand" value="Brand" />
+            </Picker>
+          </View>
 
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Email"}
-              title={"Email"}
-              onChangeText={(input) => this.props.updateEmail(input)}
-              value={this.props.user.email}
-              ref={(ref) => (this.email = ref)}
-              keyboardType="email-address"
-              autoCapitalize={false}
-              returnKeyType="next"
-            />
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Email"}
+            title={"Email"}
+            textContainer={style.textInputBackground}
+            onChangeText={(input) => {
+              // this.props.updateEmail(input);
+              user.email = input;
+              this.setState({ user: user });
+            }}
+            value={user.email}
+            ref={(ref) => (this.email = ref)}
+            keyboardType="email-address"
+            autoCapitalize={false}
+            returnKeyType="next"
+          />
 
-            <TextInputComponent
-              container={{ marginTop: Scale.moderateScale(0) }}
-              placeholder={"Phone Number"}
-              title={"Phone Number"}
-              keyboardType={"numeric"}
-              maxLength={15}
-              value={this.props.user.phone}
-              onChangeText={(input) => this.props.updatePhone(input)}
-            />
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Phone Number"}
+            title={"Phone Number"}
+            keyboardType={"numeric"}
+            maxLength={15}
+            editable={false}
+            textContainer={style.textInputBackground}
+            value={user.phone}
+            onChangeText={(input) => {
+              user.phone = input;
+              this.setState({ user: user });
 
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: Scale.moderateScale(24),
-                justifyContent: "space-between",
-              }}
-            >
-              <ButtonComponent
-                title={"Blocked Contacts"}
-                containerStyle={{
-                  width: Scale.moderateScale(150),
-                  alignSelf: "flex-end",
-                }}
-                color={constants.colors.superRed}
-                colors={[
-                  constants.colors.transparent,
-                  constants.colors.transparent,
-                ]}
-                textStyle={{ fontSize: 16 }}
-                onPress={() => this.props.navigation.navigate("BlockedUsers")}
-                linearGradientStyle={{
-                  paddingHorizontal: Scale.moderateScale(0),
-                  // marginHorizontal: Scale.moderateScale(0),
-                }}
-              />
-              <ButtonComponent
-                title={"Save"}
-                color={constants.colors.white}
-                textStyle={{ fontSize: 16 }}
-                onPress={this.onPress}
-                containerStyle={{
-                  width: Scale.moderateScale(150),
-                  alignSelf: "center",
-                }}
-              />
-            </View>
+              // this.props.updatePhone(input);
+            }}
+          />
 
+          <View
+            style={{
+              flexDirection: "row",
+              marginTop: Scale.moderateScale(24),
+              justifyContent: "space-between",
+            }}
+          >
             <ButtonComponent
-              title={"Reset Password"}
-              color={constants.colors.superRed}
-              colors={["#FFEBEE", "#FFEBEE"]}
-              textStyle={{ fontSize: 16 }}
-              onPress={() => this.props.navigation.navigate("Reset")}
+              title={"Blocked Contacts"}
               containerStyle={{
-                width: width - Scale.moderateScale(30),
-                alignSelf: "center",
-                marginTop: Scale.moderateScale(24),
+                width: Scale.moderateScale(150),
+                alignSelf: "flex-end",
               }}
-            />
-            <ButtonComponent
-              title={"Logout"}
-              color={constants.colors.superRed}
-              colors={["#FFEBEE", "#FFEBEE"]}
-              textStyle={{ fontSize: 16 }}
-              onPress={this.logout}
-              containerStyle={{
-                width: width - Scale.moderateScale(30),
-                alignSelf: "center",
-                marginTop: Scale.moderateScale(24),
-              }}
-            />
-            <ButtonComponent
-              title={"Delete Account"}
               color={constants.colors.superRed}
               colors={[
                 constants.colors.transparent,
                 constants.colors.transparent,
               ]}
               textStyle={{ fontSize: 16 }}
-              onPress={this.onPressDel}
+              onPress={() => this.props.navigation.navigate("BlockedUsers")}
+              linearGradientStyle={{
+                paddingHorizontal: Scale.moderateScale(0),
+                // marginHorizontal: Scale.moderateScale(0),
+              }}
+            />
+            <ButtonComponent
+              title={"Save"}
+              color={constants.colors.white}
+              textStyle={{ fontSize: 16 }}
+              onPress={this.onPress}
               containerStyle={{
-                width: width - Scale.moderateScale(30),
+                width: Scale.moderateScale(150),
                 alignSelf: "center",
-                marginTop: Scale.moderateScale(24),
               }}
             />
           </View>
-        </ScrollView>
-      </SafeAreaView>
+
+          <ButtonComponent
+            title={"Reset Password"}
+            color={constants.colors.superRed}
+            colors={["#FFEBEE", "#FFEBEE"]}
+            textStyle={{ fontSize: 16 }}
+            onPress={() => this.props.navigation.navigate("Reset")}
+            containerStyle={{
+              width: width - Scale.moderateScale(30),
+              alignSelf: "center",
+              marginTop: Scale.moderateScale(24),
+            }}
+          />
+          <ButtonComponent
+            title={"Logout"}
+            color={constants.colors.superRed}
+            colors={["#FFEBEE", "#FFEBEE"]}
+            textStyle={{ fontSize: 16 }}
+            onPress={this.logout}
+            containerStyle={{
+              width: width - Scale.moderateScale(30),
+              alignSelf: "center",
+              marginTop: Scale.moderateScale(24),
+            }}
+          />
+          <ButtonComponent
+            title={"Delete Account"}
+            color={constants.colors.superRed}
+            colors={[
+              constants.colors.transparent,
+              constants.colors.transparent,
+            ]}
+            textStyle={{ fontSize: 16 }}
+            onPress={this.onPressDel}
+            containerStyle={{
+              width: width - Scale.moderateScale(30),
+              alignSelf: "center",
+              marginTop: Scale.moderateScale(24),
+            }}
+          />
+        </View>
+      </KeyboardAwareScrollView>
+      // </SafeAreaView>
     );
   }
 }
@@ -684,6 +853,7 @@ const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
       updatePhoto,
+      updateBgImage,
       updateCompressedPhoto,
       uploadPhoto,
       updateUser,

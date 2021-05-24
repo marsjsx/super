@@ -279,17 +279,16 @@ class CropperPage extends React.Component {
           </TouchableOpacity> */}
           <TouchableOpacity onPress={this.onCancel.bind(this)}>
             <Ionicons
-              style={[{ marginLeft: 20, shadowOpacity: 0.5 }]}
+              style={[{ shadowOpacity: 0.5 }]}
               name={"ios-arrow-back"}
               size={32}
               color="white"
             />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               backgroundColor: "rgba(0,0,0,0.5)",
               justifyContent: "center",
-              display: "none",
               borderRadius: Scale.moderateScale(5),
               padding: Scale.moderateScale(5),
             }}
@@ -303,8 +302,8 @@ class CropperPage extends React.Component {
               name="rotate-right"
               size={24}
             />
-            {/* <Text style={styles.buttonText}>{"Rotate"}</Text> */}
-          </TouchableOpacity>
+            <Text style={styles.buttonText}>{"Rotate"}</Text>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={[
               styles.saveButton,
@@ -404,6 +403,29 @@ class CropperPage extends React.Component {
             // this.setState({ index: index });
           }}
         />
+
+        <TouchableOpacity
+          style={{
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            borderRadius: Scale.moderateScale(5),
+            padding: Scale.moderateScale(5),
+            position: "absolute",
+            top: height / 2 - 20,
+            right: 10,
+          }}
+          onPress={() => this.rotate(90)}
+        >
+          <MaterialIcons
+            style={{
+              margin: 0,
+              color: "rgb(255,255,255)",
+            }}
+            name="rotate-right"
+            size={24}
+          />
+          {/* <Text style={styles.buttonText}>{"Rotate"}</Text> */}
+        </TouchableOpacity>
         {/* <Image
           style={{ height: 200, width: 200, position: "absolute", top: 100 }}
           source={{ uri: this.state.filteredImage }}
@@ -479,7 +501,7 @@ const styles = StyleSheet.create({
   saveButton: {
     // backgroundColor: "rgba(0,0,0,1)",
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 8,
     borderRadius: 5,
   },
   cancelButton: {

@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
 import constants from "../../constants";
 import Scale from "../../helpers/Scale";
 
@@ -58,6 +58,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     fontSize: 17,
     fontWeight: "500",
+  },
+  activeLabel: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "#db565b",
+    fontSize: Scale.moderateScale(16),
+    ...Platform.select({
+      ios: {},
+      android: {
+        textShadowColor: "rgba(0, 0, 0, 0.75)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 5,
+      },
+    }),
+  },
+  inactiveLabel: {
+    fontWeight: "bold",
+    padding: 5,
+    color: "black",
+    fontSize: Scale.moderateScale(16),
+    ...Platform.select({
+      ios: {},
+      android: {
+        textShadowColor: "rgba(0, 0, 0, 0.75)",
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 5,
+      },
+    }),
   },
   logo: {
     width: Scale.moderateScale(150),

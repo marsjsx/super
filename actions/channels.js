@@ -16,6 +16,7 @@ import {
   CHANNELPOSTS_REQUEST,
   CHANNELPOSTS_SUCCESS,
   CHANNELPOSTS_FAIL,
+  MULTISELECT_CHANNEL_LIST,
 } from "./actiontype";
 // import Toast from 'react-native-tiny-toast'
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -56,6 +57,17 @@ export const getChannels = () => {
             preloadImages(images);
           }
           dispatch({ type: CHANNELS_SUCCESS, payload: array });
+
+          if (array.length > 0) {
+            var multiSelectChannelList = array.reduce((i, j) => {
+              i.push({ ...j, value: j.name, label: j.name });
+              return i;
+            }, []);
+            dispatch({
+              type: MULTISELECT_CHANNEL_LIST,
+              payload: multiSelectChannelList,
+            });
+          }
         })
         .catch((error) => {
           let array = [];

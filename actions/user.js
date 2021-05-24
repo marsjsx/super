@@ -7,7 +7,7 @@ import * as Facebook from "expo-facebook";
 import { uploadPhoto } from "../actions/index";
 import { getActivities } from "../actions/activity";
 import MixpanelManager from "../Analytics";
-
+import _ from "lodash";
 import {
   addUserPostToTimeline,
   removeUserPostFromTimeline,
@@ -27,7 +27,9 @@ import FastImage from "react-native-fast-image";
 export const updateEmail = (email) => {
   return { type: "UPDATE_EMAIL", payload: email };
 };
-
+export const updateRepresentativeName = (representativeName) => {
+  return { type: "UPDATE_REPRESENTATIVE_NAME", payload: representativeName };
+};
 export const updatePhone = (phone) => {
   return { type: "UPDATE_PHONE", payload: phone };
 };
@@ -69,7 +71,9 @@ export const updateWebsiteLabel = (label) => {
 export const updatePhoto = (photo) => {
   return { type: "UPDATE_USER_PHOTO", payload: photo };
 };
-
+export const updateBgImage = (photo) => {
+  return { type: "UPDATE_BG_PHOTO", payload: photo };
+};
 export const updateCompressedPhoto = (photo) => {
   return { type: "UPDATE_COMPRESSED_USER_PHOTO", payload: photo };
 };
@@ -465,7 +469,7 @@ export const getBlockedUser = () => {
   };
 };
 
-export const updateUser = () => {
+export const updateUser = (user = null) => {
   return async (dispatch, getState) => {
     const {
       uid,
@@ -473,14 +477,18 @@ export const updateUser = () => {
       bio,
       userbio,
       photo,
+      bgImage,
       accountType,
       websiteLabel,
       phone,
       gender,
       dob,
+      backgroundPreview,
       compressedPhoto,
       preview,
-    } = getState().user;
+      email,
+      representativeName,
+    } = user;
     var imageUri = "";
     // imageUri = photo;
 
@@ -493,7 +501,7 @@ export const updateUser = () => {
 
     try {
       dispatch(checkUserNameAvailable(username, uid)).then(
-        (usernameAvailable) => {
+        async (usernameAvailable) => {
           if (usernameAvailable) {
             showMessage({
               message: "",
@@ -501,38 +509,74 @@ export const updateUser = () => {
               type: "info",
               duration: 2000,
             });
-            dispatch(uploadPhoto(imageUri)).then((imageurl) => {
-              var user_name = username.toLowerCase().replace(/\s+/g, "_");
 
-              dispatch(updatePhoto(imageurl));
-              db.collection("users")
-                .doc(uid)
-                .update({
-                  username: username || "",
-                  user_name: user_name,
-                  bio: bio || "",
-                  userbio: userbio || "",
-                  photo: imageurl,
-                  updatedAt: new Date().getTime(),
-                  preview: preview || "",
-                  phone: phone || "",
-                  gender: gender || "",
-                  dob: dob || null,
-                  accountType: accountType || null,
-                  websiteLabel: websiteLabel || null,
-                });
+            var backgroundImage,
+              previewImage,
+              profileImage,
+              backgroundImagePreview = "";
 
-              showMessage({
-                message: "",
-                description: "Profile Updated Successfully",
-                type: "success",
-                duration: 4000,
-              });
-              dispatch(updateCompressedPhoto(""));
+            if (bgImage) {
+              backgroundImage = await dispatch(uploadPhoto(bgImage));
+            }
+            if (backgroundPreview) {
+              backgroundImagePreview = await dispatch(
+                uploadPhoto(backgroundPreview)
+              );
+            }
+
+            if (preview) {
+              previewImage = await dispatch(uploadPhoto(preview));
+            }
+
+            if (imageUri) {
+              profileImage = await dispatch(uploadPhoto(imageUri));
+            }
+
+            var user_name = username.toLowerCase().replace(/\s+/g, "_");
+
+            // alert(profileImage);
+            dispatch(updatePhoto(profileImage));
+
+            user.photo = profileImage;
+            user.preview = previewImage;
+            user.backgroundPreview = backgroundImagePreview;
+            user.bgImage = backgroundImage;
+            user.updatedAt = new Date().getTime();
+            user.user_name = user_name;
+
+            var updateObj = {
+              username: username || "",
+              user_name: user_name,
+              bio: bio || "",
+              email: email,
+              phone: phone,
+              representativeName: representativeName,
+              userbio: userbio || "",
+              photo: profileImage,
+              updatedAt: user.updatedAt,
+              preview: previewImage || "",
+              backgroundPreview: backgroundImagePreview || "",
+              bgImage: backgroundImage || "",
+              phone: phone || "",
+              gender: gender || "",
+              dob: dob || null,
+              accountType: accountType || null,
+              websiteLabel: websiteLabel || null,
+            };
+
+            db.collection("users").doc(uid).update(updateObj);
+
+            dispatch({ type: "LOGIN", payload: user });
+
+            showMessage({
+              message: "",
+              description: "Profile Updated Successfully",
+              type: "success",
+              duration: 4000,
             });
+            dispatch(updateCompressedPhoto(""));
+            // dispatch(getUser(uid, "LOGIN"));
           } else {
-            dispatch(getUser(uid, "LOGIN"));
-
             alert("Username already exists, Please choose another username");
             return "Username already exists";
           }
@@ -540,6 +584,117 @@ export const updateUser = () => {
       );
       // var result = await dispatch(checkUserNameAvailable(username));
       // alert(result);
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
+export const getBrandsRequests = (lastFetchedDate = null) => {
+  return async (dispatch, getState) => {
+    var { brandRequests } = getState().user;
+
+    if (!brandRequests) {
+      brandRequests = [];
+    }
+    // var lastFetchedDate;
+
+    // if (brandRequests && brandRequests.length > 0) {
+    //   lastFetchedDate = brandRequests[brandRequests.length - 1].requestDate;
+    // }
+    try {
+      dispatch({ type: "GET_BRANDS_APPROVAL_REQUESTS" });
+      var brandApprovalRequests;
+      if (lastFetchedDate) {
+        // alert(lastFetchedPostDate);
+        brandApprovalRequests = await db
+          .collection("users")
+          .where("accountStatus", "==", "inreview")
+          .orderBy("requestDate", "desc")
+          .startAfter(lastFetchedDate)
+          .limit(15)
+          .get();
+      } else {
+        brandApprovalRequests = await db
+          .collection("users")
+          .where("accountStatus", "==", "inreview")
+          .orderBy("requestDate", "desc")
+          .limit(15)
+          .get();
+      }
+
+      var array = [];
+      brandApprovalRequests.forEach((brand) => {
+        array.push(brand.data());
+      });
+
+      if (array.length > 0) {
+        var mergedArray = brandRequests.concat(array);
+        var arrBrandRequests = _.uniqBy(mergedArray, "uid");
+
+        // alert(JSON.stringify(arrBrandRequests));
+        dispatch({
+          type: "GET_BRANDS_APPROVAL_REQUESTS_SUCCESS",
+          payload: arrBrandRequests,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      let array = [];
+      dispatch({ type: "GET_BRANDS_APPROVAL_REQUESTS_FAIL" });
+      alert(e);
+
+      // alert(e);
+    }
+  };
+};
+
+export const requestForBrandApproval = (navigation) => {
+  return async (dispatch, getState) => {
+    var user = { ...getState().user };
+
+    let errorMsg = "";
+
+    if (!user.photo || !user.bgImage || !user.bio || !user.websiteLabel) {
+      errorMsg =
+        "Please complete your brand profile before requesting for approval";
+    }
+
+    if (errorMsg) {
+      navigation.navigate("EditProfile", {
+        title: user.username,
+        user: user,
+      });
+
+      showMessage({
+        message: "STOP",
+        description: errorMsg,
+        type: "danger",
+        duration: 4000,
+      });
+
+      return;
+    }
+
+    try {
+      user.accountStatus = "inreview";
+      user.requestDate = new Date().getTime();
+
+      var updateObj = {
+        accountStatus: user.accountStatus,
+        requestDate: user.requestDate,
+      };
+
+      db.collection("users").doc(user.uid).update(updateObj);
+
+      dispatch({ type: "LOGIN", payload: user });
+
+      showMessage({
+        message: "",
+        description: "Request For Brand Approval Submitted Successfully",
+        type: "info",
+        duration: 4000,
+      });
     } catch (e) {
       alert(e);
     }
@@ -664,6 +819,42 @@ export const unblockUser = (blockedUid) => {
   };
 };
 
+export const updateBrandAccountStatus = (uid, status) => {
+  return async (dispatch, getState) => {
+    var { brandRequests } = getState().user;
+
+    if (!brandRequests) {
+      brandRequests = [];
+    }
+
+    try {
+      var updateObj = {
+        accountStatus: status,
+        requestDate: new Date().getTime(),
+      };
+
+      db.collection("users").doc(uid).update(updateObj);
+
+      var updatedBrandRequests = brandRequests.filter(
+        (user) => user.uid !== uid
+      );
+      dispatch({
+        type: "GET_BRANDS_APPROVAL_REQUESTS_SUCCESS",
+        payload: updatedBrandRequests,
+      });
+
+      showMessage({
+        message: "",
+        description: "Brand Account Status Updated Successfully",
+        type: "info",
+        duration: 3000,
+      });
+    } catch (e) {
+      alert(e);
+    }
+  };
+};
+
 export const deleteAuth = () => {
   return async (dispatch, getState) => {
     var user = auth().currentUser;
@@ -764,7 +955,12 @@ export const signupWithPhoneNumber = (
 ) => {
   return async (dispatch, getState) => {
     try {
-      const { email, username, accountType } = getState().user;
+      const {
+        email,
+        username,
+        accountType,
+        representativeName,
+      } = getState().user;
       var usernameAvailable = await dispatch(
         checkUserNameAvailable(username, null)
       );
@@ -779,6 +975,7 @@ export const signupWithPhoneNumber = (
           phone: phoneNumber,
           countryCode,
           accountType: accountType || null,
+          representativeName: representativeName || null,
           createdAt: new Date().getTime(),
           token: null,
           followers: [],

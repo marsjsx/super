@@ -108,7 +108,7 @@ const barWidth = Dimensions.get("screen").width - 30;
 import AvView from "../component/AvView";
 
 const { height, width } = Dimensions.get("window");
-
+import { getChannels } from "../actions/channels";
 import { ShareDialog } from "react-native-fbsdk";
 import { ShareApi } from "react-native-fbsdk";
 import EmptyView from "../component/emptyview";
@@ -230,22 +230,43 @@ class Home extends React.Component {
 
       //get user activities
       this.props.getMoreActivities();
+
+      // get list of channels
+      this.props.getChannels();
     }, 1500); // simulating network
 
     setTimeout(() => {
-      if (this.props.user.uid) {
-        if (!this.props.user.photo) {
-          if (!this.state.isModalVisible) {
-            this.toggleModal();
-          }
-        }
-      }
-
+      this.checkForIncompleteProfile("navigate");
       // this.props.filterBlockedPosts();
     }, 2000);
 
     if (this.props.user && this.props.user.uid) {
       this.props.allowNotifications(this.props.user.uid);
+    }
+  }
+
+  checkForIncompleteProfile(type = null) {
+    if (this.props.user.uid) {
+      if (!this.props.user.photo) {
+        if (this.props.user.accountType === "Personal") {
+          if (!this.state.isModalVisible) {
+            this.toggleModal();
+          }
+        } else {
+          if (type) {
+            this.props.navigation.navigate("EditProfile", {
+              title: this.props.user.username,
+            });
+            showMessage({
+              message: "Profile Incomplete",
+              description:
+                "Please upload brand logo and complete your brand profile",
+              type: "info",
+              duration: 3500,
+            });
+          }
+        }
+      }
     }
   }
 
@@ -266,14 +287,8 @@ class Home extends React.Component {
 
   didFocusAction = (payload) => {
     setTimeout(() => {
-      if (this.props.user.uid) {
-        if (!this.props.user.photo) {
-          if (!this.state.isModalVisible) {
-            this.toggleModal();
-          }
-        }
-      }
-    }, 2000);
+      this.checkForIncompleteProfile();
+    }, 8000);
   };
 
   likePost = (post) => {
@@ -655,6 +670,7 @@ class Home extends React.Component {
 
       ImagePicker.openPicker({
         compressImageQuality: 0.8,
+        mediaType: "photo",
       }).then((image) => {
         // alert(JSON.stringify(image));
         //  alert(JSON.stringify(image));
@@ -700,7 +716,7 @@ class Home extends React.Component {
     return `^^${match[1]}^^`;
   }
   saveProfilePhoto = async () => {
-    this.props.updateUser();
+    this.props.updateUser(this.props.user);
     this.toggleModal();
     showMessage({
       message: "Uploading Image",
@@ -1157,44 +1173,6 @@ class Home extends React.Component {
             refreshing={this.state.refreshing}
             getItemLayout={this.getItemLayout}
           />
-          {/* )} */}
-
-          {/* <FlatList
-            // initialNumToRender={3}
-            // maxToRenderPerBatch={10}
-            // windowSize={8}
-            ref={(ref) => {
-              this.flatListRef = ref;
-            }}
-            snapToAlignment={"top"}
-            onRefresh={() => {
-              // alert("Called");
-              this.state.selectedTab == 0
-                ? this.props.getFollowingPosts()
-                : this.props.getMorePosts();
-            }}
-            snapToAlignment={"top"}
-            // refreshing={false}
-            pagingEnabled={true}
-            onViewableItemsChanged={this._onViewableItemsChanged}
-            viewabilityConfig={viewabilityConfig}
-            removeClippedSubviews={true}
-            data={
-              this.state.selectedTab == 0
-                ? this.props.post.followingfeed
-                : this.props.post.feed
-            }
-            keyExtractor={(item) => item.id}
-            renderItem={this.renderItem}
-            onEndReachedThreshold={12}
-            ListFooterComponent={this.renderFooter}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            ListEmptyComponent={<EmptyView desc="No Posts Found" />}
-            // On End Reached (Takes a function)
-            onEndReached={this.retrieveMore}
-            // Refreshing (Set To True When End Reached)
-            refreshing={this.state.refreshing}
-          /> */}
 
           <View
             style={{
@@ -1207,22 +1185,7 @@ class Home extends React.Component {
               display: "none",
             }}
           >
-            <View style={{}}>
-              {/* <Title>Transparent</Title> */}
-              {/* <Image
-                style={[
-                  styles.logoHeader,
-                  {
-                    width: 45,
-                    height: 45,
-                    top: 23,
-                    transform: [{ rotate: "90deg" }],
-                  },
-                ]}
-                source={require("../assets/logo-1.png")}
-                resizeMode="contain"
-              /> */}
-            </View>
+            <View style={{}}></View>
 
             <View
               style={{
@@ -1230,25 +1193,6 @@ class Home extends React.Component {
                 flexDirection: "row",
               }}
             >
-              {/* <TouchableOpacity
-                style={{
-                  alignItems: "center",
-                  marginHorizontal: Scale.moderateScale(24),
-                  marginTop: Scale.moderateScale(10),
-                }}
-                onPress={() => this.showActionSheet(item)}
-              >
-                <Ionicons
-                  style={{
-                    margin: 0,
-                    top: Scale.moderateScale(15),
-                    color: "rgb(255,255,255)",
-                  }}
-                  name="ios-more"
-                  size={32}
-                />
-              </TouchableOpacity> */}
-
               <TouchableOpacity
                 style={{
                   paddingHorizontal: 8,
@@ -1426,6 +1370,37 @@ class Home extends React.Component {
           <View style={{ position: "absolute" }}>
             <OfflineNotice />
           </View>
+          {this.props.user.isSuperAdmin && (
+            <TouchableOpacity
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                position: "absolute",
+                top: Scale.moderateScale(120),
+                left: 10,
+              }}
+              onPress={() => this.props.navigation.navigate("BrandRequests")}
+            >
+              <Ionicons
+                style={{
+                  color: "white",
+                }}
+                name={"ios-people"}
+                size={40}
+              />
+              <View
+                style={{
+                  right: -0,
+                  top: -0,
+                  position: "absolute",
+                  height: 20,
+                  width: 20,
+                  borderRadius: 10,
+                  backgroundColor: constants.colors.red,
+                }}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       );
     } catch (error) {
@@ -1441,6 +1416,7 @@ const mapDispatchToProps = (dispatch) => {
       newPostsListner,
       getMorePosts,
       followUser,
+      getChannels,
       likePost,
       logVideoView,
       unlikePost,

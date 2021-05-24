@@ -75,8 +75,10 @@ class Channels extends React.Component {
     // uploadChannels();
     // uploadChannelPosts();
 
-    // get list of channels
-    this.props.getChannels();
+    if (!(this.props.channels && this.props.channels.channelsList.length > 0)) {
+      // get list of channels
+      this.props.getChannels();
+    }
 
     this.props.navigation.setOptions({
       headerRight: () => (

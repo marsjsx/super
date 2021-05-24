@@ -718,7 +718,6 @@ export const getUserPosts = (
     try {
       var postQuery;
       if (lastFetchedPostDate) {
-        // alert(lastFetchedPostDate);
         postQuery = await db
           .collection("posts")
           .where("uid", "==", uid)

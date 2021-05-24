@@ -390,7 +390,7 @@ class Comment extends React.Component {
             left: 0,
             alignItems: "center",
             width: "100%",
-            opacity: 0.5,
+            opacity: 0.2,
             // flex: 1,
             backgroundColor: "#000",
           }}
@@ -398,8 +398,10 @@ class Comment extends React.Component {
         <KeyboardAwareScrollView
           style={{
             position: "absolute",
-            top: 90,
+            top: Scale.moderateScale(85),
+            right: 0,
             bottom: 0,
+            left: 0,
             borderTopColor: "rgba(255, 255, 255, 0.7)",
             borderTopWidth: 1,
           }}
@@ -419,12 +421,8 @@ class Comment extends React.Component {
             {/* {this.state.post && this.renderTopBar(this.state.post)} */}
 
             {/* {params &&
-            params.postDescription &&
-            params.postDescription.length > 2 && (
-              <Text style={[styles.black, styles.bold, { fontSize: 20 }]}>
-                {params.postDescription}
-              </Text>
-            )} */}
+              params.postDescription &&
+              params.postDescription.length > 2 && ( */}
             <Text
               style={[
                 styles.white,
@@ -438,8 +436,26 @@ class Comment extends React.Component {
                 },
               ]}
             >
-              {"This is demo post description to check screen designing "}
+              {params.postDescription && params.postDescription.length > 2
+                ? params.postDescription
+                : "-"}
             </Text>
+            {/* )} */}
+            {/* <Text
+              style={[
+                styles.white,
+                {
+                  fontSize: 18,
+                  marginVertical: 24,
+                  marginHorizontal: 16,
+                  fontWeight: "700",
+                  lineHeight: 25,
+                  letterSpacing: 0.2,
+                },
+              ]}
+            >
+              {"This is demo post description to check screen designing "}
+            </Text> */}
             {this.renderTopBar(params)}
 
             {/* <KeyboardAvoidingView

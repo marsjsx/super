@@ -22,6 +22,8 @@ import { showLoader } from "../util/Loader";
 import { AntDesign } from "react-native-vector-icons";
 import { validURL, openSettingsDialog } from "../util/Helper";
 import ButtonComponent from "../component/ButtonComponent";
+import FastImage from "react-native-fast-image";
+import AddNewLinkModal from "../component/AddNewLinkModal";
 
 import {
   followUser,
@@ -45,6 +47,7 @@ import {
   updateDOB,
   updatePhoto,
   logout,
+  requestForBrandApproval,
   createAndUpdatePreview,
 } from "../actions/user";
 import { uploadPhoto } from "../actions";
@@ -52,6 +55,7 @@ import constants from "../constants";
 
 import { getMessages } from "../actions/message";
 import { likePost, unlikePost, deletePost } from "../actions/post";
+import { BlurView } from "@react-native-community/blur";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -118,7 +122,6 @@ class ViewProfile extends React.Component {
     super(props);
     this.page;
     this.cellRefs = {};
-    this.user = {};
     this.state = {
       showHide: "hide",
       position: 0,
@@ -130,6 +133,7 @@ class ViewProfile extends React.Component {
       showLoading: false,
       profile: null,
       dialogVisible: false,
+      showAddNewLinkModal: false,
     };
     this.scroll = null;
     this.scrollView = null;
@@ -373,7 +377,9 @@ class ViewProfile extends React.Component {
 
     if (!url) {
       if (this.props.user.uid === user.uid) {
-        this.setState({ dialogVisible: true });
+        this.setState({
+          showAddNewLinkModal: true,
+        });
       } else {
         showMessage({
           message: "STOP",
@@ -415,99 +421,50 @@ class ViewProfile extends React.Component {
     this.props.updateAccountType(value);
   }
 
-  handleOnUpdate = async () => {
-    if (this.state.website || this.state.websiteLabel) {
-      if (!this.state.website) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website link for the website title",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
+  handleOnUpdate = async (website, websiteLabel) => {
+    // alert(website + "------" + websiteLabel);
 
-      if (!validURL(this.state.website)) {
-        showMessage({
-          message: "STOP",
-          description: "Please add valid website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-
-      if (!this.state.websiteLabel) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website title for the website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-    }
-    this.props.updateBio(this.state.website);
-    this.props.updateWebsiteLabel(this.state.websiteLabel);
-
-    this.props.updateUser();
-
-    this.setState({ dialogVisible: false });
-  };
-
-  onSave = async () => {
-    // this.props.navigation.navigate("Home");
-    // return;
-
-    if (!this.props.user.photo) {
+    if (!website) {
       showMessage({
         message: "STOP",
-        description: "Please select an profile image",
+        description: "Please add website link for the website title",
         type: "danger",
-        duration: 3000,
+        duration: 2000,
       });
       return;
     }
 
-    if (this.props.user.bio || this.props.user.websiteLabel) {
-      if (!this.props.user.bio) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website link for the website title",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-
-      if (!validURL(this.props.user.bio)) {
-        showMessage({
-          message: "STOP",
-          description: "Please add valid website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-
-      if (!this.props.user.websiteLabel) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website title for the website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
+    if (!validURL(website)) {
+      showMessage({
+        message: "STOP",
+        description: "Please add valid website link",
+        type: "danger",
+        duration: 2000,
+      });
+      return;
     }
 
-    if (!this.props.user.accountType) {
-      // Default Value
-      this.props.updateAccountType("Personal");
+    if (!websiteLabel) {
+      showMessage({
+        message: "STOP",
+        description: "Please add website title for the website link",
+        type: "danger",
+        duration: 2000,
+      });
+      return;
     }
 
-    this.props.updateUser();
-    this.props.navigation.goBack();
+    // this.props.updateBio(website);
+    // this.props.updateWebsiteLabel(websiteLabel);
+
+    var user = this.props.user;
+
+    user.bio = website;
+    user.websiteLabel = websiteLabel;
+
+    this.props.updateUser(user);
+
+    this.setState({ showAddNewLinkModal: false });
   };
 
   onPressDel = () => {
@@ -558,34 +515,36 @@ class ViewProfile extends React.Component {
       <View style={[styles.center, {}]}>
         <View
           style={{
-            height: Scale.moderateScale(240),
+            height: Scale.moderateScale(180),
             backgroundColor: "black",
             width: "100%",
+            opacity: 0.4,
           }}
         />
 
-        <ProgressiveImage
-          thumbnailSource={{
-            uri: user.preview,
-          }}
-          source={{ uri: user.photo }}
-          resizeMode="contain"
-          transparentBackground="transparent"
-          style={[
-            ,
-            {
-              height: Scale.moderateScale(150),
-              width: Scale.moderateScale(150),
-              borderRadius: Scale.moderateScale(75),
-              marginTop: Scale.moderateScale(-75),
-            },
-          ]}
-        />
+        {user.accountType == "Brand" && (
+          <FastImage
+            thumbnailSource={{
+              uri: user.preview,
+            }}
+            source={{ uri: user.photo }}
+            resizeMode={user.accountType == "Brand" ? "contain" : "cover"}
+            style={[
+              {
+                height: Scale.moderateScale(150),
+                width: Scale.moderateScale(150),
+                borderRadius: Scale.moderateScale(75),
+                marginTop: Scale.moderateScale(-75),
+              },
+            ]}
+          />
+        )}
+
         <Text
           style={[
             styles.title1,
             {
-              color: constants.colors.black,
+              color: constants.colors.white,
               alignSelf: "center",
               marginVertical: Scale.moderateScale(16),
             },
@@ -598,13 +557,121 @@ class ViewProfile extends React.Component {
           style={[
             styles.textNormal,
             {
-              color: constants.colors.greyText,
+              color: constants.colors.white,
               alignSelf: "center",
             },
           ]}
         >
           {user.userbio}
         </Text>
+
+        {routeName === "MyProfile" && (
+          <View style={[styles.center, styles.container, { width: "100%" }]}>
+            {user.accountType == "Brand" && (
+              <View>
+                {!user.accountStatus && (
+                  <View>
+                    <ButtonComponent
+                      title={`Account Status: Not Approved !!!`}
+                      containerStyle={{
+                        width: Scale.moderateScale(260),
+                        alignSelf: "center",
+                      }}
+                      color={constants.colors.red}
+                      colors={[
+                        constants.colors.transparent,
+                        constants.colors.transparent,
+                      ]}
+                      textStyle={{ fontSize: 16, textAlign: "center" }}
+                      onPress={() => {}}
+                      linearGradientStyle={{
+                        paddingHorizontal: Scale.moderateScale(0),
+                        // marginHorizontal: Scale.moderateScale(0),
+                      }}
+                    />
+                    <ButtonComponent
+                      title={"Request For Approval"}
+                      color={constants.colors.white}
+                      textStyle={{ fontSize: 16 }}
+                      onPress={() => {
+                        this.props.requestForBrandApproval(
+                          this.props.navigation
+                        );
+                      }}
+                      containerStyle={{
+                        width: Scale.moderateScale(250),
+                        alignSelf: "center",
+                      }}
+                    />
+                  </View>
+                )}
+
+                {user.accountStatus === "inreview" && (
+                  <ButtonComponent
+                    title={`Account Status: In Review`}
+                    containerStyle={{
+                      width: Scale.moderateScale(260),
+                      alignSelf: "center",
+                    }}
+                    color={constants.colors.blue800}
+                    colors={[
+                      constants.colors.transparent,
+                      constants.colors.transparent,
+                    ]}
+                    textStyle={{ fontSize: 18, textAlign: "center" }}
+                    onPress={() => {}}
+                    linearGradientStyle={{
+                      paddingHorizontal: Scale.moderateScale(0),
+                      // marginHorizontal: Scale.moderateScale(0),
+                    }}
+                  />
+                )}
+
+                {user.accountStatus === "rejected" && (
+                  <ButtonComponent
+                    title={`Account Status: Rejected`}
+                    containerStyle={{
+                      width: Scale.moderateScale(260),
+                      alignSelf: "center",
+                    }}
+                    color={constants.colors.red}
+                    colors={[
+                      constants.colors.transparent,
+                      constants.colors.transparent,
+                    ]}
+                    textStyle={{ fontSize: 16, textAlign: "center" }}
+                    onPress={() => {}}
+                    linearGradientStyle={{
+                      paddingHorizontal: Scale.moderateScale(0),
+                      // marginHorizontal: Scale.moderateScale(0),
+                    }}
+                  />
+                )}
+
+                {user.accountStatus === "approved" && (
+                  <ButtonComponent
+                    title={`Account Status: Approved`}
+                    containerStyle={{
+                      width: Scale.moderateScale(260),
+                      alignSelf: "center",
+                    }}
+                    color={constants.colors.green}
+                    colors={[
+                      constants.colors.transparent,
+                      constants.colors.transparent,
+                    ]}
+                    textStyle={{ fontSize: 16, textAlign: "center" }}
+                    onPress={() => {}}
+                    linearGradientStyle={{
+                      paddingHorizontal: Scale.moderateScale(0),
+                      // marginHorizontal: Scale.moderateScale(0),
+                    }}
+                  />
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         <View
           style={[
@@ -615,8 +682,10 @@ class ViewProfile extends React.Component {
             styles.topgreyborder,
             {
               paddingVertical: 16,
+              borderTopWidth: 0.3,
+              borderBottomWidth: 0.3,
               justifyContent: "space-between",
-              backgroundColor: "#ECEFF1",
+              backgroundColor: "transparemt",
               marginVertical: Scale.moderateScale(16),
               // paddingBottom: Scale.moderateScale(14),
             },
@@ -636,14 +705,14 @@ class ViewProfile extends React.Component {
               style={[
                 styles.bold,
                 styles.textF,
-                { color: "#000", fontSize: Scale.moderateScale(18) },
+                { color: "#fff", fontSize: Scale.moderateScale(18) },
               ]}
             >
               {user.followers && user.followers.length
                 ? user.followers.length
                 : "0"}
             </Text>
-            <Text style={[styles.grey]}> Followers</Text>
+            <Text style={[styles.white]}> Followers</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -659,14 +728,14 @@ class ViewProfile extends React.Component {
             <Text
               style={[
                 styles.bold,
-                { color: "#000", fontSize: Scale.moderateScale(18) },
+                { color: "#fff", fontSize: Scale.moderateScale(18) },
               ]}
             >
               {user.following && user.following.length
                 ? user.following.length
                 : "0"}
             </Text>
-            <Text style={[styles.grey]}> Following</Text>
+            <Text style={[styles.white]}> Following</Text>
           </TouchableOpacity>
 
           {this.props.user.uid != user.uid ? (
@@ -700,7 +769,7 @@ class ViewProfile extends React.Component {
           ) : null}
         </View>
         <ButtonComponent
-          title={this.props.user.bio ? this.props.user.bio : "-"}
+          title={user.bio ? user.bio : "-"}
           iconComponent={
             <MaterialCommunityIcons
               style={{ marginHorizontal: 5, position: "absolute", left: 10 }}
@@ -711,19 +780,32 @@ class ViewProfile extends React.Component {
           color={constants.colors.black}
           colors={[constants.colors.white, constants.colors.white]}
           textStyle={{ fontSize: 16 }}
-          containerStyle={{ width: width - Scale.moderateScale(20) }}
-          linearGradientStyle={{ height: Scale.moderateScale(60) }}
-        />
-        <ButtonComponent
-          title={"Create a New Link"}
-          color={constants.colors.white}
-          textStyle={{ fontSize: 16 }}
           containerStyle={{
             width: width - Scale.moderateScale(20),
-            marginTop: Scale.moderateScale(24),
+            marginTop: Scale.moderateScale(32),
           }}
           linearGradientStyle={{ height: Scale.moderateScale(60) }}
+          onPress={() => this.openUrl(user)}
         />
+
+        {routeName === "MyProfile" && (
+          <ButtonComponent
+            title={this.props.user.bio ? "Edit Link" : "Create A New Link"}
+            color={constants.colors.white}
+            textStyle={{ fontSize: 16 }}
+            containerStyle={{
+              width: width - Scale.moderateScale(20),
+              marginTop: Scale.moderateScale(24),
+            }}
+            linearGradientStyle={{ height: Scale.moderateScale(60) }}
+            onPress={() =>
+              this.setState({
+                showAddNewLinkModal: true,
+              })
+            }
+          />
+        )}
+
         <View
           style={[
             {
@@ -804,10 +886,8 @@ class ViewProfile extends React.Component {
     const { routeName, user } = this.props.route.params;
     if (routeName === "Profile") {
       userProfile = user;
-      this.user = user;
     } else {
       userProfile = this.props.user;
-      this.user = this.props.user;
     }
     let userblocked = isUserBlocked(this.props.user, userProfile.uid);
     if (!this.props.user.uid) {
@@ -837,7 +917,48 @@ class ViewProfile extends React.Component {
       >
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
 
-        <ScrollView style={{ marginBottom: 0 }} ref={(c) => (this.scroll = c)}>
+        {userProfile.accountType === "Brand" ? (
+          <FastImage
+            source={{ uri: userProfile.bgImage }}
+            style={[styles.container]}
+            thumbnailSource={{
+              uri: userProfile.backgroundPreview,
+            }}
+          />
+        ) : (
+          <FastImage
+            source={{ uri: userProfile.photo }}
+            style={[styles.container]}
+            thumbnailSource={{
+              uri: userProfile.preview,
+            }}
+          />
+        )}
+
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            right: 0,
+            left: 0,
+            alignItems: "center",
+            width: "100%",
+            opacity: 0.4,
+            // flex: 1,
+            backgroundColor: "#000",
+          }}
+        />
+        {/* <BlurView
+          style={{ position: "absolute", top: 0, bottom: 0, right: 0, left: 0 }}
+          blurType="dark"
+          blurAmount={3}
+          reducedTransparencyFallbackColor="black"
+        /> */}
+        <ScrollView
+          style={{ marginBottom: 0, position: "absolute" }}
+          ref={(c) => (this.scroll = c)}
+        >
           {this.getProfileComponent(userProfile)}
         </ScrollView>
 
@@ -846,6 +967,22 @@ class ViewProfile extends React.Component {
             this.actionSheet = c;
           }}
         />
+
+        {this.state.showAddNewLinkModal ? (
+          <AddNewLinkModal
+            Show={true}
+            websiteLabel={userProfile.websiteLabel}
+            website={userProfile.bio}
+            Hide={() => {
+              this.setState({
+                showAddNewLinkModal: false,
+              });
+            }}
+            onSave={(website, websiteLabel) => {
+              this.handleOnUpdate(website, websiteLabel);
+            }}
+          />
+        ) : null}
       </View>
     );
   }
@@ -881,6 +1018,7 @@ const mapDispatchToProps = (dispatch) => {
       unblockUser,
       unlikePost,
       getUser,
+      requestForBrandApproval,
     },
     dispatch
   );

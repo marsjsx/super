@@ -59,10 +59,12 @@ let styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
+    marginTop: 20,
   },
   desc: {
     width: 280,
     textAlign: "center",
+    marginTop: 20,
   },
   button: {
     color: "white",
