@@ -24,6 +24,13 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
 import FastImage from "react-native-fast-image";
 
+import {
+  USERCONTACTS_REQUEST,
+  USERCONTACTS_SUCCESS,
+  USERCONTACTS_FAIL,
+  USER_DEVICECONTACTS,
+} from "./actiontype";
+
 export const updateEmail = (email) => {
   return { type: "UPDATE_EMAIL", payload: email };
 };
@@ -488,6 +495,8 @@ export const updateUser = (user = null) => {
       preview,
       email,
       representativeName,
+      links,
+      fullname,
     } = user;
     var imageUri = "";
     // imageUri = photo;
@@ -559,9 +568,11 @@ export const updateUser = (user = null) => {
               bgImage: backgroundImage || "",
               phone: phone || "",
               gender: gender || "",
+              fullname: fullname || "",
               dob: dob || null,
               accountType: accountType || null,
               websiteLabel: websiteLabel || null,
+              links: links || [],
             };
 
             db.collection("users").doc(uid).update(updateObj);
@@ -655,9 +666,12 @@ export const requestForBrandApproval = (navigation) => {
 
     let errorMsg = "";
 
-    if (!user.photo || !user.bgImage || !user.bio || !user.websiteLabel) {
+    if (!user.photo) {
+      errorMsg = "Please upload your brand logo before requesting for approval";
+    } else if (!user.bgImage) {
       errorMsg =
-        "Please complete your brand profile before requesting for approval";
+        "Please upload your brand background image before requesting for approval";
+      // "Please complete your brand profile before requesting for approval";
     }
 
     if (errorMsg) {
@@ -903,7 +917,14 @@ export const deleteAllPosts = () => {
 export const signup = () => {
   return async (dispatch, getState) => {
     try {
-      const { email, password, username, bio } = getState().user;
+      const {
+        email,
+        password,
+        username,
+        bio,
+        accountType,
+        representativeName,
+      } = getState().user;
 
       var usernameAvailable = await dispatch(
         checkUserNameAvailable(username, null)
@@ -923,6 +944,8 @@ export const signup = () => {
             username: username,
             user_name: user_name,
             photo: "",
+            accountType: accountType || null,
+            representativeName: representativeName || null,
             createdAt: new Date().getTime(),
             token: null,
             followers: [],
@@ -989,9 +1012,13 @@ export const signupWithPhoneNumber = (
         dispatch({ type: "LOGIN", payload: user });
         dispatch(filterBlockedPosts());
         dispatch(allowNotifications(uid));
+        // navigation.popToTop();
+        // navigation.replace("HomeScreen");
+        // navigation.navigate("WelcomeScreen");
         navigation.popToTop();
-        navigation.replace("HomeScreen");
-        navigation.navigate("WelcomeScreen");
+        navigation.replace("HomeScreen", {
+          showWelcomeScreen: true,
+        });
       } else {
         alert("Username already exists, Please choose another username");
         return "Username already exists";
@@ -1117,6 +1144,41 @@ export const preloadUserImages = (images) => {
       FastImage.preload(images);
     } catch (e) {
       // alert(e);
+    }
+  };
+};
+
+export const getUserContacts = (deviceContacts) => {
+  return async (dispatch, getState) => {
+    // alert(limit);
+
+    var loopCount = Math.ceil(deviceContacts.length / 10);
+    // alert(loopCount);
+    try {
+      dispatch({ type: USERCONTACTS_REQUEST });
+      let userContacts = [];
+
+      for (let i = 0; i < loopCount; i++) {
+        var start = i * 10;
+        var end = start + 10;
+        var numbers = deviceContacts.slice(start, end);
+
+        const userQuery = await db
+          .collection("users")
+          .where("phone", "in", numbers)
+          .get();
+
+        userQuery.forEach(function (response) {
+          userContacts.push(response.data());
+        });
+      }
+      // alert("Success\n" + JSON.stringify(userContacts));
+      dispatch({ type: USERCONTACTS_SUCCESS, payload: userContacts });
+      dispatch({ type: USER_DEVICECONTACTS, payload: deviceContacts });
+    } catch (e) {
+      alert(e);
+      let array = [];
+      dispatch({ type: USERCONTACTS_FAIL, payload: array });
     }
   };
 };

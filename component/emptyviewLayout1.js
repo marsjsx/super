@@ -59,11 +59,13 @@ let styles = StyleSheet.create({
   image: {
     width: 250,
     height: 250,
+    marginLeft: 40,
   },
   title: {
-    fontSize: Scale.moderateScale(40),
-    ...constants.fonts.OswaldSemiBold,
-    fontWeight: "800",
+    fontSize: Scale.moderateScale(20),
+    marginTop: Scale.moderateScale(16),
+    marginLeft: Scale.moderateScale(8),
+    letterSpacing: 1,
   },
   desc: {
     width: 280,
@@ -96,6 +98,20 @@ module.exports = createReactClass({
       return (
         <View style={styles.container}>
           {this._getElement("image")}
+
+          <Image
+            style={[
+              styles.logoHeader,
+              {
+                width: Scale.moderateScale(240),
+                height: Scale.moderateScale(90),
+                transform: [{ scale: 1 }],
+                marginTop: Scale.moderateScale(60),
+              },
+            ]}
+            source={require("../assets/logo.png")}
+            resizeMode="contain"
+          />
           {this._getElement("title")}
           {this._getElement("icon")}
           {this._getElement("desc")}
@@ -304,7 +320,7 @@ Signup
           return (
             <Image
               source={this.props.image}
-              resizeMode="stretch"
+              resizeMode="cover"
               style={[styles.global, styles.image, this.props.imageStyle, {}]}
             />
           );
@@ -332,10 +348,14 @@ Signup
               title={"Login"}
               containerStyle={{
                 width: Scale.moderateScale(140),
-                marginTop: Scale.moderateScale(20),
+                marginTop: Scale.moderateScale(100),
               }}
               color="#fff"
-              textStyle={{}}
+              colors={[constants.colors.black, constants.colors.black]}
+              textStyle={{
+                ...constants.fonts.HelveticaNeueThin,
+                marginTop: Scale.moderateScale(8),
+              }}
               onPress={() => this.props.navigation.navigate("Login")}
             />
           );
@@ -343,13 +363,19 @@ Signup
           return (
             <ButtonComponent
               title={this.props.textButton}
-              containerStyle={{ width: Scale.moderateScale(160) }}
-              color={constants.colors.superRed1}
+              containerStyle={{
+                width: Scale.moderateScale(160),
+                marginLeft: Scale.moderateScale(4),
+              }}
+              color={constants.colors.red}
               colors={[
                 constants.colors.transparent,
                 constants.colors.transparent,
               ]}
-              textStyle={{}}
+              textStyle={{
+                ...constants.fonts.HelveticaNeueThin,
+                fontSize: Scale.moderateScale(18),
+              }}
               onPress={() => this.props.navigation.navigate("Signup")}
               linearGradientStyle={{
                 paddingHorizontal: Scale.moderateScale(0),

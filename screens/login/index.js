@@ -17,6 +17,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Linking,
+  Dimensions,
 } from "react-native";
 import {
   updateEmail,
@@ -26,6 +27,7 @@ import {
   getLoggedInUserData,
   facebookLogin,
   appleLogin,
+  updateAccountType,
 } from "../../actions/user";
 import ButtonComponent from "../../component/ButtonComponent";
 import { showLoader } from "../../util/Loader";
@@ -42,6 +44,7 @@ import CountryPicker from "react-native-country-picker-modal";
 import constants from "../../constants";
 // import Fumi from "../../component/textinput/Fumi";
 import TextInputComponent from "../../component/TextInputComponent";
+const { height, width } = Dimensions.get("window");
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import appleAuth, {
@@ -75,17 +78,22 @@ class Login extends React.Component {
         }
         this.props.getUser(user.uid, "LOGIN");
         if (this.props.user != null) {
-          this.props.navigation.goBack();
+          // this.props.navigation.goBack();
           // this.props.navigation.navigate("Home");
-          this.props.navigation.replace("HomeScreen");
-          this.props.navigation.navigate("WelcomeScreen");
+          this.props.navigation.popToTop();
+          this.props.navigation.replace("HomeScreen", {
+            showWelcomeScreen: true,
+          });
         }
       }
     });
   };
 
   onClickLogin = async (type = "") => {
-    if (this.state.loginMode === "email") {
+    if (
+      this.state.loginMode === "email" ||
+      this.props.user.accountType == "Brand"
+    ) {
       if (
         isEmailValid(this.props.user.email) &&
         isNotEmpty("password", this.props.user.password)
@@ -268,21 +276,73 @@ class Login extends React.Component {
             <Text
               style={{
                 color: constants.colors.titleColor,
-                width: "80%",
-                fontSize: Scale.moderateScale(40),
-                ...constants.fonts.OswaldSemiBold,
+                width: width - Scale.moderateScale(50),
+                fontSize: Scale.moderateScale(30),
+                marginVertical: Scale.moderateScale(10),
+                letterSpacing: 3,
               }}
             >
-              {`Welcome Back!\n🤘🤘🤘`}
+              {`Welcome back 🤘`}
             </Text>
 
             <View
               style={{
-                display: this.state.loginMode === "email" ? "flex" : "none",
+                flexDirection: "row",
+                marginVertical: Scale.moderateScale(20),
+              }}
+            >
+              <TouchableOpacity
+                style={[]}
+                onPress={() => {
+                  this.props.updateAccountType("Personal");
+                }}
+              >
+                <Text
+                  style={[
+                    this.props.user.accountType == "Personal"
+                      ? style.activeLabel
+                      : style.inactiveLabel,
+                  ]}
+                >
+                  Personal
+                </Text>
+              </TouchableOpacity>
+              <View
+                style={{
+                  width: 2,
+                  backgroundColor: "black",
+                  margin: Scale.moderateScale(10),
+                }}
+              />
+              <TouchableOpacity
+                style={[]}
+                onPress={() => {
+                  this.props.updateAccountType("Brand");
+                }}
+              >
+                <Text
+                  style={[
+                    this.props.user.accountType == "Brand"
+                      ? style.activeLabel
+                      : style.inactiveLabel,
+                  ]}
+                >
+                  Brand
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                display:
+                  this.state.loginMode === "email" ||
+                  this.props.user.accountType == "Brand"
+                    ? "flex"
+                    : "none",
               }}
             >
               <TextInputComponent
-                container={{ marginTop: 32 }}
+                container={{ marginTop: Scale.moderateScale(16) }}
                 placeholder={"Email"}
                 onChangeText={(input) => this.props.updateEmail(input)}
                 value={this.props.user.email}
@@ -319,12 +379,16 @@ class Login extends React.Component {
                   width: Scale.moderateScale(160),
                   alignSelf: "flex-end",
                 }}
-                color={constants.colors.black}
+                color={constants.colors.superRed}
                 colors={[
                   constants.colors.transparent,
                   constants.colors.transparent,
                 ]}
-                textStyle={{ fontSize: 16 }}
+                textStyle={{
+                  fontSize: 16,
+                  fontFamily: null,
+                  color: constants.colors.appRed,
+                }}
                 onPress={() => this.props.navigation.navigate("Reset")}
                 linearGradientStyle={{
                   paddingHorizontal: Scale.moderateScale(0),
@@ -336,9 +400,13 @@ class Login extends React.Component {
 
             <View
               style={{
-                display: this.state.loginMode === "phone" ? "flex" : "none",
+                display:
+                  this.state.loginMode === "phone" &&
+                  this.props.user.accountType !== "Brand"
+                    ? "flex"
+                    : "none",
                 justifyContent: "center",
-                marginTop: Scale.moderateScale(40),
+                marginTop: Scale.moderateScale(16),
               }}
             >
               <View
@@ -420,12 +488,12 @@ class Login extends React.Component {
                   width: Scale.moderateScale(160),
                   alignSelf: "flex-end",
                 }}
-                color={constants.colors.black}
+                color={constants.colors.appRed}
                 colors={[
                   constants.colors.transparent,
                   constants.colors.transparent,
                 ]}
-                textStyle={{ fontSize: 16 }}
+                textStyle={{ fontSize: 16, fontFamily: null }}
                 onPress={() => this.onClickLogin("Resend")}
                 linearGradientStyle={{
                   paddingHorizontal: Scale.moderateScale(0),
@@ -479,47 +547,24 @@ class Login extends React.Component {
               containerStyle={{
                 width: Scale.moderateScale(250),
                 alignSelf: "center",
-              }}
-            />
-            <ButtonComponent
-              title={
-                this.state.loginMode === "email"
-                  ? "By Phone Number"
-                  : "By Email"
-              }
-              containerStyle={{
-                width: Scale.moderateScale(160),
-                alignSelf: "flex-end",
-              }}
-              color={constants.colors.black}
-              colors={[
-                constants.colors.transparent,
-                constants.colors.transparent,
-              ]}
-              textStyle={{ fontSize: 16 }}
-              onPress={() => {
-                let loginMode = "email";
-                if (this.state.loginMode === "email") loginMode = "phone";
-
-                this.setState({ loginMode: loginMode });
-              }}
-              linearGradientStyle={{
-                paddingHorizontal: Scale.moderateScale(0),
-                // marginHorizontal: Scale.moderateScale(0),
-                justifyContent: "flex-end",
+                marginTop: Scale.moderateScale(24),
               }}
             />
 
             <Text
               style={[
                 styles.textLabel,
-                { color: constants.colors.black, alignSelf: "center" },
+                {
+                  color: constants.colors.black,
+                  alignSelf: "center",
+                  display: "none",
+                },
               ]}
             >
               Or{" "}
             </Text>
             <ButtonComponent
-              title={"Create an Account"}
+              title={"Create account"}
               containerStyle={{
                 width: Scale.moderateScale(160),
                 alignSelf: "center",
@@ -529,13 +574,46 @@ class Login extends React.Component {
                 constants.colors.transparent,
                 constants.colors.transparent,
               ]}
-              textStyle={{ fontSize: 16 }}
+              textStyle={{ fontSize: 16, fontFamily: null }}
               onPress={() => this.props.navigation.navigate("Signup")}
               linearGradientStyle={{
                 paddingHorizontal: Scale.moderateScale(0),
                 // marginHorizontal: Scale.moderateScale(0),
               }}
             />
+
+            {this.props.user.accountType !== "Brand" && (
+              <ButtonComponent
+                title={
+                  this.state.loginMode === "email"
+                    ? "Did you sign up with phone number"
+                    : "Did you sign up with email"
+                }
+                containerStyle={{
+                  width: Scale.moderateScale(300),
+                  alignSelf: "center",
+                }}
+                color={constants.colors.pinkPurple}
+                colors={[
+                  constants.colors.transparent,
+                  constants.colors.transparent,
+                ]}
+                textStyle={{
+                  fontSize: 16,
+                  fontFamily: null,
+                }}
+                onPress={() => {
+                  let loginMode = "email";
+                  if (this.state.loginMode === "email") loginMode = "phone";
+
+                  this.setState({ loginMode: loginMode });
+                }}
+                linearGradientStyle={{
+                  paddingHorizontal: Scale.moderateScale(0),
+                  // marginHorizontal: Scale.moderateScale(0),
+                }}
+              />
+            )}
 
             {/* <TouchableOpacity
               style={styles.buttonFacebook}
@@ -573,6 +651,7 @@ const mapDispatchToProps = (dispatch) => {
       facebookLogin,
       appleLogin,
       getLoggedInUserData,
+      updateAccountType,
     },
     dispatch
   );

@@ -189,6 +189,8 @@ class Home extends React.Component {
     // this.props.getBlockedUser();
     // this.setState({ showLoading: true });
 
+    const { params } = this.props.route;
+
     // add listener
     this.willBlurSubscription = this.props.navigation.addListener(
       "blur",
@@ -235,13 +237,18 @@ class Home extends React.Component {
       this.props.getChannels();
     }, 1500); // simulating network
 
-    setTimeout(() => {
-      this.checkForIncompleteProfile("navigate");
-      // this.props.filterBlockedPosts();
-    }, 2000);
+    // this.toggleModal();
+
+    // setTimeout(() => {
+    //   this.checkForIncompleteProfile("navigate");
+    // }, 2000);
 
     if (this.props.user && this.props.user.uid) {
       this.props.allowNotifications(this.props.user.uid);
+    }
+
+    if (params && params.showWelcomeScreen) {
+      this.props.navigation.navigate("WelcomeScreen");
     }
   }
 
@@ -972,7 +979,8 @@ class Home extends React.Component {
           });
         }}
         onCommentPress={() => {
-          this.props.navigation.navigate("Comment", item);
+          // this.props.navigation.navigate("Comment", item);
+          this.props.navigation.navigate("FindFriends");
         }}
         onViewsPress={() => {
           this.props.navigation.navigate("LikersAndViewers", {
@@ -1251,11 +1259,11 @@ class Home extends React.Component {
           </Dialog.Container>
 
           <Modal isVisible={this.state.isModalVisible}>
-            <View style={{ backgroundColor: "white" }}>
+            <View style={{ backgroundColor: "white", borderRadius: 10 }}>
               <View style={{ flexDirection: "row", justifyContent: "center" }}>
                 <Text
                   style={{
-                    margin: 10,
+                    margin: 16,
                     flex: 1,
                     fontSize: 20,
                     textAlign: "left",
@@ -1268,7 +1276,15 @@ class Home extends React.Component {
                 </Text>
                 <TouchableOpacity
                   onPress={this.toggleModal}
-                  style={{ margin: 10 }}
+                  style={{
+                    margin: 10,
+                    backgroundColor: "#EEEEEE",
+                    width: Scale.moderateScale(30),
+                    height: Scale.moderateScale(30),
+                    borderRadius: Scale.moderateScale(15),
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
                 >
                   <Ionicons name="ios-close" size={32}></Ionicons>
                 </TouchableOpacity>
@@ -1276,8 +1292,10 @@ class Home extends React.Component {
 
               <Text
                 style={{
-                  margin: 10,
-                  color: "black",
+                  margin: 16,
+                  color: "grey",
+                  lineHeight: Scale.moderateScale(25),
+                  fontWeight: "500",
                 }}
               >
                 Please pick a profile photo that will demonstrate how
@@ -1295,10 +1313,10 @@ class Home extends React.Component {
               </View>
               <Button
                 block
-                style={{ margin: 10, backgroundColor: "rgb(215, 80, 80)" }}
+                style={{ margin: 10, backgroundColor: "#FCE4EC" }}
                 onPress={this.openLibrary}
               >
-                <Text style={{ color: "white" }}>
+                <Text style={{ color: "#F44336" }}>
                   {this.props.user.photo ? "Change Picture" : "Choose Picture"}
                 </Text>
               </Button>
@@ -1306,7 +1324,7 @@ class Home extends React.Component {
                 <Button
                   onPress={this.saveProfilePhoto}
                   block
-                  style={{ margin: 10, backgroundColor: "rgb(215, 80, 80)" }}
+                  style={{ margin: 10, backgroundColor: "#F44336" }}
                 >
                   <Text style={{ color: "white" }}>Continue</Text>
                 </Button>

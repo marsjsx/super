@@ -1092,6 +1092,76 @@ export const likePost = (post) => {
   };
 };
 
+export const updatePost = (post) => {
+  return (dispatch, getState) => {
+    try {
+      const home = cloneDeep(getState().post.feed);
+
+      let newFeed = home.map((item) => {
+        if (item.id === post.id) {
+          item.postDescription = post.postDescription;
+        }
+        return item;
+      });
+      db.collection("posts").doc(post.id).update({
+        postDescription: post.postDescription,
+      });
+
+      showMessage({
+        message: "Post Update",
+        description: "Post description updated successfully",
+        type: "success",
+        duration: 2000,
+      });
+      dispatch({ type: "GET_POSTS", payload: newFeed });
+
+      if (getState().user && getState().user.posts) {
+        const user = cloneDeep(getState().user);
+        let updatedPosts = user.posts.map((item) => {
+          if (item.id === post.id) {
+            item.postDescription = post.postDescription;
+          }
+
+          return item;
+        });
+        user.posts = updatedPosts;
+        dispatch({ type: "LOGIN", payload: user });
+      }
+
+      if (getState().profile && getState().profile.posts) {
+        const user = cloneDeep(getState().profile);
+        let updatedPosts = user.posts.map((item) => {
+          if (item.id === post.id) {
+            // item.likes.push(uid);
+            item.postDescription = post.postDescription;
+          }
+
+          return item;
+        });
+        user.posts = updatedPosts;
+        dispatch({ type: "GET_PROFILE", payload: user });
+      }
+      if (getState().post && getState().post.followingfeed) {
+        const feeds = cloneDeep(getState().post.followingfeed);
+        let updatedPosts = feeds.map((item) => {
+          if (item.id === post.id) {
+            item.postDescription = post.postDescription;
+          }
+
+          return item;
+        });
+
+        dispatch({
+          type: "FOLLOWING_POSTS",
+          payload: orderBy(updatedPosts, "date", "desc"),
+        });
+      }
+    } catch (e) {
+      /* alert(e) */
+    }
+  };
+};
+
 export const logVideoView = (post, routeName = "") => {
   return (dispatch, getState) => {
     var { uid, username, photo } = getState().user;

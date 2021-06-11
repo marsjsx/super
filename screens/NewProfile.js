@@ -17,6 +17,7 @@ import {
   Dimensions,
   ScrollView,
   StatusBar,
+  FlatList,
 } from "react-native";
 import { showLoader } from "../util/Loader";
 import { AntDesign } from "react-native-vector-icons";
@@ -24,7 +25,7 @@ import { validURL, openSettingsDialog } from "../util/Helper";
 import ButtonComponent from "../component/ButtonComponent";
 import FastImage from "react-native-fast-image";
 import AddNewLinkModal from "../component/AddNewLinkModal";
-
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   followUser,
   unfollowUser,
@@ -134,6 +135,7 @@ class ViewProfile extends React.Component {
       profile: null,
       dialogVisible: false,
       showAddNewLinkModal: false,
+      linkPosition: -1,
     };
     this.scroll = null;
     this.scrollView = null;
@@ -372,9 +374,7 @@ class ViewProfile extends React.Component {
       { cancelable: false }
     );
   }
-  openUrl = async (user) => {
-    var url = user.bio;
-
+  openUrl = async (url) => {
     if (!url) {
       if (this.props.user.uid === user.uid) {
         this.setState({
@@ -459,12 +459,48 @@ class ViewProfile extends React.Component {
 
     var user = this.props.user;
 
-    user.bio = website;
-    user.websiteLabel = websiteLabel;
+    if (this.state.linkPosition === -1) {
+      // Add New link
+
+      var links = [];
+      if (user.links) {
+        links = user.links;
+      }
+      links.push({ link: website, label: websiteLabel });
+
+      user.links = links;
+    } else {
+      // Edit Existing link
+
+      var links = [];
+      if (user.links) {
+        links = user.links;
+      }
+      links[this.state.linkPosition] = { link: website, label: websiteLabel };
+
+      user.links = links;
+    }
+    // user.bio = website;
+    // user.websiteLabel = websiteLabel;
 
     this.props.updateUser(user);
 
     this.setState({ showAddNewLinkModal: false });
+  };
+
+  deleteLink = async (position) => {
+    var user = this.props.user;
+
+    var links = [];
+
+    if (user.links) {
+      links = user.links;
+    }
+    links.splice(position, 1);
+
+    // links.push({ link: website, label: websiteLabel });
+
+    this.props.updateUser(user);
   };
 
   onPressDel = () => {
@@ -513,15 +549,22 @@ class ViewProfile extends React.Component {
     const { params } = this.props.route;
     return (
       <View style={[styles.center, {}]}>
-        <View
+        {/* <View
           style={{
             height: Scale.moderateScale(180),
             backgroundColor: "black",
             width: "100%",
-            opacity: 0.4,
+            opacity: 0,
+          }}
+        /> */}
+        <View
+          style={{
+            marginTop:
+              user.accountType == "Brand"
+                ? Scale.moderateScale(70)
+                : Scale.moderateScale(90),
           }}
         />
-
         {user.accountType == "Brand" && (
           <FastImage
             thumbnailSource={{
@@ -534,7 +577,6 @@ class ViewProfile extends React.Component {
                 height: Scale.moderateScale(150),
                 width: Scale.moderateScale(150),
                 borderRadius: Scale.moderateScale(75),
-                marginTop: Scale.moderateScale(-75),
               },
             ]}
           />
@@ -647,7 +689,7 @@ class ViewProfile extends React.Component {
                     }}
                   />
                 )}
-
+                {/* 
                 {user.accountStatus === "approved" && (
                   <ButtonComponent
                     title={`Account Status: Approved`}
@@ -667,7 +709,7 @@ class ViewProfile extends React.Component {
                       // marginHorizontal: Scale.moderateScale(0),
                     }}
                   />
-                )}
+                )} */}
               </View>
             )}
           </View>
@@ -768,29 +810,106 @@ class ViewProfile extends React.Component {
             )
           ) : null}
         </View>
-        <ButtonComponent
-          title={user.bio ? user.bio : "-"}
-          iconComponent={
-            <MaterialCommunityIcons
-              style={{ marginHorizontal: 5, position: "absolute", left: 10 }}
-              name="web"
-              size={32}
-            />
-          }
-          color={constants.colors.black}
-          colors={[constants.colors.white, constants.colors.white]}
-          textStyle={{ fontSize: 16 }}
-          containerStyle={{
-            width: width - Scale.moderateScale(20),
-            marginTop: Scale.moderateScale(32),
-          }}
-          linearGradientStyle={{ height: Scale.moderateScale(60) }}
-          onPress={() => this.openUrl(user)}
-        />
 
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={user.links ? user.links : []}
+            keyExtractor={(item) => JSON.stringify(item.link)}
+            nestedScrollEnabled={false}
+            renderItem={({ item, index }) => (
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "rgba(255,255,255,0.5)",
+                  width: width - Scale.moderateScale(40),
+                  height: Scale.moderateScale(60),
+                  marginTop: Scale.moderateScale(13),
+                  borderRadius: Scale.moderateScale(5),
+                  padding: Scale.moderateScale(10),
+                  alignItems: "center",
+                }}
+                onPress={() => this.openUrl(item.link)}
+              >
+                {/* <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 5,
+                  }}
+                  name="lead-pencil"
+                  size={32}
+                  onPress={() =>
+                    this.setState({
+                      showAddNewLinkModal: true,
+                      linkPosition: index,
+                    })
+                  }
+                /> */}
+                <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 5,
+                  }}
+                  color="transparent"
+                  name="web"
+                  size={32}
+                />
+                <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 5,
+                  }}
+                  color="transparent"
+                  name="web"
+                  size={32}
+                />
+                <Text
+                  style={{
+                    flex: 1,
+                    fontSize: Scale.moderateScale(14),
+                    fontWeight: "700",
+                    textAlign: "center",
+                  }}
+                >
+                  {item.label ? item.label : "-"}
+                </Text>
+
+                <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 8,
+                  }}
+                  name="lead-pencil"
+                  size={32}
+                  color={
+                    routeName === "MyProfile"
+                      ? constants.colors.primary
+                      : "transparent"
+                  }
+                  onPress={() =>
+                    this.setState({
+                      showAddNewLinkModal: true,
+                      linkPosition: index,
+                    })
+                  }
+                />
+
+                <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 8,
+                  }}
+                  name="delete"
+                  size={32}
+                  color={
+                    routeName === "MyProfile"
+                      ? constants.colors.superRed
+                      : "transparent"
+                  }
+                  onPress={() => this.deleteLink(index)}
+                />
+              </TouchableOpacity>
+            )}
+          />
+        </View>
         {routeName === "MyProfile" && (
           <ButtonComponent
-            title={this.props.user.bio ? "Edit Link" : "Create A New Link"}
+            // title={this.props.user.bio ? "Edit Link" : "Create A New Link"}
+            title={"Create A New Link"}
             color={constants.colors.white}
             textStyle={{ fontSize: 16 }}
             containerStyle={{
@@ -801,6 +920,7 @@ class ViewProfile extends React.Component {
             onPress={() =>
               this.setState({
                 showAddNewLinkModal: true,
+                linkPosition: -1,
               })
             }
           />
@@ -890,32 +1010,36 @@ class ViewProfile extends React.Component {
       userProfile = this.props.user;
     }
     let userblocked = isUserBlocked(this.props.user, userProfile.uid);
-    if (!this.props.user.uid) {
-      return (
-        <EmptyView
-          desc="Your Profile will appear here"
-          button="Signup"
-          userId={this.props.user.uid}
-          navigation={this.props.navigation}
-          icon={
-            <MaterialCommunityIcons
-              style={{ margin: 5 }}
-              name="face-profile"
-              size={64}
-            />
-          }
-        />
-      );
-    }
+    // if (!this.props.user.uid) {
+    //   return (
+    //     <EmptyView
+    //       desc="Your Profile will appear here"
+    //       button="Signup"
+    //       userId={this.props.user.uid}
+    //       navigation={this.props.navigation}
+    //       icon={
+    //         <MaterialCommunityIcons
+    //           style={{ margin: 5 }}
+    //           name="face-profile"
+    //           size={64}
+    //         />
+    //       }
+    //     />
+    //   );
+    // }
     // if (!user.posts) return <ActivityIndicator style={styles.container} />;
     return (
-      <View
-        style={[
-          styles.container,
-          { marginTop: Scale.moderateScale(0), backgroundColor: "#ECEFF1" },
-        ]}
-      >
+      <View style={[styles.container, { backgroundColor: "black" }]}>
         {this.state.showLoading ? showLoader("Loading, Please wait... ") : null}
+
+        <View style={{ height: 0 }}>
+          <EmptyView
+            ref={(ref) => {
+              this.sheetRef = ref;
+            }}
+            navigation={this.props.navigation}
+          />
+        </View>
 
         {userProfile.accountType === "Brand" ? (
           <FastImage
@@ -949,40 +1073,42 @@ class ViewProfile extends React.Component {
             backgroundColor: "#000",
           }}
         />
-        {/* <BlurView
-          style={{ position: "absolute", top: 0, bottom: 0, right: 0, left: 0 }}
-          blurType="dark"
-          blurAmount={3}
-          reducedTransparencyFallbackColor="black"
-        /> */}
-        <ScrollView
-          style={{ marginBottom: 0, position: "absolute" }}
-          ref={(c) => (this.scroll = c)}
+
+        <KeyboardAwareScrollView
+          style={{ marginBottom: 0, position: "absolute", height: height }}
         >
           {this.getProfileComponent(userProfile)}
-        </ScrollView>
 
-        <ActionSheet
-          ref={(c) => {
-            this.actionSheet = c;
-          }}
-        />
-
-        {this.state.showAddNewLinkModal ? (
-          <AddNewLinkModal
-            Show={true}
-            websiteLabel={userProfile.websiteLabel}
-            website={userProfile.bio}
-            Hide={() => {
-              this.setState({
-                showAddNewLinkModal: false,
-              });
-            }}
-            onSave={(website, websiteLabel) => {
-              this.handleOnUpdate(website, websiteLabel);
+          <ActionSheet
+            ref={(c) => {
+              this.actionSheet = c;
             }}
           />
-        ) : null}
+
+          {this.state.showAddNewLinkModal ? (
+            <AddNewLinkModal
+              Show={true}
+              websiteLabel={
+                this.state.linkPosition === -1
+                  ? ""
+                  : userProfile.links[this.state.linkPosition].label
+              }
+              website={
+                this.state.linkPosition === -1
+                  ? ""
+                  : userProfile.links[this.state.linkPosition].link
+              }
+              Hide={() => {
+                this.setState({
+                  showAddNewLinkModal: false,
+                });
+              }}
+              onSave={(website, websiteLabel) => {
+                this.handleOnUpdate(website, websiteLabel);
+              }}
+            />
+          ) : null}
+        </KeyboardAwareScrollView>
       </View>
     );
   }

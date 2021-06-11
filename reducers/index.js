@@ -10,14 +10,33 @@ import {
   CHANNELPOSTS_SUCCESS,
   CHANNELPOSTS_FAIL,
   MULTISELECT_CHANNEL_LIST,
+  USERCONTACTS_SUCCESS,
+  USER_DEVICECONTACTS,
+  USERCONTACTS_FAIL,
+  USERCONTACTS_REQUEST,
 } from "../actions/actiontype";
 const user = (
-  state = { posts: [], brandRequests: [], accountType: "Personal" },
+  state = {
+    posts: [],
+    brandRequests: [],
+    accountType: "Personal",
+    userContacts: [],
+    userDeviceContacts: [],
+  },
   action
 ) => {
   switch (action.type) {
     case "LOGIN":
       return { ...state, ...action.payload };
+    case USERCONTACTS_REQUEST:
+      return { ...state, loadingContacts: true };
+
+    case USERCONTACTS_SUCCESS:
+      return { ...state, userContacts: action.payload, loadingContacts: false };
+    case USERCONTACTS_FAIL:
+      return { ...state, loading: false };
+    case USER_DEVICECONTACTS:
+      return { ...state, userDeviceContacts: action.payload };
     case "UPDATE_EMAIL":
       return { ...state, email: action.payload };
     case "UPDATE_PASSWORD":

@@ -9,7 +9,6 @@ import db from "../../config/firebase";
 
 import * as Permissions from "expo-permissions";
 import { validURL, openSettingsDialog } from "../../util/Helper";
-import { Ionicons } from "@expo/vector-icons";
 import Scale, { moderateScale } from "../../helpers/Scale";
 import TextInputComponent from "../../component/TextInputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
@@ -21,6 +20,8 @@ import RadioForm, {
 import { buildPreview } from "../../component/BuildingPreview";
 import FastImage from "react-native-fast-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+// import { ImagePicker } from "react-native-image-picker";
+import * as ImagePicker1 from "expo-image-picker";
 import {
   Text,
   View,
@@ -99,8 +100,13 @@ import appleAuth, {
 } from "@invertase/react-native-apple-authentication";
 import constants from "../../constants";
 import CountryPicker from "react-native-country-picker-modal";
-import { MaterialIcons } from "@expo/vector-icons";
-
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  Entypo,
+  SimpleLineIcons,
+} from "react-native-vector-icons";
+import { Constants } from "react-native-unimodules";
 var radio_props = [
   { label: "Male", value: 0 },
   { label: "Female", value: 1 },
@@ -142,6 +148,25 @@ class Signup extends React.Component {
   componentDidMount = () => {
     // alert("Called");
     this.setState({ user: { ...this.props.user } });
+
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 16, shadowOpacity: 0.5 }}
+          onPress={this.logout}
+        >
+          <Text
+            style={{
+              color: constants.colors.white,
+              fontSize: Scale.moderateScale(17),
+              fontWeight: "600",
+            }}
+          >
+            Logout
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
   };
 
   beginDel = async () => {
@@ -184,37 +209,37 @@ class Signup extends React.Component {
       return;
     }
 
-    if (user.bio || user.websiteLabel) {
-      if (!user.bio) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website link for the website title",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
+    // if (user.bio || user.websiteLabel) {
+    //   if (!user.bio) {
+    //     showMessage({
+    //       message: "STOP",
+    //       description: "Please add website link for the website title",
+    //       type: "danger",
+    //       duration: 2000,
+    //     });
+    //     return;
+    //   }
 
-      if (!validURL(user.bio)) {
-        showMessage({
-          message: "STOP",
-          description: "Please add valid website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
+    //   if (!validURL(user.bio)) {
+    //     showMessage({
+    //       message: "STOP",
+    //       description: "Please add valid website link",
+    //       type: "danger",
+    //       duration: 2000,
+    //     });
+    //     return;
+    //   }
 
-      if (!user.websiteLabel) {
-        showMessage({
-          message: "STOP",
-          description: "Please add website title for the website link",
-          type: "danger",
-          duration: 2000,
-        });
-        return;
-      }
-    }
+    //   if (!user.websiteLabel) {
+    //     showMessage({
+    //       message: "STOP",
+    //       description: "Please add website title for the website link",
+    //       type: "danger",
+    //       duration: 2000,
+    //     });
+    //     return;
+    //   }
+    // }
 
     // if (!user.accountType) {
     //   // Default Value
@@ -235,7 +260,7 @@ class Signup extends React.Component {
       .then(async (image) => {
         console.log(image);
         var user = this.state.user;
-        if (type === "bgImage") {
+        if (this.props.user.accountType == "Brand") {
           // this.props.updateBgImage(image.path);
           user.bgImage = image.path;
           var imagePreview = await buildPreview(image.path, 50, 50);
@@ -263,25 +288,24 @@ class Signup extends React.Component {
   openLibrary = async (type = null) => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      ImagePicker.openPicker({
-        compressImageQuality: 0.8,
-        mediaType: "photo",
-      }).then((image) => {
-        var user = this.state.user;
-
-        if (this.props.user.accountType == "Brand" && type !== "bgImage") {
-          // this.props.updatePhoto(image.path);
-          // this.props.updateCompressedPhoto(image.path);
-
-          // alert(JSON.stringify(image));
-
-          user.photo = image.sourceURL;
+      var user = this.state.user;
+      if (type === "logo") {
+        let result = await ImagePicker1.launchImageLibraryAsync({
+          mediaTypes: ImagePicker1.MediaTypeOptions.Images,
+        });
+        if (!result.cancelled) {
+          user.photo = result.uri;
           user.preview = "";
           this.setState({ user: user });
-        } else {
-          this.cropImage(image, type);
         }
-      });
+      } else {
+        ImagePicker.openPicker({
+          // compressImageQuality: 0.8,
+          mediaType: "photo",
+        }).then((image) => {
+          this.cropImage(image, type);
+        });
+      }
     } else {
       openSettingsDialog(
         "Failed to Access Photos, Please go to the Settings to enable access",
@@ -316,12 +340,15 @@ class Signup extends React.Component {
         <View style={[styles.container, styles.space]}>
           <View>
             <ProgressiveImage
-              source={{
-                uri:
-                  this.props.user.accountType == "Brand"
-                    ? user.bgImage
-                    : user.photo,
-              }}
+              source={
+                this.props.user.accountType == "Brand"
+                  ? user.bgImage
+                    ? { uri: user.bgImage }
+                    : constants.images.backgroundImagePlaceholder
+                  : user.photo
+                  ? { uri: user.photo }
+                  : constants.images.backgroundImagePlaceholder
+              }
               // style={{ width: width, height: Scale.moderateScale(500) }}
               style={[styles.profilePhoto]}
               resizeMode="cover"
@@ -347,52 +374,117 @@ class Signup extends React.Component {
                 },
               ]}
             >
-              <ProgressiveImage
-                source={{
-                  uri: this.props.user.accountType == "Brand" ? user.photo : "",
+              {this.props.user.accountType == "Brand" &&
+                (user.photo ? (
+                  <View>
+                    <ProgressiveImage
+                      source={{
+                        uri:
+                          this.props.user.accountType == "Brand"
+                            ? user.photo
+                            : "",
+                      }}
+                      resizeMode={
+                        this.props.user.accountType == "Brand"
+                          ? "contain"
+                          : "cover"
+                      }
+                      transparentBackground="transparent"
+                      style={[
+                        ,
+                        {
+                          height: Scale.moderateScale(150),
+                          width: Scale.moderateScale(150),
+                          borderRadius: Scale.moderateScale(75),
+                        },
+                      ]}
+                    />
+                    <TouchableOpacity
+                      style={{
+                        position: "absolute",
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        backgroundColor: "transparent",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        shadowOpacity: 1,
+                        right: -20,
+                        top: 20,
+                      }}
+                      onPress={() => this.openLibrary("logo")}
+                    >
+                      <MaterialCommunityIcons
+                        style={{}}
+                        name="lead-pencil"
+                        size={32}
+                        color={constants.colors.white}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      height: Scale.moderateScale(150),
+                      width: Scale.moderateScale(150),
+                      borderRadius: Scale.moderateScale(75),
+                      borderColor: "white",
+                      borderWidth: Scale.moderateScale(6),
+                      alignItems: "center",
+                      justifyContent: "center",
+                      shadowOpacity: 0.3,
+                    }}
+                    onPress={() => this.openLibrary("logo")}
+                  >
+                    <Text
+                      style={{
+                        fontSize: Scale.moderateScale(18),
+                        fontWeight: "400",
+                        color: constants.colors.superRed,
+                      }}
+                    >
+                      {"Add Logo"}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+              <View
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.1)",
+                  width: width,
+                  padding: 16,
+                  marginTop: 16,
                 }}
-                resizeMode={
-                  this.props.user.accountType == "Brand" ? "contain" : "cover"
-                }
-                transparentBackground="transparent"
-                style={[
-                  ,
-                  {
-                    height: Scale.moderateScale(150),
-                    width: Scale.moderateScale(150),
-                    borderRadius: Scale.moderateScale(75),
-                  },
-                ]}
-              />
-              <Text
-                style={[
-                  styles.title1,
-                  {
-                    color: "#fff",
-                    alignSelf: "center",
-                    marginVertical: Scale.moderateScale(8),
-                    shadowOpacity: 0.4,
-                  },
-                ]}
               >
-                {user.username}
-              </Text>
+                <Text
+                  style={[
+                    styles.title1,
+                    {
+                      color: "#fff",
+                      alignSelf: "center",
+                      marginBottom: Scale.moderateScale(8),
+                      shadowOpacity: 0.4,
+                    },
+                  ]}
+                >
+                  {user.username}
+                </Text>
 
-              <Text
-                style={[
-                  styles.textNormal,
-                  {
-                    color: "#fff",
-                    alignSelf: "center",
-                    shadowOpacity: 0.4,
-                    fontWeight: "600",
-                  },
-                ]}
-              >
-                {user.userbio}
-              </Text>
-
-              <ButtonComponent
+                <Text
+                  style={[
+                    styles.textNormal,
+                    {
+                      color: "#fff",
+                      alignSelf: "center",
+                      shadowOpacity: 0.4,
+                      fontWeight: "600",
+                    },
+                  ]}
+                >
+                  {user.userbio}
+                </Text>
+              </View>
+              {/* <ButtonComponent
                 title={
                   this.props.user.accountType == "Brand"
                     ? user.photo
@@ -411,8 +503,8 @@ class Signup extends React.Component {
                   marginTop: Scale.moderateScale(8),
                 }}
                 linearGradientStyle={{ height: Scale.moderateScale(50) }}
-              />
-              {this.props.user.accountType == "Brand" && (
+              /> */}
+              {/* {this.props.user.accountType == "Brand" && (
                 <ButtonComponent
                   title={
                     user.bgImage
@@ -429,7 +521,39 @@ class Signup extends React.Component {
                   }}
                   linearGradientStyle={{ height: Scale.moderateScale(50) }}
                 />
-              )}
+              )} */}
+
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  bottom: Scale.moderateScale(16),
+                  right: Scale.moderateScale(16),
+                  padding: Scale.moderateScale(8),
+                  shadowOpacity: 0.5,
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => this.openLibrary()}
+              >
+                <Text
+                  style={{
+                    fontSize: Scale.moderateScale(18),
+                    fontWeight: "400",
+                    color: constants.colors.superRed,
+                  }}
+                >
+                  {"Add background"}
+                </Text>
+                <Ionicons
+                  style={{
+                    marginLeft: 12,
+                    color: "rgb(255,255,255)",
+                  }}
+                  name="ios-camera"
+                  size={48}
+                />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -510,10 +634,10 @@ class Signup extends React.Component {
           <TextInputComponent
             container={{ marginTop: Scale.moderateScale(0) }}
             placeholder={
-              this.props.user.accountType == "Brand" ? "Brand Name" : "Name"
+              this.props.user.accountType == "Brand" ? "Username" : "Username"
             }
             title={
-              this.props.user.accountType == "Brand" ? "Brand Name" : "Name"
+              this.props.user.accountType == "Brand" ? "Username" : "Username"
             }
             textContainer={style.textInputBackground}
             value={user.username}
@@ -525,6 +649,18 @@ class Signup extends React.Component {
               this.setState({ user: user });
             }}
             autoCapitalize={false}
+            returnKeyType="next"
+          />
+          <TextInputComponent
+            container={{ marginTop: Scale.moderateScale(0) }}
+            placeholder={"Full Name"}
+            title={"Full Name"}
+            textContainer={style.textInputBackground}
+            value={user.fullname}
+            onChangeText={(input) => {
+              user.fullname = input;
+              this.setState({ user: user });
+            }}
             returnKeyType="next"
           />
 
@@ -560,7 +696,7 @@ class Signup extends React.Component {
             numberOfLines={7}
             textAlignVertical={"top"}
           />
-          <TextInputComponent
+          {/* <TextInputComponent
             container={{ marginTop: Scale.moderateScale(0) }}
             placeholder={"Website Label"}
             title={"Website Label"}
@@ -589,6 +725,28 @@ class Signup extends React.Component {
             }}
             autoCapitalize={false}
             returnKeyType="next"
+          /> */}
+
+          <ButtonComponent
+            title={"Blocked Accounts"}
+            containerStyle={{
+              width: width - Scale.moderateScale(30),
+              marginTop: Scale.moderateScale(24),
+            }}
+            color={constants.colors.superRed}
+            colors={[
+              constants.colors.transparent,
+              constants.colors.transparent,
+            ]}
+            textStyle={{
+              fontSize: 18,
+            }}
+            onPress={() => this.props.navigation.navigate("BlockedUsers")}
+            linearGradientStyle={{
+              paddingHorizontal: Scale.moderateScale(0),
+              justifyContent: "flex-start",
+              // marginHorizontal: Scale.moderateScale(0),
+            }}
           />
 
           {this.props.user.accountType == "Personal" && (
@@ -691,8 +849,9 @@ class Signup extends React.Component {
           <Text
             style={{
               fontSize: Scale.moderateScale(12),
-              color: constants.colors.primary,
+              color: constants.colors.black,
               alignSelf: "flex-start",
+              fontWeight: "700",
               paddingHorizontal: Scale.moderateScale(20),
               paddingVertical: Scale.moderateScale(6),
               marginTop: Scale.moderateScale(8),
@@ -766,43 +925,17 @@ class Signup extends React.Component {
             }}
           />
 
-          <View
-            style={{
-              flexDirection: "row",
+          <ButtonComponent
+            title={"Save"}
+            color={constants.colors.white}
+            textStyle={{ fontSize: 16 }}
+            onPress={this.onPress}
+            containerStyle={{
+              width: width - Scale.moderateScale(30),
+              alignSelf: "center",
               marginTop: Scale.moderateScale(24),
-              justifyContent: "space-between",
             }}
-          >
-            <ButtonComponent
-              title={"Blocked Contacts"}
-              containerStyle={{
-                width: Scale.moderateScale(150),
-                alignSelf: "flex-end",
-              }}
-              color={constants.colors.superRed}
-              colors={[
-                constants.colors.transparent,
-                constants.colors.transparent,
-              ]}
-              textStyle={{ fontSize: 16 }}
-              onPress={() => this.props.navigation.navigate("BlockedUsers")}
-              linearGradientStyle={{
-                paddingHorizontal: Scale.moderateScale(0),
-                // marginHorizontal: Scale.moderateScale(0),
-              }}
-            />
-            <ButtonComponent
-              title={"Save"}
-              color={constants.colors.white}
-              textStyle={{ fontSize: 16 }}
-              onPress={this.onPress}
-              containerStyle={{
-                width: Scale.moderateScale(150),
-                alignSelf: "center",
-              }}
-            />
-          </View>
-
+          />
           <ButtonComponent
             title={"Reset Password"}
             color={constants.colors.superRed}

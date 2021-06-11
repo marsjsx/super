@@ -69,7 +69,6 @@ import { Trimmer, VideoPlayer } from "react-native-video-processing";
 // import { Audio, Video } from "expo-av";
 import Video from "react-native-video";
 import constants from "../constants";
-import ImageFilters from "../component/ImageFilters";
 
 import {
   Ionicons,

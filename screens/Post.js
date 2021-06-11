@@ -57,7 +57,6 @@ import { Dropdown } from "react-native-material-dropdown";
 import { Trimmer, VideoPlayer } from "react-native-video-processing";
 // import { Audio, Video } from "expo-av";
 import Video from "react-native-video";
-import ImageFilters from "../component/ImageFilters";
 import ImageEditor from "@react-native-community/image-editor";
 import {
   Ionicons,
@@ -110,6 +109,7 @@ class Post extends React.Component {
       filteredImage: "",
       startTime: 0,
       endTime: 300,
+      videoDuration: 0,
       showSignUpSheet: false,
       selectedLocation: "",
       currentTime: 0,
@@ -164,12 +164,12 @@ class Post extends React.Component {
       headerTransparent: true,
       gestureEnabled: false,
       title: "",
-      headerTintColor: constants.colors.superRed,
+      headerTintColor: constants.colors.white,
       headerRight: () => (
         <TouchableOpacity onPress={this._onNext}>
           <Text
             style={{
-              color: constants.colors.superRed,
+              color: constants.colors.white,
               fontWeight: "bold",
               padding: 5,
               fontSize: 16,
@@ -319,14 +319,19 @@ class Post extends React.Component {
     if (selectedFile.type === "image") {
       this.props.createAndUpdatePreview(selectedFile.uri);
     } else if (selectedFile.type === "video") {
+      let videoDuration = Math.round(selectedFile.duration / 1000);
+
+      // alert(selectedFile.duration)
       this.setState({
         startTime: 0,
         endTime: 300,
+        videoDuration: 300,
       });
 
       if (selectedFile.duration < 300000) {
         this.setState({
-          endTime: Math.round(selectedFile.duration / 1000),
+          endTime: videoDuration,
+          videoDuration: videoDuration,
         });
       }
       const maximumSize = { width: 300, height: 500 };
@@ -578,64 +583,6 @@ class Post extends React.Component {
     // return
 
     if (selectedFile) {
-      if (selectedFile.type === "image") {
-        return (
-          <View style={{}}>
-            <ImageFilters
-              key={""}
-              name={""}
-              index={this.state.index}
-              resizeMode={"cover"}
-              onExtractImage={({ nativeEvent }) => {
-                this.setState({ filteredImage: nativeEvent.uri });
-                // alert(nativeEvent.uri)
-              }}
-              extractImageEnabled={true}
-              style={[styles.postPhotoPreview, { backgroundColor: "#000000" }]}
-              // style={[styles.fullWidth, { aspectRatio: 1200 / 1700 }]}
-              url={this.props.post.photo.uri}
-              onChange={(index) => {
-                // this.setState({ index: index });
-              }}
-            />
-
-            <FlatList
-              horizontal={true}
-              keyExtractor={(item) => JSON.stringify(item.name)}
-              data={this.state.filters}
-              renderItem={({ index, item }) => (
-                <ImageFilters
-                  key={item}
-                  name={item}
-                  index={index}
-                  extractImageEnabled={false}
-                  selectedIndex={this.state.index}
-                  resizeMode={"cover"}
-                  style={{
-                    width: Scale.moderateScale(85),
-                    height: Scale.moderateScale(85),
-                    marginRight: 5,
-                  }}
-                  url={this.props.post.photo.uri}
-                  onChange={(value) => {
-                    // alert(index);
-                    this.setState({ index: index });
-
-                    if (index === 0) {
-                      this.setState({ filteredImage: "" });
-                    }
-                  }}
-                />
-              )}
-            />
-          </View>
-          // <Image
-          //   style={styles.postPhotoPreview}
-          //   // source={{ uri: this.props.post.photo.uri }}
-          //   source={{ uri: " https://i.imgur.com/5EOyTDQ.jpg" }}
-          // />
-        );
-      }
       if (selectedFile.type === "vr") {
         if (this.state.isCropped) {
           return (
@@ -725,21 +672,27 @@ class Post extends React.Component {
               >
                 <Trimmer
                   source={this.props.post.photo.uri}
-                  height={50}
+                  height={Scale.moderateScale(100)}
                   width={Dimensions.get("screen").width - 20}
                   onTrackerMove={(e) => alert(e.currentTime)} // iOS only
                   currentTime={this.state.currentTime} // use this prop to set tracker position iOS only
-                  themeColor={"blue"} // iOS only
-                  thumbWidth={30} // iOS only
+                  themeColor={"white"} // iOS only
+                  thumbWidth={Scale.moderateScale(10)} // iOS only
                   trackerColor={"green"} // iOS only
                   minLength={3}
-                  maxLength={300}
+                  maxLength={this.state.videoDuration}
                   // showTrackerHandle={true}
                   resizeMode={VideoPlayer.Constants.resizeMode.CONTAIN}
                   onChange={(e) => {
+                    let startTime = Math.round(e.startTime);
+                    let endTime = Math.round(e.endTime);
+                    // if (endTime - startTime > 300) {
+                    //   endTime = startTime + 300;
+                    // }
+
                     this.setState({
-                      startTime: Math.round(e.startTime),
-                      endTime: Math.round(e.endTime),
+                      startTime: startTime,
+                      endTime: endTime,
                     });
                     this.videoPlayerRef.seek(this.state.startTime);
                     // this.videoPlayerRef.seek(this.state.startTime);

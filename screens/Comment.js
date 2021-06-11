@@ -15,8 +15,16 @@ import {
   ScrollView,
 } from "react-native";
 const { height, width } = Dimensions.get("window");
+import EditPostCaptionModal from "../component/EditPostCaptionModal";
+import constants from "../constants";
 
-import { addComment, getComments, likePost, unlikePost } from "../actions/post";
+import {
+  addComment,
+  getComments,
+  likePost,
+  unlikePost,
+  updatePost,
+} from "../actions/post";
 import moment from "moment";
 import EmptyView from "../component/emptyview";
 import FastImage from "react-native-fast-image";
@@ -44,6 +52,7 @@ class Comment extends React.Component {
     this.state = {
       comment: "",
       post: null,
+      showEditPostCaptionModal: false,
     };
   }
 
@@ -362,6 +371,27 @@ class Comment extends React.Component {
       />
     );
   };
+
+  handleOnUpdate = async (postDescription) => {
+    const { params } = this.props.route;
+
+    if (!postDescription) {
+      showMessage({
+        message: "STOP",
+        description: "Post Description can not be empty",
+        type: "danger",
+        duration: 2000,
+      });
+      return;
+    }
+
+    params.postDescription = postDescription;
+
+    this.props.updatePost(params);
+
+    this.setState({ showEditPostCaptionModal: false });
+  };
+
   render() {
     // const { params } = this.props.navigation.state;
     const { params } = this.props.route;
@@ -378,7 +408,11 @@ class Comment extends React.Component {
           style={[styles.container]}
         /> */}
         <FastImage
-          source={{ uri: params.postPhoto }}
+          source={
+            params.type == "video"
+              ? constants.images.backgroundImagePlaceholder
+              : { uri: params.postPhoto }
+          }
           style={[styles.container]}
         />
         <View
@@ -423,23 +457,47 @@ class Comment extends React.Component {
             {/* {params &&
               params.postDescription &&
               params.postDescription.length > 2 && ( */}
-            <Text
-              style={[
-                styles.white,
-                {
-                  fontSize: 18,
-                  marginVertical: 24,
-                  marginHorizontal: 16,
-                  fontWeight: "700",
-                  lineHeight: 25,
-                  letterSpacing: 0.2,
-                },
-              ]}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
             >
-              {params.postDescription && params.postDescription.length > 2
-                ? params.postDescription
-                : "-"}
-            </Text>
+              <Text
+                style={[
+                  styles.white,
+                  {
+                    fontSize: 18,
+                    marginVertical: 24,
+                    marginHorizontal: 16,
+                    fontWeight: "700",
+                    lineHeight: 25,
+                    letterSpacing: 0.2,
+                    flex: 1,
+                  },
+                ]}
+              >
+                {params.postDescription && params.postDescription.length > 2
+                  ? params.postDescription
+                  : "-"}
+              </Text>
+
+              {this.props.user && this.props.user.uid == params.uid && (
+                <MaterialCommunityIcons
+                  style={{
+                    marginHorizontal: 8,
+                  }}
+                  name="lead-pencil"
+                  size={24}
+                  color={"#fff"}
+                  onPress={() => {
+                    this.setState({
+                      showEditPostCaptionModal: true,
+                    });
+                  }}
+                />
+              )}
+            </View>
             {/* )} */}
             {/* <Text
               style={[
@@ -617,6 +675,23 @@ class Comment extends React.Component {
             {/* <View style={{ height: 60 }} /> */}
             {/* </KeyboardAvoidingView> */}
           </View>
+
+          {this.state.showEditPostCaptionModal ? (
+            <EditPostCaptionModal
+              Show={true}
+              postDescription={
+                !params.postDescription ? "" : params.postDescription
+              }
+              Hide={() => {
+                this.setState({
+                  showEditPostCaptionModal: false,
+                });
+              }}
+              onSave={(postDescription) => {
+                this.handleOnUpdate(postDescription);
+              }}
+            />
+          ) : null}
         </KeyboardAwareScrollView>
       </View>
     );
@@ -630,7 +705,7 @@ const mapDispatchToProps = (dispatch) => {
       getComments,
       getUser,
       likePost,
-
+      updatePost,
       unlikePost,
     },
     dispatch

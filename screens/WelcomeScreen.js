@@ -8,7 +8,6 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import { PinchGestureHandler, State } from "react-native-gesture-handler";
 const WINDOW_WIDTH = Dimensions.get("window").width;
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const BASE_PADDING = 10;
@@ -57,7 +56,7 @@ class WelcomeScreen extends React.Component {
             width: Scale.moderateScale(200),
             height: Scale.moderateScale(80),
           }}
-          source={require("../assets/logoW.png")}
+          source={require("../assets/logo.png")}
         />
         <Text style={styles.label}>
           Welcome to our lllsuperlll social platform

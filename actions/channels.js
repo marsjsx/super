@@ -103,14 +103,14 @@ export const getChannelsPosts = (channelId) => {
           .where("channelId", "==", channelId)
           .orderBy("createdAt", "desc")
           .startAfter(lastFetchedPostDate)
-          .limit(10)
+          .limit(12)
           .get();
       } else {
         posts = await db
           .collection("channelposts")
           .where("channelId", "==", channelId)
           .orderBy("createdAt", "desc")
-          .limit(10)
+          .limit(12)
           .get();
       }
       var images = [];
@@ -147,7 +147,9 @@ export const getChannelsPosts = (channelId) => {
       var mergedArray = feed.concat(array);
       var uniquePosts = _.uniqBy(mergedArray, "id");
 
-      dispatch({ type: CHANNELPOSTS_SUCCESS, payload: uniquePosts });
+      const shuffled = uniquePosts.sort(() => Math.random() - 0.5);
+
+      dispatch({ type: CHANNELPOSTS_SUCCESS, payload: shuffled });
       // }
     } catch (e) {
       console.log(e.message, e);

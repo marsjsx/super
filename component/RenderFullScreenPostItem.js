@@ -22,6 +22,7 @@ import moment from "moment";
 import Icon from "react-native-vector-icons/Feather";
 import AvView from "../component/AvView";
 import ParsedText from "react-native-parsed-text";
+import FastImage from "react-native-fast-image";
 
 import GestureRecognizer, { swipeDirections } from "../component/swipeguesture";
 
@@ -439,13 +440,22 @@ const RenderFullScreenPostItem = (props) => {
                   placeHolder="none"
                   // style={styles.roundImage50}
                 /> */}
-                <Image
+                {/* <Image
                   style={{
                     height: Scale.moderateScale(130),
                     width: Scale.moderateScale(260),
                     // marginLeft: Scale.moderateScale(50),
                   }}
                   source={require("../assets/vans.png")}
+                  resizeMode="contain"
+                /> */}
+
+                <FastImage
+                  style={{
+                    height: Scale.moderateScale(130),
+                    width: Scale.moderateScale(260),
+                  }}
+                  source={{ uri: props.photo }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

@@ -226,18 +226,18 @@ export const uploadChannels = () => {
 export const uploadChannelPosts = () => {
   let channelsPost = [
     {
-      createdAt: 1618056755051,
+      createdAt: 1622211456941,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20CALL%20OF%20DUTY%20BLACK%20OPS%20COLD%20WAR%20Campaign%20Gameplay%20PS5%202020%20HD_480p.mp4?alt=media&token=c65388c2-c256-48e0-b83a-522b66b59383",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Vans%20Skateboarding%20Presents%20Alright%20Ok%20%20Skate%20%20VANS_480p.mp4?alt=media&token=95175ad7-2b78-4edb-a6b9-8d1c3a7f313d",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -246,18 +246,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755052,
+      createdAt: 1622211456942,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Hogwarts%20Legacy%20%20Official%20Reveal%20Trailer%20%20PS5_480p.mp4?alt=media&token=0f0b2d84-dac2-4479-b2e4-4b881d9d8f09",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Vans%20Europe%20Presents%20Going%20Nowhere%20%20Skate%20%20VANS_480p.mp4?alt=media&token=fdd14f59-b9ab-468d-921c-f8979ed0cd10",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -266,18 +266,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755053,
+      createdAt: 1622211456943,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20GoPro%20Mitchie%20Bruscos%20Road%20to%20X%20Games%20XVIII%20Episode%203_360p.mp4?alt=media&token=46ef6480-91b3-42f2-8424-5725687f424b",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Sonagi%20%20Skate%20%20Vans_480p.mp4?alt=media&token=902f0676-17d1-46bf-9f5a-3c5be9a31390",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -286,18 +286,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755054,
+      createdAt: 1622211456944,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20The%20Virtuix%20Omni%20Actually%20Lets%20You%20Run%20Around%20Video%20Games_360p.mp4?alt=media&token=efc20963-842a-4407-93a0-8a52751a2d7c",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Eye%20Of%20The%20Storm%20%20Skate%20%20VANS_480p.mp4?alt=media&token=56bd3b48-1ad1-47d6-ad39-00b0024cc88b",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -306,18 +306,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755055,
+      createdAt: 1622211456945,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Magnetic%20Accelerators%20%20Magnetic%20Games_480p.mp4?alt=media&token=fbeff034-4e6b-4325-b4b8-903fec406dd8",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Vans%20Cash%20Out%20%20Skate%20%20VANS_480p.mp4?alt=media&token=f5c2c274-8f05-4f45-a017-ca4bed212264",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -326,18 +326,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755056,
+      createdAt: 1622211456946,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20VR%20360%20Video%20of%20Top%205%20Roller%20Coaster%20Rides%204K%20Virtual%20Reality_360p.mp4?alt=media&token=d966500c-9b7a-4e49-afdb-df765accdbd6",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Vans%20China%20Presents%20CHENG%20%20Skate%20%20VANS_480p.mp4?alt=media&token=2a6928a1-f0d3-4fc8-85fd-52935c446778",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -346,18 +346,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755057,
+      createdAt: 1622211456947,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Marvels%20SpiderMan%20PS4%202017%20E3%20Gameplay_360p.mp4?alt=media&token=ff7a5e17-0d62-4695-b3a3-0b33d2955d8a",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Vans%20Skateboarding%20by%20Frog%20Skateboards%20%20Skate%20%20VANS_480p.mp4?alt=media&token=8528525a-0980-44d4-8da5-88e30dac3d9a",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -366,18 +366,18 @@ export const uploadChannelPosts = () => {
       likes: [],
     },
     {
-      createdAt: 1618056755058,
+      createdAt: 1622211456948,
       id: uuid.v4(),
       photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
       postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Gamers%20Are%20Awesome%20%20Episode%20110_360p.mp4?alt=media&token=e806383f-ef1a-4c4a-bc47-34d67797466d",
+        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Tony%20Hawk%20Pipedreams%20%20Skate%20%20VANS_480p.mp4?alt=media&token=7226fdbb-89c9-4be2-bb52-fc3a30a2e117",
       postDescription: "",
       postLocation: "",
       preview: "",
       type: "channel",
       uid: 8458745,
-      username: "red bull",
+      username: "vans",
       views: 0,
       type: "video",
       viewers: [],
@@ -385,53 +385,53 @@ export const uploadChannelPosts = () => {
       comments: [],
       likes: [],
     },
-    {
-      createdAt: 1618056755059,
-      id: uuid.v4(),
-      photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
-      postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20JELLY%20TRAPPED%20IN%20VIDEO%20GAMES%202_360p.mp4?alt=media&token=caaf2df3-2c78-4fbb-8a34-52044ed38ccb",
-      postDescription: "",
-      postLocation: "",
-      preview: "",
-      type: "channel",
-      uid: 8458745,
-      username: "red bull",
-      views: 0,
-      type: "video",
-      viewers: [],
-      reports: [],
-      comments: [],
-      likes: [],
-    },
-    {
-      createdAt: 1618056755060,
-      id: uuid.v4(),
-      photo:
-        "https://upload.wikimedia.org/wikipedia/commons/c/cb/World_Surf_League_Logo_2020.png",
-      postPhoto:
-        "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Best%20AWM%20and%20M82B%20OverPower%20Ajjubhai%20Gameplay%20with%20Jontybhai%20%20Garena%20Free%20Fire_360p.mp4?alt=media&token=9cf63c1b-86d8-4c71-9d41-f46303854635",
-      postDescription: "",
-      postLocation: "",
-      preview: "",
-      type: "channel",
-      uid: 8458745,
-      username: "red bull",
-      views: 0,
-      type: "video",
-      viewers: [],
-      reports: [],
-      comments: [],
-      likes: [],
-    },
+    // {
+    //   createdAt: 1622211456949,
+    //   id: uuid.v4(),
+    //   photo:
+    //     "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/logo.png?alt=media&token=a0cb39cb-b6af-435c-9b5a-a861979e2c46",
+    //   postPhoto:
+    //     "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Roberto%20Souzas%20Culture%20Part_480p.mp4?alt=media&token=fb630ac5-9e3f-4409-b7e8-8d4e74f6bea7",
+    //   postDescription: "",
+    //   postLocation: "",
+    //   preview: "",
+    //   type: "channel",
+    //   uid: 8458745,
+    //   username: "vans",
+    //   views: 0,
+    //   type: "video",
+    //   viewers: [],
+    //   reports: [],
+    //   comments: [],
+    //   likes: [],
+    // },
+    // {
+    //   createdAt: 1622211456940,
+    //   id: uuid.v4(),
+    //   photo:
+    //     "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/05FBB302-E4F5-47DC-9023-DEA44F3125B6.png?alt=media&token=3dc5d50b-606c-4f3e-ac67-cac794960f92",
+    //   postPhoto:
+    //     "https://firebasestorage.googleapis.com/v0/b/super-b71be.appspot.com/o/yt1s.com%20-%20Jorge%20Simoes%20Bones%20Part_480p.mp4?alt=media&token=d7d39ffa-7b8e-4d2d-b87a-443c08f7c0ee",
+    //   postDescription: "",
+    //   postLocation: "",
+    //   preview: "",
+    //   type: "channel",
+    //   uid: 758748530,
+    //   username: "thrasher",
+    //   views: 0,
+    //   type: "video",
+    //   viewers: [],
+    //   reports: [],
+    //   comments: [],
+    //   likes: [],
+    // },
   ];
 
   channelsPost.forEach((i) => {
     firestore()
       .collection("channelposts")
       .doc(i.id)
-      .set({ ...i, channelId: "75fb6aa2-3268-42ed-b694-7f07f80787865" })
+      .set({ ...i, channelId: "ed9baf8f-8a73-4da8-93cb-d62eba90d160" })
       .then((res) => {})
       .catch((e) => {});
   });

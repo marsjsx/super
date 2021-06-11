@@ -131,14 +131,18 @@ class Signup extends React.Component {
           }
           // this.props.getUser(user.uid, "LOGIN");
           if (this.props.user != null) {
-            this.props.navigation.goBack();
-            // this.props.navigation.navigate("Home");
-            // this.props.navigation.replace("Home");
-            this.props.navigation.replace("HomeScreen");
-
+            // this.props.navigation.goBack();
             // this.props.navigation.replace("HomeScreen");
+            // this.props.navigation.navigate("WelcomeScreen");
 
-            this.props.navigation.navigate("WelcomeScreen");
+            // this.props.navigation.popToTop();
+            // this.props.navigation.replace("HomeScreen");
+            // this.props.navigation.navigate("WelcomeScreen");
+
+            this.props.navigation.popToTop();
+            this.props.navigation.replace("HomeScreen", {
+              showWelcomeScreen: true,
+            });
           }
         }
       });
@@ -149,10 +153,18 @@ class Signup extends React.Component {
     const routeName = this.props.route.name;
 
     if (isNotEmpty("username", this.props.user.username)) {
-      if (this.state.loginMode === "email") {
+      if (this.props.user.accountType == "Brand") {
         if (!isPassValid(this.props.user.password)) {
           return;
         }
+
+        if (
+          !isEmailValid(this.props.user.email) ||
+          !isNotEmpty("Representative Name", this.props.user.representativeName)
+        ) {
+          return;
+        }
+
         this.setState({
           showLoading: true,
           loaderText: "Creating User, Please wait...",
@@ -168,18 +180,18 @@ class Signup extends React.Component {
 
           alert(e);
         }
-      } else if (this.state.loginMode === "phone") {
-        if (this.props.user.accountType == "Brand") {
-          if (
-            !isEmailValid(this.props.user.email) ||
-            !isNotEmpty(
-              "Representative Name",
-              this.props.user.representativeName
-            )
-          ) {
-            return;
-          }
-        }
+      } else if (this.props.user.accountType == "Personal") {
+        // if (this.props.user.accountType == "Brand") {
+        //   if (
+        //     !isEmailValid(this.props.user.email) ||
+        //     !isNotEmpty(
+        //       "Representative Name",
+        //       this.props.user.representativeName
+        //     )
+        //   ) {
+        //     return;
+        //   }
+        // }
 
         let phoneValidationError = validatePhoneNumber(this.state.phone);
 
@@ -311,7 +323,7 @@ class Signup extends React.Component {
             style={[
               styles.container,
               styles.center,
-              { backgroundColor: "#f8f8ff" },
+              { backgroundColor: "#f8f8ff", height: height },
             ]}
           >
             {/* <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}> */}
@@ -328,19 +340,18 @@ class Signup extends React.Component {
               <Text
                 style={{
                   color: constants.colors.titleColor,
-                  width: "80%",
-                  fontSize: Scale.moderateScale(40),
-                  ...constants.fonts.OswaldSemiBold,
+                  width: width - Scale.moderateScale(50),
+                  fontSize: Scale.moderateScale(28),
                 }}
               >
-                {`Welcome to Super.!✌`}
+                {`Welcome to Super ✌✌`}
               </Text>
 
               <View
                 style={{
                   flexDirection: "row",
-                  shadowOpacity: 0.4,
-                  // marginVertical: Scale.moderateScale(8),
+                  shadowOpacity: 0.1,
+                  marginVertical: Scale.moderateScale(20),
                 }}
               >
                 <TouchableOpacity
@@ -430,6 +441,21 @@ class Signup extends React.Component {
                 />
               )}
 
+              {this.props.user.accountType == "Brand" && (
+                <TextInputComponent
+                  container={{
+                    marginTop: Scale.moderateScale(16),
+                    padding: 0,
+                  }}
+                  textContainer={{ paddingHorizontal: 10 }}
+                  placeholder={"Password"}
+                  onChangeText={(input) => this.props.updatePassword(input)}
+                  value={this.props.user.password}
+                  autoCapitalize={false}
+                  secureTextEntry
+                />
+              )}
+
               <View
                 style={{
                   display: this.state.loginMode === "email" ? "flex" : "none",
@@ -447,8 +473,10 @@ class Signup extends React.Component {
 
               <View
                 style={{
-                  display: this.state.loginMode === "phone" ? "flex" : "none",
+                  // display: this.state.loginMode === "phone" ? "flex" : "none",
                   justifyContent: "center",
+                  display:
+                    this.props.user.accountType === "Brand" ? "none" : "flex",
                   marginTop: Scale.moderateScale(16),
                 }}
               >
@@ -579,6 +607,7 @@ class Signup extends React.Component {
                 containerStyle={{
                   width: Scale.moderateScale(250),
                   alignSelf: "center",
+                  marginTop: Scale.moderateScale(32),
                 }}
               />
               <TouchableOpacity
@@ -603,7 +632,7 @@ class Signup extends React.Component {
                   width: Scale.moderateScale(160),
                   alignSelf: "center",
                 }}
-                color={constants.colors.black}
+                color={constants.colors.superRed}
                 colors={[
                   constants.colors.transparent,
                   constants.colors.transparent,

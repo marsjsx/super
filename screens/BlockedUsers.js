@@ -7,7 +7,6 @@ import { showLoader } from "../util/Loader";
 import db from "../config/firebase";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
-import MyFollowers from "./Followers";
 import { getUser, getBlockedUser, unblockUser } from "../actions/user";
 import { followUser } from "../actions/user";
 import { showMessage, hideMessage } from "react-native-flash-message";

@@ -48,4 +48,6 @@ export default {
   chatBubbleText: "#494646",
   chatTimeText: "#a3a0a0",
   errorRed: "#ff0033",
+
+  appRed: "#F44336",
 };

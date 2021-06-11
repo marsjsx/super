@@ -771,7 +771,7 @@ class Profile extends React.Component {
                       />
                     )}
 
-                    {user.accountStatus === "approved" && (
+                    {/* {user.accountStatus === "approved" && (
                       <ButtonComponent
                         title={`Account Status: Approved`}
                         containerStyle={{
@@ -790,7 +790,7 @@ class Profile extends React.Component {
                           // marginHorizontal: Scale.moderateScale(0),
                         }}
                       />
-                    )}
+                    )} */}
                   </View>
                 )}
               </View>
@@ -838,11 +838,13 @@ class Profile extends React.Component {
                       <Text
                         style={{
                           fontWeight: "bold",
-                          fontSize: Scale.moderateScale(32),
+                          fontSize: Scale.moderateScale(23),
                           color: "rgb(255,255,255)",
                           shadowOpacity: 0.5,
+
                           // ...constants.fonts.FreightSansLight,
                         }}
+                        numberOfLines={1}
                       >
                         {user.username}
                       </Text>
@@ -1065,7 +1067,8 @@ class Profile extends React.Component {
       if (!this.props.user.uid) {
         return (
           <EmptyView1
-            title={`No ads.\nNo bs.\nJust real people\nsharing rad posts! \n⚡⚡⚡`}
+            // title={`No ads.\nNo bs.\nJust real people\nsharing rad posts! \n⚡⚡⚡`}
+            title={`Rad vibes, good times ⚡`}
             button="Signup"
             textButton="Create account"
             image={require("../assets/logoH.png")}
@@ -1073,7 +1076,7 @@ class Profile extends React.Component {
             imageStyle={{
               width: Scale.moderateScale(150),
               height: Scale.moderateScale(150),
-              marginLeft: Scale.moderateScale(-35),
+              marginLeft: Scale.moderateScale(-30),
               marginBottom: Scale.moderateScale(-15),
             }}
             navigation={this.props.navigation}
@@ -1118,7 +1121,12 @@ class Profile extends React.Component {
           horizontal={false}
           numColumns={3}
           data={userblocked ? [] : user.posts}
-          ListEmptyComponent={<EmptyView title="No Posts Found" />}
+          ListEmptyComponent={
+            <EmptyView
+              title="Make your first post !"
+              titleStyle={{ color: constants.colors.superRed }}
+            />
+          }
           ListHeaderComponent={this.searchUserHeaderComponent(
             user,
             routeName,

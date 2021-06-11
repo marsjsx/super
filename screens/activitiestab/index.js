@@ -43,6 +43,22 @@ class ActivitiesTab extends React.Component {
   async changeSelectedTab(position) {
     this.setState({ selectedTab: position });
   }
+
+  getUnSeenMessageCount() {
+    let unseenMessageCount = 0;
+    if (this.props.messages.length) {
+      this.props.messages.forEach((element) => {
+        element.chats.forEach((item) => {
+          if (!item.seenBy[this.props.user.uid]) {
+            unseenMessageCount++;
+          }
+        });
+      });
+    }
+
+    return unseenMessageCount;
+  }
+
   render() {
     if (this.state.showLoading) return showLoader("Loading, Please wait... ");
     if (!this.props.user.uid) {
@@ -73,14 +89,19 @@ class ActivitiesTab extends React.Component {
             // bottom: height * 0.3,
           }}
         >
-          <View style={{ flexDirection: "row", flex: 1 }}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 1,
+            }}
+          >
+            {/* <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Ionicons
                 style={[styles.icon, { marginHorizontal: 20, color: "#000" }]}
                 name={"ios-arrow-back"}
                 size={30}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={[
                 this.state.selectedTab == 0 ? styles.bottomwhiteborder : null,
@@ -131,7 +152,11 @@ class ActivitiesTab extends React.Component {
                   },
                 ]}
               >
-                Inbox
+                {`Inbox ${
+                  this.getUnSeenMessageCount()
+                    ? this.getUnSeenMessageCount()
+                    : ""
+                }`}
               </Text>
             </TouchableOpacity>
           </View>
@@ -196,6 +221,7 @@ const mapStateToProps = (state) => {
     user: state.user,
     post: state.post,
     activity: state.activity,
+    messages: state.messages,
   };
 };
 

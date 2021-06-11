@@ -623,6 +623,8 @@ PODS:
     - React-Core
   - react-native-cameraroll (1.8.1):
     - React
+  - react-native-contacts (7.0.0):
+    - React-Core
   - react-native-fbsdk (1.1.2):
     - React
     - react-native-fbsdk/Core (= 1.1.2)
@@ -820,6 +822,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
+  - react-native-contacts (from `../node_modules/react-native-contacts`)
   - react-native-fbsdk (from `../node_modules/react-native-fbsdk`)
   - "react-native-image-editor (from `../node_modules/@react-native-community/image-editor`)"
   - react-native-image-filter-kit (from `../node_modules/react-native-image-filter-kit`)
@@ -989,6 +992,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-cameraroll:
     :path: "../node_modules/@react-native-community/cameraroll"
+  react-native-contacts:
+    :path: "../node_modules/react-native-contacts"
   react-native-fbsdk:
     :path: "../node_modules/react-native-fbsdk"
   react-native-image-editor:
@@ -1164,6 +1169,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 68bc0c37d11df806570bfe53e8d7561bd984cb76
   react-native-cameraroll: 3e8adeb9ebf054c75054bf2b9cbbd53cd188c05d
+  react-native-contacts: 493b583e87eb9cb1ab09268e89e526baf1a7cb30
   react-native-fbsdk: c35d42169e64aaf66f01713c1e18d0674f7f6519
   react-native-image-editor: bd67912f38a8e7a895bf6eb8f445acdcefd8fd0c
   react-native-image-filter-kit: 2047cc603ee1b0e506a7b569ce174a7de6a5db15
@@ -1221,6 +1227,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: 4e6c4c34a89512e2225d336154df1cb689226a29
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 2c0be61075f39ea0f7cf805c6287f670dd32c094
+PODFILE CHECKSUM: 1533f05d89ec17900bd83bcdad95602436cd5ca0
 
 COCOAPODS: 1.10.1

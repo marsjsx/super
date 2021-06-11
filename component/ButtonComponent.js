@@ -43,12 +43,15 @@ const ButtonComponent = (props) => {
             <Text
               style={[
                 styles.textStyle,
-                { color: props.color },
+                {
+                  color: props.color,
+                },
                 props.textStyle,
               ]}
             >
               {props.title}
             </Text>
+            {props.rightComponent}
           </>
         )}
       </LinearGradient>

@@ -19,11 +19,11 @@ import {
 } from "../actions/message";
 import { bindActionCreators } from "redux";
 import { orderBy } from "lodash";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Composer } from "react-native-gifted-chat";
 import { Container, Content, Badge, Icon } from "native-base";
 import { showLoader } from "../util/Loader";
-
+import constants from "../constants";
+import Scale from "../helpers/Scale";
 import {
   getLocationAsync,
   pickImageAsync,
@@ -47,7 +47,7 @@ import messagesData from "../data/messages";
 import earlierMessages from "../data/earlierMessages";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import EmptyView from "../component/emptyview";
-
+import { MaterialCommunityIcons, FontAwesome } from "react-native-vector-icons";
 const styles = StyleSheet.create({
   container: { flex: 1 },
 });
@@ -249,7 +249,33 @@ class Chat extends React.Component {
         {/* Will add Audio And Video In Future  */}
         {/* {this.renderMessageVideo(props)} */}
 
-        <Bubble {...props} />
+        <Bubble
+          {...props}
+          style={{ margintop: 24 }}
+          wrapperStyle={{
+            right: {
+              backgroundColor: "#F44336",
+              marginVertical: 4,
+            },
+            left: {
+              backgroundColor: "#F5F5F5",
+              marginVertical: 4,
+            },
+          }}
+          textStyle={{
+            right: {
+              fontSize: Scale.verticalScale(12),
+            },
+            left: {
+              fontSize: Scale.verticalScale(12),
+              color: "#616161",
+            },
+          }}
+          timeTextStyle={{
+            left: { color: "#616161" },
+            right: { color: "#fff" },
+          }}
+        />
       </View>
     );
   };
@@ -360,6 +386,10 @@ class Chat extends React.Component {
         style={{
           flexDirection: "row",
           alignItems: "center",
+          backgroundColor: "#F5F5F5",
+          borderRadius: 25,
+          marginHorizontal: 8,
+          paddingTop: 8,
         }}
       >
         {/* <TouchableOpacity
@@ -374,29 +404,41 @@ class Chat extends React.Component {
         </TouchableOpacity> */}
         <View
           style={{
-            borderColor: "#BDBDBD",
-            borderWidth: 1,
             flex: 1,
             flexDirection: "row",
             marginHorizontal: 5,
-            borderRadius: 25,
             justifyContent: "center",
           }}
         >
-          <Composer textInputStyle={{ flex: 1 }} {...props} />
+          <Composer
+            textInputStyle={{
+              flex: 1,
+              marginTop: 4,
+            }}
+            {...props}
+          />
 
           <TouchableOpacity
-            style={{ margin: 1 }}
+            style={{
+              margin: 1,
+              backgroundColor: "#F44336",
+              width: Scale.moderateScale(40),
+              height: Scale.moderateScale(40),
+              borderRadius: Scale.moderateScale(20),
+              justifyContent: "center",
+              alignItems: "center",
+            }}
             onPress={() => {
               if (props.text.trim().length > 0) {
                 props.onSend({ text: props.text.trim() }, true);
               }
             }}
           >
-            <MaterialCommunityIcons
-              size={34}
-              color="#00C853"
-              name="arrow-up-circle"
+            <FontAwesome
+              size={18}
+              color="#fff"
+              name="paper-plane"
+              style={{ marginLeft: Scale.moderateScale(-4) }}
             />
           </TouchableOpacity>
         </View>
@@ -497,10 +539,11 @@ class Chat extends React.Component {
           renderCustomView={this.renderCustomView}
           timeTextStyle={{
             left: { color: "red" },
-            right: { color: "yellow" },
+            right: { color: "#fff" },
           }}
           isTyping={this.state.isTyping}
           onLongPress={this.onLongPress}
+          placeholder="Type message here..."
         />
         {/* 
         <Modal

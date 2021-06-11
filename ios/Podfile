@@ -85,4 +85,6 @@ target 'BareSuper' do
 
   pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
 
+  pod 'react-native-contacts', :path => '../node_modules/react-native-contacts' 
+
 end

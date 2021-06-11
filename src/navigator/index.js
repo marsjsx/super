@@ -16,6 +16,9 @@ import Login from "../../screens/login";
 import EditProfile from "../../screens/editprofile";
 import SignupScreen from "../../screens/signup";
 import HomeScreen from "../../screens/Home";
+import FindFriends from "../../screens/findfriends";
+import MyContacts from "../../screens/mycontacts";
+
 import PostReportScreen from "../../screens/PostReports";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import SearchScreen from "../../screens/Search";
@@ -170,10 +173,43 @@ function HomeNavigator({ navigation, route }) {
         component={Splash}
         options={{ headerShown: false }}
       /> */}
+
       <HomeStack.Screen
         name="HomeScreen"
         component={HomeScreen}
         options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="FindFriends"
+        component={FindFriends}
+        options={({ navigation, route }) => ({
+          title: "Find your friends",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name="MyContacts"
+        component={MyContacts}
+        options={({ navigation, route }) => ({
+          title: "All Contacts",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <HomeStack.Screen
         name="FullScreenImage"
@@ -569,6 +605,7 @@ function SearchNavigator({ navigation, route }) {
                 {
                   width: 150,
                   height: 55,
+                  transform: [{ scale: 0.6 }],
                   // transform: [{ rotate: "90deg" }],
                 },
               ]}
@@ -894,6 +931,24 @@ function ActivityNavigator({ navigation, route }) {
           title: "Activities",
         })}
       /> */}
+
+      <HomeStack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ navigation, route }) => ({
+          title: route.params.title,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+
       <AuthStack.Screen
         name="Reset"
         component={Reset}
@@ -1011,14 +1066,12 @@ function ActivityNavigator({ navigation, route }) {
         component={LikersAndViewers}
         options={({ navigation, route }) => ({
           title: route.params.title,
-          headerTransparent: true,
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
                 style={[styles.icon, { marginLeft: 20 }]}
-                name={"ios-close"}
-                size={40}
-                color="white"
+                name={"ios-arrow-back"}
+                size={30}
               />
             </TouchableOpacity>
           ),
@@ -1116,14 +1169,12 @@ function ProfileNavigator({ navigation, route }) {
         component={LikersAndViewers}
         options={({ navigation, route }) => ({
           title: route.params.title,
-          headerTransparent: true,
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons
                 style={[styles.icon, { marginLeft: 20 }]}
-                name={"ios-close"}
-                size={40}
-                color="white"
+                name={"ios-arrow-back"}
+                size={30}
               />
             </TouchableOpacity>
           ),

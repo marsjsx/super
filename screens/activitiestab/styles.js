@@ -3,7 +3,7 @@ import Scale from "../../helpers/Scale";
 
 export const styles = {
   activeLabel: {
-    fontWeight: "bold",
+    // fontWeight: "bold",
     padding: 5,
     color: "#db565b",
     fontSize: Scale.moderateScale(24),

@@ -7,7 +7,6 @@ import { showLoader } from "../util/Loader";
 import db from "../config/firebase";
 import ProgressiveImage from "../component/ProgressiveImage";
 import EmptyView from "../component/emptyview";
-import MyFollowers from "./Followers";
 import { getUser } from "../actions/user";
 import { followUser } from "../actions/user";
 import { showMessage, hideMessage } from "react-native-flash-message";
@@ -208,7 +207,7 @@ class LikersAndViewers extends React.Component {
           <TouchableOpacity
             style={{
               marginRight: 12,
-              backgroundColor: "#4169e1",
+              backgroundColor: "#F44336",
               width: 90,
               borderRadius: 5,
             }}
@@ -228,13 +227,14 @@ class LikersAndViewers extends React.Component {
           <TouchableOpacity
             style={{
               marginRight: 12,
-              borderWidth: 0.5,
               width: 90,
               borderRadius: 5,
-              borderColor: "black",
+              backgroundColor: "#FCE4EC",
             }}
           >
-            <Text style={{ padding: 6, textAlign: "center" }}>Following</Text>
+            <Text style={{ padding: 6, textAlign: "center", color: "#F44336" }}>
+              Following
+            </Text>
           </TouchableOpacity>
         )}
         {/* {flow && flow === "Views" && (

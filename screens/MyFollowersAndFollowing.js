@@ -13,13 +13,14 @@ import {
   Tab,
   Tabs,
 } from "native-base";
-import MyFollowers from "./Followers";
-import MyFollowings from "./Followers";
+import MyFollowers from "./follower";
+import MyFollowings from "./follower";
 import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import { getMessages } from "../actions/message";
 import moment from "moment";
 import { groupBy, values } from "lodash";
 import db from "../config/firebase";
+import constants from "../constants";
 
 class MyFollowersAndFollowing extends React.Component {
   constructor(props) {
@@ -159,7 +160,7 @@ class MyFollowersAndFollowing extends React.Component {
     // alert(JSON.stringify(user.myFollowings));
     return (
       <Container>
-        <Header hasTabs>
+        <Header transparent>
           <Body
             style={{
               alignItems: "center",
@@ -168,8 +169,16 @@ class MyFollowersAndFollowing extends React.Component {
             {/* <Title>{userProfile.username}</Title> */}
           </Body>
         </Header>
-        <Tabs initialPage={initialTabPosition}>
-          <Tab heading={`${this.getCount(userProfile.followers)} Followers`}>
+        <Tabs
+          initialPage={initialTabPosition}
+          tabBarUnderlineStyle={{
+            backgroundColor: "#F44336",
+          }}
+        >
+          <Tab
+            heading={`${this.getCount(userProfile.followers)} Followers`}
+            activeTextStyle={{ color: "#F44336" }}
+          >
             <MyFollowers
               // data={userProfile.myFollowers}
               data={this.state.followers}
@@ -178,7 +187,10 @@ class MyFollowersAndFollowing extends React.Component {
               onLoadMore={() => this.onLoadMore("followers")}
             />
           </Tab>
-          <Tab heading={`${this.getCount(userProfile.following)} Following`}>
+          <Tab
+            heading={`${this.getCount(userProfile.following)} Following`}
+            activeTextStyle={{ color: "#F44336" }}
+          >
             <MyFollowings
               // data={userProfile.myFollowings}
               data={this.state.following}

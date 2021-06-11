@@ -29,6 +29,36 @@ import ImageCropper from "react-native-simple-image-cropper";
 import ImageRotate from "react-native-image-rotate";
 import { MaterialIcons } from "@expo/vector-icons";
 import ImageFilters from "../component/ImageFilters";
+import constants from "../constants";
+
+import {
+  AdenCompat,
+  _1977Compat,
+  BrannanCompat,
+  BrooklynCompat,
+  ClarendonCompat,
+  EarlybirdCompat,
+  GinghamCompat,
+  HudsonCompat,
+  InkwellCompat,
+  KelvinCompat,
+  LarkCompat,
+  LofiCompat,
+  MavenCompat,
+  MayfairCompat,
+  MoonCompat,
+  NashvilleCompat,
+  PerpetuaCompat,
+  ReyesCompat,
+  RiseCompat,
+  SlumberCompat,
+  StinsonCompat,
+  ToasterCompat,
+  ValenciaCompat,
+  WaldenCompat,
+  WillowCompat,
+  Xpro2Compat,
+} from "react-native-image-filter-kit";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -62,6 +92,117 @@ const filters = [
   "duotone",
   "colortone",
   "browni",
+];
+
+const FILTERS1 = [
+  {
+    title: "Normal",
+    filterComponent: AdenCompat,
+  },
+  // {
+  //   title: "Maven",
+  //   filterComponent: MavenCompat,
+  // },
+  // {
+  //   title: "Mayfair",
+  //   filterComponent: MayfairCompat,
+  // },
+  // {
+  //   title: "Moon",
+  //   filterComponent: MoonCompat,
+  // },
+  // {
+  //   title: "Nashville",
+  //   filterComponent: NashvilleCompat,
+  // },
+  // {
+  //   title: "Perpetua",
+  //   filterComponent: PerpetuaCompat,
+  // },
+  // {
+  //   title: "Reyes",
+  //   filterComponent: ReyesCompat,
+  // },
+  // {
+  //   title: "Rise",
+  //   filterComponent: RiseCompat,
+  // },
+  // {
+  //   title: "Slumber",
+  //   filterComponent: SlumberCompat,
+  // },
+  // {
+  //   title: "Stinson",
+  //   filterComponent: StinsonCompat,
+  // },
+  // {
+  //   title: "Brooklyn",
+  //   filterComponent: BrooklynCompat,
+  // },
+  // {
+  //   title: "Earlybird",
+  //   filterComponent: EarlybirdCompat,
+  // },
+  {
+    title: "Clarendon",
+    filterComponent: ClarendonCompat,
+  },
+  // {
+  //   title: "Gingham",
+  //   filterComponent: GinghamCompat,
+  // },
+  // {
+  //   title: "Hudson",
+  //   filterComponent: HudsonCompat,
+  // },
+  {
+    title: "Inkwell",
+    filterComponent: InkwellCompat,
+  },
+  {
+    title: "Kelvin",
+    filterComponent: KelvinCompat,
+  },
+  // {
+  //   title: "Lark",
+  //   filterComponent: LarkCompat,
+  // },
+  {
+    title: "Lofi",
+    filterComponent: LofiCompat,
+  },
+  {
+    title: "Toaster",
+    filterComponent: ToasterCompat,
+  },
+  // {
+  //   title: "Valencia",
+  //   filterComponent: ValenciaCompat,
+  // },
+  // {
+  //   title: "Walden",
+  //   filterComponent: WaldenCompat,
+  // },
+  // {
+  //   title: "Willow",
+  //   filterComponent: WillowCompat,
+  // },
+  {
+    title: "Xpro2",
+    filterComponent: Xpro2Compat,
+  },
+  // {
+  //   title: "Aden",
+  //   filterComponent: AdenCompat,
+  // },
+  {
+    title: "_1977",
+    filterComponent: _1977Compat,
+  },
+  {
+    title: "Brannan",
+    filterComponent: BrannanCompat,
+  },
 ];
 class CropperPage extends React.Component {
   state = {
@@ -102,8 +243,25 @@ class CropperPage extends React.Component {
 
     this.setState({ uri: uri, filteredImage: uri });
     // this.setState({ uri: uri });
-
     this.loadImage(0);
+  }
+  loadImage(index) {
+    if (index < 9) {
+      setTimeout(
+        () => {
+          // this.setState({ loading: false });
+          var stateFilters = this.state.filters;
+          stateFilters.push(FILTERS1[index]);
+          stateFilters.push(FILTERS1[index + 1]);
+          stateFilters.push(FILTERS1[index + 2]);
+          this.setState({ filters: stateFilters });
+          var number = index + 3;
+          this.loadImage(number);
+          // this.setState({ loading: false });
+        },
+        index === 0 ? 0 : 1000
+      );
+    }
   }
   setCropperParams = (cropperParams) => {
     this.setState((prevState) => ({
@@ -111,34 +269,7 @@ class CropperPage extends React.Component {
       cropperParams,
     }));
   };
-  loadImage(index) {
-    if (index < 18) {
-      if (index === 0) {
-        var stateFilters = this.state.filters;
-        stateFilters.push(filters[index]);
-        stateFilters.push(filters[index + 1]);
-        stateFilters.push(filters[index + 2]);
-        this.setState({ filters: stateFilters });
-        index = index + 3;
-        // this.loadImage(number);
-      }
 
-      // else{
-
-      // }
-      setTimeout(() => {
-        // this.setState({ loading: false });
-        var stateFilters = this.state.filters;
-        stateFilters.push(filters[index]);
-        stateFilters.push(filters[index + 1]);
-        stateFilters.push(filters[index + 2]);
-        this.setState({ filters: stateFilters });
-        var number = index + 3;
-        this.loadImage(number);
-        // this.setState({ loading: false });
-      }, 700);
-    }
-  }
   handlePress = async () => {
     const { photo, ...props } = this.props;
     // const { width, height, uri, type } = photo;
@@ -324,29 +455,112 @@ class CropperPage extends React.Component {
 
     return buttons;
   }
+  onExtractImage = ({ nativeEvent }) => {
+    // extractedUri.current = nativeEvent.uri;
+    this.setState({ filteredImage: nativeEvent.uri });
+  };
+  onSelectFilter = (selectedIndex) => {
+    // setIndex(selectedIndex);
 
+    if (selectedIndex === 0) {
+      this.setState({ filteredImage: this.state.uri, index: selectedIndex });
+    } else {
+      this.setState({ index: selectedIndex });
+    }
+  };
+  renderFilterComponent = ({ item, index }) => {
+    const FilterComponent = item.filterComponent;
+    const image = (
+      <Image
+        style={{
+          width: Scale.moderateScale(85),
+          height: Scale.moderateScale(85),
+          marginRight: 5,
+        }}
+        source={{ uri: this.state.uri }}
+        resizeMode={"cover"}
+      />
+    );
+    return (
+      <TouchableOpacity onPress={() => this.onSelectFilter(index)}>
+        <FilterComponent image={image} />
+        <Text
+          style={[
+            {
+              color: index === this.state.index ? "dodgerblue" : "black",
+              textAlign: "center",
+            },
+          ]}
+        >
+          {item.title}
+        </Text>
+
+        {/* <Image
+          style={{
+            width: Scale.moderateScale(85),
+            height: Scale.moderateScale(85),
+            marginRight: 5,
+          }}
+          source={{ uri: this.state.uri }}
+          resizeMode={"cover"}
+        /> */}
+      </TouchableOpacity>
+    );
+  };
   render() {
     // const { croppedImage } = this.state;
     // const src = { uri: croppedImage };
     // const { photo, ...props } = this.props;
-
+    const SelectedFilterComponent = FILTERS1[this.state.index].filterComponent;
     // const { width, height, uri, type } = photo;
     return (
-      <View style={{ height: "100%" }}>
-        {/* {!croppedImage && ( */}
-        <ImageCropper
-          imageUri={this.state.filteredImage}
-          cropAreaWidth={CROP_AREA_WIDTH}
-          cropAreaHeight={CROP_AREA_HEIGHT}
-          containerColor="black"
-          areaColor="black"
-          setCropperParams={this.setCropperParams}
-        />
+      <View>
+        {this.state.index === 0 ? (
+          <Image
+            style={[
+              {
+                height: height,
+                width: width,
+                backgroundColor: "#000000",
+              },
+            ]}
+            source={{ uri: this.state.uri }}
+            resizeMode={"cover"}
+          />
+        ) : (
+          <SelectedFilterComponent
+            onExtractImage={this.onExtractImage}
+            extractImageEnabled={true}
+            image={
+              <Image
+                style={[
+                  {
+                    height: height,
+                    width: width,
+                    backgroundColor: "#000000",
+                  },
+                ]}
+                source={{ uri: this.state.uri }}
+                resizeMode={"cover"}
+              />
+            }
+          />
+        )}
+        <View style={{ height: "100%", width: "100%", position: "absolute" }}>
+          {/* {!croppedImage && ( */}
+          <ImageCropper
+            imageUri={this.state.filteredImage}
+            cropAreaWidth={width}
+            cropAreaHeight={height}
+            containerColor="transparent"
+            areaColor="transparent"
+            setCropperParams={this.setCropperParams}
+          />
 
-        {/* {this.renderGrids()} */}
-        {this.renderButtons()}
+          {/* {this.renderGrids()} */}
+          {this.renderButtons()}
 
-        <FlatList
+          {/* <FlatList
           style={{ position: "absolute", bottom: 0 }}
           horizontal={true}
           keyExtractor={(item) => JSON.stringify(item.name)}
@@ -402,34 +616,43 @@ class CropperPage extends React.Component {
           onChange={(index) => {
             // this.setState({ index: index });
           }}
-        />
+        /> */}
 
-        <TouchableOpacity
-          style={{
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            borderRadius: Scale.moderateScale(5),
-            padding: Scale.moderateScale(5),
-            position: "absolute",
-            top: height / 2 - 20,
-            right: 10,
-          }}
-          onPress={() => this.rotate(90)}
-        >
-          <MaterialIcons
-            style={{
-              margin: 0,
-              color: "rgb(255,255,255)",
-            }}
-            name="rotate-right"
-            size={24}
+          <FlatList
+            style={{ position: "absolute", bottom: 0 }}
+            data={this.state.filters}
+            keyExtractor={(item) => item.title}
+            horizontal={true}
+            renderItem={this.renderFilterComponent}
           />
-          {/* <Text style={styles.buttonText}>{"Rotate"}</Text> */}
-        </TouchableOpacity>
-        {/* <Image
+
+          <TouchableOpacity
+            style={{
+              backgroundColor: "rgba(0,0,0,0.5)",
+              justifyContent: "center",
+              borderRadius: Scale.moderateScale(5),
+              padding: Scale.moderateScale(5),
+              position: "absolute",
+              top: height / 2 - 20,
+              right: 10,
+            }}
+            onPress={() => this.rotate(90)}
+          >
+            <MaterialIcons
+              style={{
+                margin: 0,
+                color: "rgb(255,255,255)",
+              }}
+              name="rotate-right"
+              size={24}
+            />
+            {/* <Text style={styles.buttonText}>{"Rotate"}</Text> */}
+          </TouchableOpacity>
+          {/* <Image
           style={{ height: 200, width: 200, position: "absolute", top: 100 }}
           source={{ uri: this.state.filteredImage }}
         /> */}
+        </View>
       </View>
     );
   }

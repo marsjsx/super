@@ -105,8 +105,9 @@ const styles = StyleSheet.create({
   styleSelectedText: {
     fontSize: Scale.moderateScale(12),
     padding: Scale.moderateScale(5),
-    color: constants.colors.primary,
+    color: constants.colors.black,
     marginTop: Scale.moderateScale(5),
+    fontWeight: "700",
   },
   inputStyle: {
     ...constants.fonts.PoppinsRegular,

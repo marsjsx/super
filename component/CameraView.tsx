@@ -25,15 +25,16 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { updatePhoto, createAndUpdatePreview } from "../actions/post";
 import * as Permissions from "expo-permissions";
 import constants from "../constants";
-
+import EmptyView from "../component/emptyview";
 import { colors } from "../util/theme";
 import { Toast } from "native-base";
 
+let recordingCancelled = false;
 class CameraView extends Component {
   constructor(props: any) {
     super(props);
     this.camera = null;
-
+    this.sheetRef = {};
     this.state = {
       camera: {
         //captureTarget: RNCamera.Constants.CaptureTarget.cameraRoll,
@@ -70,6 +71,11 @@ class CameraView extends Component {
           const d = new Date();
           var timestamp = d.getTime();
 
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+
           this.props.dispatch(updatePhoto(data));
 
           this.props.navigation.navigate("PostDetail");
@@ -95,7 +101,7 @@ class CameraView extends Component {
     } else if (this.state.camera.type === front) {
       newType = back;
     }
-
+    recordingCancelled = true;
     this.setState({
       camera: {
         ...this.state.camera,
@@ -221,18 +227,32 @@ class CameraView extends Component {
   startVideoRecording() {
     if (this.camera) {
       this.startTimer();
+      recordingCancelled = false;
       this.camera
         .recordAsync({
           maxDuration: 59,
           quality: RNCamera.Constants.VideoQuality["480p"],
         })
         .then((data: any) => {
+          if (recordingCancelled) {
+            this.setState({
+              isRecording: false,
+            });
+            this.clearTimer();
+            return;
+          }
+
           let selectedfile = {};
           selectedfile.uri = data.uri;
           selectedfile.type = "video";
 
           selectedfile.duration = this.state.duration * 1000;
           this.clearTimer();
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+
           this.props.dispatch(updatePhoto(selectedfile));
           this.props.navigation.navigate("PostDetail");
         })
@@ -265,6 +285,11 @@ class CameraView extends Component {
 
   onNext() {
     if (this.state.cameraImagePath) {
+      if (!this.props.user.uid) {
+        this.sheetRef.openSheet();
+        return;
+      }
+
       this.props.dispatch(updatePhoto(this.state.cameraImagePath));
       //   this.props.navigation.goBack();
 
@@ -299,6 +324,10 @@ class CameraView extends Component {
   }
 
   clearTimer() {
+    if (this.state.timer) {
+      this.stopTimer();
+    }
+
     this.setState({
       timer: null,
       duration: "00",
@@ -322,7 +351,10 @@ class CameraView extends Component {
         if (type === "vr") {
           selectedFile.type = "vr";
         }
-
+        if (!this.props.user.uid) {
+          this.sheetRef.openSheet();
+          return;
+        }
         this.props.dispatch(updatePhoto(selectedFile));
         this.props.navigation.navigate("PostDetail");
       }
@@ -336,6 +368,11 @@ class CameraView extends Component {
       var selectedFile = { ...image };
       selectedFile.type = "vr";
       selectedFile.uri = image.path;
+      if (!this.props.user.uid) {
+        this.sheetRef.openSheet();
+        return;
+      }
+
       this.props.dispatch(updatePhoto(selectedFile));
       this.props.navigation.navigate("PostDetail");
     });
@@ -452,65 +489,69 @@ class CameraView extends Component {
 
         <View style={[styles.bottomOverlay]}>
           <View style={styles.buttonOverlay}>
-            {/* <View
-                style={{
-                  flexDirection: "row",
-                  marginVertical: 8,
+            <View
+              style={{
+                flexDirection: "row",
+                marginVertical: 8,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({ imageSourceType: 0 });
+
+                  if (this.state.isRecording) {
+                    recordingCancelled = true;
+                    this.stopRecording();
+                  }
                 }}
               >
-                <TouchableOpacity
-                  onPress={() => this.setState({ imageSourceType: 0 })}
-                >
-                  <Text
-                    style={{
-                      color:
-                        this.state.imageSourceType == 0 ? "orange" : "white",
-                      marginHorizontal: 10,
-                      padding: 5,
-                    }}
-                  >
-                    PHOTO
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={async () => {
-                    if (await this.hasiOSMicroPhonePermission()) {
-                      this.setState({ imageSourceType: 1 });
-                    } else {
-                      openSettingsDialog(
-                        "Failed to record audio, Please go to the Settings to enable recording audio",
-                        this.props.navigation
-                      );
-                    }
+                <Text
+                  style={{
+                    color: this.state.imageSourceType == 0 ? "orange" : "white",
+                    marginHorizontal: 10,
+                    padding: 5,
                   }}
                 >
-                  <Text
-                    style={{
-                      color:
-                        this.state.imageSourceType == 1 ? "orange" : "white",
-                      marginHorizontal: 10,
-                      padding: 5,
-                    }}
-                  >
-                    VIDEO
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  // onPress={() => this.setState({ imageSourceType: 2 })}
-                  onPress={() => this.openLibrary("vr")}
+                  PHOTO
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={async () => {
+                  if (await this.hasiOSMicroPhonePermission()) {
+                    this.setState({ imageSourceType: 1 });
+                  } else {
+                    openSettingsDialog(
+                      "Failed to record audio, Please go to the Settings to enable recording audio",
+                      this.props.navigation
+                    );
+                  }
+                }}
+              >
+                <Text
+                  style={{
+                    color: this.state.imageSourceType == 1 ? "orange" : "white",
+                    marginHorizontal: 10,
+                    padding: 5,
+                  }}
                 >
-                  <Text
-                    style={{
-                      color:
-                        this.state.imageSourceType == 2 ? "orange" : "white",
-                      marginHorizontal: 10,
-                      padding: 5,
-                    }}
-                  >
-                    360
-                  </Text>
-                </TouchableOpacity>
-              </View> */}
+                  VIDEO
+                </Text>
+              </TouchableOpacity>
+              {/* <TouchableOpacity
+                // onPress={() => this.setState({ imageSourceType: 2 })}
+                onPress={() => this.openLibrary("vr")}
+              >
+                <Text
+                  style={{
+                    color: this.state.imageSourceType == 2 ? "orange" : "white",
+                    marginHorizontal: 10,
+                    padding: 5,
+                  }}
+                >
+                  360
+                </Text>
+              </TouchableOpacity> */}
+            </View>
             <View
               style={{
                 flexDirection: "row",
@@ -518,7 +559,6 @@ class CameraView extends Component {
                 alignItems: "center",
                 alignContent: "center",
                 marginBottom: 30,
-                // backgroundColor: "red",
                 marginTop: 10,
                 justifyContent: "space-around",
               }}
@@ -531,7 +571,7 @@ class CameraView extends Component {
               >
                 <Entypo name="images" style={{ color: "#fff", fontSize: 40 }} />
               </TouchableOpacity>
-              <TouchableHighlight
+              {/* <TouchableHighlight
                 // style={styles.captureButton}
                 onPressOut={() => this.onRelease()}
                 onLongPress={() => this.onHold()}
@@ -552,7 +592,47 @@ class CameraView extends Component {
                     ? this.printChronometer(this.state.duration)
                     : ""}
                 </Text>
-              </TouchableHighlight>
+              </TouchableHighlight> */}
+
+              {this.state.imageSourceType == 0 ? (
+                <TouchableOpacity
+                  style={styles.btnNormal}
+                  onPress={this.takePicture}
+                >
+                  {/* <View style={styles.outerCircle}>
+                    <View style={styles.innerCircle}></View>
+                  </View> */}
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    this.toggleRecording();
+                  }}
+                >
+                  <Ionicons
+                    style={{}}
+                    name={
+                      this.state.isRecording
+                        ? "ios-square"
+                        : "ios-radio-button-on"
+                    }
+                    size={94}
+                    color="red"
+                  />
+                  <Text
+                    style={{
+                      color: "white",
+                      position: "absolute",
+                    }}
+                  >
+                    {this.printChronometer(this.state.duration)}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={{
@@ -580,6 +660,14 @@ class CameraView extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <View style={{ height: 0 }}>
+          <EmptyView
+            ref={(ref) => {
+              this.sheetRef = ref;
+            }}
+            navigation={this.props.navigation}
+          />
+        </View>
         {this.state.showLoading ? showLoader("Please wait... ") : null}
         {this.renderCamera(this.state.permissionsGranted)}
       </View>
@@ -591,7 +679,9 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    user: state.user,
+  };
 };
 
 export default connect(mapStateToProps)(CameraView);
@@ -713,8 +803,6 @@ const styles = StyleSheet.create({
     marginVertical: 11,
     height: 80,
     width: 80,
-    borderWidth: 5,
-    borderColor: "#fff",
   },
   innerCircle: {
     backgroundColor: "#fff",
