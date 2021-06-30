@@ -80,12 +80,12 @@ export const getChannels = () => {
   };
 };
 
-export const getChannelsPosts = (channelId) => {
+export const getChannelsPosts = (channelId, initialRequest = false) => {
   return async (dispatch, getState) => {
     let { feed } = getState().channels;
     var lastFetchedPostDate;
 
-    if (feed && feed.length > 0) {
+    if (!initialRequest && feed && feed.length > 0) {
       lastFetchedPostDate = feed[feed.length - 1].createdAt;
 
       if (channelId !== feed[feed.length - 1].channelId) {
@@ -93,14 +93,16 @@ export const getChannelsPosts = (channelId) => {
         feed = [];
       }
     }
+    if (initialRequest) {
+      feed = [];
+    }
     dispatch({ type: CHANNELPOSTS_REQUEST });
-
     try {
       var posts;
       if (lastFetchedPostDate) {
         posts = await db
           .collection("channelposts")
-          .where("channelId", "==", channelId)
+          .where("channelIds", "array-contains", channelId)
           .orderBy("createdAt", "desc")
           .startAfter(lastFetchedPostDate)
           .limit(12)
@@ -108,7 +110,7 @@ export const getChannelsPosts = (channelId) => {
       } else {
         posts = await db
           .collection("channelposts")
-          .where("channelId", "==", channelId)
+          .where("channelIds", "array-contains", channelId)
           .orderBy("createdAt", "desc")
           .limit(12)
           .get();
@@ -148,7 +150,6 @@ export const getChannelsPosts = (channelId) => {
       var uniquePosts = _.uniqBy(mergedArray, "id");
 
       const shuffled = uniquePosts.sort(() => Math.random() - 0.5);
-
       dispatch({ type: CHANNELPOSTS_SUCCESS, payload: shuffled });
       // }
     } catch (e) {

@@ -10,4 +10,8 @@ export default {
   backgroundImagePlaceholder: require("../assets/bg_placeholder.png"),
 
   findfriendsplaceholder: require("../assets/findfriendsplaceholder.png"),
+
+  userplaceholder: require("../assets/profilePlaceholder.png"),
+
+  applogo: require("../assets/applogo.png"),
 };

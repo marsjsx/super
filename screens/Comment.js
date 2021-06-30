@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Alert,
 } from "react-native";
 const { height, width } = Dimensions.get("window");
 import EditPostCaptionModal from "../component/EditPostCaptionModal";
@@ -24,6 +25,7 @@ import {
   likePost,
   unlikePost,
   updatePost,
+  deletePostComment,
 } from "../actions/post";
 import moment from "moment";
 import EmptyView from "../component/emptyview";
@@ -117,6 +119,23 @@ class Comment extends React.Component {
     }
     this.setState({ post: post });
   };
+
+  deleteComment(post, index) {
+    Alert.alert("Alert ", "Are you sure you want to delete this comment?", [
+      {
+        text: "Delete",
+        onPress: () => {
+          this.props.deletePostComment(post, index);
+        },
+      },
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      // { text: "OK", onPress: () => console.log("OK Pressed") },
+    ]);
+  }
 
   renderTopBar(item) {
     // const { params } = this.props.navigation.state;
@@ -361,7 +380,7 @@ class Comment extends React.Component {
       <View
         style={[
           {
-            marginVertical: Scale.moderateScale(10),
+            marginVertical: Scale.moderateScale(5),
             width: "100%",
             backgroundColor: "#dcdcdc",
             height: 0.5,
@@ -570,17 +589,23 @@ class Comment extends React.Component {
                 />
               }
               ItemSeparatorComponent={this.FlatListItemSeparator}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <View
                   style={[
                     {
                       // borderBottomColor: "grey",
                       // borderBottomWidth: 0.4,
+                      flex: 1,
                       marginHorizontal: 8,
                     },
                   ]}
                 >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
                     <TouchableOpacity
                       onPress={() => this.goToUser(item.commenterId)}
                     >
@@ -589,47 +614,71 @@ class Comment extends React.Component {
                         source={{ uri: item.commenterPhoto }}
                       />
                     </TouchableOpacity>
-                    <Text
-                      style={[
-                        {
-                          fontSize: Scale.moderateScale(12),
-                          fontWeight: "700",
-                          letterSpacing: 0.2,
-                          color: "#fff",
-                        },
-                      ]}
-                    >
-                      {item.commenterName}{" "}
-                    </Text>
-                    <Text
-                      style={[
-                        {
-                          flex: 1,
-                          textAlign: "right",
-                          marginHorizontal: Scale.moderateScale(10),
-                          fontSize: Scale.moderateScale(12),
-                          fontWeight: "500",
-                          color: "#fff",
-                        },
-                      ]}
-                    >
-                      {moment(item.date).format("ll")}
-                    </Text>
+                    <View style={{ flex: 1 }}>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Text
+                          style={[
+                            {
+                              fontSize: Scale.moderateScale(14),
+                              fontWeight: "bold",
+                              letterSpacing: 0.2,
+                              color: "#fff",
+                            },
+                          ]}
+                        >
+                          {item.commenterName}{" "}
+                        </Text>
+                        <Text
+                          style={[
+                            {
+                              flex: 1,
+                              textAlign: "right",
+                              marginHorizontal: Scale.moderateScale(10),
+                              fontSize: Scale.moderateScale(12),
+                              color: "#fff",
+                            },
+                          ]}
+                        >
+                          {moment(item.date).format("ll")}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          {
+                            fontSize: Scale.moderateScale(12),
+                            color: "#fff",
+                            letterSpacing: 0.2,
+                          },
+                        ]}
+                      >
+                        {item.comment}
+                      </Text>
+                    </View>
                   </View>
-
-                  <Text
-                    style={[
-                      {
-                        fontSize: Scale.moderateScale(12),
-                        marginHorizontal: Scale.moderateScale(10),
-                        fontWeight: "500",
-                        color: "#fff",
-                        letterSpacing: 0.2,
-                      },
-                    ]}
-                  >
-                    {item.comment}
-                  </Text>
+                  {this.props.user.uid === item.commenterId && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.deleteComment(params, index);
+                      }}
+                      style={{ alignSelf: "flex-end" }}
+                    >
+                      <Text
+                        style={[
+                          {
+                            fontSize: Scale.moderateScale(12),
+                            fontWeight: "bold",
+                            letterSpacing: 0.2,
+                            color: "#fff",
+                            marginHorizontal: Scale.moderateScale(16),
+                          },
+                        ]}
+                      >
+                        {"Delete"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
                   {/* <View style={[styles.container, styles.left]}>
                   <Text style={styles.bold}>
@@ -707,6 +756,7 @@ const mapDispatchToProps = (dispatch) => {
       likePost,
       updatePost,
       unlikePost,
+      deletePostComment,
     },
     dispatch
   );

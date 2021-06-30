@@ -22,7 +22,7 @@ import Modal from "react-native-modalbox";
 import Swiper from "react-native-swiper";
 import GalleryView from "../../component/GalleryView";
 import CameraView from "../../component/CameraView";
-
+import EmptyView from "../../component/emptyview";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { connect } from "react-redux";
 import { openSettingsDialog } from "../../util/Helper";
@@ -36,7 +36,7 @@ class Add extends React.Component {
     this.cellRefs = null;
     this.cameraRef = null;
     this.cameraRef2 = null;
-
+    this.sheetRef = {};
     this.state = {
       isModalOpen: false,
       activeIndex: 0,
@@ -132,6 +132,11 @@ class Add extends React.Component {
     }
 
     // alert(JSON.stringify(this.props.post.photo))
+    if (!this.props.user.uid) {
+      this.sheetRef.openSheet();
+      return;
+    }
+
     this.setState({ isPaused: true });
 
     this.props.navigation.navigate("PostDetail");
@@ -144,6 +149,15 @@ class Add extends React.Component {
     return (
       <Container>
         {Platform.OS === "ios" && <StatusBar hidden />}
+
+        <View style={{ height: 0 }}>
+          <EmptyView
+            ref={(ref) => {
+              this.sheetRef = ref;
+            }}
+            navigation={this.props.navigation}
+          />
+        </View>
 
         <View style={[styles.slide2, { backgroundColor: "pink" }]}>
           <CameraView

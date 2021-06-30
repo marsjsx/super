@@ -89,7 +89,7 @@ module.exports = createReactClass({
   render() {
     if (!this.props.showIf) {
       return (
-        <View style={styles.container}>
+        <View style={[styles.container, this.props.containerStyle]}>
           {this._getElement("image")}
           {this._getElement("title")}
           {this._getElement("icon")}

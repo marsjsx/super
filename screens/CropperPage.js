@@ -276,8 +276,8 @@ class CropperPage extends React.Component {
     const { cropperParams } = this.state;
 
     const cropSize = {
-      width: CROP_AREA_WIDTH * 1.5,
-      height: CROP_AREA_HEIGHT * 1.5,
+      width: CROP_AREA_WIDTH * 1.2,
+      height: CROP_AREA_HEIGHT * 1.2,
     };
 
     const cropAreaSize = {
@@ -293,6 +293,7 @@ class CropperPage extends React.Component {
         cropAreaSize,
       });
 
+      // alert(JSON.stringify(result));
       // var cropData = {
       //   offset: { x: cropperParams.positionX, y: cropperParams.positionY },
       //   size: { width: 500, height: 400 },
@@ -477,7 +478,7 @@ class CropperPage extends React.Component {
           height: Scale.moderateScale(85),
           marginRight: 5,
         }}
-        source={{ uri: this.state.uri }}
+        source={{ uri: this.props.thumbnailPreview }}
         resizeMode={"cover"}
       />
     );

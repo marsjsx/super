@@ -22,7 +22,11 @@ const { height, width } = Dimensions.get("window");
 import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
 import { showLoader } from "../util/Loader";
 import * as ImageManipulator from "expo-image-manipulator";
-import { updatePhoto, createAndUpdatePreview } from "../actions/post";
+import {
+  updatePhoto,
+  createAndUpdatePreview,
+  createAndUpdateFilterThumbnail,
+} from "../actions/post";
 import * as Permissions from "expo-permissions";
 import constants from "../constants";
 import EmptyView from "../component/emptyview";
@@ -61,7 +65,7 @@ class CameraView extends Component {
   takePicture = async () => {
     if (this.camera) {
       const options = {
-        quality: 0.5,
+        quality: 0.3,
         orientation: RNCamera.Constants.Orientation.portrait,
       };
       this.camera
@@ -77,6 +81,7 @@ class CameraView extends Component {
           }
 
           this.props.dispatch(updatePhoto(data));
+          this.props.dispatch(createAndUpdateFilterThumbnail(data.uri));
 
           this.props.navigation.navigate("PostDetail");
         })
@@ -341,8 +346,9 @@ class CameraView extends Component {
       this.setState({ showLoading: true });
       selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
         mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
+        videoExportPreset: ExpoImagePicker.VideoExportPreset.MediumQuality,
         // allowsEditing: true,
-        quality: 0.9,
+        quality: 0.3,
         duration: 60000,
       });
       this.setState({ showLoading: false });
@@ -356,26 +362,30 @@ class CameraView extends Component {
           return;
         }
         this.props.dispatch(updatePhoto(selectedFile));
+
+        this.props.dispatch(createAndUpdateFilterThumbnail(selectedFile.uri));
+
+        // alert(JSON.stringify(selectedFile));
         this.props.navigation.navigate("PostDetail");
       }
     }
   };
 
   openVRImages = async () => {
-    ImagePicker.openPicker({
-      smartAlbums: ["Panoramas"],
-    }).then((image) => {
-      var selectedFile = { ...image };
-      selectedFile.type = "vr";
-      selectedFile.uri = image.path;
-      if (!this.props.user.uid) {
-        this.sheetRef.openSheet();
-        return;
-      }
+    ImagePicker.openPicker({ mediaType: "photo", quality: 0.4 }).then(
+      (image) => {
+        var selectedFile = { ...image };
+        selectedFile.type = "vr";
+        selectedFile.uri = image.path;
+        if (!this.props.user.uid) {
+          this.sheetRef.openSheet();
+          return;
+        }
 
-      this.props.dispatch(updatePhoto(selectedFile));
-      this.props.navigation.navigate("PostDetail");
-    });
+        this.props.dispatch(updatePhoto(selectedFile));
+        this.props.navigation.navigate("PostDetail");
+      }
+    );
   };
 
   async onHold() {
@@ -675,7 +685,10 @@ class CameraView extends Component {
   }
 }
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ updatePhoto }, dispatch);
+  return bindActionCreators(
+    { updatePhoto, createAndUpdateFilterThumbnail },
+    dispatch
+  );
 };
 
 const mapStateToProps = (state) => {

@@ -57,6 +57,7 @@ const RenderFullScreenPostItem = (props) => {
               navigation={props.navigation}
               style={[styles.postPhoto]}
               onDoubleTap={() => props.onDoubleTap()}
+              onVideoEnd={() => props.onVideoEnd()}
               preview={props.preview}
             />
 

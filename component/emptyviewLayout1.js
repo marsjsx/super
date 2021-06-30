@@ -48,6 +48,7 @@ let styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column",
+    backgroundColor: "#f8f8ff",
     // justifyContent: "center",
     padding: Scale.moderateScale(16),
     marginTop: Scale.moderateScale(60),

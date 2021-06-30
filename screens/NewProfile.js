@@ -105,7 +105,13 @@ import { TextInput } from "react-native-gesture-handler";
 var routeName = "";
 
 var BUTTONS = ["Message", "Report", "Block", "Cancel"];
-var MYPROFILE_BUTTONS = ["Edit Profile", "Logout", "Cancel"];
+var MYPROFILE_BUTTONS = [
+  "Edit Profile",
+  "Find Friends",
+  "Invite Friends",
+  "Logout",
+  "Cancel",
+];
 
 var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
 
@@ -316,8 +322,8 @@ class ViewProfile extends React.Component {
     this.actionSheet._root.showActionSheet(
       {
         options: options,
-        cancelButtonIndex: 2,
-        destructiveButtonIndex: 1,
+        cancelButtonIndex: 4,
+        destructiveButtonIndex: 3,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
@@ -329,6 +335,10 @@ class ViewProfile extends React.Component {
             title: user.username,
             user: user,
           });
+        } else if ("Find Friends" === options[buttonIndex]) {
+          this.props.navigation.navigate("MyContacts", { selectedTab: 0 });
+        } else if ("Invite Friends" === options[buttonIndex]) {
+          this.props.navigation.navigate("MyContacts", { selectedTab: 1 });
         } else {
         }
       }
@@ -1040,7 +1050,7 @@ class ViewProfile extends React.Component {
             navigation={this.props.navigation}
           />
         </View>
-
+        {/* 
         {userProfile.accountType === "Brand" ? (
           <FastImage
             source={{ uri: userProfile.bgImage }}
@@ -1057,7 +1067,28 @@ class ViewProfile extends React.Component {
               uri: userProfile.preview,
             }}
           />
-        )}
+        )} */}
+
+        <FastImage
+          source={
+            userProfile.accountType == "Brand"
+              ? userProfile.bgImage
+                ? { uri: userProfile.bgImage }
+                : constants.images.backgroundImagePlaceholder
+              : userProfile.photo
+              ? { uri: userProfile.photo }
+              : constants.images.backgroundImagePlaceholder
+          }
+          // style={{ width: width, height: Scale.moderateScale(500) }}
+          style={[styles.container]}
+          resizeMode="cover"
+          thumbnailSource={{
+            uri:
+              userProfile.accountType == "Brand"
+                ? userProfile.backgroundPreview
+                : userProfile.preview,
+          }}
+        />
 
         <View
           style={{

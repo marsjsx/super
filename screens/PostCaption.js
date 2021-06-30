@@ -155,17 +155,30 @@ class PostCaption extends React.Component {
       return;
     }
 
-    if (this.props.user.accountType == "Brand") {
+    // alert(JSON.stringify(this.state.selectedChannels));
+    if (
+      this.props.user.accountType == "Brand" &&
+      this.state.selectedChannels.length < 1
+    ) {
       showMessage({
-        message: "Post feed not allowed",
-        description: "Currently brands feed not allowed",
+        message: "Select Channel",
+        description: "Please select channels in which you want to post",
         type: "danger",
         duration: 4000,
       });
 
       return;
     }
+    // if (this.props.user.accountType == "Brand") {
+    //   showMessage({
+    //     message: "Post feed not allowed",
+    //     description: "Currently brands feed not allowed",
+    //     type: "danger",
+    //     duration: 4000,
+    //   });
 
+    //   return;
+    // }
     if (this.props.post.photo.type === "image") {
       // const { filteredImage } = this.props.navigation.state.params;
       const { filteredImage } = this.props.route.params;
@@ -181,12 +194,8 @@ class PostCaption extends React.Component {
     } else if (this.props.post.photo.type === "vr") {
     } else {
     }
-    if (this.props.post.photo.type === "video") {
-      this.props.uploadPost();
-    } else {
-      this.props.uploadPost();
-    }
 
+    this.props.uploadPost(this.state.selectedChannels);
     this.props.navigation.dispatch(StackActions.popToTop());
     this.props.navigation.navigate("Home");
   };

@@ -356,9 +356,12 @@ class Post extends React.Component {
     var imageWidth = this.props.post.photo.width;
     var imageHeight = this.props.post.photo.height;
 
-    if (this.props.post.photo.width > 7000) {
-      imageWidth = 7000;
-      imageHeight = imageHeight * scalingFactor;
+    if (this.props.post.photo.width > 7800) {
+      imageWidth = 7800;
+      // imageHeight = imageHeight * scalingFactor;
+    }
+    if (this.props.post.photo.height > 4000) {
+      imageHeight = 4000;
     }
 
     await ImagePicker.openCropper({
@@ -369,7 +372,7 @@ class Post extends React.Component {
       // height: this.props.post.photo.height,
       width: type ? imageWidth : width * 1.5,
       height: type ? imageHeight : height * 1.5,
-      compressImageQuality: 0.8,
+      // compressImageQuality: 0.8,
     })
       .then((image) => {
         console.log(image);
@@ -531,14 +534,17 @@ class Post extends React.Component {
           const duration = this.state.endTime - this.state.startTime;
 
           var videoSource = newSource;
+          // const origin = await ProcessingManager.getVideoInfo(newSource);
+
+          // alert(JSON.stringify(origin));
 
           if (Platform.OS === "android") {
             // const origin = await ProcessingManager.getVideoInfo(newSource);
             const result = await ProcessingManager.compress(newSource, {
               // width: origin.size && origin.size.width / 2,
               // height: origin.size && origin.size.height / 2,
-              width: 480,
-              height: 720,
+              width: 640,
+              height: 480,
               bitrateMultiplier: 3,
               minimumBitrate: 300000,
             });
@@ -856,6 +862,7 @@ class Post extends React.Component {
       return (
         <CropperPage
           photo={this.props.post.photo}
+          thumbnailPreview={this.props.post.thumbnailPreview}
           onSave={this.onSave}
           onCancel={this.onCancel}
         />

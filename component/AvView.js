@@ -374,6 +374,9 @@ class AvView extends React.Component {
             // onProgress={this.onProgress}
             onError={this.videoError}
             repeat={true}
+            onEnd={() => {
+              this.props.onVideoEnd();
+            }}
           />
           {/* 
           <TouchableOpacity

@@ -950,6 +950,12 @@ class Home extends React.Component {
         break;
     }
   }
+  onVideoEnd = (index) => {
+    this.flatListRef?.scrollToIndex({
+      index: index + 1,
+      animated: true,
+    });
+  };
 
   renderItem = ({ item, index }) => {
     return (
@@ -960,6 +966,7 @@ class Home extends React.Component {
         onPostPress={() => this.cellRefs[item.id].handleOnPress()}
         onDoubleTap={() => this.onDoubleTap(item)}
         navigation={this.props.navigation}
+        onVideoEnd={() => this.onVideoEnd(index)}
         onPressFullScreen={() => {
           if (this.currentVideoKey) {
             const cell = this.cellRefs[this.currentVideoKey];
@@ -979,8 +986,8 @@ class Home extends React.Component {
           });
         }}
         onCommentPress={() => {
-          // this.props.navigation.navigate("Comment", item);
-          this.props.navigation.navigate("FindFriends");
+          this.props.navigation.navigate("Comment", item);
+          // this.props.navigation.navigate("FindFriends");
         }}
         onViewsPress={() => {
           this.props.navigation.navigate("LikersAndViewers", {
@@ -1128,11 +1135,10 @@ class Home extends React.Component {
               this.props.getFollowingPosts("REFRESH");
             }}
             initialNumToRender={3}
-            maxToRenderPerBatch={2}
-            windowSize={3}
+            maxToRenderPerBatch={3}
+            windowSize={5}
             // refreshing={false}
             pagingEnabled={true}
-            initialNumToRender={3}
             onViewableItemsChanged={this._onViewableItemsChanged}
             viewabilityConfig={viewabilityConfig}
             removeClippedSubviews={true}
@@ -1152,8 +1158,8 @@ class Home extends React.Component {
           {/* ) : ( */}
           <FlatList
             initialNumToRender={3}
-            maxToRenderPerBatch={2}
-            windowSize={3}
+            maxToRenderPerBatch={3}
+            windowSize={5}
             style={{ display: this.state.selectedTab == 0 ? "none" : "flex" }}
             ref={(ref) => {
               this.flatListRef = ref;

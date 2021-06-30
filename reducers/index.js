@@ -21,7 +21,6 @@ const user = (
     brandRequests: [],
     accountType: "Personal",
     userContacts: [],
-    userDeviceContacts: [],
   },
   action
 ) => {
@@ -35,8 +34,7 @@ const user = (
       return { ...state, userContacts: action.payload, loadingContacts: false };
     case USERCONTACTS_FAIL:
       return { ...state, loading: false };
-    case USER_DEVICECONTACTS:
-      return { ...state, userDeviceContacts: action.payload };
+
     case "UPDATE_EMAIL":
       return { ...state, email: action.payload };
     case "UPDATE_PASSWORD":
@@ -107,6 +105,26 @@ const user = (
         posts: state.posts.filter((item) => item.id !== action.payload),
       };
     }
+
+    default:
+      return state;
+  }
+};
+
+const contacts = (
+  state = {
+    userDeviceContacts: [],
+    refreshingContacts: false,
+  },
+  action
+) => {
+  switch (action.type) {
+    case USER_DEVICECONTACTS:
+      return { ...state, userDeviceContacts: action.payload };
+    case "REFRESHING_CONTACTS":
+      return { ...state, refreshingContacts: action.payload };
+    // case "REFRESHING_CONTACTS":
+    //   return { ...state, refreshingContacts: action.payload };
 
     default:
       return state;
@@ -188,6 +206,8 @@ const post = (
       return { ...state, loading: true };
     case "UPDATE_POST_PREVIEW":
       return { ...state, preview: action.payload };
+    case "UPDATE_THUMBNAIL_PREVIEW":
+      return { ...state, thumbnailPreview: action.payload };
     case "UPDATE_VIDEO_COVER":
       return { ...state, videocover: action.payload };
     // case "NEW_POST_ADDED":
@@ -313,6 +333,7 @@ const appReducer = combineReducers({
   modal,
   profile,
   messages,
+  contacts,
   checkconnection,
 });
 

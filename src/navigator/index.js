@@ -1138,6 +1138,39 @@ function ProfileNavigator({ navigation, route }) {
           ),
         })}
       /> */}
+
+      <HomeStack.Screen
+        name="FindFriends"
+        component={FindFriends}
+        options={({ navigation, route }) => ({
+          title: "Find your friends",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <HomeStack.Screen
+        name="MyContacts"
+        component={MyContacts}
+        options={({ navigation, route }) => ({
+          title: "All Contacts",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                style={[styles.icon, { marginLeft: 20 }]}
+                name={"ios-arrow-back"}
+                size={30}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
       <ProfileStack.Screen
         name="Comment"
         component={CommentScreen}

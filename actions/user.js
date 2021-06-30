@@ -23,6 +23,8 @@ import { filterBlockedPosts, getUserPosts } from "./post";
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
 import FastImage from "react-native-fast-image";
+const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance();
+import Contacts from "react-native-contacts";
 
 import {
   USERCONTACTS_REQUEST,
@@ -426,7 +428,7 @@ export const getUser = (uid, type = "", cb = (result, error) => {}) => {
           //get my followers list
 
           dispatch({ type: "LOGIN", payload: user });
-          dispatch(getUserPosts(user.uid, (result, error) => {}, null));
+          dispatch(getUserPosts(user, (result, error) => {}, null));
 
           identifyUser(user.uid);
         } else {
@@ -1148,15 +1150,16 @@ export const preloadUserImages = (images) => {
   };
 };
 
-export const getUserContacts = (deviceContacts) => {
+export const getUserContacts = (deviceContacts, deviceContactsInfo = []) => {
   return async (dispatch, getState) => {
     // alert(limit);
 
     var loopCount = Math.ceil(deviceContacts.length / 10);
     // alert(loopCount);
+    let userContacts = [];
+
     try {
       dispatch({ type: USERCONTACTS_REQUEST });
-      let userContacts = [];
 
       for (let i = 0; i < loopCount; i++) {
         var start = i * 10;
@@ -1171,14 +1174,163 @@ export const getUserContacts = (deviceContacts) => {
         userQuery.forEach(function (response) {
           userContacts.push(response.data());
         });
+        if (userContacts && userContacts.length > 0) {
+          dispatch({ type: USERCONTACTS_SUCCESS, payload: userContacts });
+          dispatch(filterInviteContacts(deviceContactsInfo));
+        }
       }
       // alert("Success\n" + JSON.stringify(userContacts));
+      dispatch({ type: "REFRESHING_CONTACTS", payload: false });
       dispatch({ type: USERCONTACTS_SUCCESS, payload: userContacts });
-      dispatch({ type: USER_DEVICECONTACTS, payload: deviceContacts });
     } catch (e) {
       alert(e);
+      dispatch({ type: USERCONTACTS_SUCCESS, payload: userContacts });
+    }
+  };
+};
+
+export const filterInviteContacts = (deviceContacts) => {
+  return async (dispatch, getState) => {
+    const { userContacts } = getState().user;
+
+    try {
+      let filteredContacts = [];
+      filteredContacts = deviceContacts.filter((item) => {
+        return !userContacts.find((element) => {
+          var formattedNumber;
+          var inputnumber = item.phoneNumbers[0].number.replace(
+            /[&\/\\#,()$~%.'":*?<>{}-\s]/g,
+            ""
+          );
+          try {
+            var tel = phoneUtil.parse(inputnumber);
+
+            // var formattedNumber = phoneUtil.format(tel, PNF.E164);
+            formattedNumber = tel.getNationalNumber();
+            // alert(tel.getNationalNumber());
+          } catch (error) {
+            // alert(number);
+            formattedNumber = inputnumber;
+          }
+
+          return element.phone === formattedNumber;
+        });
+      });
+
+      dispatch({ type: USER_DEVICECONTACTS, payload: filteredContacts });
+    } catch (e) {
       let array = [];
-      dispatch({ type: USERCONTACTS_FAIL, payload: array });
+    }
+  };
+};
+
+export const getAllContacts = (refresh = false) => {
+  return async (dispatch, getState) => {
+    const { userContacts } = getState().user;
+
+    try {
+      if (Platform.OS === "android") {
+        console.log("PLATFORM => ", Platform.OS);
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_CONTACTS,
+          {
+            title: "Contacts",
+            message: "This app would like to view your contacts.",
+            buttonPositive: "Accept",
+          }
+        )
+          .then((flag) => {
+            console.log("WRITE_CONTACTS Permission Granted => ", flag);
+
+            if (flag === "granted") {
+              PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+                {
+                  title: "Contacts",
+                  message: "This app would like to view your contacts.",
+                  buttonPositive: "Accept",
+                }
+              )
+                .then((flag) => {
+                  console.log("READ_CONTACTS Permission Granted => ", flag);
+                  if (flag === "granted") {
+                    dispatch(fectchContacts(refresh));
+                  }
+                })
+                .catch(() => {
+                  console.log("READ_CONTACTS Permission Denied");
+                });
+            }
+          })
+          .catch(() => {
+            console.log("WRITE_CONTACTS Permission Denied");
+          });
+      } else {
+        dispatch(fectchContacts(refresh));
+      }
+    } catch (e) {
+      let array = [];
+    }
+  };
+};
+
+export const fectchContacts = (refresh = false) => {
+  return async (dispatch, getState) => {
+    const { userContacts } = getState().user;
+    const { userDeviceContacts } = getState().contacts;
+
+    try {
+      Contacts.getAll()
+        .then(async (contacts) => {
+          if (contacts) {
+            const allDeviceContacts = [];
+            const allNumbers = [];
+            contacts.forEach((doc) => {
+              allDeviceContacts.push(...doc.phoneNumbers);
+            });
+            allDeviceContacts.forEach((doc) => {
+              var formattedNumber;
+              var inputnumber = doc.number.replace(
+                /[&\/\\#,()$~%.'":*?<>{}-\s]/g,
+                ""
+              );
+              try {
+                var tel = phoneUtil.parse(inputnumber);
+
+                // var formattedNumber = phoneUtil.format(tel, PNF.E164);
+                formattedNumber = tel.getNationalNumber();
+                // alert(tel.getNationalNumber());
+              } catch (error) {
+                // alert(number);
+                formattedNumber = inputnumber;
+              }
+              allNumbers.push(formattedNumber);
+            });
+            // setContacts(allNumbers);
+            // alert(JSON.stringify(props.user.userContacts));
+            if (userDeviceContacts.length < 1 || refresh) {
+              if (refresh) {
+                dispatch({ type: "REFRESHING_CONTACTS", payload: true });
+              }
+
+              dispatch(getUserContacts(allNumbers, contacts));
+            }
+
+            dispatch(filterInviteContacts(contacts));
+          }
+        })
+        .catch((e) => {
+          alert(e);
+        });
+
+      Contacts.getCount().then((count) => {
+        // alert(`Search ${count} contacts`);
+        // this.setState({ searchPlaceholder: `Search ${count} contacts` });
+      });
+
+      Contacts.checkPermission();
+    } catch (e) {
+      let array = [];
     }
   };
 };

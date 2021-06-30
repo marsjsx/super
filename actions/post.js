@@ -50,6 +50,10 @@ export const updatePhotoPreview = (input) => {
   return { type: "UPDATE_POST_PREVIEW", payload: input };
 };
 
+export const updateFilterThumbnailPreview = (input) => {
+  return { type: "UPDATE_THUMBNAIL_PREVIEW", payload: input };
+};
+
 export const updateVideoCover = (input) => {
   return { type: "UPDATE_VIDEO_COVER", payload: input };
 };
@@ -62,6 +66,24 @@ export const createAndUpdatePreview = (input) => {
     });
   };
 };
+
+export const createAndUpdateFilterThumbnail = (input) => {
+  return async (dispatch, getState) => {
+    buildPreview(input, 100, 100).then((image) => {
+      var imageData = "data:image/jpeg;base64," + image.base64;
+      dispatch(updateFilterThumbnailPreview(imageData));
+    });
+  };
+};
+
+// export const createAndUpdatePreview = (input) => {
+//   return async (dispatch, getState) => {
+//     buildPreview(input, 200, 400).then((image) => {
+//       var imageData = "data:image/jpeg;base64," + image.base64;
+//       dispatch(updatePhotoPreview(imageData));
+//     });
+//   };
+// };
 
 export const updateLocation = (input) => {
   return { type: "UPDATE_LOCATION", payload: input };
@@ -103,7 +125,7 @@ export const addPostToFollowersTimeline = (post) => {
   };
 };
 
-export const uploadPost = () => {
+export const uploadPost = (selectedChannels = []) => {
   return async (dispatch, getState) => {
     try {
       showMessage({
@@ -112,10 +134,11 @@ export const uploadPost = () => {
         duration: 2000,
       });
 
-      const { post, user } = getState();
+      const { post, user, channels } = getState();
       dispatch(uploadPhoto(post.preview)).then((preview) => {
         // alert(preview);
         dispatch(uploadPhoto(post.photo)).then((imageurl) => {
+          var createdAt = new Date().getTime();
           if (imageurl) {
             // alert(JSON.stringify(imageurl));
             const id = uuid.v4();
@@ -135,30 +158,36 @@ export const uploadPost = () => {
               reports: [],
               views: 0,
               viewers: [],
-              date: new Date().getTime(),
+              date: createdAt,
+              createdAt: createdAt,
             };
 
-            db.collection("posts").doc(id).set(upload);
-            dispatch({ type: "NEW_POST_ADDED", payload: upload });
-            dispatch(addPostToFollowersTimeline(upload));
+            if (user.accountType == "Brand") {
+              var channelIds = channels.multiSelectChannelsList
+                .filter((item) => {
+                  return (
+                    selectedChannels.find((o) => o.label === item.name) != null
+                  );
+                })
+                .reduce((i, j) => {
+                  i.push(j.id);
+                  return i;
+                }, []);
+
+              upload.channelIds = channelIds;
+
+              db.collection("channelposts").doc(id).set(upload);
+            } else {
+              db.collection("posts").doc(id).set(upload);
+              dispatch({ type: "NEW_POST_ADDED", payload: upload });
+              dispatch(addPostToFollowersTimeline(upload));
+            }
 
             dispatch(updateFileUploadProgress(101));
-            // setInterval(() => {
             dispatch(updateFileUploadProgress(-1));
-            // }, 1500);
             dispatch(updatePhoto());
             dispatch(updateDescription());
             dispatch(updateLocation());
-            // var feeds = getState().post.feed;
-
-            // alert(feeds.length);
-            // var updatedFeeds = [...feeds, upload];
-            // alert(updatedFeeds.length);
-
-            // dispatch({ type: "GET_POSTS", payload: [...updatedFeeds]});
-
-            // dispatch(getPosts());
-            // dispatch(getUser(user.uid, "LOGIN"));
 
             showMessage({
               message: "Post Uploaded",
@@ -710,7 +739,7 @@ export const getMorePosts = () => {
 };
 
 export const getUserPosts = (
-  uid,
+  user,
   cb = (result, error) => {},
   lastFetchedPostDate = null
 ) => {
@@ -718,20 +747,39 @@ export const getUserPosts = (
     try {
       var postQuery;
       if (lastFetchedPostDate) {
-        postQuery = await db
-          .collection("posts")
-          .where("uid", "==", uid)
-          .orderBy("date", "desc")
-          .startAfter(lastFetchedPostDate)
-          .limit(10)
-          .get();
+        if (user.accountType === "Brand") {
+          postQuery = await db
+            .collection("channelposts")
+            .where("uid", "==", user.uid)
+            .orderBy("createdAt", "desc")
+            .startAfter(lastFetchedPostDate)
+            .limit(10)
+            .get();
+        } else {
+          postQuery = await db
+            .collection("posts")
+            .where("uid", "==", user.uid)
+            .orderBy("date", "desc")
+            .startAfter(lastFetchedPostDate)
+            .limit(10)
+            .get();
+        }
       } else {
-        postQuery = await db
-          .collection("posts")
-          .where("uid", "==", uid)
-          .orderBy("date", "desc")
-          .limit(10)
-          .get();
+        if (user.accountType === "Brand") {
+          postQuery = await db
+            .collection("channelposts")
+            .where("uid", "==", user.uid)
+            .orderBy("createdAt", "desc")
+            .limit(10)
+            .get();
+        } else {
+          postQuery = await db
+            .collection("posts")
+            .where("uid", "==", user.uid)
+            .orderBy("date", "desc")
+            .limit(10)
+            .get();
+        }
       }
       var images = [];
       var posts = [];
@@ -746,7 +794,7 @@ export const getUserPosts = (
         if (
           getState().user &&
           getState().user.uid &&
-          getState().user.uid === uid
+          getState().user.uid === user.uid
         ) {
           if (getState().user) {
             const user = cloneDeep(getState().user);
@@ -771,6 +819,7 @@ export const getUserPosts = (
       // reject(e);
       cb(null, e);
       let array = [];
+      console.log(e);
     }
   };
 };
@@ -1190,88 +1239,86 @@ export const logVideoView = (post, routeName = "") => {
           });
 
           dispatch({ type: CHANNELPOSTS_SUCCESS, payload: updatedPosts });
-        }
+        } else {
+          const home = cloneDeep(getState().post.feed);
 
-        const home = cloneDeep(getState().post.feed);
-
-        var viewers = [];
-        let newFeed = home.map((item) => {
-          if (item.id === post.id) {
-            if (item.viewers == null) {
-              item.viewers = [];
+          var viewers = [];
+          let newFeed = home.map((item) => {
+            if (item.id === post.id) {
+              if (item.viewers == null) {
+                item.viewers = [];
+              }
+              item.viewers.push(uid);
+              viewers = item.viewers;
             }
-            item.viewers.push(uid);
-            viewers = item.viewers;
+            return item;
+          });
+
+          if (getState().user && getState().user.posts) {
+            const user = cloneDeep(getState().user);
+            let updatedPosts = user.posts.map((item) => {
+              if (item.id === post.id) {
+                if (item.viewers == null) {
+                  item.viewers = [];
+                }
+                item.viewers.push(uid);
+                viewers = item.viewers;
+              }
+
+              return item;
+            });
+            user.posts = updatedPosts;
+            dispatch({ type: "LOGIN", payload: user });
           }
-          return item;
-        });
 
-        if (getState().user && getState().user.posts) {
-          const user = cloneDeep(getState().user);
-          let updatedPosts = user.posts.map((item) => {
-            if (item.id === post.id) {
-              if (item.viewers == null) {
-                item.viewers = [];
+          if (getState().profile && getState().profile.posts) {
+            const user = cloneDeep(getState().profile);
+            let updatedPosts = user.posts.map((item) => {
+              if (item.id === post.id) {
+                if (item.viewers == null) {
+                  item.viewers = [];
+                }
+                item.viewers.push(uid);
+                viewers = item.viewers;
               }
-              item.viewers.push(uid);
-              viewers = item.viewers;
-            }
 
-            return item;
-          });
-          user.posts = updatedPosts;
-          dispatch({ type: "LOGIN", payload: user });
-        }
-
-        if (getState().profile && getState().profile.posts) {
-          const user = cloneDeep(getState().profile);
-          let updatedPosts = user.posts.map((item) => {
-            if (item.id === post.id) {
-              if (item.viewers == null) {
-                item.viewers = [];
+              return item;
+            });
+            user.posts = updatedPosts;
+            dispatch({ type: "GET_PROFILE", payload: user });
+          }
+          if (getState().post && getState().post.followingfeed) {
+            const feeds = cloneDeep(getState().post.followingfeed);
+            let updatedPosts = feeds.map((item) => {
+              if (item.id === post.id) {
+                if (item.viewers == null) {
+                  item.viewers = [];
+                }
+                item.viewers.push(uid);
+                viewers = item.viewers;
               }
-              item.viewers.push(uid);
-              viewers = item.viewers;
-            }
 
-            return item;
+              return item;
+            });
+
+            dispatch({
+              type: "FOLLOWING_POSTS",
+              payload: orderBy(updatedPosts, "date", "desc"),
+            });
+          }
+
+          // db.collection("posts")
+          //   .doc(post.id)
+          //   .update({
+          //     views: firebase.firestore.FieldValue.increment(1),
+          //   });
+          // alert(JSON.stringify(viewers));
+          db.collection("posts").doc(post.id).update({
+            viewers: viewers,
           });
-          user.posts = updatedPosts;
-          dispatch({ type: "GET_PROFILE", payload: user });
+
+          dispatch({ type: "GET_POSTS", payload: newFeed });
         }
-        if (getState().post && getState().post.followingfeed) {
-          const feeds = cloneDeep(getState().post.followingfeed);
-          let updatedPosts = feeds.map((item) => {
-            if (item.id === post.id) {
-              if (item.viewers == null) {
-                item.viewers = [];
-              }
-              item.viewers.push(uid);
-              viewers = item.viewers;
-            }
-
-            return item;
-          });
-
-          dispatch({
-            type: "FOLLOWING_POSTS",
-            payload: orderBy(updatedPosts, "date", "desc"),
-          });
-        }
-
-        // db.collection("posts")
-        //   .doc(post.id)
-        //   .update({
-        //     views: firebase.firestore.FieldValue.increment(1),
-        //   });
-        // alert(JSON.stringify(viewers));
-        db.collection("posts").doc(post.id).update({
-          viewers: viewers,
-        });
-
-        dispatch({ type: "GET_POSTS", payload: newFeed });
-        // dispatch(getPosts());
-        // dispatch(getUser(response.user.uid));
       }
     } catch (e) {
       /* alert(e) */
@@ -1384,11 +1431,7 @@ export const addComment = (text, post) => {
         commenterName: username,
         date: new Date().getTime(),
       };
-      db.collection("posts")
-        .doc(post.id)
-        .update({
-          comments: firestore.FieldValue.arrayUnion(comment),
-        });
+
       comment.postId = post.id;
       comment.postPhoto = post.preview;
       comment.uid = post.uid;
@@ -1400,6 +1443,19 @@ export const addComment = (text, post) => {
       dispatch({ type: "GET_COMMENTS", payload: comments.reverse() });
       dispatch({ type: "UPDATE_POST", payload: post });
 
+      if (post.channelIds) {
+        db.collection("channelposts")
+          .doc(post.id)
+          .update({
+            comments: firestore.FieldValue.arrayUnion(comment),
+          });
+      } else {
+        db.collection("posts")
+          .doc(post.id)
+          .update({
+            comments: firestore.FieldValue.arrayUnion(comment),
+          });
+      }
       db.collection("activity").doc().set(comment);
 
       var body = `${username} commented on your post`;
@@ -1407,6 +1463,94 @@ export const addComment = (text, post) => {
       // dispatch(sendNotification(post.uid, text));
 
       dispatch(sendNotification(post.uid, "New Comment", body, "COMMENT"));
+    } catch (e) {
+      /* console.error(e) */
+    }
+  };
+};
+
+export const deletePostComment = (post, commentIndex) => {
+  return async (dispatch, getState) => {
+    const { uid } = getState().user;
+    var postComment = post.comments[commentIndex];
+    post.comments.splice(commentIndex, 1);
+    dispatch({ type: "GET_COMMENTS", payload: post.comments });
+
+    try {
+      if (post.channelId) {
+        // channels Posts
+
+        db.collection("channelposts")
+          .doc(post.id)
+          .update({
+            comments: firestore.FieldValue.arrayRemove(postComment),
+          });
+        const channelPosts = cloneDeep(getState().channels.feed);
+        let updatedPosts = channelPosts.map((item) => {
+          if (item.id === post.id) {
+            return post;
+          }
+          return item;
+        });
+        dispatch({ type: CHANNELPOSTS_SUCCESS, payload: updatedPosts });
+      } else {
+        db.collection("posts")
+          .doc(post.id)
+          .update({
+            comments: firestore.FieldValue.arrayRemove(postComment),
+          });
+
+        const home = cloneDeep(getState().post.feed);
+        let newFeed = home.map((item) => {
+          if (item.id === post.id) {
+            return post;
+          }
+          return item;
+        });
+
+        dispatch({ type: "GET_POSTS", payload: newFeed });
+
+        if (getState().user && getState().user.posts) {
+          const user = cloneDeep(getState().user);
+
+          let updatedPosts = user.posts.map((item) => {
+            if (item.id === post.id) {
+              return post;
+            }
+            return item;
+          });
+          user.posts = updatedPosts;
+          dispatch({ type: "LOGIN", payload: user });
+        }
+
+        if (getState().profile && getState().profile.posts) {
+          const user = cloneDeep(getState().profile);
+          let updatedPosts = user.posts.map((item) => {
+            if (item.id === post.id) {
+              return post;
+            }
+            return item;
+          });
+          user.posts = updatedPosts;
+          dispatch({ type: "GET_PROFILE", payload: user });
+        }
+
+        if (getState().post && getState().post.followingfeed) {
+          const feeds = cloneDeep(getState().post.followingfeed);
+
+          let updatedPosts = feeds.map((item) => {
+            if (item.id === post.id) {
+              return post;
+            }
+            return item;
+          });
+
+          dispatch({
+            type: "FOLLOWING_POSTS",
+            payload: orderBy(updatedPosts, "date", "desc"),
+          });
+        }
+      }
     } catch (e) {
       /* console.error(e) */
     }

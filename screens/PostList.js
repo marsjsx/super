@@ -144,7 +144,7 @@ class PostListScreen extends React.Component {
       selectedChannelId = channelId;
 
       this.setState({ showLoading: true });
-      await this.props.getChannelsPosts(channelId);
+      await this.props.getChannelsPosts(channelId, true);
       this.setState({ showLoading: false });
     }
   }
@@ -207,6 +207,14 @@ class PostListScreen extends React.Component {
       this.props.likePost(post);
       this.likeUserPost(post);
     }
+  };
+
+  onVideoEnd = (index) => {
+    // this.flatListRef.scrollToIndex({ index: index++ });
+    this.flatListRef?.scrollToIndex({
+      index: index + 1,
+      animated: true,
+    });
   };
 
   navigateMap = (item) => {
@@ -655,6 +663,7 @@ class PostListScreen extends React.Component {
         isChannel={route === "Channels"}
         onPostPress={() => this.cellRefs[item.id].handleOnPress()}
         onDoubleTap={() => this.onDoubleTap(item)}
+        onVideoEnd={() => this.onVideoEnd(index)}
         navigation={this.props.navigation}
         onPressFullScreen={() => {
           if (this.currentVideoKey) {
@@ -677,7 +686,7 @@ class PostListScreen extends React.Component {
           });
         }}
         onCommentPress={() => {
-          if (route === "Channels") return;
+          // if (route === "Channels") return;
 
           this.props.navigation.navigate("Comment", item);
         }}
@@ -794,10 +803,15 @@ class PostListScreen extends React.Component {
           ref={(ref) => {
             this.flatListRef = ref;
           }}
-          // initialNumToRender={3}
-          // maxToRenderPerBatch={2}
-          // windowSize={3}
-          ListEmptyComponent={<EmptyView desc="No Data Found" />}
+          initialNumToRender={3}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          ListEmptyComponent={
+            <EmptyView
+              desc="No Data Found"
+              containerStyle={{ height: Scale.moderateScale(100) }}
+            />
+          }
           snapToAlignment={"top"}
           // Refreshing (Set To True When End Reached)
           refreshing={this.state.refreshing}

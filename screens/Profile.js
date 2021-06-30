@@ -83,7 +83,13 @@ const viewabilityConfig = {
 };
 
 var BUTTONS = ["Profile", "Message", "Report", "Block", "Cancel"];
-var MYPROFILE_BUTTONS = ["My Profile", "Logout", "Cancel"];
+var MYPROFILE_BUTTONS = [
+  "My Profile",
+  "Find Friends",
+  "Invite Friends",
+  "Logout",
+  "Cancel",
+];
 
 var BUTTONS1 = ["Profile", "Message", "Report", "Unblock", "Cancel"];
 
@@ -119,12 +125,22 @@ class Profile extends React.Component {
     };
     this.scroll = null;
     this.scrollView = null;
+    this.haveMorePosts = true;
   }
 
   componentDidMount = async () => {
+    // this.didFocusSubscription = this.props.navigation.addListener(
+    //   "focus",
+    //   this.didFocusAction
+    // );
     self = this;
     const routeName = this.props.route.name;
-    const { uid } = this.props.route.params;
+    var uid = null;
+
+    if (this.props.route.params && this.props.route.params.uid) {
+      uid = this.props.route.params.uid;
+    }
+
     this.props.navigation.setParams({
       goToChat: this.goToChat,
     });
@@ -149,7 +165,7 @@ class Profile extends React.Component {
             });
 
             this.props.getUserPosts(
-              uid,
+              result,
               (result, error) => {
                 if (result) {
                   this.mergeUserPosts(result);
@@ -162,25 +178,6 @@ class Profile extends React.Component {
             alert(error);
           }
         });
-
-        // this.props
-        //   .getUser(uid)
-        //   .then((result) => {
-        //     alert(JSON.stringify(result));
-        //     // this.setState({
-        //     //   userProfile: result,
-        //     //   showLoading: false,
-        //     //   refreshing: false,
-        //     // });
-        //     // this.props.navigation.setParams({
-        //     //   title: `@${result.username}`,
-        //     // });
-        //   })
-        //   .catch((error) => {
-        //     this.setState({ showLoading: false, refreshing: false });
-
-        //     alert(error);
-        //   });
       }
     } else {
       // this.props.navigation.setParams({
@@ -194,6 +191,25 @@ class Profile extends React.Component {
 
       this.props.navigation.setParams({
         title: `@${this.props.user.username}`,
+      });
+    }
+  };
+
+  componentWillUmount() {
+    // remove listener
+    this.didFocusSubscription.remove();
+  }
+
+  didFocusAction = (payload) => {
+    if (this.props.user && !this.props.user.photo) {
+      showMessage({
+        message: "Please complete your profile",
+        type: "info",
+        duration: 2000,
+      });
+
+      this.props.navigation.navigate("EditProfile", {
+        title: this.props.user.username,
       });
     }
   };
@@ -216,7 +232,7 @@ class Profile extends React.Component {
             ].date;
 
             this.props.getUserPosts(
-              this.uid,
+              this.state.userProfile,
               (result, error) => {
                 if (result) {
                   this.mergeUserPosts(result);
@@ -243,7 +259,7 @@ class Profile extends React.Component {
             // alert(this.uid);
 
             this.props.getUserPosts(
-              this.props.user.uid,
+              this.props.user,
               (result, error) => {
                 this.setState({
                   refreshing: false,
@@ -565,8 +581,8 @@ class Profile extends React.Component {
     this.actionSheet._root.showActionSheet(
       {
         options: options,
-        cancelButtonIndex: 2,
-        destructiveButtonIndex: 1,
+        cancelButtonIndex: 4,
+        destructiveButtonIndex: 3,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
@@ -578,6 +594,10 @@ class Profile extends React.Component {
             title: user.username,
             user: user,
           });
+        } else if ("Find Friends" === options[buttonIndex]) {
+          this.props.navigation.navigate("MyContacts", { selectedTab: 0 });
+        } else if ("Invite Friends" === options[buttonIndex]) {
+          this.props.navigation.navigate("MyContacts", { selectedTab: 1 });
         } else {
         }
       }
@@ -637,7 +657,7 @@ class Profile extends React.Component {
   searchUserHeaderComponent(user, routeName, userblocked) {
     return (
       <View>
-        {user.accountType == "Brand" ? (
+        {/* {user.accountType == "Brand" ? (
           <ProgressiveImage
             source={{ uri: user.bgImage }}
             style={[styles.profilePhoto]}
@@ -652,149 +672,163 @@ class Profile extends React.Component {
             style={[styles.profilePhoto]}
             resizeMode="cover"
           />
-        )}
+        )} */}
+
+        <ProgressiveImage
+          source={
+            user.accountType == "Brand"
+              ? user.bgImage
+                ? { uri: user.bgImage }
+                : constants.images.backgroundImagePlaceholder
+              : user.photo
+              ? { uri: user.photo }
+              : constants.images.backgroundImagePlaceholder
+          }
+          // style={{ width: width, height: Scale.moderateScale(500) }}
+          style={[styles.profilePhoto]}
+          resizeMode="cover"
+          thumbnailSource={{
+            uri:
+              user.accountType == "Brand"
+                ? user.backgroundPreview
+                : user.preview,
+          }}
+          transparentBackground="transparent"
+        />
 
         <ImageBackground
           style={[styles.profilePhoto, { position: "absolute" }]}
         >
           <View style={[styles.bottomProfile, { width: "100%" }]}>
-            {routeName === "MyProfile" && user.photo === "" ? (
-              <View
-                style={[styles.center, styles.container, { width: "100%" }]}
-              >
-                <Button
-                  bordered
-                  danger
-                  onPress={() => {
-                    // this.props.navigation.navigate("ViewProfile", {
-                    //   routeName: routeName,
-                    //   title: user.username,
-                    //   user: user,
-                    // });
-                    this.props.navigation.navigate("EditProfile", {
-                      title: this.props.user.username,
-                    });
-                  }}
-                >
-                  <Text style={{ color: "red" }}>
-                    {this.props.user.accountType == "Brand"
-                      ? "Add Brand Logo"
-                      : "Add Profile Photo"}{" "}
-                  </Text>
-                </Button>
-              </View>
-            ) : (
-              <View />
-            )}
-
-            {routeName === "MyProfile" && (
-              <View
-                style={[styles.center, styles.container, { width: "100%" }]}
-              >
-                {user.accountType == "Brand" && (
+            <View style={[styles.center, styles.container]}>
+              {user.accountType == "Brand" &&
+                (user.photo ? (
                   <View>
-                    <FastImage
-                      style={{
-                        height: Scale.moderateScale(130),
-                        width: Scale.moderateScale(260),
-                        // marginLeft: Scale.moderateScale(50),
+                    <ProgressiveImage
+                      source={{
+                        uri:
+                          this.props.user.accountType == "Brand"
+                            ? user.photo
+                            : "",
                       }}
-                      source={{ uri: user.photo }}
-                      resizeMode="contain"
+                      resizeMode={
+                        this.props.user.accountType == "Brand"
+                          ? "contain"
+                          : "cover"
+                      }
+                      transparentBackground="transparent"
+                      style={[
+                        ,
+                        {
+                          height: Scale.moderateScale(150),
+                          width: Scale.moderateScale(150),
+                          borderRadius: Scale.moderateScale(75),
+                        },
+                      ]}
                     />
-
-                    {!user.accountStatus && (
-                      <ButtonComponent
-                        title={`Account Status: Not Approved !!! \n Request For Approval`}
-                        containerStyle={{
-                          width: Scale.moderateScale(260),
-                          alignSelf: "center",
-                        }}
-                        color={constants.colors.red}
-                        colors={[
-                          constants.colors.transparent,
-                          constants.colors.transparent,
-                        ]}
-                        textStyle={{ fontSize: 16, textAlign: "center" }}
-                        onPress={() => {
-                          this.props.navigation.navigate("ViewProfile", {
-                            routeName: routeName,
-                            title: user.username,
-                            user: user,
-                          });
-                        }}
-                        linearGradientStyle={{
-                          paddingHorizontal: Scale.moderateScale(0),
-                          // marginHorizontal: Scale.moderateScale(0),
-                        }}
-                      />
-                    )}
-
-                    {user.accountStatus === "inreview" && (
-                      <ButtonComponent
-                        title={`Account Status: In Review`}
-                        containerStyle={{
-                          width: Scale.moderateScale(260),
-                          alignSelf: "center",
-                        }}
-                        color={constants.colors.blue800}
-                        colors={[
-                          constants.colors.transparent,
-                          constants.colors.transparent,
-                        ]}
-                        textStyle={{ fontSize: 16, textAlign: "center" }}
-                        onPress={() => {}}
-                        linearGradientStyle={{
-                          paddingHorizontal: Scale.moderateScale(0),
-                          // marginHorizontal: Scale.moderateScale(0),
-                        }}
-                      />
-                    )}
-                    {user.accountStatus === "rejected" && (
-                      <ButtonComponent
-                        title={`Account Status: Rejected`}
-                        containerStyle={{
-                          width: Scale.moderateScale(260),
-                          alignSelf: "center",
-                        }}
-                        color={constants.colors.red}
-                        colors={[
-                          constants.colors.transparent,
-                          constants.colors.transparent,
-                        ]}
-                        textStyle={{ fontSize: 16, textAlign: "center" }}
-                        onPress={() => {}}
-                        linearGradientStyle={{
-                          paddingHorizontal: Scale.moderateScale(0),
-                          // marginHorizontal: Scale.moderateScale(0),
-                        }}
-                      />
-                    )}
-
-                    {/* {user.accountStatus === "approved" && (
-                      <ButtonComponent
-                        title={`Account Status: Approved`}
-                        containerStyle={{
-                          width: Scale.moderateScale(260),
-                          alignSelf: "center",
-                        }}
-                        color={constants.colors.green}
-                        colors={[
-                          constants.colors.transparent,
-                          constants.colors.transparent,
-                        ]}
-                        textStyle={{ fontSize: 16, textAlign: "center" }}
-                        onPress={() => {}}
-                        linearGradientStyle={{
-                          paddingHorizontal: Scale.moderateScale(0),
-                          // marginHorizontal: Scale.moderateScale(0),
-                        }}
-                      />
-                    )} */}
                   </View>
-                )}
-              </View>
-            )}
+                ) : routeName === "MyProfile" ? (
+                  <TouchableOpacity
+                    style={{
+                      height: Scale.moderateScale(150),
+                      width: Scale.moderateScale(150),
+                      borderRadius: Scale.moderateScale(75),
+                      borderColor: "white",
+                      borderWidth: Scale.moderateScale(6),
+                      alignItems: "center",
+                      justifyContent: "center",
+                      shadowOpacity: 0.3,
+                    }}
+                    onPress={() =>
+                      this.props.navigation.navigate("EditProfile", {
+                        title: this.props.user.username,
+                      })
+                    }
+                  >
+                    <Text
+                      style={{
+                        fontSize: Scale.moderateScale(18),
+                        fontWeight: "400",
+                        color: constants.colors.superRed,
+                      }}
+                    >
+                      {"Add Logo"}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null)}
+
+              {user.accountType == "Brand" && (
+                <View>
+                  {!user.accountStatus && (
+                    <ButtonComponent
+                      title={`Account Status: Not Approved !!! \n Request For Approval`}
+                      containerStyle={{
+                        width: Scale.moderateScale(260),
+                        alignSelf: "center",
+                      }}
+                      color={constants.colors.red}
+                      colors={[
+                        constants.colors.transparent,
+                        constants.colors.transparent,
+                      ]}
+                      textStyle={{ fontSize: 16, textAlign: "center" }}
+                      onPress={() => {
+                        this.props.navigation.navigate("ViewProfile", {
+                          routeName: routeName,
+                          title: user.username,
+                          user: user,
+                        });
+                      }}
+                      linearGradientStyle={{
+                        paddingHorizontal: Scale.moderateScale(0),
+                        // marginHorizontal: Scale.moderateScale(0),
+                      }}
+                    />
+                  )}
+
+                  {user.accountStatus === "inreview" && (
+                    <ButtonComponent
+                      title={`Account Status: In Review`}
+                      containerStyle={{
+                        width: Scale.moderateScale(260),
+                        alignSelf: "center",
+                      }}
+                      color={constants.colors.blue800}
+                      colors={[
+                        constants.colors.transparent,
+                        constants.colors.transparent,
+                      ]}
+                      textStyle={{ fontSize: 16, textAlign: "center" }}
+                      onPress={() => {}}
+                      linearGradientStyle={{
+                        paddingHorizontal: Scale.moderateScale(0),
+                        // marginHorizontal: Scale.moderateScale(0),
+                      }}
+                    />
+                  )}
+                  {user.accountStatus === "rejected" && (
+                    <ButtonComponent
+                      title={`Account Status: Rejected`}
+                      containerStyle={{
+                        width: Scale.moderateScale(260),
+                        alignSelf: "center",
+                      }}
+                      color={constants.colors.red}
+                      colors={[
+                        constants.colors.transparent,
+                        constants.colors.transparent,
+                      ]}
+                      textStyle={{ fontSize: 16, textAlign: "center" }}
+                      onPress={() => {}}
+                      linearGradientStyle={{
+                        paddingHorizontal: Scale.moderateScale(0),
+                        // marginHorizontal: Scale.moderateScale(0),
+                      }}
+                    />
+                  )}
+                </View>
+              )}
+            </View>
           </View>
           <View style={[{ width: "100%", marginTop: -10 }]} />
           <View style={[styles.row, styles.space, { width: "100%" }]}>
@@ -907,6 +941,45 @@ class Profile extends React.Component {
                   >
                     {user.userbio}
                   </Text> */}
+
+                  {routeName === "MyProfile" &&
+                    ((user.accountType == "Brand" && !user.bgImage) ||
+                      (user.accountType !== "Brand" && !user.photo)) && (
+                      <TouchableOpacity
+                        style={{
+                          shadowOpacity: 0.5,
+                          flexDirection: "row",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                          marginTop: 8,
+                        }}
+                        onPress={() =>
+                          this.props.navigation.navigate("EditProfile", {
+                            title: this.props.user.username,
+                          })
+                        }
+                      >
+                        <Text
+                          style={{
+                            fontSize: Scale.moderateScale(18),
+                            fontWeight: "600",
+                            color: constants.colors.superRed,
+                          }}
+                        >
+                          {this.props.user.accountType == "Brand"
+                            ? "Add/Change background"
+                            : "Add/Change Photo"}
+                        </Text>
+                        <Ionicons
+                          style={{
+                            marginLeft: 12,
+                            color: "rgb(255,255,255)",
+                          }}
+                          name="ios-camera"
+                          size={48}
+                        />
+                      </TouchableOpacity>
+                    )}
                 </View>
               </View>
 
@@ -1113,9 +1186,6 @@ class Profile extends React.Component {
         />
 
         <FlatList
-          initialNumToRender={12}
-          maxToRenderPerBatch={12}
-          windowSize={12}
           contentContainerStyle={{ marginBottom: 150 }}
           refreshing={false}
           horizontal={false}
@@ -1123,7 +1193,11 @@ class Profile extends React.Component {
           data={userblocked ? [] : user.posts}
           ListEmptyComponent={
             <EmptyView
-              title="Make your first post !"
+              title={
+                routeName === "Profile"
+                  ? "No posts found"
+                  : "Make your first post !"
+              }
               titleStyle={{ color: constants.colors.superRed }}
             />
           }
@@ -1132,13 +1206,18 @@ class Profile extends React.Component {
             routeName,
             userblocked
           )}
-          onEndReachedThreshold={1}
-          onEndReached={this.retrieveMore}
+          onEndReachedThreshold={0.1}
+          onMomentumScrollBegin={() => {
+            this.onEndReachedCalledDuringMomentum = false;
+          }}
+          onEndReached={() => {
+            if (!this.onEndReachedCalledDuringMomentum) {
+              this.retrieveMore(); // LOAD MORE DATA
+              this.onEndReachedCalledDuringMomentum = true;
+            }
+          }}
+          // onEndReached={this.retrieveMore}
           ListFooterComponent={this.renderFooter}
-          // extraData={user}
-          // onViewableItemsChanged={this._onViewableItemsChanged}
-          // viewabilityConfig={viewabilityConfig}
-          removeClippedSubviews={true}
           getItemLayout={this.getPostItemLayout}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => {

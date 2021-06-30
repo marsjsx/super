@@ -36,7 +36,9 @@ export const observeStore = () => {
   store.subscribe(
     throttle(() => {
       var posts = initialStore.getState().post;
+
       posts.lastVisible = null;
+
       saveState({
         post: posts,
       });

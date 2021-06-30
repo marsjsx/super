@@ -8,6 +8,8 @@
 	<string>super.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -83,7 +85,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to use the camera to capture Photos and videos to upload your post</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Allow BareSuper experiences to access your contacts to tag them in your posts </string>
+	<string>Allow BareSuper experiences to access your contacts to find your friends from your device contacts list and you can also tag them in your posts </string>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string></string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to use your location to find and tag nearby places in your post</string>
 	<key>NSLocationAlwaysUsageDescription</key>

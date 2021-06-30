@@ -539,11 +539,13 @@ class Signup extends React.Component {
                 <Text
                   style={{
                     fontSize: Scale.moderateScale(18),
-                    fontWeight: "400",
+                    fontWeight: "600",
                     color: constants.colors.superRed,
                   }}
                 >
-                  {"Add background"}
+                  {this.props.user.accountType == "Brand"
+                    ? "Add/Change background"
+                    : "Add/Change Photo"}
                 </Text>
                 <Ionicons
                   style={{
