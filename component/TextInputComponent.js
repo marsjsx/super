@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     padding: Scale.moderateScale(10),
     backgroundColor: constants.colors.white,
     borderRadius: Scale.moderateScale(5),
-    // height: Scale.moderateScale(40),
+    height: Scale.moderateScale(40),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
     color: constants.colors.lightSecondary,
     fontSize: Scale.moderateScale(14),
     lineHeight: Scale.moderateScale(20),
-    ...constants.fonts.PoppinsRegular,
   },
   styleSelectedText: {
     fontSize: Scale.moderateScale(12),
@@ -110,7 +109,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   inputStyle: {
-    ...constants.fonts.PoppinsRegular,
     textAlign: "left",
     textAlignVertical: "center",
     fontSize: Scale.moderateScale(12),
@@ -118,7 +116,6 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   suggestions: {
-    ...constants.fonts.PoppinsRegular,
     fontSize: Scale.moderateScale(9),
     paddingTop: Scale.moderateScale(8),
     color: constants.colors.warmGrey,

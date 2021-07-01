@@ -341,6 +341,8 @@ class Login extends React.Component {
                     : "none",
               }}
             >
+              <TextInput placeholder="Test" />
+
               <TextInputComponent
                 container={{ marginTop: Scale.moderateScale(16) }}
                 placeholder={"Email"}

@@ -408,59 +408,34 @@ const RenderFullScreenPostItem = (props) => {
               </TouchableOpacity>
             </View>
 
-            <View
-              style={[
-                {
-                  position: "absolute",
-                  top: Scale.moderateScale(60),
-                  right: Scale.moderateScale(16),
-                  left: Scale.moderateScale(16),
-                  display: props.isChannel ? "flex" : "none",
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={{
-                  alignItems: "center",
-                }}
-                onPress={() => {}}
+            {props.isChannel && (
+              <View
+                style={[
+                  {
+                    position: "absolute",
+                    top: Scale.moderateScale(60),
+                    right: Scale.moderateScale(16),
+                    left: Scale.moderateScale(16),
+                  },
+                ]}
               >
-                {/* <ProgressiveImage
-                  thumbnailSource={{
-                    uri: props.preview,
-                  }}
-                  transparentBackground="transparent"
-                  source={{ uri: props.photo }}
+                <TouchableOpacity
                   style={{
-                    height: Scale.moderateScale(150),
-                    width: Scale.moderateScale(300),
-                    // marginLeft: Scale.moderateScale(50),
-                    tintColor: "#fff",
+                    alignItems: "center",
                   }}
-                  resizeMode="contain"
-                  placeHolder="none"
-                  // style={styles.roundImage50}
-                /> */}
-                {/* <Image
-                  style={{
-                    height: Scale.moderateScale(130),
-                    width: Scale.moderateScale(260),
-                    // marginLeft: Scale.moderateScale(50),
-                  }}
-                  source={require("../assets/vans.png")}
-                  resizeMode="contain"
-                /> */}
-
-                <FastImage
-                  style={{
-                    height: Scale.moderateScale(130),
-                    width: Scale.moderateScale(260),
-                  }}
-                  source={{ uri: props.photo }}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
+                  onPress={() => {}}
+                >
+                  <FastImage
+                    style={{
+                      height: Scale.moderateScale(130),
+                      width: Scale.moderateScale(260),
+                    }}
+                    source={{ uri: props.photo }}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
           </TouchableOpacity>
         </ElementContainer>
       </InstagramProvider>

@@ -51,7 +51,7 @@ let styles = StyleSheet.create({
     backgroundColor: "#f8f8ff",
     // justifyContent: "center",
     padding: Scale.moderateScale(16),
-    marginTop: Scale.moderateScale(60),
+    paddingTop: Scale.moderateScale(40),
     // alignItems: "center",
   },
   global: {
@@ -353,10 +353,12 @@ Signup
               }}
               color="#fff"
               colors={[constants.colors.black, constants.colors.black]}
-              textStyle={{
-                ...constants.fonts.HelveticaNeueThin,
-                marginTop: Scale.moderateScale(8),
-              }}
+              textStyle={
+                {
+                  // ...constants.fonts.HelveticaNeueThin,
+                  // marginTop: Scale.moderateScale(8),
+                }
+              }
               onPress={() => this.props.navigation.navigate("Login")}
             />
           );
