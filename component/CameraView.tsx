@@ -32,6 +32,9 @@ import constants from "../constants";
 import EmptyView from "../component/emptyview";
 import { colors } from "../util/theme";
 import { Toast } from "native-base";
+import { ProcessingManager } from "react-native-video-processing";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { openSettings } from "react-native-permissions";
 
 let recordingCancelled = false;
 class CameraView extends Component {
@@ -65,7 +68,8 @@ class CameraView extends Component {
   takePicture = async () => {
     if (this.camera) {
       const options = {
-        quality: 0.3,
+        quality: 0.5,
+        // width: 540,
         orientation: RNCamera.Constants.Orientation.portrait,
       };
       this.camera
@@ -91,9 +95,41 @@ class CameraView extends Component {
 
   renderNoPermissions = () => (
     <View style={styles.noPermissions}>
-      <Text style={{ color: "white" }}>
-        Camera permissions not granted - cannot open camera preview.
+      <Text style={{ color: "white", textAlign: "justify" }}>
+        {`Camera permissions not granted - cannot open camera preview.\n\nEnable Camera, Microphone permission in Settings in order to use camera`}
       </Text>
+      <TouchableOpacity
+        style={{
+          backgroundColor: constants.colors.superRed,
+          margin: 20,
+          padding: 16,
+        }}
+        onPress={() => {
+          // this.props.navigation.goBack();
+          openSettings().catch(() => alert("cannot open settings"));
+        }}
+      >
+        <Text style={{ color: "white", textAlign: "justify" }}>
+          Navigate to Settings
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{ position: "absolute", top: 15, left: 0 }}
+        onPress={() => {
+          this.clearTimer();
+
+          this.props.navigation.navigate("Home");
+          // this.props.navigation.goBack();
+        }}
+      >
+        <Ionicons
+          style={[styles.icon, { marginLeft: 20 }]}
+          name={"ios-arrow-back"}
+          color="white"
+          size={32}
+        />
+      </TouchableOpacity>
     </View>
   );
 
@@ -236,9 +272,9 @@ class CameraView extends Component {
       this.camera
         .recordAsync({
           maxDuration: 59,
-          quality: RNCamera.Constants.VideoQuality["480p"],
+          quality: RNCamera.Constants.VideoQuality["720p"],
         })
-        .then((data: any) => {
+        .then(async (data: any) => {
           if (recordingCancelled) {
             this.setState({
               isRecording: false,
@@ -247,19 +283,64 @@ class CameraView extends Component {
             return;
           }
 
-          let selectedfile = {};
-          selectedfile.uri = data.uri;
-          selectedfile.type = "video";
+          let selectedFile = {};
+          selectedFile.uri = data.uri;
+          selectedFile.type = "video";
 
-          selectedfile.duration = this.state.duration * 1000;
+          selectedFile.duration = this.state.duration * 1000;
           this.clearTimer();
           if (!this.props.user.uid) {
             this.sheetRef.openSheet();
             return;
           }
 
-          this.props.dispatch(updatePhoto(selectedfile));
+          this.props.dispatch(updatePhoto(selectedFile));
           this.props.navigation.navigate("PostDetail");
+
+          // this.setState({ showLoading: true });
+          // const origin = await ProcessingManager.getVideoInfo(data.uri);
+
+          // const videoSize = origin.size;
+          // selectedFile.width = videoSize.width;
+          // selectedFile.height = videoSize.height;
+          // var height = 1080;
+
+          // if (videoSize.height < 1080) {
+          //   height = videoSize.height;
+          // }
+
+          // var widthFactor = videoSize.width / videoSize.height;
+          // var compressWidth = Math.round(height * widthFactor);
+          // var compressHeight = height;
+          // ProcessingManager.compress(data.uri, {
+          //   width: compressWidth,
+          //   height: compressHeight,
+          //   bitrateMultiplier: 7,
+          //   minimumBitrate: 600000,
+          // })
+          //   .then(async (result) => {
+          //     this.setState({ showLoading: false });
+          //     selectedFile.uri = result;
+
+          //     if (!this.props.user.uid) {
+          //       this.sheetRef.openSheet();
+          //       return;
+          //     }
+          //     if (!this.props.user.uid) {
+          //       this.sheetRef.openSheet();
+          //       return;
+          //     }
+          //     this.props.dispatch(updatePhoto(selectedFile));
+
+          //     this.props.navigation.navigate("PostDetail");
+          //   })
+          //   .catch((error) => {
+          //     this.setState({ showLoading: false });
+          //     console.log("error", error);
+          //   });
+
+          // this.props.dispatch(updatePhoto(selectedfile));
+          // this.props.navigation.navigate("PostDetail");
         })
         .catch((err: any) => alert("==error==" + err));
       this.setState({
@@ -338,42 +419,249 @@ class CameraView extends Component {
       duration: "00",
     });
   }
+  // openLibrary = async (type = "image") => {
+  //   const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+  //   if (status === "granted") {
+  //     var selectedFile;
+
+  //     this.setState({ showLoading: true });
+  //     selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
+  //       mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
+  //       videoExportPreset: ExpoImagePicker.VideoExportPreset.MediumQuality,
+  //       // allowsEditing: true,
+  //       // quality: 0.2,
+  //       duration: 60000,
+  //     });
+  //     this.setState({ showLoading: false });
+
+  //     if (!selectedFile.cancelled) {
+  //       if (type === "vr") {
+  //         selectedFile.type = "vr";
+  //       }
+  //       if (!this.props.user.uid) {
+  //         this.sheetRef.openSheet();
+  //         return;
+  //       }
+  //       this.props.dispatch(updatePhoto(selectedFile));
+
+  //       this.props.dispatch(createAndUpdateFilterThumbnail(selectedFile.uri));
+
+  //       // alert(JSON.stringify(selectedFile));
+  //       this.props.navigation.navigate("PostDetail");
+  //     }
+  //   }
+  // };
+
+  // openLibrary = async (type = "image") => {
+  //   const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+  //   if (status === "granted") {
+  //     this.setState({ showLoading: true });
+  //     ImagePicker.openPicker({
+  //       mediaType: "any",
+  //       // compressImageQuality: 0.5,
+  //       compressImageMaxWidth: 800,
+  //       compressVideoPreset: "Passthrough",
+  //       compressImageMaxHeight: 800,
+  //     })
+  //       .then(async (image) => {
+  //         var selectedFile = { ...image };
+
+  //         if (image.mime && image.mime.toLowerCase().indexOf("video/") !== -1) {
+  //           selectedFile.type = "video";
+  //         } else {
+  //           selectedFile.type = "image";
+  //         }
+
+  //         selectedFile.uri = image.path;
+
+  //         if (!this.props.user.uid) {
+  //           this.sheetRef.openSheet();
+  //           return;
+  //         }
+  //         // selectedFile.uri = image.path;
+  //         if (!this.props.user.uid) {
+  //           this.sheetRef.openSheet();
+  //           return;
+  //         }
+
+  //         if (selectedFile.type === "video") {
+  //           var widthFactor = image.width / image.height;
+  //           // alert(heightFactor)
+  //           var compressWidth = Math.round(720 * widthFactor);
+  //           var compressHeight = 720;
+  //           ProcessingManager.compress(image.path, {
+  //             width: compressWidth,
+  //             height: compressHeight,
+  //             bitrateMultiplier: 7,
+  //             minimumBitrate: 600000,
+  //           })
+  //             .then(async (result) => {
+  //               this.setState({ showLoading: false });
+  //               selectedFile.uri = result;
+
+  //               this.props.dispatch(updatePhoto(selectedFile));
+
+  //               this.props.dispatch(
+  //                 createAndUpdateFilterThumbnail(selectedFile.uri)
+  //               );
+
+  //               this.props.navigation.navigate("PostDetail");
+  //             })
+  //             .catch((error) => {
+  //               this.setState({ showLoading: false });
+  //               console.log("error", error);
+  //             });
+  //         } else {
+  //           this.setState({ showLoading: false });
+  //           selectedFile.uri = image.path;
+
+  //           this.props.dispatch(updatePhoto(selectedFile));
+
+  //           this.props.dispatch(
+  //             createAndUpdateFilterThumbnail(selectedFile.uri)
+  //           );
+
+  //           this.props.navigation.navigate("PostDetail");
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         this.setState({ showLoading: false });
+  //         console.log("error", error);
+  //       });
+  //   }
+  // };
+
   openLibrary = async (type = "image") => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
-      var selectedFile;
+      let options = {
+        title: "Choose Media",
+        maxWidth: 1000,
+        maxHeight: 1000,
+        noData: true,
+        // quality: 0.5,
+        mediaType: "mixed",
+        videoQuality: "medium",
+        storageOptions: {
+          skipBackup: true,
+        },
+      };
 
-      this.setState({ showLoading: true });
-      selectedFile = await ExpoImagePicker.launchImageLibraryAsync({
-        mediaTypes: ExpoImagePicker.MediaTypeOptions.All,
-        videoExportPreset: ExpoImagePicker.VideoExportPreset.MediumQuality,
-        // allowsEditing: true,
-        quality: 0.3,
-        duration: 60000,
+      launchImageLibrary(options, async (response) => {
+        if (response.didCancel) {
+          console.log("User cancelled photo picker");
+        } else if (response.error) {
+          console.log("ImagePicker Error: ", response.error);
+        } else if (response.customButton) {
+          console.log("User tapped custom button: ", response.customButton);
+        } else {
+          if (response.assets) {
+            response = response.assets[0];
+          }
+
+          // alert(JSON.stringify(response));
+          // return;
+          let source = { uri: response.uri };
+          var selectedFile = { ...response };
+          selectedFile.duration = selectedFile.duration * 1000;
+          if (response.type) {
+            selectedFile.type = "image";
+          } else {
+            selectedFile.type = "video";
+          }
+
+          selectedFile.uri = response.uri;
+
+          // this.props.dispatch(updatePhoto(selectedFile));
+
+          // this.props.dispatch(createAndUpdateFilterThumbnail(selectedFile.uri));
+
+          // this.props.navigation.navigate("PostDetail");
+
+          // return;
+
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+
+          if (selectedFile.type === "video") {
+            this.props.dispatch(updatePhoto(selectedFile));
+
+            this.props.navigation.navigate("PostDetail");
+
+            // this.setState({ showLoading: true });
+            // const origin = await ProcessingManager.getVideoInfo(response.uri);
+
+            // const videoSize = origin.size;
+            // selectedFile.width = videoSize.width;
+            // selectedFile.height = videoSize.height;
+            // var height = 720;
+
+            // if (videoSize.height < 720) {
+            //   height = videoSize.height;
+            // }
+            // // alert(JSON.stringify(origin));
+            // // return;
+            // var widthFactor = videoSize.width / videoSize.height;
+            // // alert(heightFactor)
+            // var compressWidth = Math.round(height * widthFactor);
+            // var compressHeight = height;
+            // ProcessingManager.compress(response.uri, {
+            //   width: compressWidth,
+            //   height: compressHeight,
+            //   bitrateMultiplier: 7,
+            //   minimumBitrate: 600000,
+            // })
+            //   .then(async (result) => {
+            //     this.setState({ showLoading: false });
+            //     selectedFile.uri = result;
+
+            //     if (!this.props.user.uid) {
+            //       this.sheetRef.openSheet();
+            //       return;
+            //     }
+            //     // selectedFile.uri = image.path;
+            //     if (!this.props.user.uid) {
+            //       this.sheetRef.openSheet();
+            //       return;
+            //     }
+            //     this.props.dispatch(updatePhoto(selectedFile));
+
+            //     this.props.navigation.navigate("PostDetail");
+            //   })
+            //   .catch((error) => {
+            //     this.setState({ showLoading: false });
+            //     console.log("error", error);
+            //   });
+          } else {
+            this.setState({ showLoading: false });
+
+            this.props.dispatch(updatePhoto(selectedFile));
+
+            this.props.dispatch(
+              createAndUpdateFilterThumbnail(selectedFile.uri)
+            );
+
+            this.props.navigation.navigate("PostDetail");
+          }
+        }
       });
-      this.setState({ showLoading: false });
-
-      if (!selectedFile.cancelled) {
-        if (type === "vr") {
-          selectedFile.type = "vr";
-        }
-        if (!this.props.user.uid) {
-          this.sheetRef.openSheet();
-          return;
-        }
-        this.props.dispatch(updatePhoto(selectedFile));
-
-        this.props.dispatch(createAndUpdateFilterThumbnail(selectedFile.uri));
-
-        // alert(JSON.stringify(selectedFile));
-        this.props.navigation.navigate("PostDetail");
-      }
     }
   };
 
   openVRImages = async () => {
-    ImagePicker.openPicker({ mediaType: "photo", quality: 0.4 }).then(
-      (image) => {
+    ImagePicker.openPicker({
+      mediaType: "photo",
+      // compressImageQuality: 0.2,
+      // compressImageMaxWidth: 2000,
+      // compressImageMaxHeight: 2000,
+    })
+      .then((image) => {
         var selectedFile = { ...image };
         selectedFile.type = "vr";
         selectedFile.uri = image.path;
@@ -381,11 +669,14 @@ class CameraView extends Component {
           this.sheetRef.openSheet();
           return;
         }
-
+        // alert(JSON.stringify(image));
+        // this.props.dispatch(createAndUpdatePreview(selectedFile));
         this.props.dispatch(updatePhoto(selectedFile));
         this.props.navigation.navigate("PostDetail");
-      }
-    );
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
 
   async onHold() {
@@ -440,6 +731,7 @@ class CameraView extends Component {
         }}
         defaultTouchToFocus
         mirrorImage={false}
+        notAuthorizedView={this.renderNoPermissions()}
         // forceUpOrientation={true}
       >
         <TouchableOpacity
@@ -686,7 +978,7 @@ class CameraView extends Component {
 }
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
-    { updatePhoto, createAndUpdateFilterThumbnail },
+    { updatePhoto, createAndUpdateFilterThumbnail, createAndUpdatePreview },
     dispatch
   );
 };

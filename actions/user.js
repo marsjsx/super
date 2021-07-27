@@ -19,6 +19,7 @@ import appleAuth, {
   AppleAuthRequestOperation,
 } from "@invertase/react-native-apple-authentication";
 import { filterBlockedPosts, getUserPosts } from "./post";
+import { Alert } from "react-native";
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
@@ -43,6 +44,8 @@ export const updatePhone = (phone) => {
   return { type: "UPDATE_PHONE", payload: phone };
 };
 export const logout = () => {
+  MixpanelManager.sharedInstance.resetMixPanel();
+
   return { type: "USER_LOGOUT" };
 };
 export const updateGender = (gender) => {
@@ -123,15 +126,34 @@ export const login = () => {
       dispatch(filterBlockedPosts());
       dispatch(allowNotifications(response.user.uid));
       dispatch(getActivities());
-    } catch (e) {
-      alert(e);
+    } catch (error) {
+      if (error.code === "auth/invalid-email") {
+        console.log("That email address is invalid!");
+        Alert.alert("Error", "That email address is invalid!");
+      } else if (error.code === "auth/user-not-found") {
+        console.log("User Not Found");
+        Alert.alert("Error", "User Not Found");
+      } else if (error.code === "auth/wrong-password") {
+        console.log("Invalid Credentials");
+        Alert.alert("Error", "Invalid Credentials");
+      } else if (error.code === "auth/too-many-requests") {
+        console.log(
+          "Too many unsuccessful login attempts. Please try again later."
+        );
+        Alert.alert(
+          "Error",
+          "Too many unsuccessful login attempts. Please try again later."
+        );
+      } else {
+        alert(e);
+      }
     }
   };
 };
 export const getLoggedInUserData = (uid) => {
   return async (dispatch, getState) => {
     try {
-      dispatch(getUser(uid));
+      // dispatch(getUser(uid));
       dispatch(filterBlockedPosts());
       dispatch(allowNotifications(uid));
       dispatch(getActivities());
@@ -430,7 +452,26 @@ export const getUser = (uid, type = "", cb = (result, error) => {}) => {
           dispatch({ type: "LOGIN", payload: user });
           dispatch(getUserPosts(user, (result, error) => {}, null));
 
-          identifyUser(user.uid);
+          // identify user
+          MixpanelManager.sharedInstance.identify(user.uid);
+
+          //register super properties
+          var superProperties = {
+            accountType: user.accountType ? user.accountType : "Personal",
+          };
+
+          MixpanelManager.sharedInstance.registerSuperProperties(
+            superProperties
+          );
+
+          var profileProperties = {
+            name: user.username,
+            email: user.email,
+            phone: user.phone,
+          };
+          MixpanelManager.sharedInstance.setProfileProperties(
+            profileProperties
+          );
         } else {
           dispatch({ type: "GET_PROFILE", payload: user });
         }
@@ -1010,6 +1051,18 @@ export const signupWithPhoneNumber = (
           blockedBy: [],
         };
         db.collection("users").doc(uid).set(user);
+
+        var eventProperties = {
+          name: username,
+          datetime: new Date(),
+          phone: phoneNumber,
+          "Signed Up": "yes",
+        };
+        MixpanelManager.sharedInstance.trackEventWithProperties(
+          "Sign Up",
+          eventProperties
+        );
+
         // dispatch(getUser(response.user.uid));
         dispatch({ type: "LOGIN", payload: user });
         dispatch(filterBlockedPosts());
@@ -1196,6 +1249,10 @@ export const filterInviteContacts = (deviceContacts) => {
     try {
       let filteredContacts = [];
       filteredContacts = deviceContacts.filter((item) => {
+        if (!(item && item.phoneNumbers && item.phoneNumbers.length > 0)) {
+          return false;
+        }
+
         return !userContacts.find((element) => {
           var formattedNumber;
           var inputnumber = item.phoneNumbers[0].number.replace(
@@ -1289,22 +1346,24 @@ export const fectchContacts = (refresh = false) => {
               allDeviceContacts.push(...doc.phoneNumbers);
             });
             allDeviceContacts.forEach((doc) => {
-              var formattedNumber;
-              var inputnumber = doc.number.replace(
-                /[&\/\\#,()$~%.'":*?<>{}-\s]/g,
-                ""
-              );
-              try {
-                var tel = phoneUtil.parse(inputnumber);
+              if (doc && doc.number) {
+                var formattedNumber;
+                var inputnumber = doc.number.replace(
+                  /[&\/\\#,()$~%.'":*?<>{}-\s]/g,
+                  ""
+                );
+                try {
+                  var tel = phoneUtil.parse(inputnumber);
 
-                // var formattedNumber = phoneUtil.format(tel, PNF.E164);
-                formattedNumber = tel.getNationalNumber();
-                // alert(tel.getNationalNumber());
-              } catch (error) {
-                // alert(number);
-                formattedNumber = inputnumber;
+                  // var formattedNumber = phoneUtil.format(tel, PNF.E164);
+                  formattedNumber = tel.getNationalNumber();
+                  // alert(tel.getNationalNumber());
+                } catch (error) {
+                  // alert(number);
+                  formattedNumber = inputnumber;
+                }
+                allNumbers.push(formattedNumber);
               }
-              allNumbers.push(formattedNumber);
             });
             // setContacts(allNumbers);
             // alert(JSON.stringify(props.user.userContacts));

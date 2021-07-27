@@ -86,16 +86,20 @@ const user = (
       return { ...state, lastVisible: action.payload };
     case "UPDATE_BLOCKED_USERS_IDS":
       return { ...state, blocked: action.payload };
-    case "NEW_POST_ADDED":
+    case "NEW_POST_ADDED": {
+      // if (action.payload.channelIds) {
+      //   return { ...state };
+      // }
+
       return {
         ...state,
         posts: orderBy(
           _.uniqBy([...state.posts, action.payload], "id"),
-          "date",
+          action.payload.channelIds ? "createdAt" : "date",
           "desc"
         ),
       };
-
+    }
     case "DELETE_POST": {
       if (!state.posts) {
         return { state };
@@ -213,7 +217,11 @@ const post = (
     // case "NEW_POST_ADDED":
     //   return { ...state, feed: action.payload };
 
-    case "NEW_POST_ADDED":
+    case "NEW_POST_ADDED": {
+      if (action.payload.channelIds) {
+        return { ...state };
+      }
+
       return {
         ...state,
         feed: orderBy(
@@ -222,6 +230,7 @@ const post = (
           "desc"
         ),
       };
+    }
     case "FOLLOWING_POSTS":
       return { ...state, followingfeed: action.payload };
     case "UPDATE_DESCRIPTION":
@@ -293,6 +302,15 @@ const channels = (state = { channelsList: [], feed: [] }, action) => {
 
     case CHANNELPOSTS_FAIL:
       return { ...state, feedLoading: false };
+    case "DELETE_POST_FROM_CHANNELS": {
+      if (!state.feed) {
+        return { state };
+      }
+      return {
+        ...state,
+        feed: state.feed.filter((item) => item.id !== action.payload),
+      };
+    }
     default:
       return state;
   }

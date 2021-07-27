@@ -17,8 +17,12 @@ import Icon from "react-native-vector-icons/AntDesign";
 const { width, height } = Dimensions.get("window");
 import { PinchGestureHandler, State } from "react-native-gesture-handler";
 import styles from "../styles";
+import constants from "../constants";
+import Scale from "../helpers/Scale";
+
 import * as ScreenOrientation from "expo-screen-orientation";
 import { PanoramaView } from "@lightbase/react-native-panorama-view";
+import FastImage from "react-native-fast-image";
 
 const AnimatedIcon = Animatable.createAnimatableComponent(Icon);
 
@@ -288,8 +292,21 @@ class AvView extends React.Component {
             inputType="mono"
             imageUrl={this.props.source}
             onImageLoaded={this.onImageLoad}
-            enableTouchTracking={true}
+            // enableTouchTracking={true}
           />
+
+          {!this.state.vrLoaded && (
+            <FastImage
+              source={constants.images.view360}
+              style={{
+                position: "absolute",
+                height: Scale.moderateScale(180),
+                width: Scale.moderateScale(180),
+                alignSelf: "center",
+              }}
+            />
+          )}
+
           {/* {this.state.vrLoaded && (
             <View
               style={{
@@ -355,17 +372,29 @@ class AvView extends React.Component {
             duration={800}
             delay={200}
           />
+
+          <FastImage
+            source={{
+              uri: this.props.preview,
+            }}
+            style={[this.props.style, { position: "absolute" }]}
+            resizeMode="cover"
+          />
+
           <Video
             ref={(ref) => {
               this.video = ref;
             }}
             source={{ uri: this.props.source }}
-            style={this.props.style}
+            style={[
+              this.props.style,
+              { position: "absolute", backgroundColor: "transparent" },
+            ]}
             // rate={this.state.rate}
             paused={this.state.paused}
             // volume={this.state.volume}
-            poster={this.props.preview}
-            posterResizeMode="cover"
+            // poster={this.props.preview}
+            // posterResizeMode="cover"
             // muted={this.state.muted}
             ignoreSilentSwitch={"ignore"}
             resizeMode={"cover"}

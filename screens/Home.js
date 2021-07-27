@@ -128,9 +128,16 @@ const viewabilityConfig = {
   itemVisiblePercentThreshold: 90,
 };
 
-var BUTTONS = ["Report", "Mute", "Share Post Link", "Cancel"];
+var BUTTONS = [
+  "Report",
+  "Mute",
+  "Share Post Link",
+  "Invite Friends",
+  "Messages",
+  "Cancel",
+];
 var DESTRUCTIVE_INDEX = 3;
-var CANCEL_INDEX = 4;
+var CANCEL_INDEX = 6;
 
 class Home extends React.Component {
   constructor(props) {
@@ -168,7 +175,7 @@ class Home extends React.Component {
 
       this.resetTimer();
       // alert("View Counted");
-    }, 1500);
+    }, 1000);
     this.setState({ timer });
     // }
   }
@@ -322,7 +329,7 @@ class Home extends React.Component {
       actions.splice(3, 0, "Delete");
     } else {
       DESTRUCTIVE_INDEX = -1;
-      CANCEL_INDEX = 3;
+      CANCEL_INDEX = 5;
     }
     this.actionSheet._root.showActionSheet(
       {
@@ -352,6 +359,10 @@ class Home extends React.Component {
             reportReason: "",
             selectedPost: post,
           });
+        } else if ("Invite Friends" === actions[buttonIndex]) {
+          this.props.navigation.navigate("MyContacts", { selectedTab: 1 });
+        } else if ("Messages" === actions[buttonIndex]) {
+          this.props.navigation.navigate("Messages");
         } else {
         }
       }
@@ -986,6 +997,8 @@ class Home extends React.Component {
           });
         }}
         onCommentPress={() => {
+          // alert(array223344.length);
+          // alert("Called");
           this.props.navigation.navigate("Comment", item);
           // this.props.navigation.navigate("FindFriends");
         }}
@@ -1134,9 +1147,10 @@ class Home extends React.Component {
             onRefresh={() => {
               this.props.getFollowingPosts("REFRESH");
             }}
-            initialNumToRender={3}
-            maxToRenderPerBatch={3}
-            windowSize={5}
+            initialNumToRender={2}
+            maxToRenderPerBatch={2}
+            windowSize={3}
+            // windowSize={7}
             // refreshing={false}
             pagingEnabled={true}
             onViewableItemsChanged={this._onViewableItemsChanged}
@@ -1157,9 +1171,10 @@ class Home extends React.Component {
           />
           {/* ) : ( */}
           <FlatList
-            initialNumToRender={3}
-            maxToRenderPerBatch={3}
-            windowSize={5}
+            initialNumToRender={2}
+            maxToRenderPerBatch={2}
+            windowSize={3}
+            // windowSize={7}
             style={{ display: this.state.selectedTab == 0 ? "none" : "flex" }}
             ref={(ref) => {
               this.flatListRef = ref;
@@ -1177,7 +1192,7 @@ class Home extends React.Component {
             data={this.props.post.feed}
             keyExtractor={(item) => item.id}
             renderItem={this.renderItem}
-            onEndReachedThreshold={4}
+            onEndReachedThreshold={3}
             ListFooterComponent={this.renderFooter}
             contentContainerStyle={{ paddingBottom: 20 }}
             ListEmptyComponent={<EmptyView desc="No Posts Found" />}

@@ -218,9 +218,11 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={[styles.bold, styles.textMedium, {}]}>
-                {item.likerName}
-              </Text>
+              <TouchableOpacity onPress={() => this.goToUser(item.likerId)}>
+                <Text style={[styles.bold, styles.textMedium, {}]}>
+                  {item.likerName}
+                </Text>
+              </TouchableOpacity>
               <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
                 {item.postType === "video"
                   ? "Liked Your Video"
@@ -254,9 +256,11 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={[styles.bold, styles.textMedium, {}]}>
-                {item.followerName}
-              </Text>
+              <TouchableOpacity onPress={() => this.goToUser(item.followerId)}>
+                <Text style={[styles.bold, styles.textMedium, {}]}>
+                  {item.followerName}
+                </Text>
+              </TouchableOpacity>
               <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
                 started following you
               </Text>
@@ -330,9 +334,11 @@ class Activity extends React.Component {
               />
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
-              <Text style={[styles.bold, styles.textMedium, {}]}>
-                {item.commenterName}
-              </Text>
+              <TouchableOpacity onPress={() => this.goToUser(item.commenterId)}>
+                <Text style={[styles.bold, styles.textMedium, {}]}>
+                  {item.commenterName}
+                </Text>
+              </TouchableOpacity>
               <Text
                 style={[styles.black, styles.textHelveticaNeueNormal]}
               >{`commented: "${item.comment}"`}</Text>
@@ -365,10 +371,13 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <View style={styles.row}>
-                <Text style={[styles.bold, styles.textMedium, {}]}>
-                  {item.reporterName}
-                </Text>
-
+                <TouchableOpacity
+                  onPress={() => this.goToUser(item.reporterId)}
+                >
+                  <Text style={[styles.bold, styles.textMedium, {}]}>
+                    {item.reporterName}
+                  </Text>
+                </TouchableOpacity>
                 <Ionicons
                   style={{ marginLeft: 8 }}
                   color="#db565b"
@@ -469,16 +478,26 @@ class Activity extends React.Component {
           icon={<Feather style={{ margin: 5 }} name="activity" size={64} />}
         /> */}
         <FlatList
-          onRefresh={() => this.props.getMoreActivities()}
+          onRefresh={() => this.props.getMoreActivities(true)}
           data={this.props.activity.activities}
           refreshing={this.state.refreshing}
-          onEndReached={this.retrieveMore}
+          // onEndReached={this.retrieveMore}
           ListFooterComponent={this.renderFooter}
           ListEmptyComponent={<EmptyView desc="No Data Found" />}
-          onEndReachedThreshold={0}
+          // onEndReachedThreshold={0}
           ItemSeparatorComponent={this.FlatListItemSeparator}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => this.renderList(item)}
+          onEndReachedThreshold={0.1}
+          onMomentumScrollBegin={() => {
+            this.onEndReachedCalledDuringMomentum = false;
+          }}
+          onEndReached={() => {
+            if (!this.onEndReachedCalledDuringMomentum) {
+              this.retrieveMore(); // LOAD MORE DATA
+              this.onEndReachedCalledDuringMomentum = true;
+            }
+          }}
         />
       </View>
     );

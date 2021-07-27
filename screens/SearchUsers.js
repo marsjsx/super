@@ -247,7 +247,7 @@ class SearchUsers extends React.Component {
                 margin: 10,
               }}
             >
-              <Text>No User Found</Text>
+              <Text>Find friends and family</Text>
             </View>
           )}
         {this.state.focused && (

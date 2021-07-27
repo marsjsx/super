@@ -47,7 +47,7 @@ export const getActivities = () => {
   };
 };
 
-export const getMoreActivities = () => {
+export const getMoreActivities = (refresh = false) => {
   return async (dispatch, getState) => {
     const { lastVisible, activities } = getState().activity;
     const { user } = getState();
@@ -57,7 +57,7 @@ export const getMoreActivities = () => {
       if (user && user.uid) {
         dispatch({ type: "SHOW_ACTIVITIES_LOADING", payload: true });
         var myActivities;
-        if (lastVisible) {
+        if (lastVisible && !refresh) {
           // alert(JSON.stringify(lastVisible));
           myActivities = await db
             .collection("activity")
@@ -91,7 +91,14 @@ export const getMoreActivities = () => {
           // alert(myActivities.size);
 
           var mergedArray = activities.concat(array);
-          dispatch({ type: "GET_ACTIVITIES", payload: mergedArray });
+
+          var uniqueActivities = orderBy(
+            _.uniqBy(mergedArray, "postId"),
+            "date",
+            "desc"
+          );
+
+          dispatch({ type: "GET_ACTIVITIES", payload: uniqueActivities });
           dispatch({ type: "LAST_VISIBLE", payload: lastVisibleId });
         }
       }

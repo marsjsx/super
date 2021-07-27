@@ -149,8 +149,8 @@ export const getChannelsPosts = (channelId, initialRequest = false) => {
       var mergedArray = feed.concat(array);
       var uniquePosts = _.uniqBy(mergedArray, "id");
 
-      const shuffled = uniquePosts.sort(() => Math.random() - 0.5);
-      dispatch({ type: CHANNELPOSTS_SUCCESS, payload: shuffled });
+      // const shuffled = uniquePosts.sort(() => Math.random() - 0.5);
+      dispatch({ type: CHANNELPOSTS_SUCCESS, payload: uniquePosts });
       // }
     } catch (e) {
       console.log(e.message, e);

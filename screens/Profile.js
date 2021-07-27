@@ -359,7 +359,12 @@ class Profile extends React.Component {
     //         /* this.flatListRef.scrollToIndex({ animated: true, index: index }) */
     //       ];
     // }
-    this.props.navigation.navigate("PostListScreen", {
+
+    // alert(index + "---" + routeName);
+    // alert(JSON.stringify(this.state.userProfile.posts));
+    // return;
+
+    this.props.navigation.push("PostListScreen", {
       selectedIndex: index,
       route: routeName,
       userPosts: this.state.userProfile.posts,
@@ -761,7 +766,7 @@ class Profile extends React.Component {
                 <View>
                   {!user.accountStatus && (
                     <ButtonComponent
-                      title={`Account Status: Not Approved !!! \n Request For Approval`}
+                      title={`Account Status: Request For Approval`}
                       containerStyle={{
                         width: Scale.moderateScale(260),
                         alignSelf: "center",
@@ -1141,7 +1146,7 @@ class Profile extends React.Component {
         return (
           <EmptyView1
             // title={`No ads.\nNo bs.\nJust real people\nsharing rad posts! \n⚡⚡⚡`}
-            title={`Rad vibes, good times ⚡`}
+            title={`Rad vibes, good times `}
             button="Signup"
             textButton="Create account"
             image={require("../assets/logoH.png")}
@@ -1151,6 +1156,7 @@ class Profile extends React.Component {
               height: Scale.moderateScale(150),
               marginLeft: Scale.moderateScale(-30),
               marginBottom: Scale.moderateScale(-15),
+              // backgroundColor: "red",
             }}
             navigation={this.props.navigation}
             // icon={

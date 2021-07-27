@@ -372,7 +372,7 @@ class Post extends React.Component {
       // height: this.props.post.photo.height,
       width: type ? imageWidth : width * 1.5,
       height: type ? imageHeight : height * 1.5,
-      // compressImageQuality: 0.8,
+      compressImageQuality: 0.4,
     })
       .then((image) => {
         console.log(image);
@@ -524,49 +524,70 @@ class Post extends React.Component {
       const options = {
         startTime: this.state.startTime,
         endTime: this.state.endTime,
-        quality: "720*480", // iOS only
+        // quality: "720*480", // iOS only
         // quality: "1280x720", // iOS only
         // saveToCameraRoll: true, // default is false // iOS only
         // saveWithCurrentDate: true, // default is false // iOS only
       };
+
+      // const duration = this.state.endTime - this.state.startTime;
+
+      // this.props.updatePhoto({
+      //   ...this.props.post.photo,
+      //   duration: duration,
+      // });
+      // this.setState({ showLoading: false, paused: true });
+
+      // this.props.navigation.navigate("VideoCover", {
+      //   filteredImage: "",
+      // });
+      // return;
+
       ProcessingManager.trim(this.props.post.photo.uri, options) // like VideoPlayer trim options
         .then(async (newSource) => {
           const duration = this.state.endTime - this.state.startTime;
 
-          var videoSource = newSource;
-          // const origin = await ProcessingManager.getVideoInfo(newSource);
+          const origin = await ProcessingManager.getVideoInfo(newSource);
 
-          // alert(JSON.stringify(origin));
+          const videoSize = origin.size;
 
-          if (Platform.OS === "android") {
-            // const origin = await ProcessingManager.getVideoInfo(newSource);
-            const result = await ProcessingManager.compress(newSource, {
-              // width: origin.size && origin.size.width / 2,
-              // height: origin.size && origin.size.height / 2,
-              width: 640,
-              height: 480,
-              bitrateMultiplier: 3,
-              minimumBitrate: 300000,
-            });
+          // selectedFile.width = videoSize.width;
+          // selectedFile.height = videoSize.height;
+          var height = 800;
 
-            if (Platform.OS === "android") {
-              videoSource = result.source;
-            } else {
-              videoSource = result;
-            }
+          if (videoSize.height < 800) {
+            height = videoSize.height;
           }
 
-          // alert(JSON.stringify(result));
-          this.props.updatePhoto({
-            ...this.props.post.photo,
-            duration: duration,
-            uri: videoSource,
-          });
-          this.setState({ showLoading: false, paused: true });
+          var widthFactor = videoSize.width / videoSize.height;
+          var compressWidth = Math.round(height * widthFactor);
+          var compressHeight = height;
 
-          this.props.navigation.navigate("VideoCover", {
-            filteredImage: "",
-          });
+          ProcessingManager.compress(newSource, {
+            width: compressWidth,
+            height: compressHeight,
+            bitrateMultiplier: 7,
+            minimumBitrate: 800000,
+          })
+            .then(async (result) => {
+              var videoSource = result;
+
+              this.props.updatePhoto({
+                ...this.props.post.photo,
+                duration: duration,
+                uri: videoSource,
+              });
+              this.setState({ showLoading: false, paused: true });
+
+              this.props.navigation.navigate("VideoCover", {
+                filteredImage: "",
+              });
+            })
+            .catch((error) => {
+              this.setState({ showLoading: false });
+              console.log("error", error);
+              alert(error);
+            });
         });
     } catch (error) {
       alert(error);

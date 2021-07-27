@@ -49,9 +49,9 @@ let styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     backgroundColor: "#f8f8ff",
-    // justifyContent: "center",
+    justifyContent: "center",
     padding: Scale.moderateScale(16),
-    marginTop: Scale.moderateScale(60),
+    // paddingTop: Scale.moderateScale(60),
     // alignItems: "center",
   },
   global: {
@@ -107,7 +107,7 @@ module.exports = createReactClass({
                 width: Scale.moderateScale(240),
                 height: Scale.moderateScale(90),
                 transform: [{ scale: 1 }],
-                marginTop: Scale.moderateScale(60),
+                marginTop: Scale.moderateScale(20),
               },
             ]}
             source={require("../assets/logo.png")}
@@ -374,7 +374,7 @@ Signup
                 constants.colors.transparent,
               ]}
               textStyle={{
-                ...constants.fonts.HelveticaNeueThin,
+                // ...constants.fonts.HelveticaNeueThin,
                 fontSize: Scale.moderateScale(18),
               }}
               onPress={() => this.props.navigation.navigate("Signup")}

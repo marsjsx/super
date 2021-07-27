@@ -7,7 +7,6 @@ import { bindActionCreators } from "redux";
 import db from "../../config/firebase";
 
 import { validURL, openSettingsDialog } from "../../util/Helper";
-import { Ionicons } from "@expo/vector-icons";
 import Scale from "../../helpers/Scale";
 import TextInputComponent from "../../component/TextInputComponent";
 import ButtonComponent from "../../component/ButtonComponent";
@@ -85,7 +84,13 @@ import DropDownPicker from "../../component/dropdownpicker";
 
 import constants from "../../constants";
 import CountryPicker from "react-native-country-picker-modal";
-import { MaterialIcons } from "@expo/vector-icons";
+import {
+  MaterialIcons,
+  FontAwesome,
+  Ionicons,
+} from "react-native-vector-icons";
+import DataSecurityModal from "../../component/DataSecurityModal";
+
 class Signup extends React.Component {
   constructor(props) {
     super(props);
@@ -103,6 +108,7 @@ class Signup extends React.Component {
       loaderText: "",
       confirmationResult: null,
       userAccounts: ["Personal", "Brand"],
+      showDataSecurityModal: false,
     };
   }
 
@@ -147,6 +153,26 @@ class Signup extends React.Component {
         }
       });
     }
+
+    this.props.navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => {
+            if (this.props.user.accountType === "Brand") {
+              this.props.updateAccountType("Personal");
+            } else {
+              this.props.navigation.goBack();
+            }
+          }}
+        >
+          <Ionicons
+            style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+            name={"ios-arrow-back"}
+            size={30}
+          />
+        </TouchableOpacity>
+      ),
+    });
   };
 
   onPress = async (type = "") => {
@@ -306,8 +332,7 @@ class Signup extends React.Component {
 
   onSelectHandler(country) {
     const { callingCode, cca2, flag, name } = country;
-
-    this.setState({ countryCode: cca2, callingCode: callingCode });
+    this.setState({ countryCode: cca2, callingCode: callingCode[0] });
   }
   render() {
     // const { routeName } = this.props.navigation.state;
@@ -342,12 +367,13 @@ class Signup extends React.Component {
                   color: constants.colors.titleColor,
                   width: width - Scale.moderateScale(50),
                   fontSize: Scale.moderateScale(28),
+                  marginVertical: Scale.moderateScale(10),
                 }}
               >
-                {`Welcome to Super ✌✌`}
+                {`Welcome to Super !`}
               </Text>
 
-              <View
+              {/* <View
                 style={{
                   flexDirection: "row",
                   shadowOpacity: 0.1,
@@ -393,10 +419,10 @@ class Signup extends React.Component {
                     Brand
                   </Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
 
               <TextInputComponent
-                container={{ marginTop: Scale.moderateScale(16), padding: 0 }}
+                container={{ marginTop: Scale.moderateScale(40), padding: 0 }}
                 textContainer={{ paddingHorizontal: 10 }}
                 placeholder={
                   this.props.user.accountType == "Personal"
@@ -455,7 +481,17 @@ class Signup extends React.Component {
                   secureTextEntry
                 />
               )}
-
+              {/* {this.props.user.accountType == "Brand" && (
+                <TextInputComponent
+                  container={{ marginTop: 8 }}
+                  placeholder={"Password"}
+                  onChangeText={(input) => this.props.updatePassword(input)}
+                  value={this.props.user.password}
+                  keyboardType="email-address"
+                  autoCapitalize={false}
+                  secureTextEntry
+                />
+              )} */}
               <View
                 style={{
                   display: this.state.loginMode === "email" ? "flex" : "none",
@@ -486,7 +522,7 @@ class Signup extends React.Component {
                     alignItems: "center",
                     borderRadius: 5,
                     backgroundColor: "#fff",
-                    height: 40,
+                    height: Scale.moderateScale(40),
                     paddingHorizontal: 10,
                   }}
                 >
@@ -517,6 +553,14 @@ class Signup extends React.Component {
                     keyboardType={"numeric"}
                     maxLength={15}
                     value={this.state.phone}
+                  />
+                  <Ionicons
+                    name="ios-help-circle-outline"
+                    color={constants.colors.red}
+                    size={28}
+                    onPress={() =>
+                      this.setState({ showDataSecurityModal: true })
+                    }
                   />
                 </View>
 
@@ -627,7 +671,7 @@ class Signup extends React.Component {
               </TouchableOpacity>
 
               <ButtonComponent
-                title={"BACK TO LOGIN"}
+                title={"Back to Login"}
                 containerStyle={{
                   width: Scale.moderateScale(160),
                   alignSelf: "center",
@@ -638,18 +682,52 @@ class Signup extends React.Component {
                   constants.colors.transparent,
                 ]}
                 textStyle={{ fontSize: 16 }}
-                onPress={() => this.props.navigation.navigate("Login")}
+                onPress={() => {
+                  this.props.updateAccountType("Personal");
+                  this.props.navigation.navigate("Login");
+                }}
                 linearGradientStyle={{
                   paddingHorizontal: Scale.moderateScale(0),
                   // marginHorizontal: Scale.moderateScale(0),
                 }}
               />
+              {this.props.user.accountType === "Personal" && (
+                <ButtonComponent
+                  title={"BUSINESS ACCOUNT"}
+                  containerStyle={{
+                    alignSelf: "center",
+                  }}
+                  color={constants.colors.greyText}
+                  colors={[
+                    constants.colors.transparent,
+                    constants.colors.transparent,
+                  ]}
+                  textStyle={{ fontSize: 16, fontFamily: null }}
+                  onPress={() => this.props.updateAccountType("Brand")}
+                  linearGradientStyle={{
+                    paddingHorizontal: Scale.moderateScale(0),
+                    // marginHorizontal: Scale.moderateScale(0),
+                  }}
+                  textStyle={{
+                    fontSize: Scale.moderateScale(14),
+                    fontFamily: null,
+                  }}
+                />
+              )}
             </ScrollView>
             {/* </KeyboardAvoidingView> */}
             {this.state.showLoading ? showLoader(this.state.loaderText) : null}
 
             {/* <Image source={require("../assets/logo.png")} resizeMode="center" /> */}
           </ImageBackground>
+          <DataSecurityModal
+            Show={this.state.showDataSecurityModal}
+            Hide={() => {
+              this.setState({
+                showDataSecurityModal: false,
+              });
+            }}
+          />
         </View>
       </KeyboardAwareScrollView>
     );

@@ -157,7 +157,7 @@ class LikersAndViewers extends React.Component {
     }
   };
   goToUser = (user) => {
-    this.props.navigation.navigate("Profile", { uid: user.uid });
+    this.props.navigation.push("Profile", { uid: user.uid });
   };
   follow = (item) => {
     if (!this.props.user.uid) {

@@ -108,7 +108,7 @@ const RenderFullScreenPostItem = (props) => {
                   justifyContent: "center",
                   alignItems: "flex-start",
                   flex: 1,
-                  display: props.isChannel ? "none" : "flex",
+                  display: props.channelIds ? "none" : "flex",
                 }}
                 onPress={() => props.onUserPress()}
               >
@@ -192,7 +192,7 @@ const RenderFullScreenPostItem = (props) => {
               style={[
                 styles.bottom,
                 styles.absolute,
-                { display: props.isChannel ? "none" : "flex" },
+                { display: props.channelIds ? "none" : "flex" },
               ]}
             >
               <View style={[styles.row, {}]}>
@@ -385,7 +385,6 @@ const RenderFullScreenPostItem = (props) => {
                   position: "absolute",
                   top: Scale.moderateScale(44),
                   right: Scale.moderateScale(16),
-                  display: props.isChannel ? "none" : "flex",
                 },
               ]}
             >
@@ -408,59 +407,33 @@ const RenderFullScreenPostItem = (props) => {
               </TouchableOpacity>
             </View>
 
-            <View
-              style={[
-                {
-                  position: "absolute",
-                  top: Scale.moderateScale(60),
-                  right: Scale.moderateScale(16),
-                  left: Scale.moderateScale(16),
-                  display: props.isChannel ? "flex" : "none",
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={{
-                  alignItems: "center",
-                }}
-                onPress={() => {}}
+            {props.channelIds && (
+              <View
+                style={[
+                  {
+                    position: "absolute",
+                    top: Scale.moderateScale(60),
+                    alignSelf: "center",
+                  },
+                ]}
               >
-                {/* <ProgressiveImage
-                  thumbnailSource={{
-                    uri: props.preview,
-                  }}
-                  transparentBackground="transparent"
-                  source={{ uri: props.photo }}
+                <TouchableOpacity
                   style={{
-                    height: Scale.moderateScale(150),
-                    width: Scale.moderateScale(300),
-                    // marginLeft: Scale.moderateScale(50),
-                    tintColor: "#fff",
+                    alignItems: "center",
                   }}
-                  resizeMode="contain"
-                  placeHolder="none"
-                  // style={styles.roundImage50}
-                /> */}
-                {/* <Image
-                  style={{
-                    height: Scale.moderateScale(130),
-                    width: Scale.moderateScale(260),
-                    // marginLeft: Scale.moderateScale(50),
-                  }}
-                  source={require("../assets/vans.png")}
-                  resizeMode="contain"
-                /> */}
-
-                <FastImage
-                  style={{
-                    height: Scale.moderateScale(130),
-                    width: Scale.moderateScale(260),
-                  }}
-                  source={{ uri: props.photo }}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
+                  onPress={() => {}}
+                >
+                  <FastImage
+                    style={{
+                      height: Scale.moderateScale(100),
+                      width: Scale.moderateScale(200),
+                    }}
+                    source={{ uri: props.photo }}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
           </TouchableOpacity>
         </ElementContainer>
       </InstagramProvider>

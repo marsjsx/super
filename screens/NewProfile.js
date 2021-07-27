@@ -623,7 +623,7 @@ class ViewProfile extends React.Component {
               <View>
                 {!user.accountStatus && (
                   <View>
-                    <ButtonComponent
+                    {/* <ButtonComponent
                       title={`Account Status: Not Approved !!!`}
                       containerStyle={{
                         width: Scale.moderateScale(260),
@@ -640,7 +640,7 @@ class ViewProfile extends React.Component {
                         paddingHorizontal: Scale.moderateScale(0),
                         // marginHorizontal: Scale.moderateScale(0),
                       }}
-                    />
+                    /> */}
                     <ButtonComponent
                       title={"Request For Approval"}
                       color={constants.colors.white}

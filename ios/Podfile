@@ -87,6 +87,8 @@ target 'BareSuper' do
 
   pod 'react-native-contacts', :path => '../node_modules/react-native-contacts'
   
+  pod 'react-native-version-check', :path => '../node_modules/react-native-version-check'
+
 end
 
 post_install do |installer|

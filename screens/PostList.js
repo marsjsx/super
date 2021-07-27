@@ -115,7 +115,7 @@ class PostListScreen extends React.Component {
       this.props.logVideoView(post, routeName);
 
       this.resetTimer();
-    }, 1500);
+    }, 1000);
     this.setState({ timer });
     // }
   }
@@ -138,7 +138,9 @@ class PostListScreen extends React.Component {
     const { userPosts, route, channelId } = this.props.route.params;
 
     routeName = route;
-    this.setState({ userPosts: userPosts });
+    if (userPosts) {
+      this.setState({ userPosts: userPosts });
+    }
 
     if (routeName === "Channels") {
       selectedChannelId = channelId;
@@ -711,7 +713,7 @@ class PostListScreen extends React.Component {
           this.follow(item);
         }}
         showActionSheet={() => {
-          if (route === "Channels") return;
+          // if (route === "Channels") return;
 
           this.showActionSheet(item);
         }}
@@ -762,7 +764,7 @@ class PostListScreen extends React.Component {
   };
 
   render() {
-    let posts = {};
+    let posts = [];
     // const {
     //   route,
     //   selectedIndex,
@@ -781,7 +783,6 @@ class PostListScreen extends React.Component {
     } else {
       posts = this.props.user.posts;
     }
-
     posts = [...posts];
 
     if (this.props.post === null) return null;
@@ -803,9 +804,10 @@ class PostListScreen extends React.Component {
           ref={(ref) => {
             this.flatListRef = ref;
           }}
-          initialNumToRender={3}
-          maxToRenderPerBatch={3}
-          windowSize={5}
+          initialNumToRender={2}
+          maxToRenderPerBatch={2}
+          windowSize={3}
+          // windowSize={7}
           ListEmptyComponent={
             <EmptyView
               desc="No Data Found"

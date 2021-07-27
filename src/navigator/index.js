@@ -1279,7 +1279,8 @@ function ProfileNavigator({ navigation, route }) {
         component={EditProfile}
         options={({ navigation, route }) => ({
           headerTransparent: true,
-          title: "Edit Profile",
+          // title: "Edit Profile",
+          title: "",
           headerTitleStyle: {
             shadowOpacity: 0.6,
           },

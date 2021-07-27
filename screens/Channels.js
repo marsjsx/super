@@ -28,6 +28,7 @@ import Scale from "../helpers/Scale";
 import { showLoader } from "../util/Loader";
 const aspectRatio = width / height;
 import FlatListSlider from "../component/imageslider/FlatListSlider";
+import crashlytics from "@react-native-firebase/crashlytics";
 class Channels extends React.Component {
   state = {
     search: "",
@@ -74,7 +75,10 @@ class Channels extends React.Component {
   componentDidMount() {
     // uploadChannels();
     // uploadChannelPosts();
+    // crashlytics().crash();
+    // alert(array989898.length);
 
+    // alert("Called");
     if (!(this.props.channels && this.props.channels.channelsList.length > 0)) {
       // get list of channels
       this.props.getChannels();

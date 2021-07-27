@@ -14,4 +14,6 @@ export default {
   userplaceholder: require("../assets/profilePlaceholder.png"),
 
   applogo: require("../assets/applogo.png"),
+
+  view360: require("../assets/360viewpro.gif"),
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, BackHandler } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 // import HomeScreen from "./screens/Home";
@@ -21,6 +21,8 @@ import thunkMiddleware from "redux-thunk";
 import thunk from "redux-thunk";
 const middlewares = [thunk];
 import { MixpanelManager } from "./Analytics";
+import VersionCheck from "react-native-version-check";
+import AppVersionModal from "./src/appupdates/AppVersionModal";
 // compose(applyMiddleware(thunk))(createStore)(reducer)
 // const store = createStore(reducer, middleware);
 
@@ -53,8 +55,12 @@ export const observeStore = () => {
 function App() {
   const [store, setStore] = useState(initialStore);
   const [isStoreLoading, setIsStoreLoading] = useState(true);
+  const [showAppUpdateModal, setShowAppUpdateModal] = useState(false);
+  const [storeUrl, setStoreUrl] = useState("");
 
   useEffect(async () => {
+    checkUpdateNeeded();
+
     var initialState = store.getState();
     setIsStoreLoading(true);
 
@@ -128,12 +134,24 @@ function App() {
     }
     // observeStore();
   }, []);
+  const checkUpdateNeeded = async () => {
+    let updateNeeded = await VersionCheck.needUpdate();
+    if (updateNeeded && updateNeeded.isNeeded) {
+      //Alert the user and direct to the app url
+      setStoreUrl(updateNeeded.storeUrl);
+      setShowAppUpdateModal(true);
+    }
+    // setStoreUrl(updateNeeded.storeUrl);
+    // setShowAppUpdateModal(true);
+  };
 
   if (isStoreLoading) return <View />;
   return (
     <Provider store={store}>
       <AppNavigator />
       <FlashMessage position="top" />
+
+      {showAppUpdateModal && <AppVersionModal storeUrl={storeUrl} />}
       {/* <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={HomeScreen} />

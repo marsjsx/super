@@ -6,6 +6,7 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import db from "../../config/firebase";
 import { Alert } from "react-native";
+import MixpanelManager from "../../Analytics";
 
 import {
   Text,
@@ -45,7 +46,7 @@ import constants from "../../constants";
 // import Fumi from "../../component/textinput/Fumi";
 import TextInputComponent from "../../component/TextInputComponent";
 const { height, width } = Dimensions.get("window");
-
+import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import appleAuth, {
   AppleButton,
@@ -86,6 +87,26 @@ class Login extends React.Component {
           });
         }
       }
+    });
+
+    this.props.navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => {
+            if (this.state.loginMode === "email") {
+              this.setState({ loginMode: "phone" });
+            } else {
+              this.props.navigation.goBack();
+            }
+          }}
+        >
+          <Ionicons
+            style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+            name={"ios-arrow-back"}
+            size={30}
+          />
+        </TouchableOpacity>
+      ),
     });
   };
 
@@ -161,14 +182,29 @@ class Login extends React.Component {
       let userData = userQuery.data();
 
       if (userData && userData.username) {
+        var eventProperties = {
+          name: userData.username,
+          datetime: new Date(),
+          phone: userData.phone,
+        };
+        MixpanelManager.sharedInstance.trackEventWithProperties(
+          "Login",
+          eventProperties
+        );
+
         this.props.getLoggedInUserData(user.uid);
 
         //login
         this.props.getUser(user.uid, "LOGIN");
-        this.props.navigation.goBack();
-        // this.props.navigation.navigate("Home");
-        this.props.navigation.replace("HomeScreen");
-        this.props.navigation.navigate("WelcomeScreen");
+
+        this.props.navigation.popToTop();
+        this.props.navigation.replace("HomeScreen", {
+          showWelcomeScreen: true,
+        });
+
+        // this.props.navigation.goBack();
+        // this.props.navigation.replace("HomeScreen");
+        // this.props.navigation.navigate("WelcomeScreen");
       } else {
         // Signup
 
@@ -212,7 +248,6 @@ class Login extends React.Component {
         duration: 3000,
       });
     } catch (error) {
-      // alert(JSON.stringify(error));
       this.setState({ showLoading: false });
       Alert.alert("Error", "Invalid Phone Number");
     }
@@ -246,8 +281,7 @@ class Login extends React.Component {
   };
   onSelectHandler(country) {
     const { callingCode, cca2, flag, name } = country;
-
-    this.setState({ countryCode: cca2, callingCode: callingCode });
+    this.setState({ countryCode: cca2, callingCode: callingCode[0] });
   }
 
   render() {
@@ -280,12 +314,13 @@ class Login extends React.Component {
                 fontSize: Scale.moderateScale(30),
                 marginVertical: Scale.moderateScale(10),
                 letterSpacing: 3,
+                marginBottom: Scale.moderateScale(24),
               }}
             >
-              {`Welcome back 🤘`}
+              {`Welcome Back to Super !`}
             </Text>
 
-            <View
+            {/* <View
               style={{
                 flexDirection: "row",
                 marginVertical: Scale.moderateScale(20),
@@ -330,7 +365,7 @@ class Login extends React.Component {
                   Brand
                 </Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
             <View
               style={{
@@ -415,6 +450,8 @@ class Login extends React.Component {
                   alignItems: "center",
                   borderRadius: 5,
                   backgroundColor: "#fff",
+                  height: Scale.moderateScale(40),
+                  paddingHorizontal: 10,
                 }}
               >
                 <View style={style.pickerContainer}>
@@ -438,7 +475,7 @@ class Login extends React.Component {
                 </View>
 
                 <TextInputComponent
-                  container={{ flex: 1 }}
+                  container={{ flex: 1, padding: 0 }}
                   placeholder={"Phone Number"}
                   onChangeText={(input) => this.setState({ phone: input })}
                   keyboardType={"numeric"}
@@ -469,7 +506,7 @@ class Login extends React.Component {
                 /> */}
               <TextInputComponent
                 container={{ marginTop: 16, padding: 0 }}
-                textContainer={{ height: 47, paddingHorizontal: 10 }}
+                textContainer={{ paddingHorizontal: 10 }}
                 placeholder={"Enter Code"}
                 onChangeText={(input) =>
                   this.setState({ verificationCode: input })
@@ -547,7 +584,7 @@ class Login extends React.Component {
               containerStyle={{
                 width: Scale.moderateScale(250),
                 alignSelf: "center",
-                marginTop: Scale.moderateScale(24),
+                marginTop: Scale.moderateScale(8),
               }}
             />
 
@@ -582,54 +619,62 @@ class Login extends React.Component {
               }}
             />
 
-            {this.props.user.accountType !== "Brand" && (
+            {/* {this.props.user.accountType !== "Brand" && ( */}
+            <ButtonComponent
+              title={
+                this.state.loginMode === "email"
+                  ? "Did you sign up with phone number"
+                  : "Did you sign up with email"
+              }
+              containerStyle={{
+                width: Scale.moderateScale(300),
+                alignSelf: "center",
+              }}
+              color={constants.colors.pinkPurple}
+              colors={[
+                constants.colors.transparent,
+                constants.colors.transparent,
+              ]}
+              textStyle={{
+                fontSize: 16,
+                fontFamily: null,
+              }}
+              onPress={() => {
+                let loginMode = "email";
+                if (this.state.loginMode === "email") loginMode = "phone";
+
+                this.setState({ loginMode: loginMode });
+              }}
+              linearGradientStyle={{
+                paddingHorizontal: Scale.moderateScale(0),
+                // marginHorizontal: Scale.moderateScale(0),
+              }}
+            />
+            {this.state.loginMode === "phone" && (
               <ButtonComponent
-                title={
-                  this.state.loginMode === "email"
-                    ? "Did you sign up with phone number"
-                    : "Did you sign up with email"
-                }
+                title={"BUSINESS ACCOUNT"}
                 containerStyle={{
-                  width: Scale.moderateScale(300),
                   alignSelf: "center",
                 }}
-                color={constants.colors.pinkPurple}
+                color={constants.colors.greyText}
                 colors={[
                   constants.colors.transparent,
                   constants.colors.transparent,
                 ]}
-                textStyle={{
-                  fontSize: 16,
-                  fontFamily: null,
-                }}
-                onPress={() => {
-                  let loginMode = "email";
-                  if (this.state.loginMode === "email") loginMode = "phone";
-
-                  this.setState({ loginMode: loginMode });
-                }}
+                textStyle={{ fontSize: 16, fontFamily: null }}
+                onPress={() => this.setState({ loginMode: "email" })}
                 linearGradientStyle={{
                   paddingHorizontal: Scale.moderateScale(0),
                   // marginHorizontal: Scale.moderateScale(0),
                 }}
+                textStyle={{
+                  fontSize: Scale.moderateScale(14),
+                  fontFamily: null,
+                }}
               />
             )}
 
-            {/* <TouchableOpacity
-              style={styles.buttonFacebook}
-              onPress={() => this.onFaceBookLogin()}
-            >
-              <Text style={styles.textA}>Login with Facebook</Text>
-            </TouchableOpacity>
-            {appleAuth.isSupported && (
-              <AppleButton
-                cornerRadius={5}
-                style={styles.buttonApple}
-                buttonStyle={AppleButton.Style.WHITE}
-                buttonType={AppleButton.Type.SIGN_IN}
-                onPress={() => this.appleLoginLogin()}
-              />
-            )} */}
+            {/* )} */}
           </ScrollView>
         </KeyboardAvoidingView>
 

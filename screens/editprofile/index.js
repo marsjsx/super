@@ -20,7 +20,6 @@ import RadioForm, {
 import { buildPreview } from "../../component/BuildingPreview";
 import FastImage from "react-native-fast-image";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-// import { ImagePicker } from "react-native-image-picker";
 import * as ImagePicker1 from "expo-image-picker";
 import {
   Text,
@@ -134,14 +133,14 @@ class Signup extends React.Component {
 
   onAccountTypeChange(value) {
     // this.props.updateAccountType(value);
-
+    var user = this.state.user;
     user.accountType = value;
     this.setState({ user: user });
   }
 
   onDobChange(value) {
     // this.props.updateDOB(value.getTime());
-
+    var user = this.state.user;
     user.dob = value.getTime();
     this.setState({ user: user });
   }
@@ -267,6 +266,7 @@ class Signup extends React.Component {
           var imageData = "data:image/jpeg;base64," + imagePreview.base64;
           user.backgroundPreview = imageData;
           this.setState({ user: user });
+          this.props.updateUser(user);
         } else {
           // this.props.updatePhoto(image.path);
           // this.props.updateCompressedPhoto(image.path);
@@ -276,7 +276,7 @@ class Signup extends React.Component {
           user.photo = image.path;
           user.preview = imageData;
           this.setState({ user: user });
-
+          this.props.updateUser(user);
           // this.props.createAndUpdatePreview(image.path);
         }
       })
@@ -297,6 +297,7 @@ class Signup extends React.Component {
           user.photo = result.uri;
           user.preview = "";
           this.setState({ user: user });
+          this.props.updateUser(user);
         }
       } else {
         ImagePicker.openPicker({
@@ -544,7 +545,11 @@ class Signup extends React.Component {
                   }}
                 >
                   {this.props.user.accountType == "Brand"
-                    ? "Add/Change background"
+                    ? user.bgImage
+                      ? ""
+                      : "Add/Change background"
+                    : user.photo
+                    ? ""
                     : "Add/Change Photo"}
                 </Text>
                 <Ionicons

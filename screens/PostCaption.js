@@ -25,7 +25,6 @@ import {
   updateDescription,
   updateLocation,
   uploadPost,
-  uploadPostVideo,
   updatePhoto,
   createAndUpdatePreview,
   updatePhotoPreview,
@@ -485,7 +484,6 @@ const mapDispatchToProps = (dispatch) => {
     {
       updateDescription,
       uploadPost,
-      uploadPostVideo,
       updateLocation,
       uploadPhoto,
       updatePhoto,

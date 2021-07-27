@@ -45,6 +45,9 @@ export const deletePostFromProfile = (postId) => {
 export const deletePostFromFeed = (postId) => {
   return { type: "DELETE_POST_FROM_FEED", payload: postId };
 };
+export const deletePostFromChannels = (postId) => {
+  return { type: "DELETE_POST_FROM_CHANNELS", payload: postId };
+};
 
 export const updatePhotoPreview = (input) => {
   return { type: "UPDATE_POST_PREVIEW", payload: input };
@@ -179,9 +182,9 @@ export const uploadPost = (selectedChannels = []) => {
               db.collection("channelposts").doc(id).set(upload);
             } else {
               db.collection("posts").doc(id).set(upload);
-              dispatch({ type: "NEW_POST_ADDED", payload: upload });
               dispatch(addPostToFollowersTimeline(upload));
             }
+            dispatch({ type: "NEW_POST_ADDED", payload: upload });
 
             dispatch(updateFileUploadProgress(101));
             dispatch(updateFileUploadProgress(-1));
@@ -231,83 +234,6 @@ export const getPostById = (postId) => {
         });
     } catch (e) {
       alert(e);
-
-      /* console.error(e) */
-    }
-  };
-};
-export const uploadPostVideo = () => {
-  return async (dispatch, getState) => {
-    try {
-      showMessage({
-        message: "Started Post Uploading, Please wait...",
-        type: "info",
-        duration: 2000,
-      });
-
-      const { post, user } = getState();
-
-      // dispatch(uploadPhoto({}, post.videocover)).then((videoCoverUrl) => {
-      // alert(videoCoverUrl);
-      dispatch(uploadPhoto(post.photo)).then((imageurl) => {
-        if (imageurl) {
-          const id = uuid.v4();
-          const type = post.photo.type;
-          const upload = {
-            id: id,
-            postPhoto: imageurl,
-            type: type,
-            // videocover: videoCoverUrl,
-            postDescription: post.description || " ",
-            postLocation: post.location || " ",
-            uid: user.uid,
-            photo: user.photo || " ",
-            preview: post.preview || "",
-            username: user.username,
-            likes: [],
-            comments: [],
-            reports: [],
-            views: 0,
-            viewers: [],
-            date: new Date().getTime(),
-          };
-
-          dispatch({ type: "NEW_POST_ADDED", payload: upload });
-
-          // var posts = post.feed;
-          // alert(JSON.stringify(posts.length));
-          // var mergedposts = [...posts, upload];
-          // alert(JSON.stringify(mergedposts.length));
-
-          db.collection("posts").doc(id).set(upload);
-          dispatch(addPostToFollowersTimeline(upload));
-
-          dispatch(updateFileUploadProgress(-1));
-          dispatch(updatePhoto());
-          dispatch(updateDescription());
-          dispatch(updateLocation());
-
-          //  dispatch(getPosts());
-          // dispatch({ type: "SHOW_LOADING", payload: true });
-
-          //   dispatch(getUser(user.uid, "LOGIN"));
-
-          showMessage({
-            message: "Post Uploaded",
-            description: "Post Uploaded Successfully",
-            type: "success",
-            duration: 4000,
-          });
-          cleanExtractedImagesCache();
-        } else {
-          alert("Image Upload Error");
-        }
-
-        //  Toast.showSuccess("Post Uploaded Successfully");
-      });
-      // });
-    } catch (e) {
-      alert("Upload Error: " + e);
 
       /* console.error(e) */
     }
@@ -1006,12 +932,20 @@ export const removeUserPostFromTimeline = (uid) => {
 };
 export const deletePost = (item) => {
   return async (dispatch, getState) => {
-    const post = item.id;
+    const postId = item.id;
     try {
-      db.collection("posts").doc(post).delete();
-      dispatch(deletePostLocally(post));
-      dispatch(deletePostFromProfile(post));
-      dispatch(deletePostFromFeed(post));
+      if (item.channelIds) {
+        // Brand Post
+        db.collection("channelposts").doc(postId).delete();
+      } else {
+        db.collection("posts").doc(postId).delete();
+      }
+
+      dispatch(deletePostLocally(postId));
+      dispatch(deletePostFromProfile(postId));
+      dispatch(deletePostFromFeed(postId));
+      dispatch(deletePostFromChannels(postId));
+
       showMessage({
         message: "Post Delete Successfully",
         type: "success",
@@ -1236,6 +1170,7 @@ export const logVideoView = (post, routeName = "") => {
 
           db.collection("channelposts").doc(post.id).update({
             viewers: viewers,
+            // createdAt:1619807400000
           });
 
           dispatch({ type: CHANNELPOSTS_SUCCESS, payload: updatedPosts });
@@ -1477,7 +1412,7 @@ export const deletePostComment = (post, commentIndex) => {
     dispatch({ type: "GET_COMMENTS", payload: post.comments });
 
     try {
-      if (post.channelId) {
+      if (post.channelIds) {
         // channels Posts
 
         db.collection("channelposts")

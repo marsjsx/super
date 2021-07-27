@@ -276,8 +276,8 @@ class CropperPage extends React.Component {
     const { cropperParams } = this.state;
 
     const cropSize = {
-      width: CROP_AREA_WIDTH * 1.2,
-      height: CROP_AREA_HEIGHT * 1.2,
+      width: CROP_AREA_WIDTH * 1.6,
+      height: CROP_AREA_HEIGHT * 1.6,
     };
 
     const cropAreaSize = {
