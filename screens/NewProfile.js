@@ -830,11 +830,13 @@ class ViewProfile extends React.Component {
               <TouchableOpacity
                 style={{
                   flexDirection: "row",
-                  backgroundColor: "rgba(255,255,255,0.5)",
+                  // backgroundColor: "rgba(255,255,255,0.5)",
+                  borderColor: "#fff",
+                  borderWidth: 1,
                   width: width - Scale.moderateScale(40),
                   height: Scale.moderateScale(60),
                   marginTop: Scale.moderateScale(13),
-                  borderRadius: Scale.moderateScale(5),
+                  borderRadius: Scale.moderateScale(30),
                   padding: Scale.moderateScale(10),
                   alignItems: "center",
                 }}
@@ -875,6 +877,7 @@ class ViewProfile extends React.Component {
                     fontSize: Scale.moderateScale(14),
                     fontWeight: "700",
                     textAlign: "center",
+                    color: "#fff",
                   }}
                 >
                   {item.label ? item.label : "-"}
@@ -888,7 +891,7 @@ class ViewProfile extends React.Component {
                   size={32}
                   color={
                     routeName === "MyProfile"
-                      ? constants.colors.primary
+                      ? constants.colors.white
                       : "transparent"
                   }
                   onPress={() =>

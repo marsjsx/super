@@ -19,7 +19,7 @@ import appleAuth, {
   AppleAuthRequestOperation,
 } from "@invertase/react-native-apple-authentication";
 import { filterBlockedPosts, getUserPosts } from "./post";
-import { Alert } from "react-native";
+import { Alert, PermissionsAndroid } from "react-native";
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { buildPreview } from "../component/BuildingPreview";
@@ -1287,9 +1287,21 @@ export const getAllContacts = (refresh = false) => {
 
     try {
       if (Platform.OS === "android") {
-        console.log("PLATFORM => ", Platform.OS);
+        // console.log("PLATFORM => ", Platform.OS);
+        // PermissionsAndroid.request(
+        //   PermissionsAndroid.PERMISSIONS.WRITE_CONTACTS,
+        //   {
+        //     title: "Contacts",
+        //     message: "This app would like to view your contacts.",
+        //     buttonPositive: "Accept",
+        //   }
+        // )
+        //   .then((flag) => {
+        //     console.log("WRITE_CONTACTS Permission Granted => ", flag);
+
+        //     if (flag === "granted") {
         PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_CONTACTS,
+          PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
           {
             title: "Contacts",
             message: "This app would like to view your contacts.",
@@ -1297,31 +1309,20 @@ export const getAllContacts = (refresh = false) => {
           }
         )
           .then((flag) => {
-            console.log("WRITE_CONTACTS Permission Granted => ", flag);
-
+            console.log("READ_CONTACTS Permission Granted => ", flag);
             if (flag === "granted") {
-              PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-                {
-                  title: "Contacts",
-                  message: "This app would like to view your contacts.",
-                  buttonPositive: "Accept",
-                }
-              )
-                .then((flag) => {
-                  console.log("READ_CONTACTS Permission Granted => ", flag);
-                  if (flag === "granted") {
-                    dispatch(fectchContacts(refresh));
-                  }
-                })
-                .catch(() => {
-                  console.log("READ_CONTACTS Permission Denied");
-                });
+              dispatch(fectchContacts(refresh));
             }
           })
           .catch(() => {
-            console.log("WRITE_CONTACTS Permission Denied");
+            console.log("READ_CONTACTS Permission Denied");
           });
+        //   }
+        // })
+        // .catch(() => {
+        //   console.log("WRITE_CONTACTS Permission Denied");
+        //   alert("WRITE_CONTACTS Permission Denied");
+        // });
       } else {
         dispatch(fectchContacts(refresh));
       }

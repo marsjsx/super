@@ -292,7 +292,7 @@ class AvView extends React.Component {
             inputType="mono"
             imageUrl={this.props.source}
             onImageLoaded={this.onImageLoad}
-            // enableTouchTracking={true}
+            enableTouchTracking={true}
           />
 
           {!this.state.vrLoaded && (

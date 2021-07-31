@@ -68,7 +68,7 @@ class CameraView extends Component {
   takePicture = async () => {
     if (this.camera) {
       const options = {
-        quality: 0.5,
+        quality: 0.6,
         // width: 540,
         orientation: RNCamera.Constants.Orientation.portrait,
       };
@@ -283,6 +283,9 @@ class CameraView extends Component {
             return;
           }
 
+          // alert(JSON.stringify(data));
+          // return;
+
           let selectedFile = {};
           selectedFile.uri = data.uri;
           selectedFile.type = "video";
@@ -452,99 +455,78 @@ class CameraView extends Component {
   //   }
   // };
 
-  // openLibrary = async (type = "image") => {
-  //   const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-  //   if (status === "granted") {
-  //     this.setState({ showLoading: true });
-  //     ImagePicker.openPicker({
-  //       mediaType: "any",
-  //       // compressImageQuality: 0.5,
-  //       compressImageMaxWidth: 800,
-  //       compressVideoPreset: "Passthrough",
-  //       compressImageMaxHeight: 800,
-  //     })
-  //       .then(async (image) => {
-  //         var selectedFile = { ...image };
+  openLibrary1 = async (type = "image") => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      this.setState({ showLoading: true });
+      ImagePicker.openPicker({
+        mediaType: "any",
+        // compressImageQuality: 0.5,
+        // compressImageMaxWidth: 800,
+        compressVideoPreset: "Passthrough",
+        // compressImageMaxHeight: 800,
+      })
+        .then(async (image) => {
+          var selectedFile = { ...image };
 
-  //         if (image.mime && image.mime.toLowerCase().indexOf("video/") !== -1) {
-  //           selectedFile.type = "video";
-  //         } else {
-  //           selectedFile.type = "image";
-  //         }
+          if (image.mime && image.mime.toLowerCase().indexOf("video/") !== -1) {
+            selectedFile.type = "video";
+          } else {
+            selectedFile.type = "image";
+          }
+          // alert(JSON.stringify(image));
+          // return;
+          selectedFile.uri = image.path;
 
-  //         selectedFile.uri = image.path;
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+          // selectedFile.uri = image.path;
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
 
-  //         if (!this.props.user.uid) {
-  //           this.sheetRef.openSheet();
-  //           return;
-  //         }
-  //         // selectedFile.uri = image.path;
-  //         if (!this.props.user.uid) {
-  //           this.sheetRef.openSheet();
-  //           return;
-  //         }
+          if (selectedFile.type === "image") {
+            this.props.dispatch(
+              createAndUpdateFilterThumbnail(selectedFile.uri)
+            );
+          }
 
-  //         if (selectedFile.type === "video") {
-  //           var widthFactor = image.width / image.height;
-  //           // alert(heightFactor)
-  //           var compressWidth = Math.round(720 * widthFactor);
-  //           var compressHeight = 720;
-  //           ProcessingManager.compress(image.path, {
-  //             width: compressWidth,
-  //             height: compressHeight,
-  //             bitrateMultiplier: 7,
-  //             minimumBitrate: 600000,
-  //           })
-  //             .then(async (result) => {
-  //               this.setState({ showLoading: false });
-  //               selectedFile.uri = result;
+          this.setState({ showLoading: false });
+          selectedFile.uri = image.path;
 
-  //               this.props.dispatch(updatePhoto(selectedFile));
+          this.props.dispatch(updatePhoto(selectedFile));
 
-  //               this.props.dispatch(
-  //                 createAndUpdateFilterThumbnail(selectedFile.uri)
-  //               );
-
-  //               this.props.navigation.navigate("PostDetail");
-  //             })
-  //             .catch((error) => {
-  //               this.setState({ showLoading: false });
-  //               console.log("error", error);
-  //             });
-  //         } else {
-  //           this.setState({ showLoading: false });
-  //           selectedFile.uri = image.path;
-
-  //           this.props.dispatch(updatePhoto(selectedFile));
-
-  //           this.props.dispatch(
-  //             createAndUpdateFilterThumbnail(selectedFile.uri)
-  //           );
-
-  //           this.props.navigation.navigate("PostDetail");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         this.setState({ showLoading: false });
-  //         console.log("error", error);
-  //       });
-  //   }
-  // };
+          this.props.navigation.navigate("PostDetail");
+        })
+        .catch((error) => {
+          this.setState({ showLoading: false });
+          console.log("error", error);
+        });
+    }
+  };
 
   openLibrary = async (type = "image") => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status === "granted") {
       let options = {
         title: "Choose Media",
-        maxWidth: 1000,
-        maxHeight: 1000,
+        // maxWidth: 1000,
+        // maxHeight: 1000,
         noData: true,
         // quality: 0.5,
         mediaType: "mixed",
         videoQuality: "medium",
+        saveToPhotos: true,
         storageOptions: {
-          skipBackup: true,
+          cameraRoll: true,
+          waitUntilSaved: true,
         },
+        // storageOptions: {
+        //   skipBackup: true,
+        // },
       };
 
       launchImageLibrary(options, async (response) => {
@@ -571,6 +553,9 @@ class CameraView extends Component {
           }
 
           selectedFile.uri = response.uri;
+
+          // alert(JSON.stringify(selectedFile));
+          // return;
 
           // this.props.dispatch(updatePhoto(selectedFile));
 
@@ -869,7 +854,13 @@ class CameraView extends Component {
                 style={{
                   alignItems: "center",
                 }}
-                onPress={() => this.openLibrary()}
+                onPress={() => {
+                  if (Platform.OS === "android") {
+                    this.openLibrary1();
+                  } else {
+                    this.openLibrary();
+                  }
+                }}
               >
                 <Entypo name="images" style={{ color: "#fff", fontSize: 40 }} />
               </TouchableOpacity>

@@ -53,6 +53,8 @@ import appleAuth, {
   AppleAuthRequestScope,
   AppleAuthRequestOperation,
 } from "@invertase/react-native-apple-authentication";
+
+var autoVerified = true;
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -69,12 +71,18 @@ class Login extends React.Component {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    await auth().signOut();
     auth().onAuthStateChanged((user) => {
+      // alert(JSON.stringify(user));
       if (user) {
         var providerId = user.providerData[0].providerId;
 
         if (providerId === "phone") {
+          if (autoVerified) {
+            this.getUser(user);
+          }
+
           return;
         }
         this.props.getUser(user.uid, "LOGIN");
@@ -169,53 +177,59 @@ class Login extends React.Component {
         showLoading: true,
         loaderText: "Verifying verification code, Please wait....",
       });
+      autoVerified = false;
       const response = await this.state.confirmationResult.confirm(
         this.state.verificationCode
       );
-      const { additionalUserInfo, user } = response;
-
-      const userQuery = await db.collection("users").doc(user.uid).get();
-
       this.setState({
         showLoading: false,
       });
-      let userData = userQuery.data();
+      const { additionalUserInfo, user } = response;
 
-      if (userData && userData.username) {
-        var eventProperties = {
-          name: userData.username,
-          datetime: new Date(),
-          phone: userData.phone,
-        };
-        MixpanelManager.sharedInstance.trackEventWithProperties(
-          "Login",
-          eventProperties
-        );
+      this.getUser(user);
 
-        this.props.getLoggedInUserData(user.uid);
+      // const userQuery = await db.collection("users").doc(user.uid).get();
 
-        //login
-        this.props.getUser(user.uid, "LOGIN");
+      // this.setState({
+      //   showLoading: false,
+      // });
+      // let userData = userQuery.data();
 
-        this.props.navigation.popToTop();
-        this.props.navigation.replace("HomeScreen", {
-          showWelcomeScreen: true,
-        });
+      // if (userData && userData.username) {
+      //   var eventProperties = {
+      //     name: userData.username,
+      //     datetime: new Date(),
+      //     phone: userData.phone,
+      //   };
+      //   MixpanelManager.sharedInstance.trackEventWithProperties(
+      //     "Login",
+      //     eventProperties
+      //   );
 
-        // this.props.navigation.goBack();
-        // this.props.navigation.replace("HomeScreen");
-        // this.props.navigation.navigate("WelcomeScreen");
-      } else {
-        // Signup
+      //   this.props.getLoggedInUserData(user.uid);
 
-        // this.props.navigation.navigate("Signup", { uid: user.uid });
-        showMessage({
-          message: "Error",
-          description: "User Not Found, Please Create your account ",
-          type: "danger",
-          duration: 3000,
-        });
-      }
+      //   //login
+      //   this.props.getUser(user.uid, "LOGIN");
+
+      //   this.props.navigation.popToTop();
+      //   this.props.navigation.replace("HomeScreen", {
+      //     showWelcomeScreen: true,
+      //   });
+
+      //   // this.props.navigation.goBack();
+      //   // this.props.navigation.replace("HomeScreen");
+      //   // this.props.navigation.navigate("WelcomeScreen");
+      // } else {
+      //   // Signup
+
+      //   // this.props.navigation.navigate("Signup", { uid: user.uid });
+      //   showMessage({
+      //     message: "Error",
+      //     description: "User Not Found, Please Create your account ",
+      //     type: "danger",
+      //     duration: 3000,
+      //   });
+      // }
       // alert(JSON.stringify(response));
     } catch (error) {
       this.setState({
@@ -224,9 +238,62 @@ class Login extends React.Component {
       if (error.code === "auth/invalid-verification-code") {
         console.log("Invalid Verification Code");
         Alert.alert("Error", "Invalid Verification Code!");
+      } else if (error.code === "auth/session-expired") {
+        console.log("Session Expired");
+        // Alert.alert("Error", "Invalid Verification Code!");
       } else {
         alert(error);
       }
+    }
+  }
+
+  async getUser(user) {
+    this.setState({
+      showLoading: true,
+      loaderText: "Getting User Information, Please wait....",
+    });
+    const userQuery = await db.collection("users").doc(user.uid).get();
+
+    this.setState({
+      showLoading: false,
+    });
+
+    let userData = userQuery.data();
+
+    if (userData && userData.username) {
+      var eventProperties = {
+        name: userData.username,
+        datetime: new Date(),
+        phone: userData.phone,
+      };
+      MixpanelManager.sharedInstance.trackEventWithProperties(
+        "Login",
+        eventProperties
+      );
+
+      this.props.getLoggedInUserData(user.uid);
+
+      //login
+      this.props.getUser(user.uid, "LOGIN");
+
+      this.props.navigation.popToTop();
+      this.props.navigation.replace("HomeScreen", {
+        showWelcomeScreen: true,
+      });
+
+      // this.props.navigation.goBack();
+      // this.props.navigation.replace("HomeScreen");
+      // this.props.navigation.navigate("WelcomeScreen");
+    } else {
+      // Signup
+
+      // this.props.navigation.navigate("Signup", { uid: user.uid });
+      showMessage({
+        message: "Error",
+        description: "User Not Found, Please Create your account ",
+        type: "danger",
+        duration: 3000,
+      });
     }
   }
 
@@ -237,7 +304,7 @@ class Login extends React.Component {
         loaderText: "Sending verification code, Please wait....",
       });
       const confirmation = await auth().signInWithPhoneNumber(number);
-
+      autoVerified = true;
       this.setState({ confirmationResult: confirmation, showLoading: false });
 
       showMessage({
@@ -367,186 +434,143 @@ class Login extends React.Component {
               </TouchableOpacity>
             </View> */}
 
-            <View
-              style={{
-                display:
-                  this.state.loginMode === "email" ||
-                  this.props.user.accountType == "Brand"
-                    ? "flex"
-                    : "none",
-              }}
-            >
-              <TextInputComponent
-                container={{ marginTop: Scale.moderateScale(16) }}
-                placeholder={"Email"}
-                onChangeText={(input) => this.props.updateEmail(input)}
-                value={this.props.user.email}
-                ref={(ref) => (this.email = ref)}
-                keyboardType="email-address"
-                autoCapitalize={false}
-                returnKeyType="next"
-              />
-
-              <TextInputComponent
-                container={{ marginTop: 8 }}
-                placeholder={"Password"}
-                onChangeText={(input) => this.props.updatePassword(input)}
-                value={this.props.user.password}
-                keyboardType="email-address"
-                autoCapitalize={false}
-                secureTextEntry
-              />
-              {/* <Item floatingLabel style={[styles.textInput]}>
-                <Icon name="ios-key" style={{ color: "#ffffff" }} />
-                <Label style={{ color: "#ffffff", fontWeight: "500" }}>
-                  Password
-                </Label>
-                <Input
-                  style={{ color: "#ffffff" }}
-                  value={this.props.user.password}
-                  onChangeText={(input) => this.props.updatePassword(input)}
-                  secureTextEntry={true}
+            {(this.state.loginMode === "email" ||
+              this.props.user.accountType == "Brand") && (
+              <View style={{}}>
+                <TextInputComponent
+                  container={{ marginTop: Scale.moderateScale(16), padding: 0 }}
+                  textContainer={{ paddingHorizontal: 10 }}
+                  placeholder={"Email"}
+                  onChangeText={(input) => this.props.updateEmail(input)}
+                  value={this.props.user.email}
+                  ref={(ref) => (this.email = ref)}
+                  keyboardType="email-address"
+                  autoCapitalize={false}
+                  returnKeyType="next"
                 />
-              </Item> */}
-              <ButtonComponent
-                title={"Forgot Password?"}
-                containerStyle={{
-                  width: Scale.moderateScale(160),
-                  alignSelf: "flex-end",
-                }}
-                color={constants.colors.superRed}
-                colors={[
-                  constants.colors.transparent,
-                  constants.colors.transparent,
-                ]}
-                textStyle={{
-                  fontSize: 16,
-                  fontFamily: null,
-                  color: constants.colors.appRed,
-                }}
-                onPress={() => this.props.navigation.navigate("Reset")}
-                linearGradientStyle={{
-                  paddingHorizontal: Scale.moderateScale(0),
-                  // marginHorizontal: Scale.moderateScale(0),
-                  justifyContent: "flex-end",
-                }}
-              />
-            </View>
-
-            <View
-              style={{
-                display:
-                  this.state.loginMode === "phone" &&
-                  this.props.user.accountType !== "Brand"
-                    ? "flex"
-                    : "none",
-                justifyContent: "center",
-                marginTop: Scale.moderateScale(16),
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderRadius: 5,
-                  backgroundColor: "#fff",
-                  height: Scale.moderateScale(40),
-                  paddingHorizontal: 10,
-                }}
-              >
-                <View style={style.pickerContainer}>
-                  <CountryPicker
-                    countryCode={this.state.countryCode}
-                    // withFlag={true}
-                    withCallingCode
-                    onSelect={(c) => this.onSelectHandler(c)}
-                  />
-
-                  <MaterialIcons
-                    name="arrow-drop-down"
-                    color="#000"
-                    size={24}
-                  />
-                </View>
-                <View style={style.ccContainer}>
-                  <Text
-                    style={style.ccText}
-                  >{`+${this.state.callingCode}`}</Text>
-                </View>
 
                 <TextInputComponent
-                  container={{ flex: 1, padding: 0 }}
-                  placeholder={"Phone Number"}
-                  onChangeText={(input) => this.setState({ phone: input })}
-                  keyboardType={"numeric"}
-                  maxLength={15}
-                  value={this.state.phone}
+                  container={{ marginTop: Scale.moderateScale(16), padding: 0 }}
+                  textContainer={{ paddingHorizontal: 10 }}
+                  placeholder={"Password"}
+                  onChangeText={(input) => this.props.updatePassword(input)}
+                  value={this.props.user.password}
+                  keyboardType="email-address"
+                  autoCapitalize={false}
+                  secureTextEntry
+                />
+
+                <ButtonComponent
+                  title={"Forgot Password?"}
+                  containerStyle={{
+                    width: Scale.moderateScale(160),
+                    alignSelf: "flex-end",
+                  }}
+                  color={constants.colors.superRed}
+                  colors={[
+                    constants.colors.transparent,
+                    constants.colors.transparent,
+                  ]}
+                  textStyle={{
+                    fontSize: 16,
+                    fontFamily: null,
+                    color: constants.colors.appRed,
+                  }}
+                  onPress={() => this.props.navigation.navigate("Reset")}
+                  linearGradientStyle={{
+                    paddingHorizontal: Scale.moderateScale(0),
+                    // marginHorizontal: Scale.moderateScale(0),
+                    justifyContent: "flex-end",
+                  }}
                 />
               </View>
+            )}
 
-              {/* <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: Scale.moderateScale(10),
-                  borderBottomColor: constants.colors.white,
-                  borderBottomWidth: 0.5,
-                }}
-              > */}
-              {/* <TextInput
-                  style={style.textInput}
-                  underlineColorAndroid="transparent"
-                  placeholder="Verification Code"
-                  placeholderTextColor={constants.colors.white}
-                  keyboardType={"numeric"}
-                  value={this.state.verificationCode}
-                  onChangeText={(input) =>
-                    this.setState({ verificationCode: input })
-                  }
-                /> */}
-              <TextInputComponent
-                container={{ marginTop: 16, padding: 0 }}
-                textContainer={{ paddingHorizontal: 10 }}
-                placeholder={"Enter Code"}
-                onChangeText={(input) =>
-                  this.setState({ verificationCode: input })
-                }
-                maxLength={8}
-                value={this.state.verificationCode}
-                keyboardType={"numeric"}
-              />
-              {/* </View> */}
-
-              <ButtonComponent
-                title={
-                  this.state.confirmationResult ? "Resend Code" : "Send Code"
-                }
-                containerStyle={{
-                  width: Scale.moderateScale(160),
-                  alignSelf: "flex-end",
-                }}
-                color={constants.colors.appRed}
-                colors={[
-                  constants.colors.transparent,
-                  constants.colors.transparent,
-                ]}
-                textStyle={{ fontSize: 16, fontFamily: null }}
-                onPress={() => this.onClickLogin("Resend")}
-                linearGradientStyle={{
-                  paddingHorizontal: Scale.moderateScale(0),
-                  // marginHorizontal: Scale.moderateScale(0),
-                  justifyContent: "flex-end",
-                }}
-              />
-
-              {/* <TouchableOpacity onPress={() => this.onClickLogin("Resend")}>
-                <Text
-                  style={{ color: constants.colors.kellyGreen, fontSize: 16 }}
+            {this.state.loginMode === "phone" &&
+              this.props.user.accountType !== "Brand" && (
+                <View
+                  style={{
+                    justifyContent: "center",
+                    marginTop: Scale.moderateScale(16),
+                  }}
                 >
-                  {this.state.confirmationResult ? "Resend" : "Send"}
-                </Text>
-              </TouchableOpacity> */}
-            </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      borderRadius: 5,
+                      backgroundColor: "#fff",
+                      height: Scale.moderateScale(40),
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <View style={style.pickerContainer}>
+                      <CountryPicker
+                        countryCode={this.state.countryCode}
+                        // withFlag={true}
+                        withCallingCode
+                        onSelect={(c) => this.onSelectHandler(c)}
+                      />
+
+                      <MaterialIcons
+                        name="arrow-drop-down"
+                        color="#000"
+                        size={24}
+                      />
+                    </View>
+                    <View style={style.ccContainer}>
+                      <Text
+                        style={style.ccText}
+                      >{`+${this.state.callingCode}`}</Text>
+                    </View>
+
+                    <TextInputComponent
+                      container={{ flex: 1, padding: 0 }}
+                      placeholder={"Phone Number"}
+                      onChangeText={(input) => this.setState({ phone: input })}
+                      keyboardType={"numeric"}
+                      maxLength={15}
+                      value={this.state.phone}
+                    />
+                  </View>
+
+                  <TextInputComponent
+                    container={{ marginTop: 16, padding: 0 }}
+                    textContainer={{ paddingHorizontal: 10 }}
+                    placeholder={"Enter Code"}
+                    onChangeText={(input) =>
+                      this.setState({ verificationCode: input })
+                    }
+                    maxLength={8}
+                    value={this.state.verificationCode}
+                    keyboardType={"numeric"}
+                  />
+
+                  <ButtonComponent
+                    title={
+                      this.state.confirmationResult
+                        ? "Resend Code"
+                        : "Send Code"
+                    }
+                    containerStyle={{
+                      width: Scale.moderateScale(160),
+                      alignSelf: "flex-end",
+                    }}
+                    color={constants.colors.appRed}
+                    colors={[
+                      constants.colors.transparent,
+                      constants.colors.transparent,
+                    ]}
+                    textStyle={{ fontSize: 16, fontFamily: null }}
+                    onPress={() => this.onClickLogin("Resend")}
+                    linearGradientStyle={{
+                      paddingHorizontal: Scale.moderateScale(0),
+                      // marginHorizontal: Scale.moderateScale(0),
+                      justifyContent: "flex-end",
+                    }}
+                  />
+                </View>
+              )}
 
             {/* <Subtitle
               style={{

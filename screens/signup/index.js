@@ -90,6 +90,7 @@ import {
   Ionicons,
 } from "react-native-vector-icons";
 import DataSecurityModal from "../../component/DataSecurityModal";
+var autoVerified = true;
 
 class Signup extends React.Component {
   constructor(props) {
@@ -123,16 +124,21 @@ class Signup extends React.Component {
   onDobChange(value) {
     this.props.updateDOB(value.getTime());
   }
-  componentDidMount = () => {
+  componentDidMount = async () => {
     // const { routeName } = this.props.navigation.state;
     const routeName = this.props.route.name;
 
     if (routeName === "Signup") {
+      await auth().signOut();
+
       auth().onAuthStateChanged((user) => {
         if (user) {
           var providerId = user.providerData[0].providerId;
 
           if (providerId === "phone") {
+            if (autoVerified) {
+              this.getUser(user);
+            }
             return;
           }
           // this.props.getUser(user.uid, "LOGIN");
@@ -261,33 +267,36 @@ class Signup extends React.Component {
         showLoading: true,
         loaderText: "Verifying verification code, Please wait....",
       });
+      autoVerified = false;
       const response = await this.state.confirmationResult.confirm(
         this.state.verificationCode
       );
-      const { additionalUserInfo, user } = response;
-
-      const userQuery = await db.collection("users").doc(user.uid).get();
       this.setState({
         showLoading: false,
       });
-      let userData = userQuery.data();
-      if (userData && userData.username) {
-        showMessage({
-          message: "Error",
-          description: "User Account Already Exist",
-          type: "danger",
-          duration: 3000,
-        });
-      } else {
-        // Signup
+      const { additionalUserInfo, user } = response;
+      this.getUser(user);
 
-        this.props.signupWithPhoneNumber(
-          user.uid,
-          this.props.navigation,
-          this.state.phone,
-          this.state.callingCode
-        );
-      }
+      // const userQuery = await db.collection("users").doc(user.uid).get();
+
+      // let userData = userQuery.data();
+      // if (userData && userData.username) {
+      //   showMessage({
+      //     message: "Error",
+      //     description: "User Account Already Exist",
+      //     type: "danger",
+      //     duration: 3000,
+      //   });
+      // } else {
+      //   // Signup
+
+      //   this.props.signupWithPhoneNumber(
+      //     user.uid,
+      //     this.props.navigation,
+      //     this.state.phone,
+      //     this.state.callingCode
+      //   );
+      // }
       // alert(JSON.stringify(response));
     } catch (error) {
       this.setState({
@@ -299,6 +308,37 @@ class Signup extends React.Component {
       } else {
         alert(error);
       }
+    }
+  }
+
+  async getUser(user) {
+    this.setState({
+      showLoading: true,
+      loaderText: "Getting User Information, Please wait....",
+    });
+    const userQuery = await db.collection("users").doc(user.uid).get();
+
+    this.setState({
+      showLoading: false,
+    });
+
+    let userData = userQuery.data();
+    if (userData && userData.username) {
+      showMessage({
+        message: "Error",
+        description: "User Account Already Exist",
+        type: "danger",
+        duration: 3000,
+      });
+    } else {
+      // Signup
+
+      this.props.signupWithPhoneNumber(
+        user.uid,
+        this.props.navigation,
+        this.state.phone,
+        this.state.callingCode
+      );
     }
   }
 
@@ -492,7 +532,7 @@ class Signup extends React.Component {
                   secureTextEntry
                 />
               )} */}
-              <View
+              {/* <View
                 style={{
                   display: this.state.loginMode === "email" ? "flex" : "none",
                 }}
@@ -505,99 +545,100 @@ class Signup extends React.Component {
                     secureTextEntry={true}
                   />
                 </Item>
-              </View>
+              </View> */}
 
-              <View
-                style={{
-                  // display: this.state.loginMode === "phone" ? "flex" : "none",
-                  justifyContent: "center",
-                  display:
-                    this.props.user.accountType === "Brand" ? "none" : "flex",
-                  marginTop: Scale.moderateScale(16),
-                }}
-              >
+              {this.props.user.accountType !== "Brand" && (
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    borderRadius: 5,
-                    backgroundColor: "#fff",
-                    height: Scale.moderateScale(40),
-                    paddingHorizontal: 10,
+                    justifyContent: "center",
+                    marginTop: Scale.moderateScale(16),
                   }}
                 >
-                  <View style={style.pickerContainer}>
-                    <CountryPicker
-                      countryCode={this.state.countryCode}
-                      // withFlag={true}
-                      withCallingCode
-                      onSelect={(c) => this.onSelectHandler(c)}
-                    />
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      borderRadius: 5,
+                      backgroundColor: "#fff",
+                      height: Scale.moderateScale(40),
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <View style={style.pickerContainer}>
+                      <CountryPicker
+                        countryCode={this.state.countryCode}
+                        // withFlag={true}
+                        withCallingCode
+                        onSelect={(c) => this.onSelectHandler(c)}
+                      />
 
-                    <MaterialIcons
-                      name="arrow-drop-down"
-                      color="#000"
-                      size={24}
+                      <MaterialIcons
+                        name="arrow-drop-down"
+                        color="#000"
+                        size={24}
+                      />
+                    </View>
+                    <View style={style.ccContainer}>
+                      <Text
+                        style={style.ccText}
+                      >{`+${this.state.callingCode}`}</Text>
+                    </View>
+
+                    <TextInputComponent
+                      container={{ flex: 1, padding: 0 }}
+                      placeholder={"Phone Number"}
+                      onChangeText={(input) => this.setState({ phone: input })}
+                      keyboardType={"numeric"}
+                      maxLength={15}
+                      value={this.state.phone}
                     />
-                  </View>
-                  <View style={style.ccContainer}>
-                    <Text
-                      style={style.ccText}
-                    >{`+${this.state.callingCode}`}</Text>
+                    <Ionicons
+                      name="ios-help-circle-outline"
+                      color={constants.colors.red}
+                      size={28}
+                      onPress={() =>
+                        this.setState({ showDataSecurityModal: true })
+                      }
+                    />
                   </View>
 
                   <TextInputComponent
-                    container={{ flex: 1, padding: 0 }}
-                    placeholder={"Phone Number"}
-                    onChangeText={(input) => this.setState({ phone: input })}
-                    keyboardType={"numeric"}
-                    maxLength={15}
-                    value={this.state.phone}
-                  />
-                  <Ionicons
-                    name="ios-help-circle-outline"
-                    color={constants.colors.red}
-                    size={28}
-                    onPress={() =>
-                      this.setState({ showDataSecurityModal: true })
+                    container={{ marginTop: 16, padding: 0 }}
+                    textContainer={{ paddingHorizontal: 10 }}
+                    placeholder={"Enter Code"}
+                    onChangeText={(input) =>
+                      this.setState({ verificationCode: input })
                     }
+                    maxLength={8}
+                    value={this.state.verificationCode}
+                    keyboardType={"numeric"}
+                  />
+
+                  <ButtonComponent
+                    title={
+                      this.state.confirmationResult
+                        ? "Resend Code"
+                        : "Send Code"
+                    }
+                    containerStyle={{
+                      width: Scale.moderateScale(160),
+                      alignSelf: "flex-end",
+                    }}
+                    color={constants.colors.black}
+                    colors={[
+                      constants.colors.transparent,
+                      constants.colors.transparent,
+                    ]}
+                    textStyle={{ fontSize: 16 }}
+                    onPress={() => this.onPress("Resend")}
+                    linearGradientStyle={{
+                      paddingHorizontal: Scale.moderateScale(0),
+                      // marginHorizontal: Scale.moderateScale(0),
+                      justifyContent: "flex-end",
+                    }}
                   />
                 </View>
-
-                <TextInputComponent
-                  container={{ marginTop: 16, padding: 0 }}
-                  textContainer={{ paddingHorizontal: 10 }}
-                  placeholder={"Enter Code"}
-                  onChangeText={(input) =>
-                    this.setState({ verificationCode: input })
-                  }
-                  maxLength={8}
-                  value={this.state.verificationCode}
-                  keyboardType={"numeric"}
-                />
-
-                <ButtonComponent
-                  title={
-                    this.state.confirmationResult ? "Resend Code" : "Send Code"
-                  }
-                  containerStyle={{
-                    width: Scale.moderateScale(160),
-                    alignSelf: "flex-end",
-                  }}
-                  color={constants.colors.black}
-                  colors={[
-                    constants.colors.transparent,
-                    constants.colors.transparent,
-                  ]}
-                  textStyle={{ fontSize: 16 }}
-                  onPress={() => this.onPress("Resend")}
-                  linearGradientStyle={{
-                    paddingHorizontal: Scale.moderateScale(0),
-                    // marginHorizontal: Scale.moderateScale(0),
-                    justifyContent: "flex-end",
-                  }}
-                />
-              </View>
+              )}
 
               <View
                 style={{

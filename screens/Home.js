@@ -32,6 +32,7 @@ import {
   StatusBar,
   Alert,
   Linking,
+  SafeAreaView,
 } from "react-native";
 import {
   newPostsListner,
@@ -362,6 +363,11 @@ class Home extends React.Component {
         } else if ("Invite Friends" === actions[buttonIndex]) {
           this.props.navigation.navigate("MyContacts", { selectedTab: 1 });
         } else if ("Messages" === actions[buttonIndex]) {
+          if (!this.props.user.uid) {
+            this.sheetRef.openSheet();
+            return;
+          }
+
           this.props.navigation.navigate("Messages");
         } else {
         }
@@ -629,8 +635,9 @@ class Home extends React.Component {
     await ImagePicker.openCropper({
       path: selectedImage.path,
       cropping: true,
-      width: width * 1.5,
-      height: width * 1.5 * 1.6,
+      compressImageQuality: 0.8,
+      width: width * 2,
+      height: width * 2 * 1.6,
 
       // width: selectedImage.width,
       // height: selectedImage.height,
@@ -687,7 +694,7 @@ class Home extends React.Component {
       // }
 
       ImagePicker.openPicker({
-        compressImageQuality: 0.8,
+        // compressImageQuality: 0.8,
         mediaType: "photo",
       }).then((image) => {
         // alert(JSON.stringify(image));
@@ -1147,8 +1154,8 @@ class Home extends React.Component {
             onRefresh={() => {
               this.props.getFollowingPosts("REFRESH");
             }}
-            initialNumToRender={2}
-            maxToRenderPerBatch={2}
+            initialNumToRender={3}
+            maxToRenderPerBatch={3}
             windowSize={3}
             // windowSize={7}
             // refreshing={false}
@@ -1171,8 +1178,8 @@ class Home extends React.Component {
           />
           {/* ) : ( */}
           <FlatList
-            initialNumToRender={2}
-            maxToRenderPerBatch={2}
+            initialNumToRender={3}
+            maxToRenderPerBatch={3}
             windowSize={3}
             // windowSize={7}
             style={{ display: this.state.selectedTab == 0 ? "none" : "flex" }}
@@ -1203,7 +1210,7 @@ class Home extends React.Component {
             getItemLayout={this.getItemLayout}
           />
 
-          <View
+          {/* <View
             style={{
               position: "absolute",
               justifyContent: "space-between",
@@ -1255,7 +1262,7 @@ class Home extends React.Component {
                 ) : null}
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
 
           <ActionSheet
             ref={(c) => {
@@ -1352,60 +1359,65 @@ class Home extends React.Component {
               ) : null}
             </View>
           </Modal>
-          <View
+          <SafeAreaView
             style={{
-              flexDirection: "row",
               position: "absolute",
-              shadowOpacity: 0.4,
-              // transform: [{ rotate: "90deg" }],
-              top: Scale.moderateScale(44),
-              left: Scale.moderateScale(10),
-              // right: Scale.moderateScale(-55),
-              // bottom: height * 0.3,
+              top: Scale.moderateScale(16),
+              left: Scale.moderateScale(16),
             }}
           >
-            <TouchableOpacity
-              style={[
-                this.state.selectedTab == 0 ? styles.bottomwhiteborder : null,
-                {},
-              ]}
-              onPress={() => this.changeSelectedTab(0)}
-            >
-              <Text
-                style={[
-                  this.state.selectedTab == 0
-                    ? styles.activeLabel
-                    : styles.inactiveLabel,
-                ]}
-              >
-                friends
-              </Text>
-            </TouchableOpacity>
             <View
               style={{
-                width: 2,
-                backgroundColor: "white",
-                margin: Scale.moderateScale(10),
+                flexDirection: "row",
+                shadowOpacity: 0.4,
+
+                // right: Scale.moderateScale(-55),
+                // bottom: height * 0.3,
               }}
-            />
-            <TouchableOpacity
-              style={[
-                this.state.selectedTab == 1 ? styles.bottomwhiteborder : null,
-                {},
-              ]}
-              onPress={() => this.changeSelectedTab(1)}
             >
-              <Text
+              <TouchableOpacity
                 style={[
-                  this.state.selectedTab == 1
-                    ? styles.activeLabel
-                    : styles.inactiveLabel,
+                  this.state.selectedTab == 0 ? styles.bottomwhiteborder : null,
+                  {},
                 ]}
+                onPress={() => this.changeSelectedTab(0)}
               >
-                explore
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Text
+                  style={[
+                    this.state.selectedTab == 0
+                      ? styles.activeLabel
+                      : styles.inactiveLabel,
+                  ]}
+                >
+                  friends
+                </Text>
+              </TouchableOpacity>
+              <View
+                style={{
+                  width: 2,
+                  backgroundColor: "white",
+                  margin: Scale.moderateScale(10),
+                }}
+              />
+              <TouchableOpacity
+                style={[
+                  this.state.selectedTab == 1 ? styles.bottomwhiteborder : null,
+                  {},
+                ]}
+                onPress={() => this.changeSelectedTab(1)}
+              >
+                <Text
+                  style={[
+                    this.state.selectedTab == 1
+                      ? styles.activeLabel
+                      : styles.inactiveLabel,
+                  ]}
+                >
+                  explore
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
           <View style={{ position: "absolute" }}>
             <OfflineNotice />
           </View>

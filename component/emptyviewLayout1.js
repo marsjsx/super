@@ -353,10 +353,7 @@ Signup
               }}
               color="#fff"
               colors={[constants.colors.black, constants.colors.black]}
-              textStyle={{
-                ...constants.fonts.HelveticaNeueThin,
-                marginTop: Scale.moderateScale(8),
-              }}
+              textStyle={{}}
               onPress={() => this.props.navigation.navigate("Login")}
             />
           );
@@ -373,10 +370,6 @@ Signup
                 constants.colors.transparent,
                 constants.colors.transparent,
               ]}
-              textStyle={{
-                // ...constants.fonts.HelveticaNeueThin,
-                fontSize: Scale.moderateScale(18),
-              }}
               onPress={() => this.props.navigation.navigate("Signup")}
               linearGradientStyle={{
                 paddingHorizontal: Scale.moderateScale(0),

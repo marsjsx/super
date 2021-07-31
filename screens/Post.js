@@ -250,13 +250,14 @@ class Post extends React.Component {
       this.openLibrary();
       this.showHeader();
     } else if (this.props.post.photo.type === "image") {
-      // alert(JSON.stringify(this.props.post.photo));
-      if (Platform.OS === "android") {
-        this.cropImage();
-        this.showHeader();
-      } else {
-        this.onFullScreen();
-      }
+      this.onFullScreen();
+
+      // if (Platform.OS === "android") {
+      //   this.cropImage();
+      //   this.showHeader();
+      // } else {
+      //   this.onFullScreen();
+      // }
     } else if (this.props.post.photo.type === "vr") {
       this.cropImage("vr");
       this.showHeader();
@@ -372,7 +373,7 @@ class Post extends React.Component {
       // height: this.props.post.photo.height,
       width: type ? imageWidth : width * 1.5,
       height: type ? imageHeight : height * 1.5,
-      compressImageQuality: 0.4,
+      compressImageQuality: 0.5,
     })
       .then((image) => {
         console.log(image);
@@ -516,8 +517,39 @@ class Post extends React.Component {
     }
   }
 
-  trimVideo() {
+  async trimVideo() {
     try {
+      // let response = await this.videoPlayerRef.save();
+      // alert(JSON.stringify(response));
+      // return
+      // portrait video output 720 x 1280
+      // const origin = await ProcessingManager.getVideoInfo(
+      //   this.props.post.photo.uri
+      // );
+
+      // const videoSize = origin.size;
+
+      // const aspectRatio = 640 / 480;
+      // const outputWidth = videoSize.width;
+      // const outputHeight = parseInt(outputWidth * aspectRatio);
+      // const options1 = {
+      //   cropWidth: videoSize.width,
+      //   cropHeight: outputHeight,
+      //   cropOffsetX: 0,
+      //   cropOffsetY: parseInt(Math.abs((videoSize.height - outputHeight) / 2)),
+      // };
+      // var result = await ProcessingManager.crop(
+      //   this.props.post.photo.uri,
+      //   options1
+      // );
+      // // alert(JSON.stringify(result));
+      // // return;
+
+      // const origin1 = await ProcessingManager.getVideoInfo(result);
+
+      // alert(JSON.stringify(origin1));
+      // return;
+
       // alert(this.state.startTime + " " + this.state.endTime);
       this.setState({ showLoading: true, paused: true });
 
@@ -551,6 +583,9 @@ class Post extends React.Component {
 
           const videoSize = origin.size;
 
+          // alert(JSON.stringify(origin));
+          // return;
+
           // selectedFile.width = videoSize.width;
           // selectedFile.height = videoSize.height;
           var height = 800;
@@ -562,15 +597,32 @@ class Post extends React.Component {
           var widthFactor = videoSize.width / videoSize.height;
           var compressWidth = Math.round(height * widthFactor);
           var compressHeight = height;
+          // this.props.updatePhoto({
+          //   ...this.props.post.photo,
+          //   duration: duration,
+          //   uri: newSource,
+          // });
+          // this.setState({ showLoading: false, paused: true });
+
+          // this.props.navigation.navigate("VideoCover", {
+          //   filteredImage: "",
+          // });
 
           ProcessingManager.compress(newSource, {
             width: compressWidth,
             height: compressHeight,
-            bitrateMultiplier: 7,
-            minimumBitrate: 800000,
+            bitrateMultiplier: 3,
+            minimumBitrate: 1500000,
           })
             .then(async (result) => {
-              var videoSource = result;
+              var videoSource = "";
+
+              if (Platform.OS === "android") {
+                videoSource = result.source;
+              } else {
+                videoSource = result;
+              }
+              // alert(JSON.stringify(result));
 
               this.props.updatePhoto({
                 ...this.props.post.photo,
@@ -878,7 +930,8 @@ class Post extends React.Component {
     const selectedFile = this.props.post.photo;
     const { width, height, uri, type } = this.props.post.photo;
 
-    if (type == "image" && Platform.OS === "ios") {
+    // if (type == "image" && Platform.OS === "ios") {
+    if (type == "image") {
       // if (type == "image" && Platform.OS === "ios" && !this.state.isCropped) {
       return (
         <CropperPage

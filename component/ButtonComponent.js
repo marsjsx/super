@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
     // marginHorizontal: Scale.moderateScale(8),
   },
   textStyle: {
-    fontWeight: "500",
+    // fontWeight: "500",
     // marginVertical: Scale.moderateScale(5),
-    fontSize: Scale.moderateScale(20),
+    fontSize: Scale.moderateScale(18),
     // ...constants.fonts.OswaldSemiBold,
   },
   iconStyle: {

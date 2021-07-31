@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+} from "react-native";
 import Scale, { scale } from "../helpers/Scale";
 import constants from "../constants";
 import ProgressiveImage from "../component/ProgressiveImage";
@@ -378,35 +385,33 @@ const RenderFullScreenPostItem = (props) => {
                 {moment(props.date).format("ll")}
               </Text>
             </View> */}
-
-            <View
-              style={[
-                {
-                  position: "absolute",
-                  top: Scale.moderateScale(44),
-                  right: Scale.moderateScale(16),
-                },
-              ]}
+            <SafeAreaView
+              style={{
+                position: "absolute",
+                top: Scale.moderateScale(16),
+                right: Scale.moderateScale(16),
+              }}
             >
-              <TouchableOpacity
-                style={{
-                  alignItems: "center",
-                  marginLeft: Scale.moderateScale(6),
-                  padding: 4,
-                }}
-                onPress={() => props.showActionSheet()}
-              >
-                <Ionicons
+              <View style={[{}]}>
+                <TouchableOpacity
                   style={{
-                    margin: 0,
-                    color: "rgb(255,255,255)",
+                    alignItems: "center",
+                    marginLeft: Scale.moderateScale(6),
+                    padding: 4,
                   }}
-                  name="ios-more"
-                  size={32}
-                />
-              </TouchableOpacity>
-            </View>
-
+                  onPress={() => props.showActionSheet()}
+                >
+                  <Ionicons
+                    style={{
+                      margin: 0,
+                      color: "rgb(255,255,255)",
+                    }}
+                    name="ios-more"
+                    size={32}
+                  />
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
             {props.channelIds && (
               <View
                 style={[

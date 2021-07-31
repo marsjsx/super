@@ -252,9 +252,9 @@ class Signup extends React.Component {
   cropImage = async (selectedImage, type) => {
     await ImagePicker.openCropper({
       path: selectedImage.path,
-
-      width: width * 1.5,
-      height: width * 1.5 * 1.6,
+      compressImageQuality: 0.8,
+      width: width * 2,
+      height: width * 2 * 1.6,
     })
       .then(async (image) => {
         console.log(image);
@@ -340,13 +340,14 @@ class Signup extends React.Component {
       >
         <View style={[styles.container, styles.space]}>
           <View>
-            <ProgressiveImage
+            {/* {alert(user.photo)} */}
+            <FastImage
               source={
                 this.props.user.accountType == "Brand"
                   ? user.bgImage
                     ? { uri: user.bgImage }
                     : constants.images.backgroundImagePlaceholder
-                  : user.photo
+                  : user.photo && user.photo.length > 5
                   ? { uri: user.photo }
                   : constants.images.backgroundImagePlaceholder
               }

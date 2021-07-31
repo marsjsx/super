@@ -71,7 +71,11 @@ class Messages extends React.Component {
     if (!this.props.messages) {
       this.props.getMessages();
     }
-    this.props.refs(this);
+
+    if (this.props && this.props.refs) {
+      this.props.refs(this);
+    }
+
     // this.props.navigation.setParams({
     //   newMessage: this.goToNewMessage,
     // });

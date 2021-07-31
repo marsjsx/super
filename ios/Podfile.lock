@@ -222,7 +222,6 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.7)
   - BVLinearGradient (2.5.6):
     - React
-  - CTPanoramaView (1.2)
   - DoubleConversion (1.1.6)
   - EXAV (8.1.0):
     - UMCore
@@ -446,12 +445,6 @@ PODS:
     - nanopb/encode (= 2.30907.0)
   - nanopb/decode (2.30907.0)
   - nanopb/encode (2.30907.0)
-  - PanoramaView (0.1.3):
-    - PanoramaView/Core (= 0.1.3)
-    - React
-  - PanoramaView/Core (0.1.3):
-    - CTPanoramaView (= 1.2)
-    - React
   - Permission-Camera (2.1.5):
     - RNPermissions
   - Permission-LocationWhenInUse (2.1.5):
@@ -664,6 +657,8 @@ PODS:
     - React
   - react-native-netinfo (5.9.10):
     - React-Core
+  - react-native-panorama-view (1.0.0):
+    - React
   - react-native-safe-area-context (0.6.4):
     - React
   - react-native-slider (3.0.3):
@@ -823,7 +818,6 @@ DEPENDENCIES:
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
-  - "PanoramaView (from `../node_modules/@lightbase/react-native-panorama-view`)"
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera.podspec`)
   - Permission-LocationWhenInUse (from `../node_modules/react-native-permissions/ios/LocationWhenInUse.podspec`)
   - Permission-PhotoLibrary (from `../node_modules/react-native-permissions/ios/PhotoLibrary.podspec`)
@@ -849,6 +843,7 @@ DEPENDENCIES:
   - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - "react-native-panorama-view (from `../node_modules/@lightbase/react-native-panorama-view`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
@@ -906,7 +901,6 @@ SPEC REPOS:
     - Bolts
     - boost-for-react-native
     - BoringSSL-GRPC
-    - CTPanoramaView
     - FBSDKCoreKit
     - FBSDKLoginKit
     - FBSDKShareKit
@@ -983,8 +977,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   MixpanelReactNative:
     :path: "../node_modules/mixpanel-react-native"
-  PanoramaView:
-    :path: "../node_modules/@lightbase/react-native-panorama-view"
   Permission-Camera:
     :path: "../node_modules/react-native-permissions/ios/Camera.podspec"
   Permission-LocationWhenInUse:
@@ -1031,6 +1023,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-maps"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
+  react-native-panorama-view:
+    :path: "../node_modules/@lightbase/react-native-panorama-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
@@ -1136,7 +1130,6 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
-  CTPanoramaView: cc2a4e3bc324ccac4520375b131755747da27a7c
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   EXAV: ed8de7f07a76c540815fbb2cc4686b97f4b038b5
   EXConstants: 9f18e9ef229706394f41735d9c7f309d479b36c0
@@ -1182,7 +1175,6 @@ SPEC CHECKSUMS:
   Mixpanel-swift: ef37387899c8967fa95d492887f4bcc980041aa0
   MixpanelReactNative: 7dd146fc6f5d717e2c5137d89843fe551435f860
   nanopb: 59221d7f958fb711001e6a449489542d92ae113e
-  PanoramaView: a6253ccab49f49c4aa71c8e9f2ef3c5e30072037
   Permission-Camera: 53d46bd722aea28d796e20f05fb3cbe6cde6ccb6
   Permission-LocationWhenInUse: 16ecd20d82341c6b4336dfe5520c098bea85a2f5
   Permission-PhotoLibrary: 3400b260e5f80e0dd9c04d00c2ceab233bf88427
@@ -1207,6 +1199,7 @@ SPEC CHECKSUMS:
   react-native-image-resizer: 00e7112ccb46f4dd27e2f0822e65e4389ac39573
   react-native-maps: 6e499eee4eabf422ba8b6f94e993cc768bf35153
   react-native-netinfo: 52cf0ee8342548a485e28f4b09e56b477567244d
+  react-native-panorama-view: be445aa781b4c0c93017f716faab1c2d24622a14
   react-native-safe-area-context: 042dfc9d4db17196841df962ba9497f6e7a5bd02
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
@@ -1260,6 +1253,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: 4e6c4c34a89512e2225d336154df1cb689226a29
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 64d588d6528c73e16c82882f6619312e9e6ccf11
+PODFILE CHECKSUM: 219c3d6925002d6680104276c64e01d3fba935b5
 
 COCOAPODS: 1.10.1

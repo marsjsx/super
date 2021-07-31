@@ -87,10 +87,10 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     paddingHorizontal: Scale.moderateScale(5),
-    padding: Scale.moderateScale(10),
+    // padding: Scale.moderateScale(10),
     backgroundColor: constants.colors.white,
     borderRadius: Scale.moderateScale(5),
-    // height: Scale.moderateScale(40),
+    height: Scale.moderateScale(40),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   inputStyle: {
-    ...constants.fonts.PoppinsRegular,
     textAlign: "left",
     textAlignVertical: "center",
     fontSize: Scale.moderateScale(12),

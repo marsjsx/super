@@ -146,12 +146,14 @@ class SearchUsers extends React.Component {
         }}
         transparentBackground="transparent"
         source={{ uri: item.photo }}
-        style={styles.roundImage}
+        style={styles.roundImage50}
       />
       {/* <Image style={styles.roundImage} source={{ uri: item.photo }} /> */}
 
       <View style={[styles.container, styles.left]}>
-        <Text style={styles.bold}>{item.username}</Text>
+        <Text style={[styles.bold, { fontSize: Scale.moderateScale(14) }]}>
+          {item.username}
+        </Text>
         <Text style={styles.gray}>{item.bio}</Text>
       </View>
     </TouchableOpacity>
