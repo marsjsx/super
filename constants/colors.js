@@ -13,6 +13,7 @@ export default {
   superRed: "#db565b",
   superRed1: "#db565b",
   feedsStatsColor: "#ffffff",
+  gray100: "#F5F5F5",
   pinkPurple: "#ec38da",
   red: "#ff0000",
   warmGrey: "#8f8f8f",

@@ -29,6 +29,7 @@ import { showLoader } from "../util/Loader";
 const aspectRatio = width / height;
 import FlatListSlider from "../component/imageslider/FlatListSlider";
 import crashlytics from "@react-native-firebase/crashlytics";
+import constants from "../constants";
 class Channels extends React.Component {
   state = {
     search: "",
@@ -84,18 +85,18 @@ class Channels extends React.Component {
       this.props.getChannels();
     }
 
-    this.props.navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 16 }}
-          onPress={() => {
-            this.props.navigation.navigate("SearchUsers");
-          }}
-        >
-          <Ionicons name="ios-search" size={32} color="black" />
-        </TouchableOpacity>
-      ),
-    });
+    // this.props.navigation.setOptions({
+    //   headerRight: () => (
+    //     <TouchableOpacity
+    //       style={{ marginRight: 16 }}
+    //       onPress={() => {
+    //         this.props.navigation.navigate("SearchUsers");
+    //       }}
+    //     >
+    //       <Ionicons name="ios-search" size={32} color="black" />
+    //     </TouchableOpacity>
+    //   ),
+    // });
   }
 
   searchUser = async () => {
@@ -150,7 +151,7 @@ class Channels extends React.Component {
     //    this.searchFilterFunction(this.state.search);
   };
   searchFilterFunction = (text) => {
-    this.setState({ search: text });
+    // this.setState({ search: text });
     // const newData = this.state.users.filter((item) => {
     //   const itemData = `${item.username.toUpperCase()}`;
 
@@ -165,6 +166,20 @@ class Channels extends React.Component {
     //   //search data from api
     //   this.start(text);
     // }
+    this.setState({ search: text });
+    const newData = this.state.users.filter((item) => {
+      const itemData = `${item.username.toUpperCase()}`;
+
+      const textData = text.toUpperCase();
+
+      return itemData.indexOf(textData) > -1;
+    });
+
+    this.setState({ query: newData });
+    if (newData.length < 1) {
+      //search data from api
+      this.start(text);
+    }
   };
   onChangeHandler = async (message) => {
     this.start(message);
@@ -235,12 +250,14 @@ class Channels extends React.Component {
         }}
         transparentBackground="transparent"
         source={{ uri: item.photo }}
-        style={styles.roundImage}
+        style={styles.roundImage50}
       />
       {/* <Image style={styles.roundImage} source={{ uri: item.photo }} /> */}
 
       <View style={[styles.container, styles.left]}>
-        <Text style={styles.bold}>{item.username}</Text>
+        <Text style={[styles.bold, { fontSize: Scale.moderateScale(14) }]}>
+          {item.username}
+        </Text>
         <Text style={styles.gray}>{item.bio}</Text>
       </View>
     </TouchableOpacity>
@@ -315,34 +332,31 @@ class Channels extends React.Component {
   listHeaderComponent() {
     return (
       <View style={{ marginBottom: Scale.moderateScale(12) }}>
-        <FlatListSlider
-          data={this.state.data}
-          height={Scale.moderateScale(200)}
-          timer={5000}
-          onPress={(item) => alert(JSON.stringify(item))}
-          indicatorContainerStyle={{ position: "absolute", bottom: 20 }}
-          indicatorActiveColor={"#8e44ad"}
-          indicatorInActiveColor={"#ffffff"}
-          indicatorActiveWidth={30}
-          animation
-        />
-
         <View
           style={[
             styles.container,
             styles.row,
             styles.center,
-            { display: "none" },
+            { backgroundColor: constants.colors.gray100, margin: 16 },
           ]}
         >
+          <TouchableOpacity
+            style={{ marginLeft: Scale.moderateScale(10) }}
+            onPress={() => {
+              this.props.navigation.navigate("SearchUsers");
+            }}
+          >
+            <Ionicons name="ios-search" size={24} color="black" />
+          </TouchableOpacity>
           <TextInput
             ref="input"
-            style={[styles.inputSearch]}
+            style={{ flex: 1, padding: 10, fontSize: 16 }}
             onChangeText={(search) => this.searchFilterFunction(search.trim())}
             value={this.state.search}
             returnKeyType="send"
-            placeholder="Search"
+            placeholder="Search users and brands"
             onFocus={() => this.setState({ focused: true })}
+            onSubmitEditing={this.searchUser}
             // onBlur={() => alert("onBlured")}
             // onSubmitEditing={this.searchUser}
           />
@@ -352,25 +366,12 @@ class Channels extends React.Component {
                 this.refs.input.blur();
                 this.setState({ focused: false });
               }}
+              style={{ marginRight: Scale.moderateScale(10) }}
             >
-              <Text style={{ color: "blue", padding: 10 }}>Cancel</Text>
+              <Text style={{ color: "blue" }}>Cancel</Text>
             </TouchableOpacity>
           )}
         </View>
-
-        <Text
-          style={{
-            fontSize: Scale.moderateScale(28),
-            marginHorizontal: Scale.moderateScale(10),
-            marginVertical: Scale.moderateScale(32),
-            fontWeight: "400",
-            letterSpacing: 2,
-            display: "none",
-            lineHeight: Scale.moderateScale(45),
-          }}
-        >
-          {"Welcome to Super's Channels"}
-        </Text>
         {this.state.focused && (
           <FlatList
             initialNumToRender="10"
@@ -396,6 +397,32 @@ class Channels extends React.Component {
               <Text>No User Found</Text>
             </View>
           )}
+
+        <FlatListSlider
+          data={this.state.data}
+          height={Scale.moderateScale(200)}
+          timer={5000}
+          onPress={(item) => alert(JSON.stringify(item))}
+          indicatorContainerStyle={{ position: "absolute", bottom: 20 }}
+          indicatorActiveColor={"#8e44ad"}
+          indicatorInActiveColor={"#ffffff"}
+          indicatorActiveWidth={30}
+          animation
+        />
+
+        <Text
+          style={{
+            fontSize: Scale.moderateScale(28),
+            marginHorizontal: Scale.moderateScale(10),
+            marginVertical: Scale.moderateScale(32),
+            fontWeight: "400",
+            letterSpacing: 2,
+            display: "none",
+            lineHeight: Scale.moderateScale(45),
+          }}
+        >
+          {"Welcome to Super's Channels"}
+        </Text>
       </View>
     );
   }
@@ -439,7 +466,6 @@ class Channels extends React.Component {
             windowSize={12}
             contentContainerStyle={{
               paddingBottom: 100,
-              marginTop: Scale.moderateScale(8),
             }}
             horizontal={false}
             // numColumns={3}

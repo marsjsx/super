@@ -113,6 +113,7 @@ import { getChannels } from "../actions/channels";
 import { ShareDialog } from "react-native-fbsdk";
 import { ShareApi } from "react-native-fbsdk";
 import EmptyView from "../component/emptyview";
+import FeedMenuModal from "../component/FeedMenuModal";
 import ParsedText from "react-native-parsed-text";
 import Dialog from "react-native-dialog";
 import {
@@ -157,6 +158,8 @@ class Home extends React.Component {
       selectedPost: {},
       refreshing: false,
       isModalVisible: false,
+      showFeedMenuModal: false,
+      selectedPost: {},
     };
 
     this.start = this.start.bind(this);
@@ -254,6 +257,13 @@ class Home extends React.Component {
     if (this.props.user && this.props.user.uid) {
       this.props.allowNotifications(this.props.user.uid);
     }
+    if (
+      params &&
+      params.flow &&
+      (params.flow === "Signup" || params.flow === "Login")
+    ) {
+      this.props.navigation.navigate("FindFriends");
+    }
 
     if (params && params.showWelcomeScreen) {
       this.props.navigation.navigate("WelcomeScreen");
@@ -268,18 +278,18 @@ class Home extends React.Component {
             this.toggleModal();
           }
         } else {
-          if (type) {
-            this.props.navigation.navigate("EditProfile", {
-              title: this.props.user.username,
-            });
-            showMessage({
-              message: "Profile Incomplete",
-              description:
-                "Please upload brand logo and complete your brand profile",
-              type: "info",
-              duration: 3500,
-            });
-          }
+          // if (type) {
+          this.props.navigation.navigate("EditProfile", {
+            title: this.props.user.username,
+          });
+          showMessage({
+            message: "Profile Incomplete",
+            description:
+              "Please upload brand logo and complete your brand profile",
+            type: "info",
+            duration: 3500,
+          });
+          // }
         }
       }
     }
@@ -303,7 +313,7 @@ class Home extends React.Component {
   didFocusAction = (payload) => {
     setTimeout(() => {
       this.checkForIncompleteProfile();
-    }, 8000);
+    }, 4000);
   };
 
   likePost = (post) => {
@@ -1024,7 +1034,8 @@ class Home extends React.Component {
           this.follow(item);
         }}
         showActionSheet={() => {
-          this.showActionSheet(item);
+          // this.showActionSheet(item);
+          this.setState({ showFeedMenuModal: true, selectedPost: item });
         }}
         onMentionNamePress={(name, matchIndex /*: number*/) => {
           this.handleNamePress(name, matchIndex);
@@ -1114,6 +1125,7 @@ class Home extends React.Component {
 
   render() {
     let userFollowingList = [this.props.user.following];
+    const { uid, isSuperAdmin } = this.props.user;
     if (this.props.post === null) return showLoader("Loading, Please wait... ");
     try {
       return (
@@ -1421,7 +1433,7 @@ class Home extends React.Component {
           <View style={{ position: "absolute" }}>
             <OfflineNotice />
           </View>
-          {this.props.user.isSuperAdmin && (
+          {/* {this.props.user.isSuperAdmin && (
             <TouchableOpacity
               style={{
                 paddingHorizontal: 8,
@@ -1451,7 +1463,75 @@ class Home extends React.Component {
                 }}
               />
             </TouchableOpacity>
-          )}
+          )} */}
+          {this.state.showFeedMenuModal ? (
+            <FeedMenuModal
+              Show={true}
+              enableDelete={uid === this.state.selectedPost.uid || isSuperAdmin}
+              Hide={() => {
+                this.setState({
+                  showFeedMenuModal: false,
+                });
+              }}
+              onDeletePress={() => {
+                Alert.alert(
+                  isSuperAdmin ? "SUPER ADMIN(Delete Post)" : "Delete post?",
+                  "Press OK to Delete Post. This action is irreversible, it cannot be undone.",
+                  [
+                    {
+                      text: "Cancel",
+                      onPress: () => {
+                        // alert("Cancelled")
+                        this.setState({
+                          showFeedMenuModal: false,
+                        });
+                      },
+                      style: "cancel",
+                    },
+                    {
+                      text: "OK",
+                      onPress: () => {
+                        this.props.deletePost(this.state.selectedPost);
+                        this.setState({
+                          showFeedMenuModal: false,
+                        });
+                      },
+                    },
+                  ],
+                  { cancelable: false }
+                );
+              }}
+              onReportPress={() => {
+                // alert("Called")
+                this.setState({
+                  showFeedMenuModal: false,
+                  dialogVisible: true,
+                  reportReason: "",
+                  selectedPost: this.state.selectedPost,
+                });
+              }}
+              onInviteFriendPress={() => {
+                this.setState({
+                  showFeedMenuModal: false,
+                });
+                this.props.navigation.navigate("MyContacts", {
+                  selectedTab: 1,
+                });
+              }}
+              onMessagesPress={() => {
+                this.setState({
+                  showFeedMenuModal: false,
+                });
+
+                if (!this.props.user.uid) {
+                  this.sheetRef.openSheet();
+                  return;
+                }
+
+                this.props.navigation.navigate("Messages");
+              }}
+            />
+          ) : null}
         </View>
       );
     } catch (error) {

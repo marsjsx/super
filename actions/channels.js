@@ -28,6 +28,7 @@ export const getChannels = () => {
       dispatch({ type: CHANNELS_REQUEST });
 
       db.collection("channels")
+        .where("active", "==", true)
         .orderBy("showingOrder", "asc")
         .get()
         .then((querySnapshot) => {
@@ -70,6 +71,8 @@ export const getChannels = () => {
           }
         })
         .catch((error) => {
+          // alert(error);
+          console.log(error);
           let array = [];
           dispatch({ type: CHANNELS_FAIL, payload: array });
         });

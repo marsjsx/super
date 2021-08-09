@@ -129,7 +129,7 @@ class Signup extends React.Component {
     const routeName = this.props.route.name;
 
     if (routeName === "Signup") {
-      await auth().signOut();
+      auth().signOut();
 
       auth().onAuthStateChanged((user) => {
         if (user) {
@@ -154,6 +154,7 @@ class Signup extends React.Component {
             this.props.navigation.popToTop();
             this.props.navigation.replace("HomeScreen", {
               showWelcomeScreen: true,
+              flow: "Signup",
             });
           }
         }

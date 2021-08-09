@@ -72,7 +72,8 @@ class Login extends React.Component {
   }
 
   componentDidMount = async () => {
-    await auth().signOut();
+    // alert("Called");
+    auth().signOut();
     auth().onAuthStateChanged((user) => {
       // alert(JSON.stringify(user));
       if (user) {
@@ -92,6 +93,7 @@ class Login extends React.Component {
           this.props.navigation.popToTop();
           this.props.navigation.replace("HomeScreen", {
             showWelcomeScreen: true,
+            flow: "Login",
           });
         }
       }
@@ -279,6 +281,7 @@ class Login extends React.Component {
       this.props.navigation.popToTop();
       this.props.navigation.replace("HomeScreen", {
         showWelcomeScreen: true,
+        flow: "Login",
       });
 
       // this.props.navigation.goBack();

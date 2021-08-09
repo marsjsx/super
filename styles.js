@@ -238,12 +238,8 @@ export default styles = StyleSheet.create({
   },
   inputSearch: {
     width: width * 0.8,
-    margin: 10,
     padding: 10,
     // alignSelf: "center",
-    borderColor: "#d3d3d3",
-    borderWidth: 1,
-    borderRadius: 5,
     fontSize: 16,
   },
   facebookButton: {

@@ -56,14 +56,20 @@ export const getMoreActivities = (refresh = false) => {
     try {
       if (user && user.uid) {
         dispatch({ type: "SHOW_ACTIVITIES_LOADING", payload: true });
+        var lastFetchedActivityDate;
+
+        if (activities && activities.length > 0) {
+          lastFetchedActivityDate = activities[activities.length - 1].date;
+        }
+
         var myActivities;
-        if (lastVisible && !refresh) {
+        if (lastFetchedActivityDate && !refresh) {
           // alert(JSON.stringify(lastVisible));
           myActivities = await db
             .collection("activity")
             .where("uid", "==", user.uid)
             .orderBy("date", "desc")
-            .startAfter(lastVisible)
+            .startAfter(lastFetchedActivityDate)
             .limit(15)
             .get();
         } else {

@@ -613,6 +613,10 @@ function SearchNavigator({ navigation, route }) {
               resizeMode="contain"
             />
           ),
+          headerStyle: {
+            elevation: 0, // remove shadow on Android
+            shadowOpacity: 0, // remove shadow on iOS
+          },
           // Center the header title on Android
           headerTitleAlign: "center",
           // headerTransparent: true,
@@ -647,6 +651,10 @@ function SearchNavigator({ navigation, route }) {
           ),
           // Center the header title on Android
           headerTitleAlign: "center",
+          headerStyle: {
+            elevation: 0, // remove shadow on Android
+            shadowOpacity: 0, // remove shadow on iOS
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Ionicons

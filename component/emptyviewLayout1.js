@@ -348,8 +348,8 @@ Signup
             <ButtonComponent
               title={"Login"}
               containerStyle={{
-                width: Scale.moderateScale(140),
-                marginTop: Scale.moderateScale(100),
+                width: Scale.moderateScale(160),
+                marginTop: Scale.moderateScale(20),
               }}
               color="#fff"
               colors={[constants.colors.black, constants.colors.black]}
@@ -363,19 +363,16 @@ Signup
               title={this.props.textButton}
               containerStyle={{
                 width: Scale.moderateScale(160),
-                marginLeft: Scale.moderateScale(4),
+                marginTop: Scale.moderateScale(10),
               }}
-              color={constants.colors.red}
-              colors={[
-                constants.colors.transparent,
-                constants.colors.transparent,
-              ]}
+              color={constants.colors.white}
+              colors={[constants.colors.grey, constants.colors.grey]}
               onPress={() => this.props.navigation.navigate("Signup")}
-              linearGradientStyle={{
-                paddingHorizontal: Scale.moderateScale(0),
-                // marginHorizontal: Scale.moderateScale(0),
-                justifyContent: "flex-start",
-              }}
+              // linearGradientStyle={{
+              //   paddingHorizontal: Scale.moderateScale(0),
+              //   // marginHorizontal: Scale.moderateScale(0),
+              //   justifyContent: "flex-start",
+              // }}
             />
           );
       }

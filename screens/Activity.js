@@ -488,7 +488,7 @@ class Activity extends React.Component {
           ItemSeparatorComponent={this.FlatListItemSeparator}
           keyExtractor={(item) => JSON.stringify(item.date)}
           renderItem={({ item }) => this.renderList(item)}
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.01}
           onMomentumScrollBegin={() => {
             this.onEndReachedCalledDuringMomentum = false;
           }}

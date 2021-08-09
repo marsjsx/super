@@ -1073,6 +1073,7 @@ export const signupWithPhoneNumber = (
         navigation.popToTop();
         navigation.replace("HomeScreen", {
           showWelcomeScreen: true,
+          flow: "Signup",
         });
       } else {
         alert("Username already exists, Please choose another username");

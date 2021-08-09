@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Scale, { scale } from "../helpers/Scale";
 import constants from "../constants";
+import Constants from "expo-constants";
 import ProgressiveImage from "../component/ProgressiveImage";
 import {
   InstagramProvider,
@@ -385,33 +386,27 @@ const RenderFullScreenPostItem = (props) => {
                 {moment(props.date).format("ll")}
               </Text>
             </View> */}
-            <SafeAreaView
+
+            <TouchableOpacity
               style={{
+                marginLeft: Scale.moderateScale(6),
+                padding: 4,
                 position: "absolute",
-                top: Scale.moderateScale(16),
+                top: Constants.statusBarHeight,
                 right: Scale.moderateScale(16),
               }}
+              onPress={() => props.showActionSheet()}
             >
-              <View style={[{}]}>
-                <TouchableOpacity
-                  style={{
-                    alignItems: "center",
-                    marginLeft: Scale.moderateScale(6),
-                    padding: 4,
-                  }}
-                  onPress={() => props.showActionSheet()}
-                >
-                  <Ionicons
-                    style={{
-                      margin: 0,
-                      color: "rgb(255,255,255)",
-                    }}
-                    name="ios-more"
-                    size={32}
-                  />
-                </TouchableOpacity>
-              </View>
-            </SafeAreaView>
+              <Ionicons
+                style={{
+                  margin: 0,
+                  color: "rgb(255,255,255)",
+                }}
+                name="ios-more"
+                size={32}
+              />
+            </TouchableOpacity>
+
             {props.channelIds && (
               <View
                 style={[

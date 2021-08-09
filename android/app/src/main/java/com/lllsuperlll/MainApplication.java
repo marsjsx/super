@@ -4,6 +4,7 @@ import androidx.multidex.MultiDexApplication;
 import com.shahenlibrary.RNVideoProcessingPackage;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import io.xogus.reactnative.versioncheck.RNVersionCheckPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.existfragger.rnimagesize.RNImageSizePackage;
 import com.oblador.vectoricons.VectorIconsPackage;

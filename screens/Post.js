@@ -612,7 +612,7 @@ class Post extends React.Component {
             width: compressWidth,
             height: compressHeight,
             bitrateMultiplier: 3,
-            minimumBitrate: 1500000,
+            minimumBitrate: 1200000,
           })
             .then(async (result) => {
               var videoSource = "";

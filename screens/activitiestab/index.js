@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import EmptyView from "../../component/emptyview";
+import EmptyView from "../../component/emptyviewLayout1";
 import { getUser } from "../../actions/user";
 import { getMoreActivities } from "../../actions/activity";
 import Scale from "../../helpers/Scale";
@@ -63,12 +63,27 @@ class ActivitiesTab extends React.Component {
     if (this.state.showLoading) return showLoader("Loading, Please wait... ");
     if (!this.props.user.uid) {
       return (
+        // <EmptyView
+        //   desc="All user activities will appear here"
+        //   button="Signup/Login"
+        //   userId={this.props.user.uid}
+        //   navigation={this.props.navigation}
+        //   icon={<Feather style={{ margin: 5 }} name="activity" size={64} />}
+        // />
+
         <EmptyView
-          desc="All user activities will appear here"
-          button="Signup/Login"
+          title={`Rad vibes, good times `}
+          button="Signup"
+          textButton="Create account"
+          image={require("../../assets/logoH.png")}
           userId={this.props.user.uid}
+          imageStyle={{
+            width: Scale.moderateScale(150),
+            height: Scale.moderateScale(150),
+            marginLeft: Scale.moderateScale(-30),
+            marginBottom: Scale.moderateScale(-15),
+          }}
           navigation={this.props.navigation}
-          icon={<Feather style={{ margin: 5 }} name="activity" size={64} />}
         />
       );
     }
@@ -160,21 +175,52 @@ class ActivitiesTab extends React.Component {
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={{
-              marginRight: 24,
-              display: this.state.selectedTab == 1 ? "flex" : "none",
-            }}
-            onPress={() => this.messageRef.goToNewMessage()}
-          >
-            <Ionicons
+          {this.state.selectedTab == 1 && (
+            <TouchableOpacity
               style={{
-                color: "#000",
+                marginRight: 24,
               }}
-              name="md-add"
-              size={32}
-            />
-          </TouchableOpacity>
+              onPress={() => this.messageRef.goToNewMessage()}
+            >
+              <Ionicons
+                style={{
+                  color: "#000",
+                }}
+                name="md-add"
+                size={32}
+              />
+            </TouchableOpacity>
+          )}
+
+          {this.state.selectedTab == 0 && this.props.user.isSuperAdmin && (
+            <TouchableOpacity
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                marginRight: Scale.moderateScale(24),
+              }}
+              onPress={() => this.props.navigation.navigate("BrandRequests")}
+            >
+              <Ionicons
+                style={{
+                  color: "black",
+                }}
+                name={"ios-people"}
+                size={32}
+              />
+              <View
+                style={{
+                  right: -0,
+                  top: -0,
+                  position: "absolute",
+                  height: 20,
+                  width: 20,
+                  borderRadius: 10,
+                  backgroundColor: constants.colors.red,
+                }}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View
