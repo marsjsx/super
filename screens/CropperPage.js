@@ -479,7 +479,7 @@ class CropperPage extends React.Component {
           marginRight: 5,
         }}
         source={{ uri: this.props.thumbnailPreview }}
-        resizeMode={"cover"}
+        // resizeMode={"cover"}
       />
     );
     return (
