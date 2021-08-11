@@ -219,11 +219,17 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <TouchableOpacity onPress={() => this.goToUser(item.likerId)}>
-                <Text style={[styles.bold, styles.textMedium, {}]}>
+                <Text
+                  style={[
+                    styles.bold,
+                    styles.textMedium,
+                    { color: constants.colors.white },
+                  ]}
+                >
                   {item.likerName}
                 </Text>
               </TouchableOpacity>
-              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {item.postType === "video"
                   ? "Liked Your Video"
                   : "Liked Your Photo"}
@@ -257,11 +263,17 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <TouchableOpacity onPress={() => this.goToUser(item.followerId)}>
-                <Text style={[styles.bold, styles.textMedium, {}]}>
+                <Text
+                  style={[
+                    styles.bold,
+                    styles.textMedium,
+                    { color: constants.colors.white },
+                  ]}
+                >
                   {item.followerName}
                 </Text>
               </TouchableOpacity>
-              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 started following you
               </Text>
               <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
@@ -274,7 +286,7 @@ class Activity extends React.Component {
               <TouchableOpacity
                 style={{
                   marginRight: 12,
-                  backgroundColor: "#4169e1",
+                  backgroundColor: constants.colors.primaryColor,
                   width: 90,
                   borderRadius: 5,
                 }}
@@ -300,7 +312,7 @@ class Activity extends React.Component {
                   borderWidth: 0.5,
                   width: 90,
                   borderRadius: 5,
-                  borderColor: "black",
+                  borderColor: constants.colors.primaryColor,
                 }}
               >
                 <Text
@@ -309,6 +321,7 @@ class Activity extends React.Component {
                     {
                       padding: 6,
                       textAlign: "center",
+                      color: constants.colors.primaryColor,
                     },
                   ]}
                 >
@@ -335,12 +348,18 @@ class Activity extends React.Component {
             </TouchableOpacity>
             <View style={[styles.container, styles.left]}>
               <TouchableOpacity onPress={() => this.goToUser(item.commenterId)}>
-                <Text style={[styles.bold, styles.textMedium, {}]}>
+                <Text
+                  style={[
+                    styles.bold,
+                    styles.textMedium,
+                    { color: constants.colors.white },
+                  ]}
+                >
                   {item.commenterName}
                 </Text>
               </TouchableOpacity>
               <Text
-                style={[styles.black, styles.textHelveticaNeueNormal]}
+                style={[styles.gray, styles.textHelveticaNeueNormal]}
               >{`commented: "${item.comment}"`}</Text>
               <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {moment(item.date).format("ll")}
@@ -374,7 +393,13 @@ class Activity extends React.Component {
                 <TouchableOpacity
                   onPress={() => this.goToUser(item.reporterId)}
                 >
-                  <Text style={[styles.bold, styles.textMedium, {}]}>
+                  <Text
+                    style={[
+                      styles.bold,
+                      styles.textMedium,
+                      { color: constants.colors.white },
+                    ]}
+                  >
                     {item.reporterName}
                   </Text>
                 </TouchableOpacity>
@@ -388,7 +413,7 @@ class Activity extends React.Component {
               <Text style={[styles.red, styles.textHelveticaNeueNormal]}>
                 Reported This Post{" "}
               </Text>
-              <Text style={[styles.black, styles.textHelveticaNeueNormal]}>
+              <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>
                 {item.reportReason}
               </Text>
               <Text style={[styles.gray, styles.textHelveticaNeueNormal]}>

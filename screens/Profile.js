@@ -82,19 +82,31 @@ const viewabilityConfig = {
   itemVisiblePercentThreshold: 90,
 };
 
-var BUTTONS = ["Profile", "Message", "Report", "Block", "Cancel"];
+var BUTTONS = [
+  "Profile",
+  //  "Message",
+  "Report",
+  "Block",
+  "Cancel",
+];
 var MYPROFILE_BUTTONS = [
   "My Profile",
-  "Find Friends",
-  "Invite Friends",
+  // "Find Friends",
+  // "Invite Friends",
   "Logout",
   "Cancel",
 ];
 
-var BUTTONS1 = ["Profile", "Message", "Report", "Unblock", "Cancel"];
+var BUTTONS1 = [
+  "Profile",
+  // "Message",
+  "Report",
+  "Unblock",
+  "Cancel",
+];
 
 var DESTRUCTIVE_INDEX = 1;
-var CANCEL_INDEX = 4;
+var CANCEL_INDEX = 3;
 const { height, width } = Dimensions.get("window");
 import { isUserBlocked } from "../util/Helper";
 import FastImage from "react-native-fast-image";
@@ -586,8 +598,8 @@ class Profile extends React.Component {
     this.actionSheet._root.showActionSheet(
       {
         options: options,
-        cancelButtonIndex: 4,
-        destructiveButtonIndex: 3,
+        cancelButtonIndex: 2,
+        destructiveButtonIndex: 1,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
@@ -754,7 +766,7 @@ class Profile extends React.Component {
                       style={{
                         fontSize: Scale.moderateScale(18),
                         fontWeight: "400",
-                        color: constants.colors.superRed,
+                        color: constants.colors.primaryColor,
                       }}
                     >
                       {"Add Logo"}
@@ -1152,11 +1164,8 @@ class Profile extends React.Component {
             image={require("../assets/logoH.png")}
             userId={this.props.user.uid}
             imageStyle={{
-              width: Scale.moderateScale(150),
-              height: Scale.moderateScale(150),
-              marginLeft: Scale.moderateScale(-30),
-              marginBottom: Scale.moderateScale(-15),
-              // backgroundColor: "red",
+              width: Scale.moderateScale(120),
+              height: Scale.moderateScale(120),
             }}
             navigation={this.props.navigation}
             // icon={

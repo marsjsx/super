@@ -99,7 +99,7 @@ class Signup extends React.Component {
     this.state = {
       showLoading: false,
       showEditProfile: true,
-      loginMode: "phone",
+      loginMode: "email",
       countryCode: "US",
       callingCode: "1",
       uid: "",
@@ -170,10 +170,11 @@ class Signup extends React.Component {
             } else {
               this.props.navigation.goBack();
             }
+            // this.props.navigation.goBack();
           }}
         >
           <Ionicons
-            style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+            style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
             name={"ios-arrow-back"}
             size={30}
           />
@@ -389,7 +390,10 @@ class Signup extends React.Component {
             style={[
               styles.container,
               styles.center,
-              { backgroundColor: "#f8f8ff", height: height },
+              {
+                backgroundColor: constants.colors.appBackgroundColor,
+                height: height,
+              },
             ]}
           >
             {/* <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}> */}
@@ -400,18 +404,25 @@ class Signup extends React.Component {
               ]}
             >
               <Image
-                style={style.logo}
+                style={{
+                  width: Scale.moderateScale(120),
+                  height: Scale.moderateScale(120),
+                  marginTop: Scale.moderateScale(120),
+                  alignSelf: "center",
+                }}
                 source={require("../../assets/logoH.png")}
               />
+
               <Text
                 style={{
-                  color: constants.colors.titleColor,
+                  color: constants.colors.white,
                   width: width - Scale.moderateScale(50),
-                  fontSize: Scale.moderateScale(28),
-                  marginVertical: Scale.moderateScale(10),
+                  fontSize: Scale.moderateScale(30),
+                  marginVertical: Scale.moderateScale(24),
+                  letterSpacing: 3,
                 }}
               >
-                {`Welcome to Super !`}
+                {`Welcome  to Plaed !`}
               </Text>
 
               {/* <View
@@ -463,7 +474,7 @@ class Signup extends React.Component {
               </View> */}
 
               <TextInputComponent
-                container={{ marginTop: Scale.moderateScale(40), padding: 0 }}
+                container={{ padding: 0 }}
                 textContainer={{ paddingHorizontal: 10 }}
                 placeholder={
                   this.props.user.accountType == "Personal"
@@ -595,7 +606,7 @@ class Signup extends React.Component {
                     />
                     <Ionicons
                       name="ios-help-circle-outline"
-                      color={constants.colors.red}
+                      color={constants.colors.primaryColor}
                       size={28}
                       onPress={() =>
                         this.setState({ showDataSecurityModal: true })
@@ -625,7 +636,7 @@ class Signup extends React.Component {
                       width: Scale.moderateScale(160),
                       alignSelf: "flex-end",
                     }}
-                    color={constants.colors.black}
+                    color={constants.colors.primaryColor}
                     colors={[
                       constants.colors.transparent,
                       constants.colors.transparent,
@@ -695,6 +706,10 @@ class Signup extends React.Component {
                   alignSelf: "center",
                   marginTop: Scale.moderateScale(32),
                 }}
+                colors={[
+                  constants.colors.primaryColor,
+                  constants.colors.primaryColor,
+                ]}
               />
               <TouchableOpacity
                 style={[styles.buttonForgot, { display: "none" }]}
@@ -718,7 +733,7 @@ class Signup extends React.Component {
                   width: Scale.moderateScale(160),
                   alignSelf: "center",
                 }}
-                color={constants.colors.superRed}
+                color={constants.colors.white}
                 colors={[
                   constants.colors.transparent,
                   constants.colors.transparent,

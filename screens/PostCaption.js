@@ -59,6 +59,7 @@ import {
   Form,
   Content,
 } from "native-base";
+import constants from "../constants";
 
 const { height, width } = Dimensions.get("window");
 
@@ -200,17 +201,16 @@ class PostCaption extends React.Component {
   };
 
   getLocations = async () => {
-    const permission = await await Location.requestPermissionsAsync();
+    const permission = await Location.requestPermissionsAsync();
+    // alert(JSON.stringify(permission));
     if (permission.status === "granted") {
       const location = await Location.getCurrentPositionAsync({});
       // const url = `${GOOGLE_API}?location=${location.coords.latitude},${location.coords.longitude}&radius=500000&type=cities&key=${ENV.googleApiKey}`;
       const url = `${GOOGLE_API}?location=${location.coords.latitude},${location.coords.longitude}&radius=20000&key=${ENV.googleApiKey}`;
 
       // const url = `${GOOGLE_API}?location=31.12168,77.13203&rankby=distance&key=${ENV.googleApiKey}`;
-
       const response = await fetch(url);
       const data = await response.json();
-
       let locations = data.results.reduce((i, j) => {
         console.log("j=====>", j);
         i.push({ label: j.name + "\n" + j.vicinity, value: j });
@@ -327,11 +327,17 @@ class PostCaption extends React.Component {
     }
 
     return (
-      <View style={{ flex: 1 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: constants.colors.appBackgroundColor,
+        }}
+      >
         <KeyboardAvoidingView
           style={{
             flex: 1,
             alignItems: "center",
+            marginTop: Scale.moderateScale(20),
           }}
         >
           <View style={{ height: 0 }}>
@@ -417,6 +423,17 @@ class PostCaption extends React.Component {
                   showMentions={this.state.showMentions}
                   onHideMentions={this.onHideMentions}
                   placeholder="Write a caption....."
+                  editorStyles={{
+                    mainContainer: {
+                      backgroundColor: "#fff",
+                    },
+                    editorContainer: {
+                      backgroundColor: "#fff",
+                    },
+                    input: {
+                      backgroundColor: "#fff",
+                    },
+                  }}
                 />
               </View>
             </View>
@@ -425,7 +442,11 @@ class PostCaption extends React.Component {
               <DropDownPicker
                 items={locations}
                 defaultValue={this.state.country}
-                containerStyle={{ height: 40, marginTop: 20 }}
+                containerStyle={{
+                  height: 40,
+                  marginTop: 20,
+                  backgroundColor: "#fff",
+                }}
                 searchable={true}
                 placeholder={"Add a Location"}
                 searchableError={(searchableText) => {
@@ -466,8 +487,14 @@ class PostCaption extends React.Component {
               </>
             )}
 
-            <TouchableOpacity style={[styles.buttonPost]} onPress={this.post}>
-              <Text>Post</Text>
+            <TouchableOpacity
+              style={[
+                styles.buttonPost,
+                { backgroundColor: constants.colors.primaryColor },
+              ]}
+              onPress={this.post}
+            >
+              <Text style={{ color: constants.colors.white }}>Post</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

@@ -230,9 +230,9 @@ class Channels extends React.Component {
             margin: 10,
           }}
         >
-          <ActivityIndicator />
+          <ActivityIndicator color={constants.colors.primaryColor} />
           <Text
-            style={{ margin: 5 }}
+            style={{ margin: 5, color: constants.colors.white }}
           >{`Searching for "${this.state.search}"`}</Text>
         </View>
       );
@@ -255,10 +255,18 @@ class Channels extends React.Component {
       {/* <Image style={styles.roundImage} source={{ uri: item.photo }} /> */}
 
       <View style={[styles.container, styles.left]}>
-        <Text style={[styles.bold, { fontSize: Scale.moderateScale(14) }]}>
+        <Text
+          style={[
+            styles.bold,
+            {
+              fontSize: Scale.moderateScale(14),
+              color: constants.colors.white,
+            },
+          ]}
+        >
           {item.username}
         </Text>
-        <Text style={styles.gray}>{item.bio}</Text>
+        <Text style={{ color: constants.colors.appLightGrey }}>{item.bio}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -394,7 +402,9 @@ class Channels extends React.Component {
                 margin: 10,
               }}
             >
-              <Text>No User Found</Text>
+              <Text style={{ color: constants.colors.white }}>
+                No User Found
+              </Text>
             </View>
           )}
 
@@ -455,11 +465,17 @@ class Channels extends React.Component {
   render() {
     return (
       // <ScrollView>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: constants.colors.appBackgroundColor },
+        ]}
+      >
         {this.props.channels.loading
           ? showLoader("Loading, Please wait... ")
           : null}
-        <View>
+        {/* {showLoader("Loading, Please wait... ")} */}
+        <View style={{}}>
           <FlatList
             initialNumToRender={12}
             maxToRenderPerBatch={12}

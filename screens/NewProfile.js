@@ -104,19 +104,29 @@ import { isUserBlocked } from "../util/Helper";
 import { TextInput } from "react-native-gesture-handler";
 var routeName = "";
 
-var BUTTONS = ["Message", "Report", "Block", "Cancel"];
+var BUTTONS = [
+  // "Message",
+  "Report",
+  "Block",
+  "Cancel",
+];
 var MYPROFILE_BUTTONS = [
   "Edit Profile",
-  "Find Friends",
-  "Invite Friends",
+  // "Find Friends",
+  // "Invite Friends",
   "Logout",
   "Cancel",
 ];
 
-var BUTTONS1 = ["Message", "Report", "Unblock", "Cancel"];
+var BUTTONS1 = [
+  // "Message",
+  "Report",
+  "Unblock",
+  "Cancel",
+];
 
 var DESTRUCTIVE_INDEX = 1;
-var CANCEL_INDEX = 3;
+var CANCEL_INDEX = 2;
 class ViewProfile extends React.Component {
   static navigationOptions = ({ navigation, route }) => {
     //Show Header by returning header
@@ -322,8 +332,8 @@ class ViewProfile extends React.Component {
     this.actionSheet._root.showActionSheet(
       {
         options: options,
-        cancelButtonIndex: 4,
-        destructiveButtonIndex: 3,
+        cancelButtonIndex: 2,
+        destructiveButtonIndex: 1,
       },
       (buttonIndex) => {
         //this.setState({ clicked: BUTTONS[buttonIndex] });
@@ -910,7 +920,7 @@ class ViewProfile extends React.Component {
                   size={32}
                   color={
                     routeName === "MyProfile"
-                      ? constants.colors.superRed
+                      ? constants.colors.primaryColor
                       : "transparent"
                   }
                   onPress={() => this.deleteLink(index)}
@@ -929,6 +939,10 @@ class ViewProfile extends React.Component {
               width: width - Scale.moderateScale(20),
               marginTop: Scale.moderateScale(24),
             }}
+            colors={[
+              constants.colors.primaryColor,
+              constants.colors.primaryColor,
+            ]}
             linearGradientStyle={{ height: Scale.moderateScale(60) }}
             onPress={() =>
               this.setState({

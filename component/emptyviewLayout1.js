@@ -48,7 +48,7 @@ let styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#f8f8ff",
+    backgroundColor: constants.colors.appBackgroundColor,
     justifyContent: "center",
     padding: Scale.moderateScale(16),
     // paddingTop: Scale.moderateScale(60),
@@ -58,15 +58,15 @@ let styles = StyleSheet.create({
     marginBottom: Scale.moderateScale(20),
   },
   image: {
-    width: 250,
-    height: 250,
-    marginLeft: 40,
+    width: Scale.moderateScale(250),
+    height: Scale.moderateScale(250),
   },
   title: {
     fontSize: Scale.moderateScale(20),
     marginTop: Scale.moderateScale(16),
-    marginLeft: Scale.moderateScale(8),
     letterSpacing: 1,
+    marginLeft: Scale.moderateScale(8),
+    color: constants.colors.white,
   },
   desc: {
     width: 280,
@@ -108,6 +108,8 @@ module.exports = createReactClass({
                 height: Scale.moderateScale(90),
                 transform: [{ scale: 1 }],
                 marginTop: Scale.moderateScale(20),
+                marginLeft: Scale.moderateScale(-30),
+                tintColor: constants.colors.white,
               },
             ]}
             source={require("../assets/logo.png")}
@@ -352,7 +354,10 @@ Signup
                 marginTop: Scale.moderateScale(20),
               }}
               color="#fff"
-              colors={[constants.colors.black, constants.colors.black]}
+              colors={[
+                constants.colors.primaryColor,
+                constants.colors.primaryColor,
+              ]}
               textStyle={{}}
               onPress={() => this.props.navigation.navigate("Login")}
             />
@@ -366,7 +371,10 @@ Signup
                 marginTop: Scale.moderateScale(10),
               }}
               color={constants.colors.white}
-              colors={[constants.colors.grey, constants.colors.grey]}
+              colors={[
+                constants.colors.appLightGrey,
+                constants.colors.appLightGrey,
+              ]}
               onPress={() => this.props.navigation.navigate("Signup")}
               // linearGradientStyle={{
               //   paddingHorizontal: Scale.moderateScale(0),

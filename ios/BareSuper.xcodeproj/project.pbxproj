@@ -698,7 +698,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingDebug.entitlements;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -706,13 +706,13 @@
 				INFOPLIST_FILE = BareSuper/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrick.super;
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrick.plaedio;
 				PRODUCT_NAME = "l l l s u p e r l l l";
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OBJC_BRIDGING_HEADER = "RNVideoProcessing/BareSuper-Bridging-Header.h";
@@ -731,7 +731,7 @@
 				CODE_SIGN_ENTITLEMENTS = BareSuper/SuperDatingRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = J23NMACDS3;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -739,13 +739,13 @@
 				INFOPLIST_FILE = BareSuper/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.patrick.super;
+				PRODUCT_BUNDLE_IDENTIFIER = com.patrick.plaedio;
 				PRODUCT_NAME = "l l l s u p e r l l l";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_COMPILATION_MODE = singlefile;

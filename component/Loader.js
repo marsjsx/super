@@ -7,6 +7,8 @@ import {
   Text,
   Easing,
 } from "react-native";
+import constants from "../constants";
+import Scale from "../helpers/Scale";
 
 const styles = StyleSheet.create({
   imageOverlay: {
@@ -56,7 +58,7 @@ class Loader extends React.Component {
           height: "100%",
           padding: 20,
           zIndex: 100,
-          backgroundColor: backgroundColor,
+          backgroundColor: constants.colors.appBackgroundColor,
           position: "absolute",
           alignItems: "center",
           justifyContent: "center",
@@ -64,7 +66,7 @@ class Loader extends React.Component {
       >
         <Animated.Image
           style={[styles.profileLogo, { transform: [{ rotate: spin }] }]}
-          source={require("../assets/logo-3.png")}
+          source={require("../assets/applogo.png")}
         />
 
         {/* <Animated.Image
@@ -78,9 +80,10 @@ class Loader extends React.Component {
         {/* <ActivityIndicator size="large" color="rgb(215, 80, 80)" /> */}
         <Text
           style={{
-            color: "rgb(215, 80, 80)",
+            color: constants.colors.primaryColor,
             textAlign: "center",
             fontWeight: "bold",
+            marginTop: Scale.moderateScale(20),
           }}
         >
           {message}

@@ -566,7 +566,14 @@ function SearchNavigator({ navigation, route }) {
     tabBarVisible: tabBarVisible,
   });
   return (
-    <SearchStack.Navigator>
+    <SearchStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: constants.colors.appBackgroundColor,
+        },
+        headerTintColor: "#fff",
+      }}
+    >
       {/* <SearchStack.Screen
         name="Search"
         component={SearchScreen}
@@ -606,6 +613,7 @@ function SearchNavigator({ navigation, route }) {
                   width: 150,
                   height: 55,
                   transform: [{ scale: 0.6 }],
+                  tintColor: constants.colors.white,
                   // transform: [{ rotate: "90deg" }],
                 },
               ]}
@@ -616,7 +624,9 @@ function SearchNavigator({ navigation, route }) {
           headerStyle: {
             elevation: 0, // remove shadow on Android
             shadowOpacity: 0, // remove shadow on iOS
+            backgroundColor: constants.colors.appBackgroundColor,
           },
+          headerTintColor: "#fff",
           // Center the header title on Android
           headerTitleAlign: "center",
           // headerTransparent: true,
@@ -844,7 +854,16 @@ function PostNavigator() {
         component={PostCaptions}
         options={({ navigation, route }) => ({
           title: "Post Caption",
-          headerTintColor: constants.colors.black,
+          // headerTintColor: constants.colors.black,
+          headerStyle: {
+            elevation: 0, // remove shadow on Android
+            shadowOpacity: 0, // remove shadow on iOS
+            backgroundColor: constants.colors.appBackgroundColor,
+          },
+          headerTintColor: "#fff",
+          // Center the header title on Android
+          headerTitleAlign: "center",
+          // headerTransparent: true,
         })}
       />
 
@@ -923,13 +942,30 @@ function ActivityNavigator({ navigation, route }) {
     tabBarVisible: route.state ? (route.state.index > 0 ? false : true) : null,
   });
   return (
-    <ActivityStack.Navigator>
+    <ActivityStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: constants.colors.appBackgroundColor,
+        },
+        headerTintColor: "#fff",
+      }}
+    >
       <ActivityStack.Screen
         name="ActivitiesTab"
         component={ActivitiesTab}
         options={({ navigation, route }) => ({
           title: "Activities",
-          headerShown: false,
+          // headerTransparent: true,
+          // headerShown: false,
+          headerStyle: {
+            elevation: 0, // remove shadow on Android
+            shadowOpacity: 0, // remove shadow on iOS
+            backgroundColor: constants.colors.appBackgroundColor,
+          },
+          headerTintColor: "#fff",
+          // Center the header title on Android
+          headerTitleAlign: "center",
+          // headerTransparent: true,
         })}
       />
       {/* <ActivityStack.Screen
@@ -1122,7 +1158,14 @@ function ProfileNavigator({ navigation, route }) {
     tabBarVisible: route.state ? (route.state.index > 0 ? false : true) : null,
   });
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: constants.colors.appBackgroundColor,
+        },
+        headerTintColor: constants.colors.white,
+      }}
+    >
       <ProfileStack.Screen
         name="MyProfile"
         component={ProfileScreen}
@@ -1412,10 +1455,16 @@ function TabNavigator({ navigation, route }) {
 
           if (route.name === "Home") {
             return (
-              <MaterialCommunityIcons
+              // <MaterialCommunityIcons
+              //   style={styles.iconshadowandroid}
+              //   color={focused ? constants.colors.primaryColor : "#fff"}
+              //   name={focused ? "home" : "home-outline"}
+              //   size={32}
+              // />
+              <Feather
                 style={styles.iconshadowandroid}
-                color={focused ? "#db565b" : "#fff"}
-                name={focused ? "home" : "home-outline"}
+                color={focused ? constants.colors.primaryColor : "#fff"}
+                name={focused ? "tv" : "tv"}
                 size={32}
               />
             );
@@ -1423,7 +1472,7 @@ function TabNavigator({ navigation, route }) {
             return (
               <Feather
                 style={styles.iconshadowandroid}
-                color={focused ? "#db565b" : "#fff"}
+                color={focused ? constants.colors.primaryColor : "#fff"}
                 name={focused ? "tv" : "tv"}
                 size={32}
               />
@@ -1439,7 +1488,7 @@ function TabNavigator({ navigation, route }) {
             return (
               <Ionicons
                 style={styles.iconshadowandroid}
-                color={focused ? "#db565b" : "#fff"}
+                color={focused ? constants.colors.primaryColor : "#fff"}
                 name={focused ? "ios-heart" : "ios-heart-empty"}
                 size={32}
               />
@@ -1448,7 +1497,7 @@ function TabNavigator({ navigation, route }) {
             return (
               <FontAwesome
                 style={styles.iconshadowandroid}
-                color={focused ? "#db565b" : "#fff"}
+                color={focused ? constants.colors.primaryColor : "#fff"}
                 name={focused ? "user" : "user-o"}
                 size={32}
               />
@@ -1464,7 +1513,7 @@ function TabNavigator({ navigation, route }) {
           backgroundColor: "transparent",
           // opacity: 0.4,
           position: "absolute",
-          activeTintColor: "#db565b",
+          activeTintColor: constants.colors.primaryColor,
           inactiveTintColor: "#fff",
           borderTopWidth: 0,
           shadowOpacity: 0.5,
@@ -1481,20 +1530,27 @@ function TabNavigator({ navigation, route }) {
         },
       }}
     >
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Home"
         component={HomeNavigator}
         options={({ navigation, route }) => ({
           tabBarLabel: "",
         })}
-      />
+      /> */}
       <Tab.Screen
-        name="Search"
+        name="Home"
         component={SearchNavigator}
         options={{
           tabBarLabel: "",
         }}
       />
+      {/* <Tab.Screen
+        name="Search"
+        component={SearchNavigator}
+        options={{
+          tabBarLabel: "",
+        }}
+      /> */}
       <Tab.Screen
         name="Post"
         component={PostNavigator}

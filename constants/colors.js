@@ -11,6 +11,8 @@ export default {
   greyPurple: "#757482",
   lavender: "#eec0ea",
   superRed: "#db565b",
+  primaryColor: "#19ACAF",
+  appBackgroundColor: "#232323",
   superRed1: "#db565b",
   feedsStatsColor: "#ffffff",
   gray100: "#F5F5F5",
@@ -23,6 +25,7 @@ export default {
   info: "#1e90ff",
   titleColor: "#000000",
   blue800: "#3d5afe",
+  appLightGrey: "#434343",
 
   black: "#000000",
   border: "rgb(101,101,102)",

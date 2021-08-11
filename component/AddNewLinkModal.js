@@ -62,6 +62,10 @@ const AddNewLinkModal = ({ Show, websiteLabel, website, Hide, onSave }) => {
             color={constants.colors.white}
             textStyle={{ fontSize: 16 }}
             onPress={() => onSave(websiteLink, websiteTitle)}
+            colors={[
+              constants.colors.primaryColor,
+              constants.colors.primaryColor,
+            ]}
             containerStyle={{
               width: Scale.moderateScale(150),
               alignSelf: "center",

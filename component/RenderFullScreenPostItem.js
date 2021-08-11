@@ -400,7 +400,7 @@ const RenderFullScreenPostItem = (props) => {
               <Ionicons
                 style={{
                   margin: 0,
-                  color: "rgb(255,255,255)",
+                  color: constants.colors.primaryColor,
                 }}
                 name="ios-more"
                 size={32}

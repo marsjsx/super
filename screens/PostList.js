@@ -48,6 +48,7 @@ import GestureRecognizer, { swipeDirections } from "../component/swipeguesture";
 import { showLoader } from "../util/Loader";
 const barWidth = Dimensions.get("screen").width - 30;
 import Scale from "../helpers/Scale";
+import FeedMenuModal from "../component/FeedMenuModal";
 
 import AvView from "../component/AvView";
 
@@ -98,6 +99,7 @@ class PostListScreen extends React.Component {
       selectedPost: {},
       userPosts: [],
       refreshing: false,
+      showFeedMenuModal: false,
     };
     this.start = this.start.bind(this);
   }
@@ -715,7 +717,8 @@ class PostListScreen extends React.Component {
         showActionSheet={() => {
           // if (route === "Channels") return;
 
-          this.showActionSheet(item);
+          // this.showActionSheet(item);
+          this.setState({ showFeedMenuModal: true, selectedPost: item });
         }}
         onMentionNamePress={(name, matchIndex /*: number*/) => {
           if (route === "Channels") return;
@@ -772,6 +775,7 @@ class PostListScreen extends React.Component {
     // } = this.props.navigation.state.params;
 
     const { route, selectedIndex, userPosts } = this.props.route.params;
+    const { uid, isSuperAdmin } = this.props.user;
 
     if (route === "Profile") {
       // posts = userPosts;
@@ -880,6 +884,74 @@ class PostListScreen extends React.Component {
           />
         </TouchableOpacity>
         {/* </View> */}
+        {this.state.showFeedMenuModal ? (
+          <FeedMenuModal
+            Show={true}
+            enableDelete={uid === this.state.selectedPost.uid || isSuperAdmin}
+            Hide={() => {
+              this.setState({
+                showFeedMenuModal: false,
+              });
+            }}
+            onDeletePress={() => {
+              Alert.alert(
+                isSuperAdmin ? "SUPER ADMIN(Delete Post)" : "Delete post?",
+                "Press OK to Delete Post. This action is irreversible, it cannot be undone.",
+                [
+                  {
+                    text: "Cancel",
+                    onPress: () => {
+                      // alert("Cancelled")
+                      this.setState({
+                        showFeedMenuModal: false,
+                      });
+                    },
+                    style: "cancel",
+                  },
+                  {
+                    text: "OK",
+                    onPress: () => {
+                      this.props.deletePost(this.state.selectedPost);
+                      this.setState({
+                        showFeedMenuModal: false,
+                      });
+                    },
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
+            onReportPress={() => {
+              // alert("Called")
+              this.setState({
+                showFeedMenuModal: false,
+                dialogVisible: true,
+                reportReason: "",
+                selectedPost: this.state.selectedPost,
+              });
+            }}
+            onInviteFriendPress={() => {
+              this.setState({
+                showFeedMenuModal: false,
+              });
+              this.props.navigation.navigate("MyContacts", {
+                selectedTab: 1,
+              });
+            }}
+            onMessagesPress={() => {
+              this.setState({
+                showFeedMenuModal: false,
+              });
+
+              if (!this.props.user.uid) {
+                this.sheetRef.openSheet();
+                return;
+              }
+
+              this.props.navigation.navigate("Messages");
+            }}
+          />
+        ) : null}
       </View>
     );
   }

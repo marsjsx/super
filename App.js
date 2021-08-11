@@ -75,56 +75,56 @@ function App() {
         )
       );
 
-      var posts = await db
-        .collection("posts")
-        .orderBy("date", "desc")
-        .limit(18)
-        .get();
-      var images = [];
-      let array = [];
-      var lastVisible = null;
-      // Get the last visible document
-      if (posts && posts.size > 0) {
-        lastVisible = posts.docs[posts.docs.length - 1];
-      }
-      posts.forEach((post) => {
-        var item = post.data();
-        array.push(post.data());
-        if (item.photo && item.photo.length > 15) {
-          const normalisedSource =
-            item.photo &&
-            typeof item.photo === "string" &&
-            !item.photo.split("https://")[1]
-              ? null
-              : item.photo;
-          if (normalisedSource) {
-            images.push({
-              uri: item.photo,
-            });
-          }
-        }
-        if (item.type == "image") {
-          if (item.postPhoto && item.postPhoto.length > 15) {
-            images.push({
-              uri: item.postPhoto,
-            });
-          }
-        }
-      });
-      if (images.length > 0) {
-        preloadImages(images);
-      }
-      if (array.length > 0) {
-        initialState.post = { feed: array, lastVisible: lastVisible };
+      // var posts = await db
+      //   .collection("posts")
+      //   .orderBy("date", "desc")
+      //   .limit(18)
+      //   .get();
+      // var images = [];
+      // let array = [];
+      // var lastVisible = null;
+      // // Get the last visible document
+      // if (posts && posts.size > 0) {
+      //   lastVisible = posts.docs[posts.docs.length - 1];
+      // }
+      // posts.forEach((post) => {
+      //   var item = post.data();
+      //   array.push(post.data());
+      //   if (item.photo && item.photo.length > 15) {
+      //     const normalisedSource =
+      //       item.photo &&
+      //       typeof item.photo === "string" &&
+      //       !item.photo.split("https://")[1]
+      //         ? null
+      //         : item.photo;
+      //     if (normalisedSource) {
+      //       images.push({
+      //         uri: item.photo,
+      //       });
+      //     }
+      //   }
+      //   if (item.type == "image") {
+      //     if (item.postPhoto && item.postPhoto.length > 15) {
+      //       images.push({
+      //         uri: item.postPhoto,
+      //       });
+      //     }
+      //   }
+      // });
+      // if (images.length > 0) {
+      //   preloadImages(images);
+      // }
+      // if (array.length > 0) {
+      //   initialState.post = { feed: array, lastVisible: lastVisible };
 
-        setStore(
-          createStore(
-            reducer,
-            initialState,
-            compose(applyMiddleware(...middlewares))
-          )
-        );
-      }
+      //   setStore(
+      //     createStore(
+      //       reducer,
+      //       initialState,
+      //       compose(applyMiddleware(...middlewares))
+      //     )
+      //   );
+      // }
       setIsStoreLoading(false);
       SplashScreen.hide();
     } catch (e) {

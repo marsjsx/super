@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>super.</string>
+	<string>Plaed</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>
@@ -45,8 +45,8 @@
 	<string>239016010571551</string>
 	<key>FacebookDisplayName</key>
 	<string>lllsuperlll</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<!-- <key>ITSAppUsesNonExemptEncryption</key>
+	<false/> -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>

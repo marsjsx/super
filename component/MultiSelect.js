@@ -35,10 +35,11 @@ const MultiSelect = (props) => {
       {props.heading ? (
         <Text
           style={{
-            color: constants.colors.black,
+            color: constants.colors.white,
             marginLeft: 5,
             marginTop: 15,
             fontWeight: "bold",
+            marginBottom: 8,
           }}
         >
           {props.heading}
@@ -70,12 +71,17 @@ const MultiSelect = (props) => {
         onSelectionsChange={onSelectionsChange}
         rowStyle={styles.searchInputStyle}
         labelStyle={styles.styleTextDropdown}
-        // checkboxStyle={{color: "black"}}
+        checkboxStyle={{
+          color: "red",
+          tintColor: constants.colors.primaryColor,
+        }}
         maxSelect={props.maxSelect}
         style={{
           display: show ? "flex" : "none",
           height: Scale.moderateScale(200),
+          marginHorizontal: Scale.moderateScale(20),
         }}
+        selectedCheckboxStyle={{}}
       />
     </>
   );
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
   searchInputStyle: {
     flexDirection: "row-reverse",
     justifyContent: "space-between",
-    backgroundColor: constants.colors.transparent,
+    backgroundColor: constants.colors.white,
   },
   styleItemsContainer: {
     backgroundColor: constants.colors.black,

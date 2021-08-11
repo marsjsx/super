@@ -108,10 +108,11 @@ class Login extends React.Component {
             } else {
               this.props.navigation.goBack();
             }
+            // this.props.navigation.goBack();
           }}
         >
           <Ionicons
-            style={[styles.icon, { marginLeft: 20, color: "#000" }]}
+            style={[styles.icon, { marginLeft: 20, color: "#fff" }]}
             name={"ios-arrow-back"}
             size={30}
           />
@@ -361,7 +362,7 @@ class Login extends React.Component {
         style={[
           styles.container,
           styles.center,
-          { backgroundColor: "#f8f8ff" },
+          { backgroundColor: constants.colors.appBackgroundColor },
         ]}
       >
         <KeyboardAvoidingView style={{ flex: 1, width: "100%" }}>
@@ -374,20 +375,24 @@ class Login extends React.Component {
             ]}
           >
             <Image
-              style={style.logo}
+              style={{
+                width: Scale.moderateScale(120),
+                height: Scale.moderateScale(120),
+                marginTop: Scale.moderateScale(120),
+                alignSelf: "center",
+              }}
               source={require("../../assets/logoH.png")}
             />
             <Text
               style={{
-                color: constants.colors.titleColor,
+                color: constants.colors.white,
                 width: width - Scale.moderateScale(50),
                 fontSize: Scale.moderateScale(30),
-                marginVertical: Scale.moderateScale(10),
+                marginVertical: Scale.moderateScale(24),
                 letterSpacing: 3,
-                marginBottom: Scale.moderateScale(24),
               }}
             >
-              {`Welcome Back to Super !`}
+              {`Welcome Back to Plaed !`}
             </Text>
 
             {/* <View
@@ -469,15 +474,13 @@ class Login extends React.Component {
                     width: Scale.moderateScale(160),
                     alignSelf: "flex-end",
                   }}
-                  color={constants.colors.superRed}
+                  color={constants.colors.primaryColor}
                   colors={[
                     constants.colors.transparent,
                     constants.colors.transparent,
                   ]}
                   textStyle={{
                     fontSize: 16,
-                    fontFamily: null,
-                    color: constants.colors.appRed,
                   }}
                   onPress={() => this.props.navigation.navigate("Reset")}
                   linearGradientStyle={{
@@ -559,7 +562,7 @@ class Login extends React.Component {
                       width: Scale.moderateScale(160),
                       alignSelf: "flex-end",
                     }}
-                    color={constants.colors.appRed}
+                    color={constants.colors.primaryColor}
                     colors={[
                       constants.colors.transparent,
                       constants.colors.transparent,
@@ -608,6 +611,10 @@ class Login extends React.Component {
               color={constants.colors.white}
               textStyle={{ fontSize: 16 }}
               onPress={() => this.onClickLogin()}
+              colors={[
+                constants.colors.primaryColor,
+                constants.colors.primaryColor,
+              ]}
               containerStyle={{
                 width: Scale.moderateScale(250),
                 alignSelf: "center",
@@ -633,7 +640,7 @@ class Login extends React.Component {
                 width: Scale.moderateScale(160),
                 alignSelf: "center",
               }}
-              color={constants.colors.black}
+              color={constants.colors.white}
               colors={[
                 constants.colors.transparent,
                 constants.colors.transparent,
@@ -647,7 +654,7 @@ class Login extends React.Component {
             />
 
             {/* {this.props.user.accountType !== "Brand" && ( */}
-            <ButtonComponent
+            {/* <ButtonComponent
               title={
                 this.state.loginMode === "email"
                   ? "Did you sign up with phone number"
@@ -676,7 +683,7 @@ class Login extends React.Component {
                 paddingHorizontal: Scale.moderateScale(0),
                 // marginHorizontal: Scale.moderateScale(0),
               }}
-            />
+            /> */}
             {this.state.loginMode === "phone" && (
               <ButtonComponent
                 title={"BUSINESS ACCOUNT"}

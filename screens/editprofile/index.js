@@ -741,7 +741,7 @@ class Signup extends React.Component {
               width: width - Scale.moderateScale(30),
               marginTop: Scale.moderateScale(24),
             }}
-            color={constants.colors.superRed}
+            color={constants.colors.primaryColor}
             colors={[
               constants.colors.transparent,
               constants.colors.transparent,
@@ -762,7 +762,7 @@ class Signup extends React.Component {
               <Text
                 style={{
                   fontSize: Scale.moderateScale(12),
-                  color: constants.colors.primary,
+                  color: constants.colors.black,
                   alignSelf: "flex-start",
                   padding: Scale.moderateScale(20),
                 }}
@@ -794,7 +794,7 @@ class Signup extends React.Component {
               <Text
                 style={{
                   fontSize: Scale.moderateScale(12),
-                  color: constants.colors.primary,
+                  color: constants.colors.black,
                   alignSelf: "flex-start",
                   paddingHorizontal: Scale.moderateScale(20),
                   paddingVertical: Scale.moderateScale(6),
@@ -943,10 +943,14 @@ class Signup extends React.Component {
               alignSelf: "center",
               marginTop: Scale.moderateScale(24),
             }}
+            colors={[
+              constants.colors.primaryColor,
+              constants.colors.primaryColor,
+            ]}
           />
           <ButtonComponent
             title={"Reset Password"}
-            color={constants.colors.superRed}
+            color={constants.colors.white}
             colors={["#FFEBEE", "#FFEBEE"]}
             textStyle={{ fontSize: 16 }}
             onPress={() => this.props.navigation.navigate("Reset")}
@@ -955,13 +959,21 @@ class Signup extends React.Component {
               alignSelf: "center",
               marginTop: Scale.moderateScale(24),
             }}
+            colors={[
+              constants.colors.appLightGrey,
+              constants.colors.appLightGrey,
+            ]}
           />
           <ButtonComponent
             title={"Logout"}
-            color={constants.colors.superRed}
+            color={constants.colors.white}
             colors={["#FFEBEE", "#FFEBEE"]}
             textStyle={{ fontSize: 16 }}
             onPress={this.logout}
+            colors={[
+              constants.colors.appLightGrey,
+              constants.colors.appLightGrey,
+            ]}
             containerStyle={{
               width: width - Scale.moderateScale(30),
               alignSelf: "center",
